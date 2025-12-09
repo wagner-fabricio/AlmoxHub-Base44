@@ -1,0 +1,252 @@
+import React, { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+import { Button } from '@/components/ui/button';
+import { Plus, Loader2 } from 'lucide-react';
+import OSFilters from '@/components/os/OSFilters';
+import OSKanban from '@/components/os/OSKanban';
+import OSList from '@/components/os/OSList';
+import OSGallery from '@/components/os/OSGallery';
+import OSFormModal from '@/components/os/OSFormModal';
+import OSDetailModal from '@/components/os/OSDetailModal';
+
+export default function OrdensServico() {
+  const [loading, setLoading] = useState(true);
+  const [ordens, setOrdens] = useState([]);
+  const [regionais, setRegionais] = useState([]);
+  const [almoxarifados, setAlmoxarifados] = useState([]);
+  const [pessoas, setPessoas] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [subcategorias, setSubcategorias] = useState([]);
+  const [projetos, setProjetos] = useState([]);
+  const [instalacoes, setInstalacoes] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [currentPessoa, setCurrentPessoa] = useState(null);
+  
+  const [viewMode, setViewMode] = useState('kanban');
+  const [filters, setFilters] = useState({
+    search: '',
+    regional: 'all',
+    categoria: 'all',
+    prioridade: 'all',
+    status: 'all',
+    visao: 'todos'
+  });
+
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedOS, setSelectedOS] = useState(null);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [user, ordensData, regionaisData, almoxarifadosData, pessoasData, categoriasData, subcategoriasData, projetosData, instalacoesData] = await Promise.all([
+        base44.auth.me(),
+        base44.entities.OrdemServico.list(),
+        base44.entities.Regional.list(),
+        base44.entities.Almoxarifado.list(),
+        base44.entities.Pessoa.list(),
+        base44.entities.Categoria.list(),
+        base44.entities.Subcategoria.list(),
+        base44.entities.Projeto.list(),
+        base44.entities.Instalacao.list()
+      ]);
+      
+      setCurrentUser(user);
+      const pessoa = pessoasData.find(p => p.email === user.email);
+      setCurrentPessoa(pessoa);
+      
+      setOrdens(ordensData);
+      setRegionais(regionaisData);
+      setAlmoxarifados(almoxarifadosData);
+      setPessoas(pessoasData);
+      setCategorias(categoriasData);
+      setSubcategorias(subcategoriasData);
+      setProjetos(projetosData);
+      setInstalacoes(instalacoesData);
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Apply filters
+  const filteredOrdens = ordens.filter(os => {
+    // Search
+    if (filters.search) {
+      const search = filters.search.toLowerCase();
+      const matchesSearch = 
+        os.codigo?.toLowerCase().includes(search) ||
+        os.descricao_resumida?.toLowerCase().includes(search);
+      if (!matchesSearch) return false;
+    }
+    
+    // Regional filter
+    if (filters.regional !== 'all' && os.regional_id !== filters.regional) return false;
+    
+    // Categoria filter
+    if (filters.categoria !== 'all' && os.categoria_id !== filters.categoria) return false;
+    
+    // Prioridade filter
+    if (filters.prioridade !== 'all' && os.prioridade !== filters.prioridade) return false;
+    
+    // Status filter
+    if (filters.status !== 'all' && os.status !== filters.status) return false;
+    
+    // Visão filter (permission based)
+    if (filters.visao === 'regional' && currentPessoa) {
+      if (os.regional_id !== currentPessoa.regional_id) return false;
+    }
+    if (filters.visao === 'meus' && currentPessoa) {
+      if (os.lider_id !== currentPessoa.id && !os.outros_envolvidos_ids?.includes(currentPessoa.id)) return false;
+    }
+    
+    return true;
+  });
+
+  const handleOSClick = (os) => {
+    setSelectedOS(os);
+    setShowDetailModal(true);
+  };
+
+  const handleStatusChange = async (osId, newStatus) => {
+    try {
+      await base44.entities.OrdemServico.update(osId, { status: newStatus });
+      setOrdens(ordens.map(os => os.id === osId ? { ...os, status: newStatus } : os));
+    } catch (error) {
+      console.error('Error updating status:', error);
+    }
+  };
+
+  const handleNewOS = () => {
+    setSelectedOS(null);
+    setShowFormModal(true);
+  };
+
+  const handleEditOS = () => {
+    setShowDetailModal(false);
+    setShowFormModal(true);
+  };
+
+  const handleFormSave = () => {
+    loadData();
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 lg:p-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+          <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">Ordens de Serviço</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Gerencie as OS do almoxarifado</p>
+        </div>
+        <Button onClick={handleNewOS} className="bg-blue-600 hover:bg-blue-700">
+          <Plus className="w-4 h-4 mr-2" />
+          Nova OS
+        </Button>
+      </div>
+
+      {/* Filters */}
+      <OSFilters
+        filters={filters}
+        setFilters={setFilters}
+        regionais={regionais}
+        categorias={categorias}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+      />
+
+      {/* Content */}
+      {filteredOrdens.length === 0 ? (
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-12 text-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
+            <Plus className="w-8 h-8 text-slate-400" />
+          </div>
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+            Nenhuma OS encontrada
+          </h3>
+          <p className="text-slate-500 dark:text-slate-400 mb-4">
+            Crie sua primeira ordem de serviço para começar
+          </p>
+          <Button onClick={handleNewOS}>
+            <Plus className="w-4 h-4 mr-2" />
+            Criar OS
+          </Button>
+        </div>
+      ) : (
+        <>
+          {viewMode === 'kanban' && (
+            <OSKanban
+              ordens={filteredOrdens}
+              pessoas={pessoas}
+              categorias={categorias}
+              regionais={regionais}
+              onOSClick={handleOSClick}
+              onStatusChange={handleStatusChange}
+            />
+          )}
+          {viewMode === 'list' && (
+            <OSList
+              ordens={filteredOrdens}
+              pessoas={pessoas}
+              categorias={categorias}
+              regionais={regionais}
+              onOSClick={handleOSClick}
+            />
+          )}
+          {viewMode === 'gallery' && (
+            <OSGallery
+              ordens={filteredOrdens}
+              pessoas={pessoas}
+              categorias={categorias}
+              regionais={regionais}
+              onOSClick={handleOSClick}
+            />
+          )}
+        </>
+      )}
+
+      {/* Form Modal */}
+      <OSFormModal
+        open={showFormModal}
+        onClose={() => setShowFormModal(false)}
+        os={selectedOS}
+        regionais={regionais}
+        almoxarifados={almoxarifados}
+        pessoas={pessoas}
+        categorias={categorias}
+        subcategorias={subcategorias}
+        projetos={projetos}
+        instalacoes={instalacoes}
+        currentUser={currentUser}
+        onSave={handleFormSave}
+      />
+
+      {/* Detail Modal */}
+      <OSDetailModal
+        open={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
+        os={selectedOS}
+        regionais={regionais}
+        almoxarifados={almoxarifados}
+        pessoas={pessoas}
+        categorias={categorias}
+        subcategorias={subcategorias}
+        onEdit={handleEditOS}
+        onRefresh={loadData}
+      />
+    </div>
+  );
+}
