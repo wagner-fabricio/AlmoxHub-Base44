@@ -20,9 +20,12 @@ export default function Dashboard() {
   const [ordens, setOrdens] = useState([]);
   const [regionais, setRegionais] = useState([]);
   const [categorias, setCategorias] = useState([]);
+  const [subcategorias, setSubcategorias] = useState([]);
   const [almoxarifados, setAlmoxarifados] = useState([]);
   const [filters, setFilters] = useState({
     regional: 'all',
+    categoria: 'all',
+    subcategoria: 'all',
     periodo: '30'
   });
 
@@ -33,15 +36,17 @@ export default function Dashboard() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [ordensData, regionaisData, categoriasData, almoxarifadosData] = await Promise.all([
+      const [ordensData, regionaisData, categoriasData, subcategoriasData, almoxarifadosData] = await Promise.all([
         base44.entities.OrdemServico.list(),
         base44.entities.Regional.list(),
         base44.entities.Categoria.list(),
+        base44.entities.Subcategoria.list(),
         base44.entities.Almoxarifado.list()
       ]);
       setOrdens(ordensData);
       setRegionais(regionaisData);
       setCategorias(categoriasData);
+      setSubcategorias(subcategoriasData);
       setAlmoxarifados(almoxarifadosData);
     } catch (error) {
       console.error('Error loading data:', error);
@@ -53,6 +58,8 @@ export default function Dashboard() {
   // Filter data
   const filteredOrdens = ordens.filter(os => {
     if (filters.regional !== 'all' && os.regional_id !== filters.regional) return false;
+    if (filters.categoria !== 'all' && os.categoria_id !== filters.categoria) return false;
+    if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
     if (filters.periodo !== 'all') {
       const days = parseInt(filters.periodo);
       const cutoff = subDays(new Date(), days);
@@ -60,6 +67,11 @@ export default function Dashboard() {
     }
     return true;
   });
+
+  // Subcategorias filtradas pela categoria selecionada
+  const filteredSubcategorias = filters.categoria === 'all' 
+    ? subcategorias 
+    : subcategorias.filter(s => s.categoria_id === filters.categoria);
 
   // KPIs
   const totalOS = filteredOrdens.length;
@@ -126,7 +138,7 @@ export default function Dashboard() {
           <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">Dashboard</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">Visão geral das operações</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap">
           <Select value={filters.regional} onValueChange={(v) => setFilters({ ...filters, regional: v })}>
             <SelectTrigger className="w-40 bg-white dark:bg-slate-800">
               <SelectValue placeholder="Regional" />
@@ -135,6 +147,32 @@ export default function Dashboard() {
               <SelectItem value="all">Todas Regionais</SelectItem>
               {regionais.map(r => (
                 <SelectItem key={r.id} value={r.id}>{r.sigla}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={filters.categoria} onValueChange={(v) => setFilters({ ...filters, categoria: v, subcategoria: 'all' })}>
+            <SelectTrigger className="w-44 bg-white dark:bg-slate-800">
+              <SelectValue placeholder="Categoria" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas Categorias</SelectItem>
+              {categorias.map(c => (
+                <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select 
+            value={filters.subcategoria} 
+            onValueChange={(v) => setFilters({ ...filters, subcategoria: v })}
+            disabled={filters.categoria === 'all'}
+          >
+            <SelectTrigger className="w-44 bg-white dark:bg-slate-800">
+              <SelectValue placeholder="Subcategoria" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas Subcategorias</SelectItem>
+              {filteredSubcategorias.map(s => (
+                <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
               ))}
             </SelectContent>
           </Select>
