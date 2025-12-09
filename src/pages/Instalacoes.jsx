@@ -52,13 +52,19 @@ export default function Instalacoes() {
   const [search, setSearch] = useState('');
   const [filterRegional, setFilterRegional] = useState('all');
   const [filterClassificacao, setFilterClassificacao] = useState('all');
+  const [filterCidade, setFilterCidade] = useState('all');
+  const [filterEstado, setFilterEstado] = useState('all');
   
   const [showModal, setShowModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [formData, setFormData] = useState({
     nome: '',
-    endereco: '',
+    logradouro: '',
+    numero: '',
+    complemento: '',
+    cidade: '',
+    estado: '',
     cep: '',
     latitude: '',
     longitude: '',
@@ -90,7 +96,11 @@ export default function Instalacoes() {
     setSelectedItem(null);
     setFormData({
       nome: '',
-      endereco: '',
+      logradouro: '',
+      numero: '',
+      complemento: '',
+      cidade: '',
+      estado: '',
       cep: '',
       latitude: '',
       longitude: '',
@@ -104,7 +114,11 @@ export default function Instalacoes() {
     setSelectedItem(item);
     setFormData({
       nome: item.nome || '',
-      endereco: item.endereco || '',
+      logradouro: item.logradouro || '',
+      numero: item.numero || '',
+      complemento: item.complemento || '',
+      cidade: item.cidade || '',
+      estado: item.estado || '',
       cep: item.cep || '',
       latitude: item.latitude || '',
       longitude: item.longitude || '',
@@ -150,16 +164,22 @@ export default function Instalacoes() {
     }
   };
 
+  const cidades = [...new Set(instalacoes.map(i => i.cidade).filter(Boolean))].sort();
+  const estados = [...new Set(instalacoes.map(i => i.estado).filter(Boolean))].sort();
+
   const filteredInstalacoes = instalacoes.filter(inst => {
     const matchesSearch = 
       inst.nome?.toLowerCase().includes(search.toLowerCase()) ||
-      inst.endereco?.toLowerCase().includes(search.toLowerCase()) ||
+      inst.logradouro?.toLowerCase().includes(search.toLowerCase()) ||
+      inst.cidade?.toLowerCase().includes(search.toLowerCase()) ||
       inst.cep?.toLowerCase().includes(search.toLowerCase());
     
     const matchesRegional = filterRegional === 'all' || inst.regional_id === filterRegional;
     const matchesClassificacao = filterClassificacao === 'all' || inst.classificacao === filterClassificacao;
+    const matchesCidade = filterCidade === 'all' || inst.cidade === filterCidade;
+    const matchesEstado = filterEstado === 'all' || inst.estado === filterEstado;
     
-    return matchesSearch && matchesRegional && matchesClassificacao;
+    return matchesSearch && matchesRegional && matchesClassificacao && matchesCidade && matchesEstado;
   });
 
   if (loading) {
@@ -186,39 +206,65 @@ export default function Instalacoes() {
 
       {/* Filters */}
       <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 mb-6">
-        <div className="flex flex-col lg:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <Input
-              placeholder="Buscar por nome, endereço ou CEP..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 bg-slate-50 dark:bg-slate-900"
-            />
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Input
+                placeholder="Buscar por nome, endereço ou CEP..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-10 bg-slate-50 dark:bg-slate-900"
+              />
+            </div>
+            <Select value={filterRegional} onValueChange={setFilterRegional}>
+              <SelectTrigger className="w-full lg:w-48 bg-slate-50 dark:bg-slate-900">
+                <SelectValue placeholder="Regional" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas Regionais</SelectItem>
+                {regionais.map((r) => (
+                  <SelectItem key={r.id} value={r.id}>{r.sigla}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={filterClassificacao} onValueChange={setFilterClassificacao}>
+              <SelectTrigger className="w-full lg:w-48 bg-slate-50 dark:bg-slate-900">
+                <SelectValue placeholder="Classificação" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas</SelectItem>
+                <SelectItem value="Usina">Usina</SelectItem>
+                <SelectItem value="Subestação">Subestação</SelectItem>
+                <SelectItem value="Almoxarifado">Almoxarifado</SelectItem>
+                <SelectItem value="Outros">Outros</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <Select value={filterRegional} onValueChange={setFilterRegional}>
-            <SelectTrigger className="w-full lg:w-48 bg-slate-50 dark:bg-slate-900">
-              <SelectValue placeholder="Regional" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas Regionais</SelectItem>
-              {regionais.map((r) => (
-                <SelectItem key={r.id} value={r.id}>{r.sigla}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={filterClassificacao} onValueChange={setFilterClassificacao}>
-            <SelectTrigger className="w-full lg:w-48 bg-slate-50 dark:bg-slate-900">
-              <SelectValue placeholder="Classificação" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas</SelectItem>
-              <SelectItem value="Usina">Usina</SelectItem>
-              <SelectItem value="Subestação">Subestação</SelectItem>
-              <SelectItem value="Almoxarifado">Almoxarifado</SelectItem>
-              <SelectItem value="Outros">Outros</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex flex-col lg:flex-row gap-4">
+            <Select value={filterEstado} onValueChange={setFilterEstado}>
+              <SelectTrigger className="w-full lg:w-48 bg-slate-50 dark:bg-slate-900">
+                <SelectValue placeholder="Estado" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos Estados</SelectItem>
+                {estados.map((e) => (
+                  <SelectItem key={e} value={e}>{e}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={filterCidade} onValueChange={setFilterCidade}>
+              <SelectTrigger className="w-full lg:w-48 bg-slate-50 dark:bg-slate-900">
+                <SelectValue placeholder="Cidade" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas Cidades</SelectItem>
+                {cidades.map((c) => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
@@ -230,7 +276,8 @@ export default function Instalacoes() {
               <TableHead>Nome</TableHead>
               <TableHead>Classificação</TableHead>
               <TableHead>Endereço</TableHead>
-              <TableHead>CEP</TableHead>
+              <TableHead>Cidade</TableHead>
+              <TableHead>Estado</TableHead>
               <TableHead>Regional</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
@@ -238,7 +285,7 @@ export default function Instalacoes() {
           <TableBody>
             {filteredInstalacoes.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-12 text-slate-500">
+                <TableCell colSpan={7} className="text-center py-12 text-slate-500">
                   <Building2 className="w-12 h-12 mx-auto mb-3 text-slate-300" />
                   <p>Nenhuma instalação encontrada</p>
                 </TableCell>
@@ -246,6 +293,7 @@ export default function Instalacoes() {
             ) : (
               filteredInstalacoes.map((inst) => {
                 const regional = regionais.find(r => r.id === inst.regional_id);
+                const enderecoCompleto = [inst.logradouro, inst.numero].filter(Boolean).join(', ');
                 return (
                   <TableRow key={inst.id}>
                     <TableCell className="font-medium">{inst.nome}</TableCell>
@@ -254,8 +302,9 @@ export default function Instalacoes() {
                         {inst.classificacao}
                       </Badge>
                     </TableCell>
-                    <TableCell className="max-w-xs truncate">{inst.endereco}</TableCell>
-                    <TableCell>{inst.cep || '-'}</TableCell>
+                    <TableCell className="max-w-xs truncate">{enderecoCompleto || '-'}</TableCell>
+                    <TableCell>{inst.cidade || '-'}</TableCell>
+                    <TableCell>{inst.estado || '-'}</TableCell>
                     <TableCell>
                       {regional ? (
                         <span className="flex items-center gap-2">
@@ -309,11 +358,44 @@ export default function Instalacoes() {
               />
             </div>
             <div className="md:col-span-2">
-              <Label>Endereço *</Label>
+              <Label>Logradouro *</Label>
               <Input
-                value={formData.endereco}
-                onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
-                placeholder="Endereço completo"
+                value={formData.logradouro}
+                onChange={(e) => setFormData({ ...formData, logradouro: e.target.value })}
+                placeholder="Rua, Avenida, etc"
+              />
+            </div>
+            <div>
+              <Label>Número</Label>
+              <Input
+                value={formData.numero}
+                onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
+                placeholder="123"
+              />
+            </div>
+            <div>
+              <Label>Complemento</Label>
+              <Input
+                value={formData.complemento}
+                onChange={(e) => setFormData({ ...formData, complemento: e.target.value })}
+                placeholder="Apto, Bloco, etc"
+              />
+            </div>
+            <div>
+              <Label>Cidade *</Label>
+              <Input
+                value={formData.cidade}
+                onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
+                placeholder="São Paulo"
+              />
+            </div>
+            <div>
+              <Label>Estado (UF) *</Label>
+              <Input
+                value={formData.estado}
+                onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
+                placeholder="SP"
+                maxLength={2}
               />
             </div>
             <div>
@@ -386,7 +468,7 @@ export default function Instalacoes() {
             </Button>
             <Button
               onClick={handleSave}
-              disabled={!formData.nome || !formData.endereco || !formData.classificacao}
+              disabled={!formData.nome || !formData.logradouro || !formData.cidade || !formData.estado || !formData.classificacao}
             >
               Salvar
             </Button>
