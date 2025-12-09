@@ -25,7 +25,6 @@ export default function OSFilters({
       regional: 'all',
       categoria: 'all',
       subcategoria: 'all',
-      prioridade: 'all',
       status: 'all',
       visao: 'todos'
     });
@@ -36,7 +35,6 @@ export default function OSFilters({
     filters.regional !== 'all' || 
     filters.categoria !== 'all' || 
     filters.subcategoria !== 'all' ||
-    filters.prioridade !== 'all' ||
     filters.status !== 'all';
 
   const filteredSubcategorias = filters.categoria === 'all' 
@@ -116,22 +114,6 @@ export default function OSFilters({
               {filteredSubcategorias.map((s) => (
                 <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
               ))}
-            </SelectContent>
-          </Select>
-
-          <Select
-            value={filters.prioridade}
-            onValueChange={(value) => setFilters({ ...filters, prioridade: value })}
-          >
-            <SelectTrigger className="w-36 bg-slate-50 dark:bg-slate-900">
-              <SelectValue placeholder="Prioridade" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas</SelectItem>
-              <SelectItem value="baixa">Baixa</SelectItem>
-              <SelectItem value="media">Média</SelectItem>
-              <SelectItem value="alta">Alta</SelectItem>
-              <SelectItem value="urgente">Urgente</SelectItem>
             </SelectContent>
           </Select>
 

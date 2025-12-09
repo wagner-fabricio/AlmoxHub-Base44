@@ -28,7 +28,6 @@ export default function OrdensServico() {
     regional: 'all',
     categoria: 'all',
     subcategoria: 'all',
-    prioridade: 'all',
     status: 'all',
     visao: 'todos'
   });
@@ -94,9 +93,6 @@ export default function OrdensServico() {
     
     // Subcategoria filter
     if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
-    
-    // Prioridade filter
-    if (filters.prioridade !== 'all' && os.prioridade !== filters.prioridade) return false;
     
     // Status filter
     if (filters.status !== 'all' && os.status !== filters.status) return false;
