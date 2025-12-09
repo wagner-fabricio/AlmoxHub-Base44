@@ -5,6 +5,7 @@ import Almoxarifados from './pages/Almoxarifados';
 import Pessoas from './pages/Pessoas';
 import Categorias from './pages/Categorias';
 import Projetos from './pages/Projetos';
+import Instalacoes from './pages/Instalacoes';
 import __Layout from './Layout.jsx';
 
 
@@ -16,6 +17,7 @@ export const PAGES = {
     "Pessoas": Pessoas,
     "Categorias": Categorias,
     "Projetos": Projetos,
+    "Instalacoes": Instalacoes,
 }
 
 export const pagesConfig = {
