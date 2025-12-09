@@ -2,6 +2,9 @@ import Dashboard from './pages/Dashboard';
 import OrdensServico from './pages/OrdensServico';
 import Regionais from './pages/Regionais';
 import Almoxarifados from './pages/Almoxarifados';
+import Pessoas from './pages/Pessoas';
+import Categorias from './pages/Categorias';
+import Projetos from './pages/Projetos';
 import __Layout from './Layout.jsx';
 
 
@@ -10,6 +13,9 @@ export const PAGES = {
     "OrdensServico": OrdensServico,
     "Regionais": Regionais,
     "Almoxarifados": Almoxarifados,
+    "Pessoas": Pessoas,
+    "Categorias": Categorias,
+    "Projetos": Projetos,
 }
 
 export const pagesConfig = {
