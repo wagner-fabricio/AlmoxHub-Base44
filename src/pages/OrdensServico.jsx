@@ -27,6 +27,7 @@ export default function OrdensServico() {
     search: '',
     regional: 'all',
     categoria: 'all',
+    subcategoria: 'all',
     prioridade: 'all',
     status: 'all',
     visao: 'todos'
@@ -164,6 +165,7 @@ export default function OrdensServico() {
         setFilters={setFilters}
         regionais={regionais}
         categorias={categorias}
+        subcategorias={subcategorias}
         viewMode={viewMode}
         setViewMode={setViewMode}
       />

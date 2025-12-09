@@ -15,6 +15,7 @@ export default function OSFilters({
   setFilters, 
   regionais, 
   categorias,
+  subcategorias,
   viewMode,
   setViewMode 
 }) {
@@ -23,6 +24,7 @@ export default function OSFilters({
       search: '',
       regional: 'all',
       categoria: 'all',
+      subcategoria: 'all',
       prioridade: 'all',
       status: 'all',
       visao: 'todos'
@@ -33,8 +35,13 @@ export default function OSFilters({
     filters.search || 
     filters.regional !== 'all' || 
     filters.categoria !== 'all' || 
+    filters.subcategoria !== 'all' ||
     filters.prioridade !== 'all' ||
     filters.status !== 'all';
+
+  const filteredSubcategorias = filters.categoria === 'all' 
+    ? subcategorias 
+    : subcategorias.filter(s => s.categoria_id === filters.categoria);
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 mb-6">
@@ -83,7 +90,7 @@ export default function OSFilters({
 
           <Select
             value={filters.categoria}
-            onValueChange={(value) => setFilters({ ...filters, categoria: value })}
+            onValueChange={(value) => setFilters({ ...filters, categoria: value, subcategoria: 'all' })}
           >
             <SelectTrigger className="w-40 bg-slate-50 dark:bg-slate-900">
               <SelectValue placeholder="Categoria" />
@@ -92,6 +99,22 @@ export default function OSFilters({
               <SelectItem value="all">Todas Categorias</SelectItem>
               {categorias.map((c) => (
                 <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={filters.subcategoria}
+            onValueChange={(value) => setFilters({ ...filters, subcategoria: value })}
+            disabled={filters.categoria === 'all'}
+          >
+            <SelectTrigger className="w-40 bg-slate-50 dark:bg-slate-900">
+              <SelectValue placeholder="Subcategoria" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas Subcategorias</SelectItem>
+              {filteredSubcategorias.map((s) => (
+                <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
               ))}
             </SelectContent>
           </Select>
