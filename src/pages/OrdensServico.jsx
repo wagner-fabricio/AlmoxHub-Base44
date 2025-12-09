@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Plus, Loader2 } from 'lucide-react';
-import OSFilters from '@/components/os/OSFilters';
-import OSKanban from '@/components/os/OSKanban';
-import OSList from '@/components/os/OSList';
-import OSGallery from '@/components/os/OSGallery';
-import OSFormModal from '@/components/os/OSFormModal';
-import OSDetailModal from '@/components/os/OSDetailModal';
+import OSFilters from '@/components/os/OSFilters.jsx';
+import OSKanban from '@/components/os/OSKanban.jsx';
+import OSList from '@/components/os/OSList.jsx';
+import OSGallery from '@/components/os/OSGallery.jsx';
+import OSFormModal from '@/components/os/OSFormModal.jsx';
+import OSDetailModal from '@/components/os/OSDetailModal.jsx';
 
 export default function OrdensServico() {
   const [loading, setLoading] = useState(true);
