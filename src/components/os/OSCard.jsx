@@ -1,0 +1,116 @@
+import React from 'react';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Calendar, User, Paperclip, MessageSquare, AlertTriangle, Clock } from 'lucide-react';
+import { format, isPast, isToday } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+
+const prioridadeConfig = {
+  baixa: { color: 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300', label: 'Baixa' },
+  media: { color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300', label: 'Média' },
+  alta: { color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300', label: 'Alta' },
+  urgente: { color: 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300', label: 'Urgente' },
+};
+
+const statusConfig = {
+  elaboracao: { color: 'bg-slate-500', label: 'Em Elaboração' },
+  execucao: { color: 'bg-blue-500', label: 'Em Execução' },
+  concluido: { color: 'bg-green-500', label: 'Concluído' },
+  cancelado: { color: 'bg-red-500', label: 'Cancelado' },
+};
+
+export default function OSCard({ os, onClick, lider, categoria, regional }) {
+  const prazoDate = os.prazo ? new Date(os.prazo) : null;
+  const isOverdue = prazoDate && isPast(prazoDate) && os.status !== 'concluido';
+  const isDueToday = prazoDate && isToday(prazoDate);
+
+  return (
+    <Card 
+      className="p-4 cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 bg-white dark:bg-slate-800 group"
+      style={{ borderLeftColor: statusConfig[os.status]?.color?.replace('bg-', '') || '#64748b' }}
+      onClick={() => onClick?.(os)}
+    >
+      {/* Header */}
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <div className="flex-1 min-w-0">
+          <span className="text-xs font-mono text-slate-500 dark:text-slate-400 block mb-1">
+            {os.codigo}
+          </span>
+          <h3 className="font-medium text-slate-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            {categoria?.nome || 'Sem Categoria'}
+          </h3>
+        </div>
+        <Badge className={prioridadeConfig[os.prioridade]?.color || prioridadeConfig.media.color}>
+          {prioridadeConfig[os.prioridade]?.label || 'Média'}
+        </Badge>
+      </div>
+
+      {/* Description */}
+      {os.descricao_resumida && (
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 line-clamp-2">
+          {os.descricao_resumida}
+        </p>
+      )}
+
+      {/* Progress Bar */}
+      <div className="mb-3">
+        <div className="flex items-center justify-between text-xs mb-1">
+          <span className="text-slate-500 dark:text-slate-400">Progresso</span>
+          <span className="font-medium text-slate-700 dark:text-slate-300">{os.progresso || 0}%</span>
+        </div>
+        <div className="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500"
+            style={{ width: `${os.progresso || 0}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Tags */}
+      <div className="flex flex-wrap gap-1.5 mb-3">
+        {regional && (
+          <Badge variant="outline" className="text-xs">
+            {regional.sigla}
+          </Badge>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700">
+        <div className="flex items-center gap-2">
+          <Avatar className="w-6 h-6">
+            <AvatarFallback className="text-xs bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+              {lider?.nome?.charAt(0) || 'U'}
+            </AvatarFallback>
+          </Avatar>
+          <span className="text-xs text-slate-600 dark:text-slate-400 truncate max-w-[100px]">
+            {lider?.nome || 'Não atribuído'}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400">
+          {os.anexos?.length > 0 && (
+            <div className="flex items-center gap-1 text-xs">
+              <Paperclip className="w-3.5 h-3.5" />
+              <span>{os.anexos.length}</span>
+            </div>
+          )}
+          
+          {prazoDate && (
+            <div className={`flex items-center gap-1 text-xs ${
+              isOverdue ? 'text-red-500' : isDueToday ? 'text-amber-500' : ''
+            }`}>
+              {isOverdue ? (
+                <AlertTriangle className="w-3.5 h-3.5" />
+              ) : (
+                <Calendar className="w-3.5 h-3.5" />
+              )}
+              <span>{format(prazoDate, 'dd/MM', { locale: ptBR })}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </Card>
+  );
+}
