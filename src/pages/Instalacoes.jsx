@@ -206,65 +206,61 @@ export default function Instalacoes() {
 
       {/* Filters */}
       <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 mb-6">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input
-                placeholder="Buscar por nome, endereço ou CEP..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 bg-slate-50 dark:bg-slate-900"
-              />
-            </div>
-            <Select value={filterRegional} onValueChange={setFilterRegional}>
-              <SelectTrigger className="w-full lg:w-48 bg-slate-50 dark:bg-slate-900">
-                <SelectValue placeholder="Regional" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas Regionais</SelectItem>
-                {regionais.map((r) => (
-                  <SelectItem key={r.id} value={r.id}>{r.sigla}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={filterClassificacao} onValueChange={setFilterClassificacao}>
-              <SelectTrigger className="w-full lg:w-48 bg-slate-50 dark:bg-slate-900">
-                <SelectValue placeholder="Classificação" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
-                <SelectItem value="Usina">Usina</SelectItem>
-                <SelectItem value="Subestação">Subestação</SelectItem>
-                <SelectItem value="Almoxarifado">Almoxarifado</SelectItem>
-                <SelectItem value="Outros">Outros</SelectItem>
-              </SelectContent>
-            </Select>
+        <div className="flex flex-col lg:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input
+              placeholder="Buscar por nome, endereço ou CEP..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10 bg-slate-50 dark:bg-slate-900"
+            />
           </div>
-          <div className="flex flex-col lg:flex-row gap-4">
-            <Select value={filterEstado} onValueChange={setFilterEstado}>
-              <SelectTrigger className="w-full lg:w-48 bg-slate-50 dark:bg-slate-900">
-                <SelectValue placeholder="Estado" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos Estados</SelectItem>
-                {estados.map((e) => (
-                  <SelectItem key={e} value={e}>{e}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={filterCidade} onValueChange={setFilterCidade}>
-              <SelectTrigger className="w-full lg:w-48 bg-slate-50 dark:bg-slate-900">
-                <SelectValue placeholder="Cidade" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas Cidades</SelectItem>
-                {cidades.map((c) => (
-                  <SelectItem key={c} value={c}>{c}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <Select value={filterRegional} onValueChange={setFilterRegional}>
+            <SelectTrigger className="w-full lg:w-36 bg-slate-50 dark:bg-slate-900">
+              <SelectValue placeholder="Regional" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              {regionais.map((r) => (
+                <SelectItem key={r.id} value={r.id}>{r.sigla}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={filterClassificacao} onValueChange={setFilterClassificacao}>
+            <SelectTrigger className="w-full lg:w-40 bg-slate-50 dark:bg-slate-900">
+              <SelectValue placeholder="Classificação" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              <SelectItem value="Usina">Usina</SelectItem>
+              <SelectItem value="Subestação">Subestação</SelectItem>
+              <SelectItem value="Almoxarifado">Almoxarifado</SelectItem>
+              <SelectItem value="Outros">Outros</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={filterEstado} onValueChange={setFilterEstado}>
+            <SelectTrigger className="w-full lg:w-32 bg-slate-50 dark:bg-slate-900">
+              <SelectValue placeholder="Estado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              {estados.map((e) => (
+                <SelectItem key={e} value={e}>{e}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={filterCidade} onValueChange={setFilterCidade}>
+            <SelectTrigger className="w-full lg:w-40 bg-slate-50 dark:bg-slate-900">
+              <SelectValue placeholder="Cidade" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              {cidades.map((c) => (
+                <SelectItem key={c} value={c}>{c}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
