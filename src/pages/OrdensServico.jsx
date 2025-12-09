@@ -92,6 +92,9 @@ export default function OrdensServico() {
     // Categoria filter
     if (filters.categoria !== 'all' && os.categoria_id !== filters.categoria) return false;
     
+    // Subcategoria filter
+    if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
+    
     // Prioridade filter
     if (filters.prioridade !== 'all' && os.prioridade !== filters.prioridade) return false;
     
