@@ -22,12 +22,28 @@ export default function Dashboard() {
   const [categorias, setCategorias] = useState([]);
   const [subcategorias, setSubcategorias] = useState([]);
   const [almoxarifados, setAlmoxarifados] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
   const [filters, setFilters] = useState({
     regional: 'all',
     categoria: 'all',
     subcategoria: 'all',
     periodo: '30'
   });
+
+  const updateFilters = async (newFilters) => {
+    setFilters(newFilters);
+    try {
+      const savedFilters = currentUser?.filtros_preferidos || {};
+      await base44.auth.updateMe({
+        filtros_preferidos: {
+          ...savedFilters,
+          Dashboard: newFilters
+        }
+      });
+    } catch (e) {
+      console.error('Error saving filters:', e);
+    }
+  };
 
   useEffect(() => {
     loadData();
@@ -36,18 +52,24 @@ export default function Dashboard() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [ordensData, regionaisData, categoriasData, subcategoriasData, almoxarifadosData] = await Promise.all([
+      const [user, ordensData, regionaisData, categoriasData, subcategoriasData, almoxarifadosData] = await Promise.all([
+        base44.auth.me(),
         base44.entities.OrdemServico.list(),
         base44.entities.Regional.list(),
         base44.entities.Categoria.list(),
         base44.entities.Subcategoria.list(),
         base44.entities.Almoxarifado.list()
       ]);
+      setCurrentUser(user);
       setOrdens(ordensData);
       setRegionais(regionaisData);
       setCategorias(categoriasData);
       setSubcategorias(subcategoriasData);
       setAlmoxarifados(almoxarifadosData);
+
+      if (user.filtros_preferidos?.Dashboard) {
+        setFilters(user.filtros_preferidos.Dashboard);
+      }
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -139,7 +161,7 @@ export default function Dashboard() {
           <p className="text-slate-500 dark:text-slate-400 mt-1">Visão geral das operações</p>
         </div>
         <div className="flex gap-3 flex-wrap">
-          <Select value={filters.regional} onValueChange={(v) => setFilters({ ...filters, regional: v })}>
+          <Select value={filters.regional} onValueChange={(v) => updateFilters({ ...filters, regional: v })}>
             <SelectTrigger className="w-40 bg-white dark:bg-slate-800">
               <SelectValue placeholder="Regional" />
             </SelectTrigger>
@@ -150,7 +172,7 @@ export default function Dashboard() {
               ))}
             </SelectContent>
           </Select>
-          <Select value={filters.categoria} onValueChange={(v) => setFilters({ ...filters, categoria: v, subcategoria: 'all' })}>
+          <Select value={filters.categoria} onValueChange={(v) => updateFilters({ ...filters, categoria: v, subcategoria: 'all' })}>
             <SelectTrigger className="w-44 bg-white dark:bg-slate-800">
               <SelectValue placeholder="Categoria" />
             </SelectTrigger>
@@ -163,7 +185,7 @@ export default function Dashboard() {
           </Select>
           <Select 
             value={filters.subcategoria} 
-            onValueChange={(v) => setFilters({ ...filters, subcategoria: v })}
+            onValueChange={(v) => updateFilters({ ...filters, subcategoria: v })}
             disabled={filters.categoria === 'all'}
           >
             <SelectTrigger className="w-44 bg-white dark:bg-slate-800">
@@ -176,7 +198,7 @@ export default function Dashboard() {
               ))}
             </SelectContent>
           </Select>
-          <Select value={filters.periodo} onValueChange={(v) => setFilters({ ...filters, periodo: v })}>
+          <Select value={filters.periodo} onValueChange={(v) => updateFilters({ ...filters, periodo: v })}>
             <SelectTrigger className="w-36 bg-white dark:bg-slate-800">
               <SelectValue />
             </SelectTrigger>

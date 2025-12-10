@@ -79,16 +79,41 @@ export default function Instalacoes() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [instalacoesData, regionaisData] = await Promise.all([
+      const [user, instalacoesData, regionaisData] = await Promise.all([
+        base44.auth.me(),
         base44.entities.Instalacao.list(),
         base44.entities.Regional.list()
       ]);
+      setCurrentUser(user);
       setInstalacoes(instalacoesData);
       setRegionais(regionaisData);
+
+      if (user.filtros_preferidos?.Instalacoes) {
+        const saved = user.filtros_preferidos.Instalacoes;
+        setSearch(saved.search || '');
+        setFilterRegional(saved.filterRegional || 'all');
+        setFilterClassificacao(saved.filterClassificacao || 'all');
+        setFilterCidade(saved.filterCidade || 'all');
+        setFilterEstado(saved.filterEstado || 'all');
+      }
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveFilters = async (filterUpdates) => {
+    try {
+      const savedFilters = currentUser?.filtros_preferidos || {};
+      await base44.auth.updateMe({
+        filtros_preferidos: {
+          ...savedFilters,
+          Instalacoes: filterUpdates
+        }
+      });
+    } catch (e) {
+      console.error('Error saving filters:', e);
     }
   };
 
@@ -212,11 +237,14 @@ export default function Instalacoes() {
             <Input
               placeholder="Buscar por nome, endereço ou CEP..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                saveFilters({ search: e.target.value, filterRegional, filterClassificacao, filterCidade, filterEstado });
+              }}
               className="pl-10 bg-slate-50 dark:bg-slate-900"
             />
           </div>
-          <Select value={filterRegional} onValueChange={setFilterRegional}>
+          <Select value={filterRegional} onValueChange={(v) => { setFilterRegional(v); saveFilters({ search, filterRegional: v, filterClassificacao, filterCidade, filterEstado }); }}>
             <SelectTrigger className="w-full lg:w-36 bg-slate-50 dark:bg-slate-900">
               <SelectValue placeholder="Regional" />
             </SelectTrigger>
@@ -227,7 +255,7 @@ export default function Instalacoes() {
               ))}
             </SelectContent>
           </Select>
-          <Select value={filterClassificacao} onValueChange={setFilterClassificacao}>
+          <Select value={filterClassificacao} onValueChange={(v) => { setFilterClassificacao(v); saveFilters({ search, filterRegional, filterClassificacao: v, filterCidade, filterEstado }); }}>
             <SelectTrigger className="w-full lg:w-40 bg-slate-50 dark:bg-slate-900">
               <SelectValue placeholder="Classificação" />
             </SelectTrigger>
@@ -239,7 +267,7 @@ export default function Instalacoes() {
               <SelectItem value="Outros">Outros</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={filterEstado} onValueChange={setFilterEstado}>
+          <Select value={filterEstado} onValueChange={(v) => { setFilterEstado(v); saveFilters({ search, filterRegional, filterClassificacao, filterCidade, filterEstado: v }); }}>
             <SelectTrigger className="w-full lg:w-32 bg-slate-50 dark:bg-slate-900">
               <SelectValue placeholder="Estado" />
             </SelectTrigger>
@@ -250,7 +278,7 @@ export default function Instalacoes() {
               ))}
             </SelectContent>
           </Select>
-          <Select value={filterCidade} onValueChange={setFilterCidade}>
+          <Select value={filterCidade} onValueChange={(v) => { setFilterCidade(v); saveFilters({ search, filterRegional, filterClassificacao, filterCidade: v, filterEstado }); }}>
             <SelectTrigger className="w-full lg:w-40 bg-slate-50 dark:bg-slate-900">
               <SelectValue placeholder="Cidade" />
             </SelectTrigger>

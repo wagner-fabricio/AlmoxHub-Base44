@@ -32,6 +32,21 @@ export default function OrdensServico() {
     visao: 'todos'
   });
 
+  const updateFilters = async (newFilters) => {
+    setFilters(newFilters);
+    try {
+      const savedFilters = currentUser?.filtros_preferidos || {};
+      await base44.auth.updateMe({
+        filtros_preferidos: {
+          ...savedFilters,
+          OrdensServico: newFilters
+        }
+      });
+    } catch (e) {
+      console.error('Error saving filters:', e);
+    }
+  };
+
   const [showFormModal, setShowFormModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedOS, setSelectedOS] = useState(null);
@@ -58,6 +73,10 @@ export default function OrdensServico() {
       setCurrentUser(user);
       const pessoa = pessoasData.find(p => p.email === user.email);
       setCurrentPessoa(pessoa);
+
+      if (user.filtros_preferidos?.OrdensServico) {
+        setFilters(user.filtros_preferidos.OrdensServico);
+      }
       
       setOrdens(ordensData);
       setRegionais(regionaisData);
@@ -161,7 +180,7 @@ export default function OrdensServico() {
       {/* Filters */}
       <OSFilters
         filters={filters}
-        setFilters={setFilters}
+        setFilters={updateFilters}
         regionais={regionais}
         categorias={categorias}
         subcategorias={subcategorias}
