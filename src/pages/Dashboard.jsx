@@ -646,12 +646,11 @@ export default function Dashboard() {
         {/* Map Section */}
         <Card className="bg-white dark:bg-slate-800">
         <CardHeader>
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-blue-500" />
-              Mapa de Instalações e Almoxarifados
-            </CardTitle>
-            <div className="flex flex-wrap items-center gap-4 text-sm">
+          <CardTitle className="text-lg font-semibold flex items-center gap-2 mb-3">
+            <MapPin className="w-5 h-5 text-blue-500" />
+            Mapa de Instalações e Almoxarifados
+          </CardTitle>
+          <div className="flex flex-wrap items-center gap-4 text-sm">
               <label className="flex items-center gap-2 cursor-pointer">
                 <Checkbox 
                   checked={mapFilters.usina}
