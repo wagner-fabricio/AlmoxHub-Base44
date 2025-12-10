@@ -669,14 +669,6 @@ export default function Dashboard() {
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <Checkbox 
-                  checked={mapFilters.almoxarifado}
-                  onCheckedChange={(checked) => setMapFilters({...mapFilters, almoxarifado: checked})}
-                />
-                <Warehouse className="w-4 h-4 text-amber-600" />
-                <span className="text-slate-700 dark:text-slate-300">Instalações Almox.</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <Checkbox 
                   checked={mapFilters.outros}
                   onCheckedChange={(checked) => setMapFilters({...mapFilters, outros: checked})}
                 />
