@@ -537,22 +537,39 @@ export default function Dashboard() {
         {/* Heatmap Section */}
         <Card className="bg-white dark:bg-slate-800">
           <CardHeader>
-            <div className="flex items-center justify-between gap-4">
-              <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-orange-500" />
-                Mapa de Calor - Expedições
-              </CardTitle>
-              <Select value={heatmapCriteria} onValueChange={setHeatmapCriteria}>
-                <SelectTrigger className="w-56 bg-white dark:bg-slate-800">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="quantidade_os">Quantidade de OS</SelectItem>
-                  <SelectItem value="valor_total">Valor Total dos Materiais</SelectItem>
-                  <SelectItem value="peso_total">Peso Total dos Volumes</SelectItem>
-                  <SelectItem value="quantidade_itens">Quantidade Total de Itens</SelectItem>
-                </SelectContent>
-              </Select>
+            <CardTitle className="text-lg font-semibold flex items-center gap-2 mb-3">
+              <MapPin className="w-5 h-5 text-orange-500" />
+              Mapa de Calor - Expedições
+            </CardTitle>
+            <div className="flex flex-wrap gap-4 text-sm">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox 
+                  checked={heatmapCriteria === 'quantidade_os'}
+                  onCheckedChange={(checked) => checked && setHeatmapCriteria('quantidade_os')}
+                />
+                <span className="text-slate-700 dark:text-slate-300">Quantidade de OS</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox 
+                  checked={heatmapCriteria === 'valor_total'}
+                  onCheckedChange={(checked) => checked && setHeatmapCriteria('valor_total')}
+                />
+                <span className="text-slate-700 dark:text-slate-300">Valor Total</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox 
+                  checked={heatmapCriteria === 'peso_total'}
+                  onCheckedChange={(checked) => checked && setHeatmapCriteria('peso_total')}
+                />
+                <span className="text-slate-700 dark:text-slate-300">Peso Total</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox 
+                  checked={heatmapCriteria === 'quantidade_itens'}
+                  onCheckedChange={(checked) => checked && setHeatmapCriteria('quantidade_itens')}
+                />
+                <span className="text-slate-700 dark:text-slate-300">Qtd. Itens</span>
+              </label>
             </div>
           </CardHeader>
           <CardContent>
