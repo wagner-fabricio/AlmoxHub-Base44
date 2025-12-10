@@ -570,8 +570,8 @@ export default function Dashboard() {
                 />
                 <span className="text-slate-700 dark:text-slate-300">Qtd. Itens</span>
               </label>
-            </div>
-          </CardHeader>
+              </div>
+              </CardHeader>
           <CardContent>
             <div className="h-[500px] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
               <MapContainer
