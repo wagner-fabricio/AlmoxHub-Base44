@@ -2,9 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend, AreaChart, Area } from 'recharts';
-import { ClipboardList, CheckCircle, Clock, AlertTriangle, TrendingUp, Building2, MapPin, Loader2 } from 'lucide-react';
+import { ClipboardList, CheckCircle, Clock, AlertTriangle, TrendingUp, Building2, MapPin, Loader2, Zap, Warehouse, Grid } from 'lucide-react';
 import { format, subDays, differenceInDays } from 'date-fns';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
 
@@ -22,6 +26,14 @@ export default function Dashboard() {
   const [categorias, setCategorias] = useState([]);
   const [subcategorias, setSubcategorias] = useState([]);
   const [almoxarifados, setAlmoxarifados] = useState([]);
+  const [instalacoes, setInstalacoes] = useState([]);
+  const [mapFilters, setMapFilters] = useState({
+    usina: true,
+    subestacao: true,
+    almoxarifado: true,
+    outros: true,
+    almoxarifadosEntidade: true
+  });
   const [currentUser, setCurrentUser] = useState(null);
   const [filters, setFilters] = useState({
     regional: 'all',
@@ -52,13 +64,14 @@ export default function Dashboard() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [user, ordensData, regionaisData, categoriasData, subcategoriasData, almoxarifadosData] = await Promise.all([
+      const [user, ordensData, regionaisData, categoriasData, subcategoriasData, almoxarifadosData, instalacoesData] = await Promise.all([
         base44.auth.me(),
         base44.entities.OrdemServico.list(),
         base44.entities.Regional.list(),
         base44.entities.Categoria.list(),
         base44.entities.Subcategoria.list(),
-        base44.entities.Almoxarifado.list()
+        base44.entities.Almoxarifado.list(),
+        base44.entities.Instalacao.list()
       ]);
       setCurrentUser(user);
       setOrdens(ordensData);
@@ -66,6 +79,7 @@ export default function Dashboard() {
       setCategorias(categoriasData);
       setSubcategorias(subcategoriasData);
       setAlmoxarifados(almoxarifadosData);
+      setInstalacoes(instalacoesData);
 
       if (user.filtros_preferidos?.Dashboard) {
         setFilters(user.filtros_preferidos.Dashboard);
