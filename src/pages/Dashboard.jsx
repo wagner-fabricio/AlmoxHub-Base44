@@ -537,13 +537,13 @@ export default function Dashboard() {
         {/* Heatmap Section */}
         <Card className="bg-white dark:bg-slate-800">
           <CardHeader>
-            <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between gap-4">
               <CardTitle className="text-lg font-semibold flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-orange-500" />
                 Mapa de Calor - Expedições
               </CardTitle>
               <Select value={heatmapCriteria} onValueChange={setHeatmapCriteria}>
-                <SelectTrigger className="w-full bg-white dark:bg-slate-800">
+                <SelectTrigger className="w-56 bg-white dark:bg-slate-800">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
