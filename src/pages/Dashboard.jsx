@@ -532,100 +532,102 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Heatmap Section */}
-      <Card className="bg-white dark:bg-slate-800">
-        <CardHeader>
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-orange-500" />
-              Mapa de Calor - Expedições por Destino
-            </CardTitle>
-            <Select value={heatmapCriteria} onValueChange={setHeatmapCriteria}>
-              <SelectTrigger className="w-56 bg-white dark:bg-slate-800">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="quantidade_os">Quantidade de OS</SelectItem>
-                <SelectItem value="valor_total">Valor Total dos Materiais</SelectItem>
-                <SelectItem value="peso_total">Peso Total dos Volumes</SelectItem>
-                <SelectItem value="quantidade_itens">Quantidade Total de Itens</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[500px] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
-            <MapContainer
-              center={[-15.7801, -47.9292]}
-              zoom={4}
-              style={{ height: '100%', width: '100%' }}
-            >
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              
-              {heatmapData.map((data, index) => (
-                <Circle
-                  key={`heat-${index}`}
-                  center={[data.instalacao.latitude, data.instalacao.longitude]}
-                  radius={getCircleRadius(data.value)}
-                  pathOptions={{
-                    fillColor: getCircleColor(data.value),
-                    fillOpacity: 0.4,
-                    color: getCircleColor(data.value),
-                    weight: 2,
-                    opacity: 0.8
-                  }}
-                >
-                  <Popup>
-                    <div className="p-2">
-                      <h3 className="font-semibold text-slate-900">{data.instalacao.nome}</h3>
-                      <p className="text-sm text-slate-600">{data.instalacao.cidade} - {data.instalacao.estado}</p>
-                      <div className="mt-2 space-y-1 text-xs">
-                        <p className="font-medium">Quantidade de OS: {data.osCount}</p>
-                        {heatmapCriteria === 'quantidade_os' && (
-                          <p>Total: {data.value} OS</p>
-                        )}
-                        {heatmapCriteria === 'valor_total' && (
-                          <p>Valor Total: R$ {data.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                        )}
-                        {heatmapCriteria === 'peso_total' && (
-                          <p>Peso Total: {data.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} kg</p>
-                        )}
-                        {heatmapCriteria === 'quantidade_itens' && (
-                          <p>Quantidade Total: {data.value.toLocaleString('pt-BR')} itens</p>
-                        )}
+      {/* Maps Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Heatmap Section */}
+        <Card className="bg-white dark:bg-slate-800">
+          <CardHeader>
+            <div className="flex flex-col gap-3">
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-orange-500" />
+                Mapa de Calor - Expedições
+              </CardTitle>
+              <Select value={heatmapCriteria} onValueChange={setHeatmapCriteria}>
+                <SelectTrigger className="w-full bg-white dark:bg-slate-800">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="quantidade_os">Quantidade de OS</SelectItem>
+                  <SelectItem value="valor_total">Valor Total dos Materiais</SelectItem>
+                  <SelectItem value="peso_total">Peso Total dos Volumes</SelectItem>
+                  <SelectItem value="quantidade_itens">Quantidade Total de Itens</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[500px] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+              <MapContainer
+                center={[-15.7801, -47.9292]}
+                zoom={4}
+                style={{ height: '100%', width: '100%' }}
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                
+                {heatmapData.map((data, index) => (
+                  <Circle
+                    key={`heat-${index}`}
+                    center={[data.instalacao.latitude, data.instalacao.longitude]}
+                    radius={getCircleRadius(data.value)}
+                    pathOptions={{
+                      fillColor: getCircleColor(data.value),
+                      fillOpacity: 0.4,
+                      color: getCircleColor(data.value),
+                      weight: 2,
+                      opacity: 0.8
+                    }}
+                  >
+                    <Popup>
+                      <div className="p-2">
+                        <h3 className="font-semibold text-slate-900">{data.instalacao.nome}</h3>
+                        <p className="text-sm text-slate-600">{data.instalacao.cidade} - {data.instalacao.estado}</p>
+                        <div className="mt-2 space-y-1 text-xs">
+                          <p className="font-medium">Quantidade de OS: {data.osCount}</p>
+                          {heatmapCriteria === 'quantidade_os' && (
+                            <p>Total: {data.value} OS</p>
+                          )}
+                          {heatmapCriteria === 'valor_total' && (
+                            <p>Valor Total: R$ {data.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                          )}
+                          {heatmapCriteria === 'peso_total' && (
+                            <p>Peso Total: {data.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} kg</p>
+                          )}
+                          {heatmapCriteria === 'quantidade_itens' && (
+                            <p>Quantidade Total: {data.value.toLocaleString('pt-BR')} itens</p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </Popup>
-                </Circle>
-              ))}
-            </MapContainer>
-          </div>
-          <div className="mt-4 flex items-center justify-center gap-6 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-green-500"></div>
-              <span className="text-slate-600 dark:text-slate-400">Baixo</span>
+                    </Popup>
+                  </Circle>
+                ))}
+              </MapContainer>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
-              <span className="text-slate-600 dark:text-slate-400">Médio</span>
+            <div className="mt-4 flex items-center justify-center gap-4 text-xs flex-wrap">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                <span className="text-slate-600 dark:text-slate-400">Baixo</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <span className="text-slate-600 dark:text-slate-400">Médio</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                <span className="text-slate-600 dark:text-slate-400">Alto</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-600"></div>
+                <span className="text-slate-600 dark:text-slate-400">Muito Alto</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-orange-500"></div>
-              <span className="text-slate-600 dark:text-slate-400">Alto</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-red-600"></div>
-              <span className="text-slate-600 dark:text-slate-400">Muito Alto</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Map Section */}
-      <Card className="bg-white dark:bg-slate-800">
+        {/* Map Section */}
+        <Card className="bg-white dark:bg-slate-800">
         <CardHeader>
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
@@ -804,6 +806,7 @@ export default function Dashboard() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
