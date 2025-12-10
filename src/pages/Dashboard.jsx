@@ -6,7 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend, AreaChart, Area } from 'recharts';
 import { ClipboardList, CheckCircle, Clock, AlertTriangle, TrendingUp, Building2, MapPin, Loader2, Zap, Warehouse, Grid } from 'lucide-react';
 import { format, subDays, differenceInDays } from 'date-fns';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -34,6 +34,7 @@ export default function Dashboard() {
     outros: true,
     almoxarifadosEntidade: true
   });
+  const [heatmapCriteria, setHeatmapCriteria] = useState('quantidade_os');
   const [currentUser, setCurrentUser] = useState(null);
   const [filters, setFilters] = useState({
     regional: 'all',
@@ -157,6 +158,60 @@ export default function Dashboard() {
     name: a.nome,
     total: filteredOrdens.filter(os => os.almoxarifado_id === a.id).length
   })).sort((a, b) => b.total - a.total).slice(0, 5);
+
+  // Heatmap data: OS de Expedição agrupadas por instalação de destino
+  const categoriaExpedicao = categorias.find(c => c.nome.toLowerCase().includes('expedi'));
+  const osExpedicao = ordens.filter(os => os.categoria_id === categoriaExpedicao?.id && os.instalacao_destino_id);
+  
+  const heatmapData = instalacoes
+    .filter(inst => inst.latitude && inst.longitude)
+    .map(inst => {
+      const osDestino = osExpedicao.filter(os => os.instalacao_destino_id === inst.id);
+      
+      let value = 0;
+      if (heatmapCriteria === 'quantidade_os') {
+        value = osDestino.length;
+      } else if (heatmapCriteria === 'valor_total') {
+        value = osDestino.reduce((sum, os) => {
+          const totalOS = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
+          return sum + totalOS;
+        }, 0);
+      } else if (heatmapCriteria === 'peso_total') {
+        value = osDestino.reduce((sum, os) => {
+          const pesoOS = (os.volumes || []).reduce((s, vol) => s + (vol.peso_bruto || 0), 0);
+          return sum + pesoOS;
+        }, 0);
+      } else if (heatmapCriteria === 'quantidade_itens') {
+        value = osDestino.reduce((sum, os) => {
+          const qtdItens = (os.itens_documento || []).reduce((s, item) => s + (item.quantidade || 0), 0);
+          return sum + qtdItens;
+        }, 0);
+      }
+      
+      return {
+        instalacao: inst,
+        osCount: osDestino.length,
+        value: value
+      };
+    })
+    .filter(d => d.value > 0);
+  
+  const maxValue = Math.max(...heatmapData.map(d => d.value), 1);
+  
+  const getCircleRadius = (value) => {
+    const minRadius = 5000;
+    const maxRadius = 100000;
+    const normalized = value / maxValue;
+    return minRadius + (normalized * (maxRadius - minRadius));
+  };
+  
+  const getCircleColor = (value) => {
+    const normalized = value / maxValue;
+    if (normalized > 0.7) return '#dc2626';
+    if (normalized > 0.4) return '#f97316';
+    if (normalized > 0.2) return '#eab308';
+    return '#22c55e';
+  };
 
   if (loading) {
     return (
@@ -476,6 +531,98 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Heatmap Section */}
+      <Card className="bg-white dark:bg-slate-800">
+        <CardHeader>
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-orange-500" />
+              Mapa de Calor - Expedições por Destino
+            </CardTitle>
+            <Select value={heatmapCriteria} onValueChange={setHeatmapCriteria}>
+              <SelectTrigger className="w-56 bg-white dark:bg-slate-800">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="quantidade_os">Quantidade de OS</SelectItem>
+                <SelectItem value="valor_total">Valor Total dos Materiais</SelectItem>
+                <SelectItem value="peso_total">Peso Total dos Volumes</SelectItem>
+                <SelectItem value="quantidade_itens">Quantidade Total de Itens</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[500px] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+            <MapContainer
+              center={[-15.7801, -47.9292]}
+              zoom={4}
+              style={{ height: '100%', width: '100%' }}
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              
+              {heatmapData.map((data, index) => (
+                <Circle
+                  key={`heat-${index}`}
+                  center={[data.instalacao.latitude, data.instalacao.longitude]}
+                  radius={getCircleRadius(data.value)}
+                  pathOptions={{
+                    fillColor: getCircleColor(data.value),
+                    fillOpacity: 0.4,
+                    color: getCircleColor(data.value),
+                    weight: 2,
+                    opacity: 0.8
+                  }}
+                >
+                  <Popup>
+                    <div className="p-2">
+                      <h3 className="font-semibold text-slate-900">{data.instalacao.nome}</h3>
+                      <p className="text-sm text-slate-600">{data.instalacao.cidade} - {data.instalacao.estado}</p>
+                      <div className="mt-2 space-y-1 text-xs">
+                        <p className="font-medium">Quantidade de OS: {data.osCount}</p>
+                        {heatmapCriteria === 'quantidade_os' && (
+                          <p>Total: {data.value} OS</p>
+                        )}
+                        {heatmapCriteria === 'valor_total' && (
+                          <p>Valor Total: R$ {data.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                        )}
+                        {heatmapCriteria === 'peso_total' && (
+                          <p>Peso Total: {data.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} kg</p>
+                        )}
+                        {heatmapCriteria === 'quantidade_itens' && (
+                          <p>Quantidade Total: {data.value.toLocaleString('pt-BR')} itens</p>
+                        )}
+                      </div>
+                    </div>
+                  </Popup>
+                </Circle>
+              ))}
+            </MapContainer>
+          </div>
+          <div className="mt-4 flex items-center justify-center gap-6 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-green-500"></div>
+              <span className="text-slate-600 dark:text-slate-400">Baixo</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
+              <span className="text-slate-600 dark:text-slate-400">Médio</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-orange-500"></div>
+              <span className="text-slate-600 dark:text-slate-400">Alto</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-red-600"></div>
+              <span className="text-slate-600 dark:text-slate-400">Muito Alto</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Map Section */}
       <Card className="bg-white dark:bg-slate-800">
