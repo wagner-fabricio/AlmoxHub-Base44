@@ -692,7 +692,6 @@ export default function Dashboard() {
                 <span className="text-slate-700 dark:text-slate-300">Almoxarifados</span>
               </label>
             </div>
-          </div>
         </CardHeader>
         <CardContent>
           <div className="h-[500px] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
