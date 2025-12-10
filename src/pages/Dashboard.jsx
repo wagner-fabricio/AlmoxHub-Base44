@@ -476,6 +476,187 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Map Section */}
+      <Card className="bg-white dark:bg-slate-800">
+        <CardHeader>
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-blue-500" />
+              Mapa de Instalações e Almoxarifados
+            </CardTitle>
+            <div className="flex flex-wrap items-center gap-4 text-sm">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox 
+                  checked={mapFilters.usina}
+                  onCheckedChange={(checked) => setMapFilters({...mapFilters, usina: checked})}
+                />
+                <Zap className="w-4 h-4 text-green-600" />
+                <span className="text-slate-700 dark:text-slate-300">Usinas</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox 
+                  checked={mapFilters.subestacao}
+                  onCheckedChange={(checked) => setMapFilters({...mapFilters, subestacao: checked})}
+                />
+                <Grid className="w-4 h-4 text-blue-600" />
+                <span className="text-slate-700 dark:text-slate-300">Subestações</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox 
+                  checked={mapFilters.almoxarifado}
+                  onCheckedChange={(checked) => setMapFilters({...mapFilters, almoxarifado: checked})}
+                />
+                <Warehouse className="w-4 h-4 text-amber-600" />
+                <span className="text-slate-700 dark:text-slate-300">Instalações Almox.</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox 
+                  checked={mapFilters.outros}
+                  onCheckedChange={(checked) => setMapFilters({...mapFilters, outros: checked})}
+                />
+                <Building2 className="w-4 h-4 text-slate-600" />
+                <span className="text-slate-700 dark:text-slate-300">Outros</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox 
+                  checked={mapFilters.almoxarifadosEntidade}
+                  onCheckedChange={(checked) => setMapFilters({...mapFilters, almoxarifadosEntidade: checked})}
+                />
+                <Warehouse className="w-4 h-4 text-purple-600" />
+                <span className="text-slate-700 dark:text-slate-300">Almoxarifados</span>
+              </label>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[500px] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+            <MapContainer
+              center={[-15.7801, -47.9292]}
+              zoom={4}
+              style={{ height: '100%', width: '100%' }}
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              
+              {/* Instalações */}
+              {instalacoes
+                .filter(inst => {
+                  if (inst.classificacao === 'Usina') return mapFilters.usina;
+                  if (inst.classificacao === 'Subestação') return mapFilters.subestacao;
+                  if (inst.classificacao === 'Almoxarifado') return mapFilters.almoxarifado;
+                  if (inst.classificacao === 'Outros') return mapFilters.outros;
+                  return false;
+                })
+                .filter(inst => inst.latitude && inst.longitude)
+                .map((inst) => {
+                  const iconColor = 
+                    inst.classificacao === 'Usina' ? '#16a34a' :
+                    inst.classificacao === 'Subestação' ? '#2563eb' :
+                    inst.classificacao === 'Almoxarifado' ? '#d97706' : '#64748b';
+                  
+                  const iconHtml = `
+                    <div style="
+                      background: ${iconColor};
+                      width: 32px;
+                      height: 32px;
+                      border-radius: 50%;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      border: 3px solid white;
+                      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                    ">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        ${inst.classificacao === 'Usina' ? '<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>' :
+                          inst.classificacao === 'Subestação' ? '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>' :
+                          inst.classificacao === 'Almoxarifado' ? '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>' :
+                          '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>'}
+                      </svg>
+                    </div>
+                  `;
+                  
+                  const customIcon = L.divIcon({
+                    html: iconHtml,
+                    className: '',
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16],
+                  });
+                  
+                  return (
+                    <Marker
+                      key={`inst-${inst.id}`}
+                      position={[inst.latitude, inst.longitude]}
+                      icon={customIcon}
+                    >
+                      <Popup>
+                        <div className="p-2">
+                          <h3 className="font-semibold text-slate-900">{inst.nome}</h3>
+                          <p className="text-sm text-slate-600">{inst.classificacao}</p>
+                          {inst.cidade && inst.estado && (
+                            <p className="text-xs text-slate-500 mt-1">{inst.cidade} - {inst.estado}</p>
+                          )}
+                        </div>
+                      </Popup>
+                    </Marker>
+                  );
+                })}
+              
+              {/* Almoxarifados */}
+              {mapFilters.almoxarifadosEntidade && almoxarifados
+                .filter(almox => almox.latitude && almox.longitude)
+                .map((almox) => {
+                  const iconHtml = `
+                    <div style="
+                      background: #9333ea;
+                      width: 32px;
+                      height: 32px;
+                      border-radius: 50%;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      border: 3px solid white;
+                      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                    ">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                        <line x1="12" y1="22.08" x2="12" y2="12"/>
+                      </svg>
+                    </div>
+                  `;
+                  
+                  const customIcon = L.divIcon({
+                    html: iconHtml,
+                    className: '',
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16],
+                  });
+                  
+                  return (
+                    <Marker
+                      key={`almox-${almox.id}`}
+                      position={[almox.latitude, almox.longitude]}
+                      icon={customIcon}
+                    >
+                      <Popup>
+                        <div className="p-2">
+                          <h3 className="font-semibold text-slate-900">{almox.nome}</h3>
+                          <p className="text-sm text-slate-600">Almoxarifado</p>
+                          {almox.endereco && (
+                            <p className="text-xs text-slate-500 mt-1">{almox.endereco}</p>
+                          )}
+                        </div>
+                      </Popup>
+                    </Marker>
+                  );
+                })}
+            </MapContainer>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
