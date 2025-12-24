@@ -7,8 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, FolderKanban, Loader2, Search } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Plus, Edit, Trash2, FolderKanban, Loader2, Search, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { createPageUrl } from '../utils';
 
 const defaultColors = [
   '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', 
@@ -19,6 +21,10 @@ export default function Projetos() {
   const [loading, setLoading] = useState(true);
   const [projetos, setProjetos] = useState([]);
   const [ordens, setOrdens] = useState([]);
+  const [pessoas, setPessoas] = useState([]);
+  const [almoxarifados, setAlmoxarifados] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [expandedProjetoId, setExpandedProjetoId] = useState(null);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -38,12 +44,18 @@ export default function Projetos() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [projetosData, ordensData] = await Promise.all([
+      const [projetosData, ordensData, pessoasData, almoxarifadosData, categoriasData] = await Promise.all([
         base44.entities.Projeto.list(),
-        base44.entities.OrdemServico.list()
+        base44.entities.OrdemServico.list(),
+        base44.entities.Pessoa.list(),
+        base44.entities.Almoxarifado.list(),
+        base44.entities.Categoria.list()
       ]);
       setProjetos(projetosData);
       setOrdens(ordensData);
+      setPessoas(pessoasData);
+      setAlmoxarifados(almoxarifadosData);
+      setCategorias(categoriasData);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -110,6 +122,14 @@ export default function Projetos() {
     return ordens.filter(os => os.projetos_ids?.includes(projetoId)).length;
   };
 
+  const getProjetoOrdens = (projetoId) => {
+    return ordens.filter(os => os.projetos_ids?.includes(projetoId));
+  };
+
+  const toggleExpanded = (projetoId) => {
+    setExpandedProjetoId(expandedProjetoId === projetoId ? null : projetoId);
+  };
+
   const filteredItems = projetos.filter(p => 
     p.nome?.toLowerCase().includes(search.toLowerCase())
   );
@@ -156,49 +176,102 @@ export default function Projetos() {
           <p className="text-slate-500">Nenhum projeto cadastrado</p>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="space-y-4">
           {filteredItems.map((projeto) => {
             const osCount = getOSCount(projeto.id);
+            const projetoOrdens = getProjetoOrdens(projeto.id);
+            const isExpanded = expandedProjetoId === projeto.id;
             
             return (
-              <Card 
-                key={projeto.id} 
-                className="p-5 hover:shadow-lg transition-all duration-200 border-t-4"
-                style={{ borderTopColor: projeto.cor }}
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div 
-                    className="w-12 h-12 rounded-xl flex items-center justify-center"
-                    style={{ backgroundColor: `${projeto.cor}20` }}
-                  >
-                    <FolderKanban className="w-6 h-6" style={{ color: projeto.cor }} />
+              <div key={projeto.id}>
+                <Card 
+                  className="p-5 hover:shadow-lg transition-all duration-200 border-t-4 cursor-pointer"
+                  style={{ borderTopColor: projeto.cor }}
+                  onClick={() => toggleExpanded(projeto.id)}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-4">
+                      <div 
+                        className="w-12 h-12 rounded-xl flex items-center justify-center"
+                        style={{ backgroundColor: `${projeto.cor}20` }}
+                      >
+                        <FolderKanban className="w-6 h-6" style={{ color: projeto.cor }} />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-slate-900 dark:text-white mb-1">{projeto.nome}</h3>
+                        {projeto.descricao && (
+                          <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-1">
+                            {projeto.descricao}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(projeto)}>
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(projeto)}>
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
+                      </div>
+                      {isExpanded ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
+                    </div>
                   </div>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(projeto)}>
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(projeto)}>
-                      <Trash2 className="w-4 h-4 text-red-500" />
-                    </Button>
+                  
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline">
+                      {osCount} OS
+                    </Badge>
+                    <Badge className={projeto.ativo !== false ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}>
+                      {projeto.ativo !== false ? 'Ativo' : 'Inativo'}
+                    </Badge>
                   </div>
-                </div>
-                
-                <h3 className="font-semibold text-slate-900 dark:text-white mb-1">{projeto.nome}</h3>
-                {projeto.descricao && (
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mb-3 line-clamp-2">
-                    {projeto.descricao}
-                  </p>
+                </Card>
+
+                {isExpanded && projetoOrdens.length > 0 && (
+                  <Card className="mt-2 p-4">
+                    <h4 className="font-semibold text-slate-900 dark:text-white mb-3">Ordens de Serviço</h4>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Código</TableHead>
+                          <TableHead>Categoria</TableHead>
+                          <TableHead>Líder</TableHead>
+                          <TableHead>Almoxarifado</TableHead>
+                          <TableHead className="text-right">Ações</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {projetoOrdens.map((os) => {
+                          const lider = pessoas.find(p => p.id === os.lider_id);
+                          const almoxarifado = almoxarifados.find(a => a.id === os.almoxarifado_id);
+                          const categoria = categorias.find(c => c.id === os.categoria_id);
+                          
+                          return (
+                            <TableRow key={os.id}>
+                              <TableCell className="font-mono text-sm">{os.codigo}</TableCell>
+                              <TableCell>{categoria?.nome || '-'}</TableCell>
+                              <TableCell>{lider?.nome || '-'}</TableCell>
+                              <TableCell>{almoxarifado?.nome || '-'}</TableCell>
+                              <TableCell className="text-right">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => window.location.href = createPageUrl('OrdensServico') + `?os=${os.id}`}
+                                >
+                                  <ExternalLink className="w-4 h-4 mr-1" />
+                                  Abrir
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </Card>
                 )}
-                
-                <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700">
-                  <Badge variant="outline">
-                    {osCount} OS
-                  </Badge>
-                  <Badge className={projeto.ativo !== false ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}>
-                    {projeto.ativo !== false ? 'Ativo' : 'Inativo'}
-                  </Badge>
-                </div>
-              </Card>
+              </div>
             );
           })}
         </div>
