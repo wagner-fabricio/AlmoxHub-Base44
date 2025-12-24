@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { base44 } from '@/api/base44Client';
-import { format } from 'date-fns';
+import { format, isToday, isYesterday, differenceInMinutes } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { 
   Edit, 
@@ -22,8 +22,16 @@ import {
   Send,
   Clock,
   CheckCircle,
-  AlertTriangle
+  AlertTriangle,
+  MoreVertical,
+  Trash2
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const prioridadeConfig = {
   baixa: { color: 'bg-slate-100 text-slate-700', label: 'Baixa' },
@@ -56,6 +64,10 @@ export default function OSDetailModal({
   const [loadingComment, setLoadingComment] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [currentUserPessoa, setCurrentUserPessoa] = useState(null);
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingContent, setEditingContent] = useState('');
+  const messagesEndRef = useRef(null);
+  const textareaRef = useRef(null);
 
   useEffect(() => {
     if (open && os) {
@@ -80,10 +92,15 @@ export default function OSDetailModal({
   const loadComentarios = async () => {
     try {
       const data = await base44.entities.Comentario.filter({ ordem_servico_id: os.id });
-      setComentarios(data);
+      setComentarios(data.sort((a, b) => new Date(a.created_date) - new Date(b.created_date)));
+      setTimeout(() => scrollToBottom(), 100);
     } catch (e) {
       console.error('Error loading comments:', e);
     }
+  };
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const handleAddComment = async () => {
@@ -95,15 +112,87 @@ export default function OSDetailModal({
         ordem_servico_id: os.id,
         conteudo: newComment,
         autor_nome: currentUser?.full_name || 'Usuário',
-        autor_id: currentUserPessoa?.id
+        autor_id: currentUserPessoa?.id,
+        is_deleted: false,
+        is_edited: false
       });
       setNewComment('');
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+      }
       loadComentarios();
     } catch (e) {
       console.error('Error adding comment:', e);
     } finally {
       setLoadingComment(false);
     }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleAddComment();
+    }
+  };
+
+  const handleEditComment = (comment) => {
+    setEditingCommentId(comment.id);
+    setEditingContent(comment.conteudo);
+  };
+
+  const handleSaveEdit = async (commentId) => {
+    if (!editingContent.trim()) return;
+    
+    try {
+      await base44.entities.Comentario.update(commentId, {
+        conteudo: editingContent,
+        is_edited: true
+      });
+      setEditingCommentId(null);
+      setEditingContent('');
+      loadComentarios();
+    } catch (e) {
+      console.error('Error editing comment:', e);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await base44.entities.Comentario.update(commentId, {
+        is_deleted: true
+      });
+      loadComentarios();
+    } catch (e) {
+      console.error('Error deleting comment:', e);
+    }
+  };
+
+  const canEditOrDelete = (comment) => {
+    if (!currentUserPessoa || comment.autor_id !== currentUserPessoa.id) return false;
+    const minutesSinceCreation = differenceInMinutes(new Date(), new Date(comment.created_date));
+    return minutesSinceCreation <= 10;
+  };
+
+  const getDateSeparator = (date) => {
+    if (isToday(new Date(date))) return 'Hoje';
+    if (isYesterday(new Date(date))) return 'Ontem';
+    return format(new Date(date), "dd 'de' MMMM", { locale: ptBR });
+  };
+
+  const groupMessagesByDate = (messages) => {
+    const groups = [];
+    let currentDate = null;
+    
+    messages.forEach((msg) => {
+      const msgDate = format(new Date(msg.created_date), 'yyyy-MM-dd');
+      if (msgDate !== currentDate) {
+        groups.push({ type: 'separator', date: msg.created_date });
+        currentDate = msgDate;
+      }
+      groups.push({ type: 'message', data: msg });
+    });
+    
+    return groups;
   };
 
   if (!os) return null;
@@ -267,65 +356,183 @@ export default function OSDetailModal({
                 )}
               </TabsContent>
 
-              {/* Comentários Tab */}
-              <TabsContent value="comentarios" className="space-y-4">
-                {/* Comment Input */}
-                <div className="flex gap-3">
-                  <Avatar className="w-10 h-10 shrink-0">
-                    {currentUserPessoa?.foto_perfil && (
-                      <AvatarImage src={currentUserPessoa.foto_perfil} alt={currentUser?.full_name} />
-                    )}
-                    <AvatarFallback className="bg-blue-100 text-blue-700">
-                      {currentUser?.full_name?.charAt(0) || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 flex gap-2">
-                    <Input
-                      placeholder="Adicionar um comentário..."
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleAddComment()}
-                    />
-                    <Button onClick={handleAddComment} disabled={loadingComment}>
-                      <Send className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Comments List */}
-                <div className="space-y-4">
-                  {comentarios.length === 0 ? (
-                    <div className="text-center py-8 text-slate-400">
-                      Nenhum comentário ainda
-                    </div>
-                  ) : (
-                    comentarios.map((comment) => {
-                      const commentAuthor = pessoas.find(p => p.id === comment.autor_id);
-                      return (
-                      <div key={comment.id} className="flex gap-3">
-                        <Avatar className="w-10 h-10 shrink-0">
-                          {commentAuthor?.foto_perfil && (
-                            <AvatarImage src={commentAuthor.foto_perfil} alt={comment.autor_nome} />
-                          )}
-                          <AvatarFallback className="bg-slate-100 text-slate-700">
-                            {comment.autor_nome?.charAt(0) || '?'}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="font-medium text-slate-900 dark:text-white">
-                              {comment.autor_nome}
-                            </span>
-                            <span className="text-xs text-slate-500">
-                              {format(new Date(comment.created_date), "dd/MM 'às' HH:mm", { locale: ptBR })}
-                            </span>
-                          </div>
-                          <p className="text-slate-600 dark:text-slate-400">{comment.conteudo}</p>
-                        </div>
+              {/* Comentários Tab - Chat Style */}
+              <TabsContent value="comentarios" className="flex flex-col h-[500px]">
+                {/* Messages Container */}
+                <ScrollArea className="flex-1 pr-4">
+                  <div className="space-y-1">
+                    {comentarios.length === 0 ? (
+                      <div className="text-center py-12 text-slate-400">
+                        <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                        <p>Nenhuma mensagem ainda</p>
+                        <p className="text-sm mt-1">Seja o primeiro a comentar</p>
                       </div>
-                      );
-                    })
-                  )}
+                    ) : (
+                      groupMessagesByDate(comentarios).map((item, idx) => {
+                        if (item.type === 'separator') {
+                          return (
+                            <div key={`sep-${idx}`} className="flex items-center gap-3 my-4">
+                              <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+                              <span className="text-xs font-medium text-slate-500 dark:text-slate-400 px-2">
+                                {getDateSeparator(item.date)}
+                              </span>
+                              <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+                            </div>
+                          );
+                        }
+
+                        const comment = item.data;
+                        const isOwnMessage = currentUserPessoa?.id === comment.autor_id;
+                        const commentAuthor = pessoas.find(p => p.id === comment.autor_id);
+                        const canEdit = canEditOrDelete(comment);
+
+                        return (
+                          <div 
+                            key={comment.id} 
+                            className={`flex gap-2 mb-2 ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'}`}
+                          >
+                            {!isOwnMessage && (
+                              <Avatar className="w-8 h-8 shrink-0 mt-1">
+                                {commentAuthor?.foto_perfil && (
+                                  <AvatarImage src={commentAuthor.foto_perfil} alt={comment.autor_nome} />
+                                )}
+                                <AvatarFallback className="bg-slate-200 text-slate-700 text-xs">
+                                  {comment.autor_nome?.charAt(0) || '?'}
+                                </AvatarFallback>
+                              </Avatar>
+                            )}
+                            
+                            <div className={`flex flex-col ${isOwnMessage ? 'items-end' : 'items-start'} max-w-[75%]`}>
+                              {!isOwnMessage && (
+                                <span className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 px-1">
+                                  {comment.autor_nome}
+                                </span>
+                              )}
+                              
+                              <div className="relative group">
+                                <div 
+                                  className={`rounded-2xl px-4 py-2 ${
+                                    isOwnMessage 
+                                      ? 'bg-blue-600 text-white rounded-tr-sm' 
+                                      : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-tl-sm'
+                                  }`}
+                                >
+                                  {comment.is_deleted ? (
+                                    <p className="italic text-slate-400">Mensagem removida</p>
+                                  ) : editingCommentId === comment.id ? (
+                                    <div className="space-y-2">
+                                      <Textarea
+                                        value={editingContent}
+                                        onChange={(e) => setEditingContent(e.target.value)}
+                                        className="min-h-[60px] bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                                        autoFocus
+                                      />
+                                      <div className="flex gap-2 justify-end">
+                                        <Button 
+                                          size="sm" 
+                                          variant="ghost"
+                                          onClick={() => {
+                                            setEditingCommentId(null);
+                                            setEditingContent('');
+                                          }}
+                                        >
+                                          Cancelar
+                                        </Button>
+                                        <Button 
+                                          size="sm"
+                                          onClick={() => handleSaveEdit(comment.id)}
+                                        >
+                                          Salvar
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                                      {comment.conteudo}
+                                    </p>
+                                  )}
+                                </div>
+                                
+                                {!comment.is_deleted && canEdit && editingCommentId !== comment.id && (
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className={`absolute top-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity ${
+                                          isOwnMessage ? 'left-[-28px]' : 'right-[-28px]'
+                                        }`}
+                                      >
+                                        <MoreVertical className="w-3 h-3" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align={isOwnMessage ? 'end' : 'start'}>
+                                      <DropdownMenuItem onClick={() => handleEditComment(comment)}>
+                                        <Edit className="w-3 h-3 mr-2" />
+                                        Editar
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem 
+                                        onClick={() => handleDeleteComment(comment.id)}
+                                        className="text-red-600"
+                                      >
+                                        <Trash2 className="w-3 h-3 mr-2" />
+                                        Excluir
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                )}
+                              </div>
+                              
+                              <div className={`flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 mt-1 px-1`}>
+                                <span>{format(new Date(comment.created_date), 'HH:mm')}</span>
+                                {comment.is_edited && !comment.is_deleted && (
+                                  <span className="italic">• editado</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                    <div ref={messagesEndRef} />
+                  </div>
+                </ScrollArea>
+
+                {/* Fixed Input at Bottom */}
+                <div className="border-t pt-4 mt-4">
+                  <div className="flex gap-3 items-end">
+                    <Avatar className="w-9 h-9 shrink-0">
+                      {currentUserPessoa?.foto_perfil && (
+                        <AvatarImage src={currentUserPessoa.foto_perfil} alt={currentUser?.full_name} />
+                      )}
+                      <AvatarFallback className="bg-blue-100 text-blue-700 text-sm">
+                        {currentUser?.full_name?.charAt(0) || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 relative">
+                      <Textarea
+                        ref={textareaRef}
+                        placeholder="Digite uma mensagem... (Enter para enviar, Shift+Enter para quebra de linha)"
+                        value={newComment}
+                        onChange={(e) => {
+                          setNewComment(e.target.value);
+                          e.target.style.height = 'auto';
+                          e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+                        }}
+                        onKeyDown={handleKeyDown}
+                        className="min-h-[44px] max-h-[120px] resize-none pr-12"
+                        rows={1}
+                      />
+                      <Button 
+                        onClick={handleAddComment} 
+                        disabled={loadingComment || !newComment.trim()}
+                        size="icon"
+                        className="absolute right-2 bottom-2 h-8 w-8 rounded-full"
+                      >
+                        <Send className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </TabsContent>
 
