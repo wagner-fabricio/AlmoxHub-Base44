@@ -9,8 +9,9 @@ import PendingApproval from './pages/PendingApproval';
 import Pessoas from './pages/Pessoas';
 import Projetos from './pages/Projetos';
 import Regionais from './pages/Regionais';
-import UserApproval from './pages/UserApproval';
 import ThankYou from './pages/ThankYou';
+import UserApproval from './pages/UserApproval';
+import Notifications from './pages/Notifications';
 import __Layout from './Layout.jsx';
 
 
@@ -26,8 +27,9 @@ export const PAGES = {
     "Pessoas": Pessoas,
     "Projetos": Projetos,
     "Regionais": Regionais,
-    "UserApproval": UserApproval,
     "ThankYou": ThankYou,
+    "UserApproval": UserApproval,
+    "Notifications": Notifications,
 }
 
 export const pagesConfig = {
