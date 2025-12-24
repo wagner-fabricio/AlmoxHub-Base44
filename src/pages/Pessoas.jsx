@@ -313,7 +313,7 @@ export default function Pessoas() {
               <TableHead className="font-semibold">Regional</TableHead>
               <TableHead className="font-semibold">Funções</TableHead>
               <TableHead className="font-semibold">Status</TableHead>
-              <TableHead className="font-semibold">Aprovação</TableHead>
+              <TableHead className="font-semibold">Acesso</TableHead>
               <TableHead className="font-semibold text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
