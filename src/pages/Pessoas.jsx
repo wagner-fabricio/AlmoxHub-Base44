@@ -204,6 +204,22 @@ export default function Pessoas() {
     }
   };
 
+  const toggleStatusAprovacao = async (pessoa) => {
+    if (currentUser?.role !== 'admin') return;
+    const statusOrder = ['pendente', 'aprovado', 'rejeitado'];
+    const currentIndex = statusOrder.indexOf(pessoa.status_aprovacao || 'pendente');
+    const nextStatus = statusOrder[(currentIndex + 1) % statusOrder.length];
+
+    try {
+      await base44.entities.Pessoa.update(pessoa.id, {
+        status_aprovacao: nextStatus
+      });
+      await loadData();
+    } catch (error) {
+      console.error('Error updating approval status:', error);
+    }
+  };
+
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -352,11 +368,13 @@ export default function Pessoas() {
                     </TableCell>
                     <TableCell>
                       <Badge 
-                        className={
+                        className={`${
                           item.status_aprovacao === 'aprovado' ? 'bg-green-100 text-green-700' :
                           item.status_aprovacao === 'rejeitado' ? 'bg-red-100 text-red-700' :
                           'bg-amber-100 text-amber-700'
-                        }
+                        } ${currentUser?.role === 'admin' ? 'cursor-pointer hover:opacity-70 transition-opacity' : ''}`}
+                        onClick={() => toggleStatusAprovacao(item)}
+                        title={currentUser?.role === 'admin' ? 'Clique para alterar status de aprovação' : ''}
                       >
                         {item.status_aprovacao === 'aprovado' ? 'Aprovado' :
                          item.status_aprovacao === 'rejeitado' ? 'Rejeitado' :
