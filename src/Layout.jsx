@@ -47,6 +47,7 @@ export default function Layout({ children, currentPageName }) {
 
   useEffect(() => {
     const loadUser = async () => {
+      let redirected = false;
       try {
         const userData = await base44.auth.me();
         setUser(userData);
@@ -56,31 +57,37 @@ export default function Layout({ children, currentPageName }) {
         
         // Se não tem registro de Pessoa, redirecionar para cadastro inicial
         if (!pessoa && currentPageName !== 'NewUserSetup') {
+          redirected = true;
           window.location.href = createPageUrl('NewUserSetup');
           return;
         }
         
         // Se tem registro mas está pendente de aprovação, redirecionar para tela de aguardo
         if (pessoa && pessoa.status_aprovacao === 'pendente' && currentPageName !== 'PendingApproval') {
+          redirected = true;
           window.location.href = createPageUrl('PendingApproval');
           return;
         }
         
         // Se foi rejeitado, também vai para tela de pendente (pode ser customizado depois)
         if (pessoa && pessoa.status_aprovacao === 'rejeitado' && currentPageName !== 'PendingApproval') {
+          redirected = true;
           window.location.href = createPageUrl('PendingApproval');
           return;
         }
         
         // Se não está ativo, redirecionar
         if (pessoa && !pessoa.ativo && currentPageName !== 'PendingApproval' && currentPageName !== 'NewUserSetup') {
+          redirected = true;
           window.location.href = createPageUrl('PendingApproval');
           return;
         }
       } catch (e) {
         console.log('User not logged in');
       } finally {
-        setIsLoadingUserStatus(false);
+        if (!redirected) {
+          setIsLoadingUserStatus(false);
+        }
       }
     };
     loadUser();
