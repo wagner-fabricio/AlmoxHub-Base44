@@ -42,6 +42,7 @@ export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [user, setUser] = useState(null);
+  const [isLoadingUserStatus, setIsLoadingUserStatus] = useState(true);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -77,6 +78,8 @@ export default function Layout({ children, currentPageName }) {
         }
       } catch (e) {
         console.log('User not logged in');
+      } finally {
+        setIsLoadingUserStatus(false);
       }
     };
     loadUser();
@@ -131,6 +134,36 @@ export default function Layout({ children, currentPageName }) {
           }
         `}</style>
         {children}
+      </div>
+    );
+  }
+
+  // Mostrar tela de carregamento enquanto verifica status do usuário
+  if (isLoadingUserStatus) {
+    return (
+      <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
+        <style>{`
+          :root {
+            --primary: 217 91% 60%;
+            --primary-foreground: 0 0% 100%;
+            --accent: 38 92% 50%;
+          }
+          .dark {
+            --background: 222 47% 11%;
+            --foreground: 210 40% 98%;
+            --card: 222 47% 14%;
+            --card-foreground: 210 40% 98%;
+            --popover: 222 47% 14%;
+            --popover-foreground: 210 40% 98%;
+            --muted: 217 33% 17%;
+            --muted-foreground: 215 20% 65%;
+            --border: 217 33% 20%;
+            --input: 217 33% 20%;
+          }
+        `}</style>
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+        </div>
       </div>
     );
   }
