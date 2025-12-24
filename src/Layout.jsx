@@ -17,7 +17,8 @@ import {
   Sun,
   LogOut,
   ChevronDown,
-  Zap
+  Zap,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
