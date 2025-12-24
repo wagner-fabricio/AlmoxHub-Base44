@@ -53,22 +53,6 @@ export default function OrdensServico() {
 
   useEffect(() => {
     loadData();
-    
-    // Check for OS ID in URL params (from notification)
-    const urlParams = new URLSearchParams(window.location.search);
-    const osId = urlParams.get('os_id');
-    if (osId) {
-      // Aguardar dados carregarem e abrir modal de edição
-      setTimeout(() => {
-        const os = ordens.find(o => o.id === osId);
-        if (os) {
-          setSelectedOS(os);
-          setShowFormModal(true);
-        }
-      }, 500);
-      // Limpar URL
-      window.history.replaceState({}, '', window.location.pathname);
-    }
   }, []);
 
   const loadData = async () => {
@@ -102,6 +86,19 @@ export default function OrdensServico() {
       setSubcategorias(subcategoriasData);
       setProjetos(projetosData);
       setInstalacoes(instalacoesData);
+
+      // Check for OS ID in URL params (from notification or external link)
+      const urlParams = new URLSearchParams(window.location.search);
+      const osId = urlParams.get('os_id');
+      if (osId) {
+        const os = ordensData.find(o => o.id === osId);
+        if (os) {
+          setSelectedOS(os);
+          setShowFormModal(true);
+        }
+        // Limpar URL
+        window.history.replaceState({}, '', window.location.pathname);
+      }
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
