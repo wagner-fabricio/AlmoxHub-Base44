@@ -53,6 +53,21 @@ export default function OrdensServico() {
 
   useEffect(() => {
     loadData();
+    
+    // Check for OS ID in URL params (from notification)
+    const urlParams = new URLSearchParams(window.location.search);
+    const osId = urlParams.get('os_id');
+    if (osId) {
+      // Aguardar dados carregarem e abrir modal
+      setTimeout(() => {
+        const os = ordens.find(o => o.id === osId);
+        if (os) {
+          handleOSClick(os);
+        }
+      }, 500);
+      // Limpar URL
+      window.history.replaceState({}, '', window.location.pathname);
+    }
   }, []);
 
   const loadData = async () => {
@@ -134,8 +149,40 @@ export default function OrdensServico() {
 
   const handleStatusChange = async (osId, newStatus) => {
     try {
+      const os = ordens.find(o => o.id === osId);
       await base44.entities.OrdemServico.update(osId, { status: newStatus });
-      setOrdens(ordens.map(os => os.id === osId ? { ...os, status: newStatus } : os));
+      setOrdens(ordens.map(o => o.id === osId ? { ...o, status: newStatus } : o));
+      
+      // Criar notificações para líder e executores
+      if (os && currentPessoa) {
+        const destinatarios = [os.lider_id, ...(os.executores_ids || [])].filter(id => id !== currentPessoa.id);
+        
+        const statusLabels = {
+          elaboracao: 'Em Elaboração',
+          execucao: 'Em Execução',
+          concluido: 'Concluído',
+          cancelado: 'Cancelado'
+        };
+        
+        if (destinatarios.length > 0) {
+          const notificacoes = destinatarios.map(destId => ({
+            destinatario_id: destId,
+            remetente_id: currentPessoa.id,
+            tipo: 'mudanca_status',
+            referencia_id: osId,
+            referencia_tipo: 'tarefa',
+            mensagem: `Status da tarefa ${os.codigo} mudou para ${statusLabels[newStatus]}`,
+            lida: false,
+            contexto_adicional: {
+              os_codigo: os.codigo,
+              status_anterior: os.status,
+              status_novo: newStatus
+            }
+          }));
+          
+          await base44.entities.Notificacao.bulkCreate(notificacoes);
+        }
+      }
     } catch (error) {
       console.error('Error updating status:', error);
     }
@@ -151,8 +198,30 @@ export default function OrdensServico() {
     setShowFormModal(true);
   };
 
-  const handleFormSave = () => {
-    loadData();
+  const handleFormSave = async (isNew, osData) => {
+    await loadData();
+    
+    // Se é nova OS e tem executores, criar notificações de atribuição
+    if (isNew && osData?.executores_ids?.length > 0 && currentPessoa) {
+      try {
+        const notificacoes = osData.executores_ids.map(execId => ({
+          destinatario_id: execId,
+          remetente_id: currentPessoa.id,
+          tipo: 'atribuicao',
+          referencia_id: osData.id,
+          referencia_tipo: 'tarefa',
+          mensagem: `Você foi atribuído à tarefa ${osData.codigo}`,
+          lida: false,
+          contexto_adicional: {
+            os_codigo: osData.codigo
+          }
+        }));
+        
+        await base44.entities.Notificacao.bulkCreate(notificacoes);
+      } catch (e) {
+        console.error('Error creating assignment notifications:', e);
+      }
+    }
   };
 
   if (loading) {

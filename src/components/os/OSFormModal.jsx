@@ -113,7 +113,9 @@ export default function OSFormModal({
     setSaving(true);
     try {
       let codigo = formData.codigo;
-      if (!os) {
+      const isNew = !os;
+      
+      if (isNew) {
         // Generate unique ID
         const today = format(new Date(), 'yyyyMMdd');
         const count = await base44.entities.OrdemServico.list();
@@ -126,13 +128,14 @@ export default function OSFormModal({
         codigo,
       };
 
+      let savedOS;
       if (os) {
-        await base44.entities.OrdemServico.update(os.id, dataToSave);
+        savedOS = await base44.entities.OrdemServico.update(os.id, dataToSave);
       } else {
-        await base44.entities.OrdemServico.create(dataToSave);
+        savedOS = await base44.entities.OrdemServico.create(dataToSave);
       }
 
-      onSave?.();
+      onSave?.(isNew, { ...dataToSave, id: savedOS.id || os?.id });
       onClose();
     } catch (error) {
       console.error('Error saving OS:', error);
