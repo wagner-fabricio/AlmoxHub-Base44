@@ -391,16 +391,14 @@ export default function OSDetailModal({
                             key={comment.id} 
                             className={`flex gap-2 mb-2 ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'}`}
                           >
-                            {!isOwnMessage && (
-                              <Avatar className="w-8 h-8 shrink-0 mt-1">
-                                {commentAuthor?.foto_perfil && (
-                                  <AvatarImage src={commentAuthor.foto_perfil} alt={comment.autor_nome} />
-                                )}
-                                <AvatarFallback className="bg-slate-200 text-slate-700 text-xs">
-                                  {comment.autor_nome?.charAt(0) || '?'}
-                                </AvatarFallback>
-                              </Avatar>
-                            )}
+                            <Avatar className="w-8 h-8 shrink-0 mt-1">
+                              {commentAuthor?.foto_perfil && (
+                                <AvatarImage src={commentAuthor.foto_perfil} alt={comment.autor_nome} />
+                              )}
+                              <AvatarFallback className={`text-xs ${isOwnMessage ? 'bg-blue-100 text-blue-700' : 'bg-slate-200 text-slate-700'}`}>
+                                {comment.autor_nome?.charAt(0) || '?'}
+                              </AvatarFallback>
+                            </Avatar>
                             
                             <div className={`flex flex-col ${isOwnMessage ? 'items-end' : 'items-start'} max-w-[75%]`}>
                               {!isOwnMessage && (
