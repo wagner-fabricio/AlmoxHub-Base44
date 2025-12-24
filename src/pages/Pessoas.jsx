@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Plus, Edit, Trash2, User, Loader2, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, User, Loader2, Search, Upload, X } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 const funcaoLabels = {
@@ -39,8 +39,10 @@ export default function Pessoas() {
     funcoes: [],
     regional_id: '',
     almoxarifados_ids: [],
-    ativo: true
+    ativo: true,
+    foto_perfil: ''
   });
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -76,7 +78,8 @@ export default function Pessoas() {
       funcoes: [],
       regional_id: '',
       almoxarifados_ids: [],
-      ativo: true
+      ativo: true,
+      foto_perfil: ''
     });
     setShowModal(true);
   };
@@ -90,7 +93,8 @@ export default function Pessoas() {
       funcoes: item.funcoes || [],
       regional_id: item.regional_id || '',
       almoxarifados_ids: item.almoxarifados_ids || [],
-      ativo: item.ativo !== false
+      ativo: item.ativo !== false,
+      foto_perfil: item.foto_perfil || ''
     });
     setShowModal(true);
   };
@@ -184,6 +188,25 @@ export default function Pessoas() {
     } catch (error) {
       console.error('Error updating status:', error);
     }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setFormData({ ...formData, foto_perfil: file_url });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const removeImage = () => {
+    setFormData({ ...formData, foto_perfil: '' });
   };
 
   const getRegional = (id) => regionais.find(r => r.id === id);
@@ -334,6 +357,53 @@ export default function Pessoas() {
             <DialogTitle>{selectedItem ? 'Editar Pessoa' : 'Nova Pessoa'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
+            <div className="space-y-2">
+              <Label>Foto de Perfil</Label>
+              <div className="flex items-center gap-4">
+                {formData.foto_perfil ? (
+                  <div className="relative">
+                    <img
+                      src={formData.foto_perfil}
+                      alt="Foto de perfil"
+                      className="w-20 h-20 rounded-full object-cover border-2 border-slate-200"
+                    />
+                    <button
+                      onClick={removeImage}
+                      className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+                    <User className="w-10 h-10 text-slate-400" />
+                  </div>
+                )}
+                <div>
+                  <input
+                    type="file"
+                    id="image-upload"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => document.getElementById('image-upload').click()}
+                    disabled={uploadingImage}
+                  >
+                    {uploadingImage ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Upload className="w-4 h-4 mr-2" />
+                    )}
+                    {uploadingImage ? 'Enviando...' : 'Escolher foto'}
+                  </Button>
+                </div>
+              </div>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Matrícula *</Label>
