@@ -174,6 +174,18 @@ export default function Pessoas() {
     }
   };
 
+  const toggleStatus = async (pessoa) => {
+    if (currentUser?.role !== 'admin') return;
+    try {
+      await base44.entities.Pessoa.update(pessoa.id, {
+        ativo: !pessoa.ativo
+      });
+      await loadData();
+    } catch (error) {
+      console.error('Error updating status:', error);
+    }
+  };
+
   const getRegional = (id) => regionais.find(r => r.id === id);
   const filteredAlmoxarifados = almoxarifados.filter(a => a.regional_id === formData.regional_id);
 
@@ -289,7 +301,11 @@ export default function Pessoas() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge className={item.ativo !== false ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}>
+                      <Badge 
+                        className={`${item.ativo !== false ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'} ${currentUser?.role === 'admin' ? 'cursor-pointer hover:opacity-70 transition-opacity' : ''}`}
+                        onClick={() => toggleStatus(item)}
+                        title={currentUser?.role === 'admin' ? 'Clique para alterar status' : ''}
+                      >
                         {item.ativo !== false ? 'Ativo' : 'Inativo'}
                       </Badge>
                     </TableCell>
