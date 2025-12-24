@@ -141,35 +141,6 @@ export default function NewUserSetup() {
         status_aprovacao: 'pendente'
       });
 
-      // Buscar todos os administradores
-      const admins = await base44.entities.User.filter({ role: 'admin' });
-
-      // Enviar e-mail para cada administrador
-      for (const admin of admins) {
-        await base44.integrations.Core.SendEmail({
-          to: admin.email,
-          subject: 'Novo usuário aguardando aprovação - AlmoxHub',
-          body: `
-Olá ${admin.full_name},
-
-Um novo usuário se cadastrou no sistema AlmoxHub e está aguardando aprovação de acesso.
-
-Dados do usuário:
-- Nome: ${currentUser.full_name}
-- E-mail: ${currentUser.email}
-- Matrícula: ${formData.matricula}
-- Regional: ${regionais.find(r => r.id === formData.regional_id)?.sigla || 'N/A'}
-- Funções solicitadas: ${formData.funcoes.join(', ')}
-
-Para aprovar ou gerenciar este usuário, acesse:
-${window.location.origin}${base44.utils?.createPageUrl ? base44.utils.createPageUrl('UserApproval') : '/UserApproval'}?user_id=${currentUser.id}
-
-Atenciosamente,
-Sistema AlmoxHub
-          `
-        });
-      }
-
       setCompleted(true);
     } catch (err) {
       setError('Erro ao salvar cadastro. Tente novamente.');
