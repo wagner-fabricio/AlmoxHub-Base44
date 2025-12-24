@@ -195,9 +195,15 @@ export default function Pessoas() {
   const toggleStatus = async (pessoa) => {
     if (currentUser?.role !== 'admin') return;
     try {
-      await base44.entities.Pessoa.update(pessoa.id, {
-        ativo: !pessoa.ativo
-      });
+      const novoStatus = !pessoa.ativo;
+      const updateData = { ativo: novoStatus };
+
+      // Se mudar para inativo, também muda aprovação para pendente
+      if (!novoStatus) {
+        updateData.status_aprovacao = 'pendente';
+      }
+
+      await base44.entities.Pessoa.update(pessoa.id, updateData);
       await loadData();
     } catch (error) {
       console.error('Error updating status:', error);
