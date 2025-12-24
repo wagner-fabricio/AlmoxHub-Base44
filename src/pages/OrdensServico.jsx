@@ -58,11 +58,12 @@ export default function OrdensServico() {
     const urlParams = new URLSearchParams(window.location.search);
     const osId = urlParams.get('os_id');
     if (osId) {
-      // Aguardar dados carregarem e abrir modal
+      // Aguardar dados carregarem e abrir modal de edição
       setTimeout(() => {
         const os = ordens.find(o => o.id === osId);
         if (os) {
-          handleOSClick(os);
+          setSelectedOS(os);
+          setShowFormModal(true);
         }
       }, 500);
       // Limpar URL
