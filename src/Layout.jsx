@@ -18,7 +18,8 @@ import {
   LogOut,
   ChevronDown,
   Zap,
-  Loader2
+  Loader2,
+  UserCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -46,6 +47,8 @@ export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const [pessoa, setPessoa] = useState(null);
   const [isLoadingUserStatus, setIsLoadingUserStatus] = useState(true);
+  const [regional, setRegional] = useState(null);
+  const [almoxarifados, setAlmoxarifados] = useState([]);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -57,6 +60,19 @@ export default function Layout({ children, currentPageName }) {
         // Verificar se usuário precisa completar cadastro ou está pendente de aprovação
         const pessoaData = await base44.entities.Pessoa.filter({ user_id: userData.id }).then(p => p[0]);
         setPessoa(pessoaData);
+
+        // Carregar dados adicionais se pessoa existe
+        if (pessoaData) {
+          if (pessoaData.regional_id) {
+            const regionalData = await base44.entities.Regional.filter({ id: pessoaData.regional_id }).then(r => r[0]);
+            setRegional(regionalData);
+          }
+          if (pessoaData.almoxarifados_ids?.length > 0) {
+            const almoxData = await base44.entities.Almoxarifado.list();
+            const userAlmox = almoxData.filter(a => pessoaData.almoxarifados_ids.includes(a.id));
+            setAlmoxarifados(userAlmox);
+          }
+        }
         
         // Se não tem registro de Pessoa, redirecionar para cadastro inicial
         if (!pessoaData && currentPageName !== 'NewUserSetup') {
@@ -332,7 +348,44 @@ export default function Layout({ children, currentPageName }) {
                         <ChevronDown className="w-4 h-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" className="w-72">
+                      <div className="px-3 py-3 border-b border-slate-200 dark:border-slate-700">
+                        <p className="font-medium text-slate-900 dark:text-white mb-2">{user?.full_name}</p>
+                        {pessoa && (
+                          <div className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+                            {pessoa.funcoes?.length > 0 && (
+                              <div className="flex items-start gap-2">
+                                <span className="font-medium text-slate-700 dark:text-slate-300">Funções:</span>
+                                <span className="flex-1">
+                                  {pessoa.funcoes.map(f => {
+                                    const labels = { gestor: 'Gestor', lider: 'Líder', almoxarife: 'Almoxarife' };
+                                    return labels[f];
+                                  }).join(', ')}
+                                </span>
+                              </div>
+                            )}
+                            {regional && (
+                              <div className="flex items-start gap-2">
+                                <span className="font-medium text-slate-700 dark:text-slate-300">Regional:</span>
+                                <span className="flex-1">{regional.sigla}</span>
+                              </div>
+                            )}
+                            {almoxarifados.length > 0 && (
+                              <div className="flex items-start gap-2">
+                                <span className="font-medium text-slate-700 dark:text-slate-300">Almoxarifados:</span>
+                                <span className="flex-1">
+                                  {almoxarifados.slice(0, 2).map(a => a.nome).join(', ')}
+                                  {almoxarifados.length > 2 && ` +${almoxarifados.length - 2}`}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <DropdownMenuItem onClick={() => window.location.href = createPageUrl('Pessoas')}>
+                        <UserCircle className="w-4 h-4 mr-2" />
+                        Ver perfil completo
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={handleLogout}>
                         <LogOut className="w-4 h-4 mr-2" />
                         Sair
@@ -357,7 +410,44 @@ export default function Layout({ children, currentPageName }) {
                       )}
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="w-72">
+                    <div className="px-3 py-3 border-b border-slate-200 dark:border-slate-700">
+                      <p className="font-medium text-slate-900 dark:text-white mb-2">{user?.full_name}</p>
+                      {pessoa && (
+                        <div className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+                          {pessoa.funcoes?.length > 0 && (
+                            <div className="flex items-start gap-2">
+                              <span className="font-medium text-slate-700 dark:text-slate-300">Funções:</span>
+                              <span className="flex-1">
+                                {pessoa.funcoes.map(f => {
+                                  const labels = { gestor: 'Gestor', lider: 'Líder', almoxarife: 'Almoxarife' };
+                                  return labels[f];
+                                }).join(', ')}
+                              </span>
+                            </div>
+                          )}
+                          {regional && (
+                            <div className="flex items-start gap-2">
+                              <span className="font-medium text-slate-700 dark:text-slate-300">Regional:</span>
+                              <span className="flex-1">{regional.sigla}</span>
+                            </div>
+                          )}
+                          {almoxarifados.length > 0 && (
+                            <div className="flex items-start gap-2">
+                              <span className="font-medium text-slate-700 dark:text-slate-300">Almoxarifados:</span>
+                              <span className="flex-1">
+                                {almoxarifados.slice(0, 2).map(a => a.nome).join(', ')}
+                                {almoxarifados.length > 2 && ` +${almoxarifados.length - 2}`}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <DropdownMenuItem onClick={() => window.location.href = createPageUrl('Pessoas')}>
+                      <UserCircle className="w-4 h-4 mr-2" />
+                      Ver perfil completo
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleLogout}>
                       <LogOut className="w-4 h-4 mr-2" />
                       Sair
