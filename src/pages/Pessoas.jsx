@@ -24,11 +24,14 @@ export default function Pessoas() {
   const [pessoas, setPessoas] = useState([]);
   const [regionais, setRegionais] = useState([]);
   const [almoxarifados, setAlmoxarifados] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
   const [search, setSearch] = useState('');
   const [filterRegional, setFilterRegional] = useState('all');
   const [showModal, setShowModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showFuncoesModal, setShowFuncoesModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [editingFuncoes, setEditingFuncoes] = useState({ pessoa: null, funcoes: [] });
   const [formData, setFormData] = useState({
     matricula: '',
     nome: '',
@@ -47,11 +50,13 @@ export default function Pessoas() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [pessoasData, regionaisData, almoxData] = await Promise.all([
+      const [user, pessoasData, regionaisData, almoxData] = await Promise.all([
+        base44.auth.me(),
         base44.entities.Pessoa.list(),
         base44.entities.Regional.list(),
         base44.entities.Almoxarifado.list()
       ]);
+      setCurrentUser(user);
       setPessoas(pessoasData);
       setRegionais(regionaisData);
       setAlmoxarifados(almoxData);
@@ -136,6 +141,36 @@ export default function Pessoas() {
       setFormData({ ...formData, almoxarifados_ids: formData.almoxarifados_ids.filter(a => a !== id) });
     } else {
       setFormData({ ...formData, almoxarifados_ids: [...formData.almoxarifados_ids, id] });
+    }
+  };
+
+  const handleFuncoesClick = (pessoa) => {
+    if (currentUser?.role !== 'admin') return;
+    setEditingFuncoes({ pessoa, funcoes: [...(pessoa.funcoes || [])] });
+    setShowFuncoesModal(true);
+  };
+
+  const toggleEditingFuncao = (funcao) => {
+    setEditingFuncoes(prev => ({
+      ...prev,
+      funcoes: prev.funcoes.includes(funcao)
+        ? prev.funcoes.filter(f => f !== funcao)
+        : [...prev.funcoes, funcao]
+    }));
+  };
+
+  const saveFuncoes = async () => {
+    setSaving(true);
+    try {
+      await base44.entities.Pessoa.update(editingFuncoes.pessoa.id, {
+        funcoes: editingFuncoes.funcoes
+      });
+      await loadData();
+      setShowFuncoesModal(false);
+    } catch (error) {
+      console.error('Error updating funcoes:', error);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -241,7 +276,11 @@ export default function Pessoas() {
                       <Badge variant="outline">{regional?.sigla || '-'}</Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-1 flex-wrap">
+                      <div 
+                        className={`flex gap-1 flex-wrap ${currentUser?.role === 'admin' ? 'cursor-pointer hover:opacity-70 transition-opacity' : ''}`}
+                        onClick={() => handleFuncoesClick(item)}
+                        title={currentUser?.role === 'admin' ? 'Clique para editar funções' : ''}
+                      >
                         {item.funcoes?.map(f => (
                           <Badge key={f} className={funcaoLabels[f]?.color}>
                             {funcaoLabels[f]?.label}
@@ -365,6 +404,46 @@ export default function Pessoas() {
               onClick={handleSave} 
               disabled={!formData.matricula || !formData.nome || !formData.email || 
                        !formData.regional_id || formData.funcoes.length === 0 || saving}
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Salvar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Quick Edit Funcoes Modal */}
+      <Dialog open={showFuncoesModal} onOpenChange={setShowFuncoesModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Funções</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              {editingFuncoes.pessoa?.nome}
+            </p>
+            <div className="space-y-3">
+              {Object.entries(funcaoLabels).map(([key, val]) => (
+                <div key={key} className="flex items-center gap-3">
+                  <Checkbox
+                    id={`edit-funcao-${key}`}
+                    checked={editingFuncoes.funcoes.includes(key)}
+                    onCheckedChange={() => toggleEditingFuncao(key)}
+                  />
+                  <Label htmlFor={`edit-funcao-${key}`} className="cursor-pointer flex-1">
+                    {val.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowFuncoesModal(false)}>
+              Cancelar
+            </Button>
+            <Button 
+              onClick={saveFuncoes} 
+              disabled={saving || editingFuncoes.funcoes.length === 0}
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Salvar
