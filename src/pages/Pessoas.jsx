@@ -49,6 +49,17 @@ export default function Pessoas() {
     loadData();
   }, []);
 
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('edit') === 'me' && currentUser && pessoas.length > 0) {
+      const minhaPessoa = pessoas.find(p => p.user_id === currentUser.id);
+      if (minhaPessoa) {
+        handleEdit(minhaPessoa);
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+    }
+  }, [currentUser, pessoas]);
+
   const loadData = async () => {
     setLoading(true);
     try {
