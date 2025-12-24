@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { AlertTriangle, CheckCircle, Clock, Loader2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Clock, Loader2, Filter } from 'lucide-react';
 
 const prioridadeConfig = {
   baixa: { color: 'bg-slate-100 text-slate-700', label: 'Baixa' },
@@ -21,27 +24,300 @@ const statusConfig = {
 };
 
 export default function OSList({ ordens, pessoas, categorias, regionais, onOSClick }) {
+  const [columnFilters, setColumnFilters] = useState({
+    codigo: [],
+    categoria: [],
+    regional: [],
+    lider: [],
+    prioridade: [],
+    status: []
+  });
+
   const getLider = (liderId) => pessoas.find(p => p.id === liderId);
   const getCategoria = (catId) => categorias.find(c => c.id === catId);
   const getRegional = (regId) => regionais.find(r => r.id === regId);
+
+  // Get unique values for each column
+  const getUniqueValues = (column) => {
+    const values = new Set();
+    ordens.forEach(os => {
+      if (column === 'codigo') values.add(os.codigo);
+      if (column === 'categoria') {
+        const cat = getCategoria(os.categoria_id);
+        if (cat) values.add(cat.nome);
+      }
+      if (column === 'regional') {
+        const reg = getRegional(os.regional_id);
+        if (reg) values.add(reg.sigla);
+      }
+      if (column === 'lider') {
+        const lid = getLider(os.lider_id);
+        if (lid) values.add(lid.nome);
+      }
+      if (column === 'prioridade') values.add(os.prioridade);
+      if (column === 'status') values.add(os.status);
+    });
+    return Array.from(values).sort();
+  };
+
+  // Toggle filter value
+  const toggleFilter = (column, value) => {
+    setColumnFilters(prev => {
+      const current = prev[column];
+      const updated = current.includes(value)
+        ? current.filter(v => v !== value)
+        : [...current, value];
+      return { ...prev, [column]: updated };
+    });
+  };
+
+  // Clear column filter
+  const clearFilter = (column) => {
+    setColumnFilters(prev => ({ ...prev, [column]: [] }));
+  };
+
+  // Apply filters to orders
+  const filteredOrdens = ordens.filter(os => {
+    if (columnFilters.codigo.length > 0 && !columnFilters.codigo.includes(os.codigo)) return false;
+    
+    const categoria = getCategoria(os.categoria_id);
+    if (columnFilters.categoria.length > 0 && !columnFilters.categoria.includes(categoria?.nome)) return false;
+    
+    const regional = getRegional(os.regional_id);
+    if (columnFilters.regional.length > 0 && !columnFilters.regional.includes(regional?.sigla)) return false;
+    
+    const lider = getLider(os.lider_id);
+    if (columnFilters.lider.length > 0 && !columnFilters.lider.includes(lider?.nome)) return false;
+    
+    if (columnFilters.prioridade.length > 0 && !columnFilters.prioridade.includes(os.prioridade)) return false;
+    if (columnFilters.status.length > 0 && !columnFilters.status.includes(os.status)) return false;
+    
+    return true;
+  });
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow className="bg-slate-50 dark:bg-slate-800/50">
-            <TableHead className="font-semibold">Código</TableHead>
-            <TableHead className="font-semibold">Categoria</TableHead>
-            <TableHead className="font-semibold">Regional</TableHead>
-            <TableHead className="font-semibold">Líder</TableHead>
+            <TableHead className="font-semibold">
+              <div className="flex items-center gap-2">
+                Código
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-6 w-6">
+                      <Filter className={`w-3 h-3 ${columnFilters.codigo.length > 0 ? 'text-blue-600' : 'text-slate-400'}`} />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64" align="start">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between pb-2 border-b">
+                        <span className="text-sm font-semibold">Filtrar Código</span>
+                        {columnFilters.codigo.length > 0 && (
+                          <Button variant="ghost" size="sm" onClick={() => clearFilter('codigo')} className="h-6 text-xs">
+                            Limpar
+                          </Button>
+                        )}
+                      </div>
+                      <div className="max-h-64 overflow-y-auto space-y-1">
+                        {getUniqueValues('codigo').map(value => (
+                          <label key={value} className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-1.5 rounded">
+                            <Checkbox
+                              checked={columnFilters.codigo.includes(value)}
+                              onCheckedChange={() => toggleFilter('codigo', value)}
+                            />
+                            <span className="text-sm font-mono">{value}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </TableHead>
+            <TableHead className="font-semibold">
+              <div className="flex items-center gap-2">
+                Categoria
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-6 w-6">
+                      <Filter className={`w-3 h-3 ${columnFilters.categoria.length > 0 ? 'text-blue-600' : 'text-slate-400'}`} />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64" align="start">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between pb-2 border-b">
+                        <span className="text-sm font-semibold">Filtrar Categoria</span>
+                        {columnFilters.categoria.length > 0 && (
+                          <Button variant="ghost" size="sm" onClick={() => clearFilter('categoria')} className="h-6 text-xs">
+                            Limpar
+                          </Button>
+                        )}
+                      </div>
+                      <div className="max-h-64 overflow-y-auto space-y-1">
+                        {getUniqueValues('categoria').map(value => (
+                          <label key={value} className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-1.5 rounded">
+                            <Checkbox
+                              checked={columnFilters.categoria.includes(value)}
+                              onCheckedChange={() => toggleFilter('categoria', value)}
+                            />
+                            <span className="text-sm">{value}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </TableHead>
+            <TableHead className="font-semibold">
+              <div className="flex items-center gap-2">
+                Regional
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-6 w-6">
+                      <Filter className={`w-3 h-3 ${columnFilters.regional.length > 0 ? 'text-blue-600' : 'text-slate-400'}`} />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64" align="start">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between pb-2 border-b">
+                        <span className="text-sm font-semibold">Filtrar Regional</span>
+                        {columnFilters.regional.length > 0 && (
+                          <Button variant="ghost" size="sm" onClick={() => clearFilter('regional')} className="h-6 text-xs">
+                            Limpar
+                          </Button>
+                        )}
+                      </div>
+                      <div className="max-h-64 overflow-y-auto space-y-1">
+                        {getUniqueValues('regional').map(value => (
+                          <label key={value} className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-1.5 rounded">
+                            <Checkbox
+                              checked={columnFilters.regional.includes(value)}
+                              onCheckedChange={() => toggleFilter('regional', value)}
+                            />
+                            <span className="text-sm">{value}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </TableHead>
+            <TableHead className="font-semibold">
+              <div className="flex items-center gap-2">
+                Líder
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-6 w-6">
+                      <Filter className={`w-3 h-3 ${columnFilters.lider.length > 0 ? 'text-blue-600' : 'text-slate-400'}`} />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64" align="start">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between pb-2 border-b">
+                        <span className="text-sm font-semibold">Filtrar Líder</span>
+                        {columnFilters.lider.length > 0 && (
+                          <Button variant="ghost" size="sm" onClick={() => clearFilter('lider')} className="h-6 text-xs">
+                            Limpar
+                          </Button>
+                        )}
+                      </div>
+                      <div className="max-h-64 overflow-y-auto space-y-1">
+                        {getUniqueValues('lider').map(value => (
+                          <label key={value} className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-1.5 rounded">
+                            <Checkbox
+                              checked={columnFilters.lider.includes(value)}
+                              onCheckedChange={() => toggleFilter('lider', value)}
+                            />
+                            <span className="text-sm">{value}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </TableHead>
             <TableHead className="font-semibold">Prazo</TableHead>
-            <TableHead className="font-semibold">Prioridade</TableHead>
-            <TableHead className="font-semibold">Status</TableHead>
+            <TableHead className="font-semibold">
+              <div className="flex items-center gap-2">
+                Prioridade
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-6 w-6">
+                      <Filter className={`w-3 h-3 ${columnFilters.prioridade.length > 0 ? 'text-blue-600' : 'text-slate-400'}`} />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64" align="start">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between pb-2 border-b">
+                        <span className="text-sm font-semibold">Filtrar Prioridade</span>
+                        {columnFilters.prioridade.length > 0 && (
+                          <Button variant="ghost" size="sm" onClick={() => clearFilter('prioridade')} className="h-6 text-xs">
+                            Limpar
+                          </Button>
+                        )}
+                      </div>
+                      <div className="max-h-64 overflow-y-auto space-y-1">
+                        {getUniqueValues('prioridade').map(value => (
+                          <label key={value} className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-1.5 rounded">
+                            <Checkbox
+                              checked={columnFilters.prioridade.includes(value)}
+                              onCheckedChange={() => toggleFilter('prioridade', value)}
+                            />
+                            <Badge className={prioridadeConfig[value]?.color}>
+                              {prioridadeConfig[value]?.label}
+                            </Badge>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </TableHead>
+            <TableHead className="font-semibold">
+              <div className="flex items-center gap-2">
+                Status
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-6 w-6">
+                      <Filter className={`w-3 h-3 ${columnFilters.status.length > 0 ? 'text-blue-600' : 'text-slate-400'}`} />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64" align="start">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between pb-2 border-b">
+                        <span className="text-sm font-semibold">Filtrar Status</span>
+                        {columnFilters.status.length > 0 && (
+                          <Button variant="ghost" size="sm" onClick={() => clearFilter('status')} className="h-6 text-xs">
+                            Limpar
+                          </Button>
+                        )}
+                      </div>
+                      <div className="max-h-64 overflow-y-auto space-y-1">
+                        {getUniqueValues('status').map(value => (
+                          <label key={value} className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-1.5 rounded">
+                            <Checkbox
+                              checked={columnFilters.status.includes(value)}
+                              onCheckedChange={() => toggleFilter('status', value)}
+                            />
+                            <span className="text-sm">{statusConfig[value]?.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </TableHead>
             <TableHead className="font-semibold text-right">Progresso</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {ordens.map((os) => {
+          {filteredOrdens.map((os) => {
             const StatusIcon = statusConfig[os.status]?.icon || Clock;
             const lider = getLider(os.lider_id);
             const categoria = getCategoria(os.categoria_id);
