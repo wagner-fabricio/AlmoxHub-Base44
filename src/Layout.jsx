@@ -81,22 +81,8 @@ export default function Layout({ children, currentPageName }) {
           return;
         }
         
-        // Se tem registro mas está pendente de aprovação, redirecionar para tela de aguardo
-        if (pessoaData && pessoaData.status_aprovacao === 'pendente' && currentPageName !== 'PendingApproval') {
-          redirected = true;
-          window.location.href = createPageUrl('PendingApproval');
-          return;
-        }
-
-        // Se foi rejeitado, também vai para tela de pendente (pode ser customizado depois)
-        if (pessoaData && pessoaData.status_aprovacao === 'rejeitado' && currentPageName !== 'PendingApproval') {
-          redirected = true;
-          window.location.href = createPageUrl('PendingApproval');
-          return;
-        }
-
-        // Se não está ativo E não foi aprovado, redirecionar
-        if (pessoaData && !pessoaData.ativo && pessoaData.status_aprovacao !== 'aprovado' && currentPageName !== 'PendingApproval' && currentPageName !== 'NewUserSetup') {
+        // Se tem registro mas não está aprovado OU não está ativo, redirecionar para tela de aguardo
+        if (pessoaData && (pessoaData.status_aprovacao !== 'aprovado' || !pessoaData.ativo) && currentPageName !== 'PendingApproval') {
           redirected = true;
           window.location.href = createPageUrl('PendingApproval');
           return;
