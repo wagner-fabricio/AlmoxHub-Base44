@@ -30,7 +30,9 @@ export default function Pessoas() {
   const [showModal, setShowModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showFuncoesModal, setShowFuncoesModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [viewingItem, setViewingItem] = useState(null);
   const [editingFuncoes, setEditingFuncoes] = useState({ pessoa: null, funcoes: [] });
   const [formData, setFormData] = useState({
     matricula: '',
@@ -51,10 +53,11 @@ export default function Pessoas() {
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('edit') === 'me' && currentUser && pessoas.length > 0) {
+    if (urlParams.get('view') === 'me' && currentUser && pessoas.length > 0) {
       const minhaPessoa = pessoas.find(p => p.user_id === currentUser.id);
       if (minhaPessoa) {
-        handleEdit(minhaPessoa);
+        setViewingItem(minhaPessoa);
+        setShowViewModal(true);
         window.history.replaceState({}, '', window.location.pathname);
       }
     }
@@ -507,6 +510,95 @@ export default function Pessoas() {
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Salvar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Profile Modal */}
+      <Dialog open={showViewModal} onOpenChange={setShowViewModal}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Perfil Completo</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
+            {/* Foto de Perfil */}
+            <div className="flex flex-col items-center gap-3">
+              {viewingItem?.foto_perfil ? (
+                <img
+                  src={viewingItem.foto_perfil}
+                  alt={viewingItem.nome}
+                  className="w-24 h-24 rounded-full object-cover border-4 border-slate-200"
+                />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-3xl font-bold">
+                  {viewingItem?.nome?.charAt(0) || '?'}
+                </div>
+              )}
+            </div>
+
+            {/* Informações Básicas */}
+            <div className="space-y-3">
+              <div>
+                <Label className="text-xs text-slate-500 dark:text-slate-400">Nome Completo</Label>
+                <p className="text-base font-medium text-slate-900 dark:text-white mt-1">{viewingItem?.nome}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-xs text-slate-500 dark:text-slate-400">Matrícula</Label>
+                  <p className="text-base font-mono text-slate-900 dark:text-white mt-1">{viewingItem?.matricula}</p>
+                </div>
+                <div>
+                  <Label className="text-xs text-slate-500 dark:text-slate-400">Status</Label>
+                  <div className="mt-1">
+                    <Badge className={viewingItem?.ativo !== false ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}>
+                      {viewingItem?.ativo !== false ? 'Ativo' : 'Inativo'}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-slate-500 dark:text-slate-400">E-mail</Label>
+                <p className="text-base text-slate-900 dark:text-white mt-1">{viewingItem?.email}</p>
+              </div>
+              <div>
+                <Label className="text-xs text-slate-500 dark:text-slate-400">Regional</Label>
+                <p className="text-base text-slate-900 dark:text-white mt-1">
+                  {regionais.find(r => r.id === viewingItem?.regional_id)?.sigla || '-'}
+                </p>
+              </div>
+              <div>
+                <Label className="text-xs text-slate-500 dark:text-slate-400">Funções</Label>
+                <div className="flex gap-2 flex-wrap mt-1">
+                  {viewingItem?.funcoes?.map(f => (
+                    <Badge key={f} className={funcaoLabels[f]?.color}>
+                      {funcaoLabels[f]?.label}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              {viewingItem?.almoxarifados_ids?.length > 0 && (
+                <div>
+                  <Label className="text-xs text-slate-500 dark:text-slate-400">Almoxarifados Vinculados</Label>
+                  <div className="mt-2 space-y-1">
+                    {almoxarifados
+                      .filter(a => viewingItem.almoxarifados_ids.includes(a.id))
+                      .map(a => (
+                        <p key={a.id} className="text-sm text-slate-900 dark:text-white">• {a.nome}</p>
+                      ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowViewModal(false)}>Fechar</Button>
+            <Button onClick={() => {
+              setShowViewModal(false);
+              handleEdit(viewingItem);
+            }}>
+              <Edit className="w-4 h-4 mr-2" />
+              Editar Perfil
             </Button>
           </DialogFooter>
         </DialogContent>

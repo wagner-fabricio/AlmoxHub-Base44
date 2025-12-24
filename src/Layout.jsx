@@ -444,7 +444,7 @@ export default function Layout({ children, currentPageName }) {
                         </div>
                       )}
                     </div>
-                    <DropdownMenuItem onClick={() => window.location.href = createPageUrl('Pessoas') + '?edit=me'}>
+                    <DropdownMenuItem onClick={() => window.location.href = createPageUrl('Pessoas') + '?view=me'}>
                       <UserCircle className="w-4 h-4 mr-2" />
                       Ver perfil completo
                     </DropdownMenuItem>
