@@ -291,13 +291,14 @@ export default function Pessoas() {
               <TableHead className="font-semibold">Regional</TableHead>
               <TableHead className="font-semibold">Funções</TableHead>
               <TableHead className="font-semibold">Status</TableHead>
+              <TableHead className="font-semibold">Aprovação</TableHead>
               <TableHead className="font-semibold text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredItems.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-12 text-slate-500">
+                <TableCell colSpan={7} className="text-center py-12 text-slate-500">
                   <User className="w-12 h-12 mx-auto mb-3 text-slate-300" />
                   <p>Nenhuma pessoa cadastrada</p>
                 </TableCell>
@@ -347,6 +348,19 @@ export default function Pessoas() {
                         title={currentUser?.role === 'admin' ? 'Clique para alterar status' : ''}
                       >
                         {item.ativo !== false ? 'Ativo' : 'Inativo'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge 
+                        className={
+                          item.status_aprovacao === 'aprovado' ? 'bg-green-100 text-green-700' :
+                          item.status_aprovacao === 'rejeitado' ? 'bg-red-100 text-red-700' :
+                          'bg-amber-100 text-amber-700'
+                        }
+                      >
+                        {item.status_aprovacao === 'aprovado' ? 'Aprovado' :
+                         item.status_aprovacao === 'rejeitado' ? 'Rejeitado' :
+                         'Pendente'}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
