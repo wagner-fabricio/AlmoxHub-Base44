@@ -103,6 +103,38 @@ export default function Layout({ children, currentPageName }) {
     base44.auth.logout();
   };
 
+  // Páginas que não devem exibir o layout (sidebar e header)
+  const pagesWithoutLayout = ['NewUserSetup', 'PendingApproval', 'UserApproval'];
+  const shouldHideLayout = pagesWithoutLayout.includes(currentPageName);
+
+  // Se a página não deve ter layout, renderizar apenas o children
+  if (shouldHideLayout) {
+    return (
+      <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
+        <style>{`
+          :root {
+            --primary: 217 91% 60%;
+            --primary-foreground: 0 0% 100%;
+            --accent: 38 92% 50%;
+          }
+          .dark {
+            --background: 222 47% 11%;
+            --foreground: 210 40% 98%;
+            --card: 222 47% 14%;
+            --card-foreground: 210 40% 98%;
+            --popover: 222 47% 14%;
+            --popover-foreground: 210 40% 98%;
+            --muted: 217 33% 17%;
+            --muted-foreground: 215 20% 65%;
+            --border: 217 33% 20%;
+            --input: 217 33% 20%;
+          }
+        `}</style>
+        {children}
+      </div>
+    );
+  }
+
   return (
     <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
       <style>{`
