@@ -289,33 +289,39 @@ export default function OSFormModal({
                     Selecione os usuários que irão executar esta tarefa
                   </p>
                   <div className="border rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto bg-slate-50 dark:bg-slate-800">
-                    {pessoas.length > 0 ? (
-                      pessoas.map((pessoa) => (
-                        <div key={pessoa.id} className="flex items-center gap-2">
-                          <Checkbox
-                            id={`executor-${pessoa.id}`}
-                            checked={formData.executores_ids?.includes(pessoa.id)}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                setFormData({
-                                  ...formData,
-                                  executores_ids: [...(formData.executores_ids || []), pessoa.id]
-                                });
-                              } else {
-                                setFormData({
-                                  ...formData,
-                                  executores_ids: formData.executores_ids?.filter(id => id !== pessoa.id) || []
-                                });
-                              }
-                            }}
-                          />
-                          <Label htmlFor={`executor-${pessoa.id}`} className="cursor-pointer text-sm">
-                            {pessoa.nome}
-                          </Label>
-                        </div>
-                      ))
+                    {formData.almoxarifado_id ? (
+                      pessoas.filter(p => p.almoxarifados_ids?.includes(formData.almoxarifado_id)).length > 0 ? (
+                        pessoas
+                          .filter(p => p.almoxarifados_ids?.includes(formData.almoxarifado_id))
+                          .map((pessoa) => (
+                            <div key={pessoa.id} className="flex items-center gap-2">
+                              <Checkbox
+                                id={`executor-${pessoa.id}`}
+                                checked={formData.executores_ids?.includes(pessoa.id)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setFormData({
+                                      ...formData,
+                                      executores_ids: [...(formData.executores_ids || []), pessoa.id]
+                                    });
+                                  } else {
+                                    setFormData({
+                                      ...formData,
+                                      executores_ids: formData.executores_ids?.filter(id => id !== pessoa.id) || []
+                                    });
+                                  }
+                                }}
+                              />
+                              <Label htmlFor={`executor-${pessoa.id}`} className="cursor-pointer text-sm">
+                                {pessoa.nome}
+                              </Label>
+                            </div>
+                          ))
+                      ) : (
+                        <p className="text-sm text-slate-500">Nenhuma pessoa lotada neste almoxarifado</p>
+                      )
                     ) : (
-                      <p className="text-sm text-slate-500">Nenhuma pessoa disponível</p>
+                      <p className="text-sm text-slate-500">Selecione um almoxarifado primeiro</p>
                     )}
                   </div>
                 </div>
