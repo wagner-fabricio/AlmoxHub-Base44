@@ -41,6 +41,7 @@ const menuItems = [
 
 export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [user, setUser] = useState(null);
   const [pessoa, setPessoa] = useState(null);
@@ -99,6 +100,11 @@ export default function Layout({ children, currentPageName }) {
       setDarkMode(true);
       document.documentElement.classList.add('dark');
     }
+
+    const savedCollapsed = localStorage.getItem('almoxhub-sidebar-collapsed');
+    if (savedCollapsed === 'true') {
+      setSidebarCollapsed(true);
+    }
   }, []);
 
   const toggleDarkMode = () => {
@@ -114,6 +120,11 @@ export default function Layout({ children, currentPageName }) {
 
   const handleLogout = () => {
     base44.auth.logout();
+  };
+
+  const toggleSidebarCollapse = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
+    localStorage.setItem('almoxhub-sidebar-collapsed', !sidebarCollapsed);
   };
 
   // Páginas que não devem exibir o layout (sidebar e header)
@@ -212,28 +223,39 @@ export default function Layout({ children, currentPageName }) {
         {/* Sidebar */}
         <aside className={`
           fixed lg:static inset-y-0 left-0 z-50
-          w-72 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700
-          transform transition-transform duration-300 ease-in-out
+          bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700
+          transform transition-all duration-300 ease-in-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          ${sidebarCollapsed ? 'w-20' : 'w-72'}
         `}>
           <div className="flex flex-col h-full">
             {/* Logo */}
             <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-700">
-              <Link to={createPageUrl('Dashboard')} className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                  <Zap className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-lg font-bold text-slate-900 dark:text-white">AlmoxHub</h1>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Axia Energia</p>
-                </div>
-              </Link>
-              <button 
-                className="lg:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400"
-                onClick={() => setSidebarOpen(false)}
-              >
-                <X className="w-5 h-5" />
-              </button>
+              {!sidebarCollapsed ? (
+                <>
+                  <Link to={createPageUrl('Dashboard')} className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                      <Zap className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h1 className="text-lg font-bold text-slate-900 dark:text-white">AlmoxHub</h1>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Axia Energia</p>
+                    </div>
+                  </Link>
+                  <button 
+                    className="lg:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400"
+                    onClick={() => setSidebarOpen(false)}
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </>
+              ) : (
+                <Link to={createPageUrl('Dashboard')} className="w-full flex justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                    <Zap className="w-6 h-6 text-white" />
+                  </div>
+                </Link>
+              )}
             </div>
 
             {/* Navigation */}
@@ -246,48 +268,88 @@ export default function Layout({ children, currentPageName }) {
                     key={item.page}
                     to={createPageUrl(item.page)}
                     className={`
-                      flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+                      flex items-center gap-3 rounded-xl transition-all duration-200
+                      ${sidebarCollapsed ? 'px-4 py-3 justify-center' : 'px-4 py-3'}
                       ${isActive 
                         ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium shadow-sm' 
                         : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50'
                       }
                     `}
                     onClick={() => setSidebarOpen(false)}
+                    title={sidebarCollapsed ? item.name : ''}
                   >
-                    <Icon className={`w-5 h-5 ${isActive ? 'text-blue-500' : ''}`} />
-                    <span>{item.name}</span>
+                    <Icon className={`w-5 h-5 ${isActive ? 'text-blue-500' : ''} ${sidebarCollapsed ? '' : 'shrink-0'}`} />
+                    {!sidebarCollapsed && <span>{item.name}</span>}
                   </Link>
                 );
               })}
             </nav>
 
+            {/* Collapse Toggle Button */}
+            <div className="px-4 pb-2 border-t border-slate-200 dark:border-slate-700 pt-2 hidden lg:block">
+              <button
+                onClick={toggleSidebarCollapse}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all"
+                title={sidebarCollapsed ? 'Expandir menu' : 'Recolher menu'}
+              >
+                <Menu className={`w-5 h-5 transition-transform ${sidebarCollapsed ? 'rotate-180' : ''}`} />
+                {!sidebarCollapsed && <span className="text-sm">Recolher</span>}
+              </button>
+            </div>
+
             {/* User Section */}
             <div className="p-4 border-t border-slate-200 dark:border-slate-700">
-              <div className="flex items-center gap-3 px-3 py-2">
-                {pessoa?.foto_perfil ? (
-                  <img
-                    src={pessoa.foto_perfil}
-                    alt={user?.full_name || 'Usuário'}
-                    className="w-10 h-10 rounded-full object-cover border-2 border-slate-200 dark:border-slate-600"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-semibold">
-                    {user?.full_name?.charAt(0) || 'U'}
+              {!sidebarCollapsed ? (
+                <div className="flex items-center gap-3 px-3 py-2">
+                  {pessoa?.foto_perfil ? (
+                    <img
+                      src={pessoa.foto_perfil}
+                      alt={user?.full_name || 'Usuário'}
+                      className="w-10 h-10 rounded-full object-cover border-2 border-slate-200 dark:border-slate-600"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-semibold">
+                      {user?.full_name?.charAt(0) || 'U'}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
+                      {user?.full_name || 'Usuário'}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                      {user?.email || ''}
+                    </p>
                   </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
-                    {user?.full_name || 'Usuário'}
-                  </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                    {user?.email || ''}
-                  </p>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="shrink-0">
+                        <ChevronDown className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={handleLogout}>
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Sair
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
+              ) : (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="shrink-0">
-                      <ChevronDown className="w-4 h-4" />
-                    </Button>
+                    <button className="w-full flex justify-center">
+                      {pessoa?.foto_perfil ? (
+                        <img
+                          src={pessoa.foto_perfil}
+                          alt={user?.full_name || 'Usuário'}
+                          className="w-10 h-10 rounded-full object-cover border-2 border-slate-200 dark:border-slate-600"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-semibold">
+                          {user?.full_name?.charAt(0) || 'U'}
+                        </div>
+                      )}
+                    </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={handleLogout}>
@@ -296,7 +358,7 @@ export default function Layout({ children, currentPageName }) {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              </div>
+              )}
             </div>
           </div>
         </aside>
