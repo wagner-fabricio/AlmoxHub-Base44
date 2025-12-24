@@ -36,6 +36,7 @@ export default function OSFormModal({
     regional_id: '',
     almoxarifado_id: '',
     lider_id: '',
+    executores_ids: [],
     outros_envolvidos_ids: [],
     prazo: '',
     data_inicial: format(new Date(), 'yyyy-MM-dd'),
@@ -279,7 +280,47 @@ export default function OSFormModal({
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
 
+                {/* Executores */}
+                <div className="space-y-2">
+                  <Label>Executores</Label>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                    Selecione os usuários que irão executar esta tarefa
+                  </p>
+                  <div className="border rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto bg-slate-50 dark:bg-slate-800">
+                    {pessoas.length > 0 ? (
+                      pessoas.map((pessoa) => (
+                        <div key={pessoa.id} className="flex items-center gap-2">
+                          <Checkbox
+                            id={`executor-${pessoa.id}`}
+                            checked={formData.executores_ids?.includes(pessoa.id)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setFormData({
+                                  ...formData,
+                                  executores_ids: [...(formData.executores_ids || []), pessoa.id]
+                                });
+                              } else {
+                                setFormData({
+                                  ...formData,
+                                  executores_ids: formData.executores_ids?.filter(id => id !== pessoa.id) || []
+                                });
+                              }
+                            }}
+                          />
+                          <Label htmlFor={`executor-${pessoa.id}`} className="cursor-pointer text-sm">
+                            {pessoa.nome}
+                          </Label>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-slate-500">Nenhuma pessoa disponível</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {/* Prazo */}
                   <div className="space-y-2">
                     <Label>Prazo *</Label>
