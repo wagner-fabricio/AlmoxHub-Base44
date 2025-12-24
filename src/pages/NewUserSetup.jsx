@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, UserPlus, CheckCircle2, AlertCircle, Moon, Sun } from 'lucide-react';
+import { Loader2, UserPlus, CheckCircle2, AlertCircle, Moon, Sun, Upload, X } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function NewUserSetup() {
@@ -22,8 +22,11 @@ export default function NewUserSetup() {
     matricula: '',
     regional_id: '',
     funcoes: [],
-    almoxarifados_ids: []
+    almoxarifados_ids: [],
+    foto_perfil: ''
   });
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -82,6 +85,42 @@ export default function NewUserSetup() {
     }));
   };
 
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validar tipo de arquivo
+    if (!file.type.startsWith('image/')) {
+      setError('Por favor, selecione uma imagem válida.');
+      return;
+    }
+
+    // Validar tamanho (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('A imagem deve ter no máximo 5MB.');
+      return;
+    }
+
+    setUploadingPhoto(true);
+    setError(null);
+
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setFormData(prev => ({ ...prev, foto_perfil: file_url }));
+      setPhotoPreview(file_url);
+    } catch (err) {
+      setError('Erro ao fazer upload da foto. Tente novamente.');
+      console.error(err);
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
+  const removePhoto = () => {
+    setFormData(prev => ({ ...prev, foto_perfil: '' }));
+    setPhotoPreview(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -96,6 +135,7 @@ export default function NewUserSetup() {
         funcoes: formData.funcoes,
         regional_id: formData.regional_id,
         almoxarifados_ids: formData.almoxarifados_ids,
+        foto_perfil: formData.foto_perfil,
         user_id: currentUser.id,
         ativo: false,
         status_aprovacao: 'pendente'
@@ -236,7 +276,64 @@ Sistema AlmoxHub
                 {/* Dados Adicionais */}
                 <div className="space-y-4">
                   <h3 className="font-semibold text-slate-900 dark:text-white">Informações Profissionais</h3>
-                  
+
+                  <div>
+                    <Label>Foto de Perfil (opcional)</Label>
+                    <div className="mt-2">
+                      {photoPreview ? (
+                        <div className="flex items-center gap-4">
+                          <img
+                            src={photoPreview}
+                            alt="Preview"
+                            className="w-20 h-20 rounded-full object-cover border-2 border-slate-200"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={removePhoto}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <X className="w-4 h-4 mr-1" />
+                            Remover
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={handlePhotoUpload}
+                            disabled={uploadingPhoto}
+                            className="hidden"
+                            id="photo-upload"
+                          />
+                          <label htmlFor="photo-upload">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              disabled={uploadingPhoto}
+                              onClick={() => document.getElementById('photo-upload').click()}
+                              asChild
+                            >
+                              <span>
+                                {uploadingPhoto ? (
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                ) : (
+                                  <Upload className="w-4 h-4 mr-2" />
+                                )}
+                                {uploadingPhoto ? 'Enviando...' : 'Selecionar Foto'}
+                              </span>
+                            </Button>
+                          </label>
+                        </div>
+                      )}
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        Formatos aceitos: JPG, PNG, GIF (máx. 5MB)
+                      </p>
+                    </div>
+                  </div>
+
                   <div>
                     <Label>Matrícula *</Label>
                     <Input

@@ -43,6 +43,7 @@ export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [user, setUser] = useState(null);
+  const [pessoa, setPessoa] = useState(null);
   const [isLoadingUserStatus, setIsLoadingUserStatus] = useState(true);
 
   useEffect(() => {
@@ -53,31 +54,32 @@ export default function Layout({ children, currentPageName }) {
         setUser(userData);
         
         // Verificar se usuário precisa completar cadastro ou está pendente de aprovação
-        const pessoa = await base44.entities.Pessoa.filter({ user_id: userData.id }).then(p => p[0]);
+        const pessoaData = await base44.entities.Pessoa.filter({ user_id: userData.id }).then(p => p[0]);
+        setPessoa(pessoaData);
         
         // Se não tem registro de Pessoa, redirecionar para cadastro inicial
-        if (!pessoa && currentPageName !== 'NewUserSetup') {
+        if (!pessoaData && currentPageName !== 'NewUserSetup') {
           redirected = true;
           window.location.href = createPageUrl('NewUserSetup');
           return;
         }
         
         // Se tem registro mas está pendente de aprovação, redirecionar para tela de aguardo
-        if (pessoa && pessoa.status_aprovacao === 'pendente' && currentPageName !== 'PendingApproval') {
+        if (pessoaData && pessoaData.status_aprovacao === 'pendente' && currentPageName !== 'PendingApproval') {
           redirected = true;
           window.location.href = createPageUrl('PendingApproval');
           return;
         }
         
         // Se foi rejeitado, também vai para tela de pendente (pode ser customizado depois)
-        if (pessoa && pessoa.status_aprovacao === 'rejeitado' && currentPageName !== 'PendingApproval') {
+        if (pessoaData && pessoaData.status_aprovacao === 'rejeitado' && currentPageName !== 'PendingApproval') {
           redirected = true;
           window.location.href = createPageUrl('PendingApproval');
           return;
         }
         
         // Se não está ativo, redirecionar
-        if (pessoa && !pessoa.ativo && currentPageName !== 'PendingApproval' && currentPageName !== 'NewUserSetup') {
+        if (pessoaData && !pessoaData.ativo && currentPageName !== 'PendingApproval' && currentPageName !== 'NewUserSetup') {
           redirected = true;
           window.location.href = createPageUrl('PendingApproval');
           return;
@@ -262,9 +264,17 @@ export default function Layout({ children, currentPageName }) {
             {/* User Section */}
             <div className="p-4 border-t border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-3 px-3 py-2">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-semibold">
-                  {user?.full_name?.charAt(0) || 'U'}
-                </div>
+                {pessoa?.foto_perfil ? (
+                  <img
+                    src={pessoa.foto_perfil}
+                    alt={user?.full_name || 'Usuário'}
+                    className="w-10 h-10 rounded-full object-cover border-2 border-slate-200 dark:border-slate-600"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-semibold">
+                    {user?.full_name?.charAt(0) || 'U'}
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
                     {user?.full_name || 'Usuário'}
