@@ -94,7 +94,8 @@ export default function OSDetailModal({
       await base44.entities.Comentario.create({
         ordem_servico_id: os.id,
         conteudo: newComment,
-        autor_nome: currentUser?.full_name || 'Usuário'
+        autor_nome: currentUser?.full_name || 'Usuário',
+        autor_id: currentUserPessoa?.id
       });
       setNewComment('');
       loadComentarios();
