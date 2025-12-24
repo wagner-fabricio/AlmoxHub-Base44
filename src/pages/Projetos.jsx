@@ -258,7 +258,7 @@ export default function Projetos() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => window.location.href = createPageUrl('OrdensServico') + `?os=${os.id}`}
+                                  onClick={() => window.location.href = createPageUrl('OrdensServico') + `?os_id=${os.id}`}
                                 >
                                   <ExternalLink className="w-4 h-4 mr-1" />
                                   Abrir
