@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
@@ -55,6 +55,7 @@ export default function OSDetailModal({
   const [newComment, setNewComment] = useState('');
   const [loadingComment, setLoadingComment] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [currentUserPessoa, setCurrentUserPessoa] = useState(null);
 
   useEffect(() => {
     if (open && os) {
@@ -67,6 +68,12 @@ export default function OSDetailModal({
     try {
       const user = await base44.auth.me();
       setCurrentUser(user);
+      
+      // Buscar dados da pessoa para obter foto de perfil
+      const pessoaData = await base44.entities.Pessoa.filter({ user_id: user.id });
+      if (pessoaData && pessoaData[0]) {
+        setCurrentUserPessoa(pessoaData[0]);
+      }
     } catch (e) {}
   };
 
@@ -264,6 +271,9 @@ export default function OSDetailModal({
                 {/* Comment Input */}
                 <div className="flex gap-3">
                   <Avatar className="w-10 h-10 shrink-0">
+                    {currentUserPessoa?.foto_perfil && (
+                      <AvatarImage src={currentUserPessoa.foto_perfil} alt={currentUser?.full_name} />
+                    )}
                     <AvatarFallback className="bg-blue-100 text-blue-700">
                       {currentUser?.full_name?.charAt(0) || 'U'}
                     </AvatarFallback>
@@ -288,9 +298,14 @@ export default function OSDetailModal({
                       Nenhum comentário ainda
                     </div>
                   ) : (
-                    comentarios.map((comment) => (
+                    comentarios.map((comment) => {
+                      const commentAuthor = pessoas.find(p => p.id === comment.autor_id);
+                      return (
                       <div key={comment.id} className="flex gap-3">
                         <Avatar className="w-10 h-10 shrink-0">
+                          {commentAuthor?.foto_perfil && (
+                            <AvatarImage src={commentAuthor.foto_perfil} alt={comment.autor_nome} />
+                          )}
                           <AvatarFallback className="bg-slate-100 text-slate-700">
                             {comment.autor_nome?.charAt(0) || '?'}
                           </AvatarFallback>
@@ -307,7 +322,8 @@ export default function OSDetailModal({
                           <p className="text-slate-600 dark:text-slate-400">{comment.conteudo}</p>
                         </div>
                       </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               </TabsContent>
