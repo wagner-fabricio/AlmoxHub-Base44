@@ -5,10 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Textarea } from '@/components/ui/textarea';
 import { base44 } from '@/api/base44Client';
 import { format, isToday, isYesterday, differenceInMinutes } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import MentionInput from '@/components/notifications/MentionInput';
 import { 
   Edit, 
   Calendar, 
@@ -103,19 +103,68 @@ export default function OSDetailModal({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const extractMentions = (text) => {
+    const mentionRegex = /@(\S+(?:\s+\S+)*?)(?=\s|$|@)/g;
+    const mentions = [];
+    let match;
+    
+    while ((match = mentionRegex.exec(text)) !== null) {
+      const mentionedName = match[1].trim();
+      const pessoa = pessoas.find(p => 
+        p.nome?.toLowerCase() === mentionedName.toLowerCase()
+      );
+      if (pessoa) {
+        mentions.push(pessoa.id);
+      }
+    }
+    
+    return [...new Set(mentions)];
+  };
+
+  const createNotifications = async (comentarioId, mencoesIds) => {
+    if (!mencoesIds || mencoesIds.length === 0) return;
+    
+    try {
+      const notificacoes = mencoesIds.map(destinatarioId => ({
+        destinatario_id: destinatarioId,
+        remetente_id: currentUserPessoa?.id,
+        tipo: 'mencao',
+        referencia_id: os.id,
+        referencia_tipo: 'tarefa',
+        mensagem: `${currentUser?.full_name} mencionou você em um comentário`,
+        lida: false,
+        contexto_adicional: {
+          comentario_id: comentarioId,
+          os_codigo: os.codigo
+        }
+      }));
+      
+      await base44.entities.Notificacao.bulkCreate(notificacoes);
+    } catch (e) {
+      console.error('Error creating notifications:', e);
+    }
+  };
+
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
     
     setLoadingComment(true);
     try {
-      await base44.entities.Comentario.create({
+      const mencoesIds = extractMentions(newComment);
+      
+      const comentario = await base44.entities.Comentario.create({
         ordem_servico_id: os.id,
         conteudo: newComment,
         autor_nome: currentUser?.full_name || 'Usuário',
         autor_id: currentUserPessoa?.id,
+        mencoes_ids: mencoesIds,
         is_deleted: false,
         is_edited: false
       });
+      
+      // Criar notificações para mencionados
+      await createNotifications(comentario.id, mencoesIds);
+      
       setNewComment('');
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
@@ -144,10 +193,17 @@ export default function OSDetailModal({
     if (!editingContent.trim()) return;
     
     try {
+      const mencoesIds = extractMentions(editingContent);
+      
       await base44.entities.Comentario.update(commentId, {
         conteudo: editingContent,
+        mencoes_ids: mencoesIds,
         is_edited: true
       });
+      
+      // Criar notificações para novas menções
+      await createNotifications(commentId, mencoesIds);
+      
       setEditingCommentId(null);
       setEditingContent('');
       loadComentarios();
@@ -418,13 +474,14 @@ export default function OSDetailModal({
                                   {comment.is_deleted ? (
                                     <p className="italic text-slate-400">Mensagem removida</p>
                                   ) : editingCommentId === comment.id ? (
-                                    <div className="space-y-2">
-                                      <Textarea
-                                        value={editingContent}
-                                        onChange={(e) => setEditingContent(e.target.value)}
-                                        className="min-h-[60px] bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
-                                        autoFocus
-                                      />
+                                   <div className="space-y-2">
+                                     <MentionInput
+                                       value={editingContent}
+                                       onChange={(e) => setEditingContent(e.target.value)}
+                                       pessoas={pessoas}
+                                       className="min-h-[60px] bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                                       textareaRef={React.createRef()}
+                                     />
                                       <div className="flex gap-2 justify-end">
                                         <Button 
                                           size="sm" 
@@ -445,9 +502,22 @@ export default function OSDetailModal({
                                       </div>
                                     </div>
                                   ) : (
-                                    <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
-                                      {comment.conteudo}
-                                    </p>
+                                   <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                                     {comment.conteudo.split(/(@\S+(?:\s+\S+)*?)(?=\s|$|@)/g).map((part, i) => {
+                                       if (part.startsWith('@')) {
+                                         const mentionedName = part.slice(1);
+                                         const isPessoaMentioned = pessoas.some(p => 
+                                           p.nome?.toLowerCase() === mentionedName.toLowerCase()
+                                         );
+                                         return isPessoaMentioned ? (
+                                           <span key={i} className={`font-semibold ${isOwnMessage ? 'text-blue-100' : 'text-blue-600 dark:text-blue-400'}`}>
+                                             {part}
+                                           </span>
+                                         ) : part;
+                                       }
+                                       return part;
+                                     })}
+                                   </p>
                                   )}
                                 </div>
                                 
@@ -508,18 +578,21 @@ export default function OSDetailModal({
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 relative">
-                      <Textarea
+                      <MentionInput
                         ref={textareaRef}
-                        placeholder="Digite uma mensagem... (Enter para enviar, Shift+Enter para quebra de linha)"
+                        textareaRef={textareaRef}
+                        placeholder="Digite uma mensagem... (@ para mencionar, Enter para enviar)"
                         value={newComment}
                         onChange={(e) => {
                           setNewComment(e.target.value);
-                          e.target.style.height = 'auto';
-                          e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+                          if (textareaRef.current) {
+                            textareaRef.current.style.height = 'auto';
+                            textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 120) + 'px';
+                          }
                         }}
                         onKeyDown={handleKeyDown}
+                        pessoas={pessoas}
                         className="min-h-[44px] max-h-[120px] resize-none pr-12"
-                        rows={1}
                       />
                       <Button 
                         onClick={handleAddComment} 
