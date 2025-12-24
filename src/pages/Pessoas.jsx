@@ -38,6 +38,7 @@ export default function Pessoas() {
     matricula: '',
     nome: '',
     email: '',
+    funcao: '',
     funcoes: [],
     regional_id: '',
     almoxarifados_ids: [],
@@ -89,6 +90,7 @@ export default function Pessoas() {
       matricula: '',
       nome: '',
       email: '',
+      funcao: '',
       funcoes: [],
       regional_id: '',
       almoxarifados_ids: [],
@@ -104,6 +106,7 @@ export default function Pessoas() {
       matricula: item.matricula || '',
       nome: item.nome || '',
       email: item.email || '',
+      funcao: item.funcao || '',
       funcoes: item.funcoes || [],
       regional_id: item.regional_id || '',
       almoxarifados_ids: item.almoxarifados_ids || [],
@@ -310,6 +313,7 @@ export default function Pessoas() {
             <TableRow className="bg-slate-50 dark:bg-slate-800">
               <TableHead className="font-semibold">Pessoa</TableHead>
               <TableHead className="font-semibold">Matrícula</TableHead>
+              <TableHead className="font-semibold">Função</TableHead>
               <TableHead className="font-semibold">Regional</TableHead>
               <TableHead className="font-semibold">Perfil</TableHead>
               <TableHead className="font-semibold">Status</TableHead>
@@ -320,10 +324,10 @@ export default function Pessoas() {
           <TableBody>
             {filteredItems.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-12 text-slate-500">
-                  <User className="w-12 h-12 mx-auto mb-3 text-slate-300" />
-                  <p>Nenhuma pessoa cadastrada</p>
-                </TableCell>
+              <TableCell colSpan={8} className="text-center py-12 text-slate-500">
+                <User className="w-12 h-12 mx-auto mb-3 text-slate-300" />
+                <p>Nenhuma pessoa cadastrada</p>
+              </TableCell>
               </TableRow>
             ) : (
               filteredItems.map((item) => {
@@ -347,6 +351,9 @@ export default function Pessoas() {
                       </div>
                     </TableCell>
                     <TableCell className="font-mono text-sm">{item.matricula}</TableCell>
+                    <TableCell>
+                      <span className="text-sm text-slate-600 dark:text-slate-400">{item.funcao || '-'}</span>
+                    </TableCell>
                     <TableCell>
                       <Badge variant="outline">{regional?.sigla || '-'}</Badge>
                     </TableCell>
@@ -484,6 +491,14 @@ export default function Pessoas() {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="email@empresa.com"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Função/Cargo</Label>
+              <Input
+                value={formData.funcao}
+                onChange={(e) => setFormData({ ...formData, funcao: e.target.value })}
+                placeholder="Ex: Analista, Técnico, Coordenador..."
               />
             </div>
             <div className="space-y-2">

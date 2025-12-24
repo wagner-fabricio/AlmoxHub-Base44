@@ -20,6 +20,7 @@ export default function NewUserSetup() {
   const [almoxarifados, setAlmoxarifados] = useState([]);
   const [formData, setFormData] = useState({
     matricula: '',
+    funcao: '',
     regional_id: '',
     funcoes: [],
     almoxarifados_ids: [],
@@ -132,6 +133,7 @@ export default function NewUserSetup() {
         matricula: formData.matricula,
         nome: currentUser.full_name,
         email: currentUser.email,
+        funcao: formData.funcao,
         funcoes: formData.funcoes,
         regional_id: formData.regional_id,
         almoxarifados_ids: formData.almoxarifados_ids,
@@ -312,6 +314,15 @@ export default function NewUserSetup() {
                       onChange={(e) => setFormData({ ...formData, matricula: e.target.value })}
                       placeholder="Digite sua matrícula"
                       required
+                    />
+                  </div>
+
+                  <div>
+                    <Label>Função/Cargo</Label>
+                    <Input
+                      value={formData.funcao}
+                      onChange={(e) => setFormData({ ...formData, funcao: e.target.value })}
+                      placeholder="Ex: Analista, Técnico, Coordenador..."
                     />
                   </div>
 
