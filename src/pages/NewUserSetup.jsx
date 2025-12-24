@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, UserPlus, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Loader2, UserPlus, CheckCircle2, AlertCircle, Moon, Sun } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function NewUserSetup() {
@@ -14,11 +14,11 @@ export default function NewUserSetup() {
   const [saving, setSaving] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [error, setError] = useState(null);
+  const [darkMode, setDarkMode] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [regionais, setRegionais] = useState([]);
   const [almoxarifados, setAlmoxarifados] = useState([]);
   const [formData, setFormData] = useState({
-    nome: '',
     matricula: '',
     regional_id: '',
     funcoes: [],
@@ -27,16 +27,23 @@ export default function NewUserSetup() {
 
   useEffect(() => {
     loadData();
+    const savedTheme = localStorage.getItem('almoxhub-theme');
+    if (savedTheme === 'dark') {
+      setDarkMode(true);
+      document.documentElement.classList.add('dark');
+    }
   }, []);
 
-  useEffect(() => {
-    if (currentUser) {
-      setFormData(prev => ({
-        ...prev,
-        nome: currentUser.full_name || ''
-      }));
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+    if (!darkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('almoxhub-theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('almoxhub-theme', 'light');
     }
-  }, [currentUser]);
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -84,7 +91,7 @@ export default function NewUserSetup() {
       // Criar registro de Pessoa
       await base44.entities.Pessoa.create({
         matricula: formData.matricula,
-        nome: formData.nome || currentUser.full_name,
+        nome: currentUser.full_name,
         email: currentUser.email,
         funcoes: formData.funcoes,
         regional_id: formData.regional_id,
@@ -108,7 +115,7 @@ Olá ${admin.full_name},
 Um novo usuário se cadastrou no sistema AlmoxHub e está aguardando aprovação de acesso.
 
 Dados do usuário:
-- Nome: ${formData.nome || currentUser.full_name}
+- Nome: ${currentUser.full_name}
 - E-mail: ${currentUser.email}
 - Matrícula: ${formData.matricula}
 - Regional: ${regionais.find(r => r.id === formData.regional_id)?.sigla || 'N/A'}
@@ -171,13 +178,27 @@ Sistema AlmoxHub
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-            Bem-vindo ao AlmoxHub! 
-          </h1>
-          <p className="text-slate-600 dark:text-slate-400">
-            Complete seu cadastro para solicitar acesso ao sistema
-          </p>
+        <div className="flex justify-between items-start mb-8">
+          <div className="text-center flex-1">
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+              Bem-vindo ao AlmoxHub! 
+            </h1>
+            <p className="text-slate-600 dark:text-slate-400">
+              Complete seu cadastro para solicitar acesso ao sistema
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleDarkMode}
+            className="rounded-xl shrink-0"
+          >
+            {darkMode ? (
+              <Sun className="w-5 h-5 text-amber-500" />
+            ) : (
+              <Moon className="w-5 h-5 text-slate-600" />
+            )}
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -195,17 +216,20 @@ Sistema AlmoxHub
                 <div className="space-y-4 pb-6 border-b">
                   <h3 className="font-semibold text-slate-900 dark:text-white">Informações da Conta</h3>
                   <div>
-                    <Label>Nome Completo *</Label>
+                    <Label>Nome Completo</Label>
                     <Input 
-                      value={formData.nome} 
-                      onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                      placeholder="Digite seu nome completo"
-                      required
+                      value={currentUser?.full_name || ''} 
+                      disabled 
+                      className="bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100" 
                     />
                   </div>
                   <div>
                     <Label>E-mail</Label>
-                    <Input value={currentUser?.email || ''} disabled className="bg-slate-100" />
+                    <Input 
+                      value={currentUser?.email || ''} 
+                      disabled 
+                      className="bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100" 
+                    />
                   </div>
                 </div>
 
@@ -270,10 +294,13 @@ Sistema AlmoxHub
                     </div>
                   </div>
 
-                  {formData.funcoes.includes('almoxarife') && formData.regional_id && (
+                  {formData.regional_id && (
                     <div>
-                      <Label>Almoxarifados Vinculados</Label>
-                      <div className="space-y-2 mt-2 max-h-40 overflow-y-auto border rounded-lg p-3 bg-slate-50">
+                      <Label>Almoxarifados Vinculados (opcional)</Label>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                        Selecione os almoxarifados aos quais você terá acesso
+                      </p>
+                      <div className="space-y-2 mt-2 max-h-40 overflow-y-auto border rounded-lg p-3 bg-slate-50 dark:bg-slate-800">
                         {almoxarifados
                           .filter(a => a.regional_id === formData.regional_id)
                           .length > 0 ? (
@@ -285,11 +312,11 @@ Sistema AlmoxHub
                                     checked={formData.almoxarifados_ids.includes(almox.id)}
                                     onCheckedChange={() => toggleAlmoxarifado(almox.id)}
                                   />
-                                  <span>{almox.nome}</span>
+                                  <span className="text-slate-900 dark:text-slate-100">{almox.nome}</span>
                                 </label>
                               ))
                           ) : (
-                            <p className="text-sm text-slate-500">Nenhum almoxarifado disponível para esta regional</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">Nenhum almoxarifado disponível para esta regional</p>
                           )}
                       </div>
                     </div>
@@ -305,7 +332,7 @@ Sistema AlmoxHub
 
                 <Button
                   type="submit"
-                  disabled={saving || !formData.nome || !formData.matricula || !formData.regional_id || formData.funcoes.length === 0}
+                  disabled={saving || !formData.matricula || !formData.regional_id || formData.funcoes.length === 0}
                   className="w-full bg-blue-600 hover:bg-blue-700"
                 >
                   {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
