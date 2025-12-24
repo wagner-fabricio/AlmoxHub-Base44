@@ -250,7 +250,7 @@ export default function OSFormModal({
                     <Label>Almoxarifado *</Label>
                     <Select
                       value={formData.almoxarifado_id}
-                      onValueChange={(v) => setFormData({ ...formData, almoxarifado_id: v })}
+                      onValueChange={(v) => setFormData({ ...formData, almoxarifado_id: v, executores_ids: [] })}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione..." />
