@@ -48,6 +48,33 @@ export default function Layout({ children, currentPageName }) {
       try {
         const userData = await base44.auth.me();
         setUser(userData);
+        
+        // Verificar se usuário precisa completar cadastro ou está pendente de aprovação
+        const pessoa = await base44.entities.Pessoa.filter({ user_id: userData.id }).then(p => p[0]);
+        
+        // Se não tem registro de Pessoa, redirecionar para cadastro inicial
+        if (!pessoa && currentPageName !== 'NewUserSetup') {
+          window.location.href = createPageUrl('NewUserSetup');
+          return;
+        }
+        
+        // Se tem registro mas está pendente de aprovação, redirecionar para tela de aguardo
+        if (pessoa && pessoa.status_aprovacao === 'pendente' && currentPageName !== 'PendingApproval') {
+          window.location.href = createPageUrl('PendingApproval');
+          return;
+        }
+        
+        // Se foi rejeitado, também vai para tela de pendente (pode ser customizado depois)
+        if (pessoa && pessoa.status_aprovacao === 'rejeitado' && currentPageName !== 'PendingApproval') {
+          window.location.href = createPageUrl('PendingApproval');
+          return;
+        }
+        
+        // Se não está ativo, redirecionar
+        if (pessoa && !pessoa.ativo && currentPageName !== 'PendingApproval' && currentPageName !== 'NewUserSetup') {
+          window.location.href = createPageUrl('PendingApproval');
+          return;
+        }
       } catch (e) {
         console.log('User not logged in');
       }

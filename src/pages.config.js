@@ -1,23 +1,31 @@
-import Dashboard from './pages/Dashboard';
-import OrdensServico from './pages/OrdensServico';
-import Regionais from './pages/Regionais';
 import Almoxarifados from './pages/Almoxarifados';
-import Pessoas from './pages/Pessoas';
 import Categorias from './pages/Categorias';
-import Projetos from './pages/Projetos';
+import Dashboard from './pages/Dashboard';
+import Home from './pages/Home';
 import Instalacoes from './pages/Instalacoes';
+import OrdensServico from './pages/OrdensServico';
+import Pessoas from './pages/Pessoas';
+import Projetos from './pages/Projetos';
+import Regionais from './pages/Regionais';
+import NewUserSetup from './pages/NewUserSetup';
+import PendingApproval from './pages/PendingApproval';
+import UserApproval from './pages/UserApproval';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Dashboard": Dashboard,
-    "OrdensServico": OrdensServico,
-    "Regionais": Regionais,
     "Almoxarifados": Almoxarifados,
-    "Pessoas": Pessoas,
     "Categorias": Categorias,
-    "Projetos": Projetos,
+    "Dashboard": Dashboard,
+    "Home": Home,
     "Instalacoes": Instalacoes,
+    "OrdensServico": OrdensServico,
+    "Pessoas": Pessoas,
+    "Projetos": Projetos,
+    "Regionais": Regionais,
+    "NewUserSetup": NewUserSetup,
+    "PendingApproval": PendingApproval,
+    "UserApproval": UserApproval,
 }
 
 export const pagesConfig = {
