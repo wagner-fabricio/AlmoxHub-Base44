@@ -18,6 +18,7 @@ export default function NewUserSetup() {
   const [regionais, setRegionais] = useState([]);
   const [almoxarifados, setAlmoxarifados] = useState([]);
   const [formData, setFormData] = useState({
+    nome: '',
     matricula: '',
     regional_id: '',
     funcoes: [],
@@ -27,6 +28,15 @@ export default function NewUserSetup() {
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (currentUser) {
+      setFormData(prev => ({
+        ...prev,
+        nome: currentUser.full_name || ''
+      }));
+    }
+  }, [currentUser]);
 
   const loadData = async () => {
     setLoading(true);
@@ -74,7 +84,7 @@ export default function NewUserSetup() {
       // Criar registro de Pessoa
       await base44.entities.Pessoa.create({
         matricula: formData.matricula,
-        nome: currentUser.full_name,
+        nome: formData.nome || currentUser.full_name,
         email: currentUser.email,
         funcoes: formData.funcoes,
         regional_id: formData.regional_id,
@@ -98,7 +108,7 @@ Olá ${admin.full_name},
 Um novo usuário se cadastrou no sistema AlmoxHub e está aguardando aprovação de acesso.
 
 Dados do usuário:
-- Nome: ${currentUser.full_name}
+- Nome: ${formData.nome || currentUser.full_name}
 - E-mail: ${currentUser.email}
 - Matrícula: ${formData.matricula}
 - Regional: ${regionais.find(r => r.id === formData.regional_id)?.sigla || 'N/A'}
@@ -185,8 +195,13 @@ Sistema AlmoxHub
                 <div className="space-y-4 pb-6 border-b">
                   <h3 className="font-semibold text-slate-900 dark:text-white">Informações da Conta</h3>
                   <div>
-                    <Label>Nome Completo</Label>
-                    <Input value={currentUser?.full_name || ''} disabled className="bg-slate-100" />
+                    <Label>Nome Completo *</Label>
+                    <Input 
+                      value={formData.nome} 
+                      onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                      placeholder="Digite seu nome completo"
+                      required
+                    />
                   </div>
                   <div>
                     <Label>E-mail</Label>
@@ -255,21 +270,27 @@ Sistema AlmoxHub
                     </div>
                   </div>
 
-                  {formData.funcoes.includes('almoxarife') && (
+                  {formData.funcoes.includes('almoxarife') && formData.regional_id && (
                     <div>
                       <Label>Almoxarifados Vinculados</Label>
-                      <div className="space-y-2 mt-2 max-h-40 overflow-y-auto">
+                      <div className="space-y-2 mt-2 max-h-40 overflow-y-auto border rounded-lg p-3 bg-slate-50">
                         {almoxarifados
                           .filter(a => a.regional_id === formData.regional_id)
-                          .map((almox) => (
-                            <label key={almox.id} className="flex items-center gap-2 cursor-pointer">
-                              <Checkbox
-                                checked={formData.almoxarifados_ids.includes(almox.id)}
-                                onCheckedChange={() => toggleAlmoxarifado(almox.id)}
-                              />
-                              <span>{almox.nome}</span>
-                            </label>
-                          ))}
+                          .length > 0 ? (
+                            almoxarifados
+                              .filter(a => a.regional_id === formData.regional_id)
+                              .map((almox) => (
+                                <label key={almox.id} className="flex items-center gap-2 cursor-pointer">
+                                  <Checkbox
+                                    checked={formData.almoxarifados_ids.includes(almox.id)}
+                                    onCheckedChange={() => toggleAlmoxarifado(almox.id)}
+                                  />
+                                  <span>{almox.nome}</span>
+                                </label>
+                              ))
+                          ) : (
+                            <p className="text-sm text-slate-500">Nenhum almoxarifado disponível para esta regional</p>
+                          )}
                       </div>
                     </div>
                   )}
@@ -284,7 +305,7 @@ Sistema AlmoxHub
 
                 <Button
                   type="submit"
-                  disabled={saving || !formData.matricula || !formData.regional_id || formData.funcoes.length === 0}
+                  disabled={saving || !formData.nome || !formData.matricula || !formData.regional_id || formData.funcoes.length === 0}
                   className="w-full bg-blue-600 hover:bg-blue-700"
                 >
                   {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
