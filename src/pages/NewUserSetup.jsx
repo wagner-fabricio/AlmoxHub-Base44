@@ -176,7 +176,7 @@ Sistema AlmoxHub
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6">
+    <div className={`min-h-screen bg-slate-50 dark:bg-slate-900 p-6 ${darkMode ? 'dark' : ''}`}>
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-start mb-8">
           <div className="text-center flex-1">
