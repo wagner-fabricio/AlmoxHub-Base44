@@ -121,7 +121,7 @@ export default function Layout({ children, currentPageName }) {
   };
 
   const handleLogout = () => {
-    base44.auth.logout();
+    base44.auth.logout(createPageUrl('ThankYou'));
   };
 
   const toggleSidebarCollapse = () => {

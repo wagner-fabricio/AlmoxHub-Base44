@@ -10,6 +10,7 @@ import Pessoas from './pages/Pessoas';
 import Projetos from './pages/Projetos';
 import Regionais from './pages/Regionais';
 import UserApproval from './pages/UserApproval';
+import ThankYou from './pages/ThankYou';
 import __Layout from './Layout.jsx';
 
 
@@ -26,6 +27,7 @@ export const PAGES = {
     "Projetos": Projetos,
     "Regionais": Regionais,
     "UserApproval": UserApproval,
+    "ThankYou": ThankYou,
 }
 
 export const pagesConfig = {
