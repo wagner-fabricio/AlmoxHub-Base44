@@ -25,7 +25,8 @@ import {
   AlertTriangle,
   MoreVertical,
   Trash2,
-  Trash
+  Trash,
+  Share2
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -232,6 +233,22 @@ export default function OSDetailModal({
     return minutesSinceCreation <= 10;
   };
 
+  const handleShareOS = () => {
+    const url = `${window.location.origin}${window.location.pathname}?os_id=${os.id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      // Visual feedback
+      const btn = document.getElementById('share-btn');
+      if (btn) {
+        btn.innerText = 'Copiado!';
+        setTimeout(() => {
+          btn.innerText = 'Compartilhar';
+        }, 2000);
+      }
+    }).catch(err => {
+      console.error('Erro ao copiar URL:', err);
+    });
+  };
+
   const getDateSeparator = (date) => {
     if (isToday(new Date(date))) return 'Hoje';
     if (isYesterday(new Date(date))) return 'Ontem';
@@ -281,6 +298,10 @@ export default function OSDetailModal({
                 <StatusIcon className="w-4 h-4" />
                 <span className="text-sm font-medium">{statusConfig[os.status]?.label}</span>
               </div>
+              <Button variant="outline" onClick={handleShareOS} id="share-btn">
+                <Share2 className="w-4 h-4 mr-2" />
+                Compartilhar
+              </Button>
               <Button onClick={onEdit}>
                 <Edit className="w-4 h-4 mr-2" />
                 Editar
