@@ -312,8 +312,13 @@ export default function OSFormModal({
                                   }
                                 }}
                               />
-                              <Label htmlFor={`executor-${pessoa.id}`} className="cursor-pointer text-sm">
-                                {pessoa.nome}
+                              <Label htmlFor={`executor-${pessoa.id}`} className="cursor-pointer text-sm flex-1">
+                                <span className="font-medium">{pessoa.nome}</span>
+                                {pessoa.funcao && (
+                                  <span className="text-xs text-slate-500 dark:text-slate-400 ml-2">
+                                    ({pessoa.funcao})
+                                  </span>
+                                )}
                               </Label>
                             </div>
                           ))
