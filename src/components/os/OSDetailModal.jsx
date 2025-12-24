@@ -24,7 +24,8 @@ import {
   CheckCircle,
   AlertTriangle,
   MoreVertical,
-  Trash2
+  Trash2,
+  Trash
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -57,6 +58,8 @@ export default function OSDetailModal({
   categorias,
   subcategorias,
   onEdit,
+  onDelete,
+  canDelete,
   onRefresh
 }) {
   const [comentarios, setComentarios] = useState([]);
@@ -282,6 +285,12 @@ export default function OSDetailModal({
                 <Edit className="w-4 h-4 mr-2" />
                 Editar
               </Button>
+              {canDelete && (
+                <Button variant="destructive" onClick={() => onDelete?.(os)}>
+                  <Trash className="w-4 h-4 mr-2" />
+                  Excluir
+                </Button>
+              )}
             </div>
           </div>
         </DialogHeader>

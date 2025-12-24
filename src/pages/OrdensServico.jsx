@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Plus, Loader2 } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import OSFilters from '@/components/os/OSFilters.jsx';
 import OSKanban from '@/components/os/OSKanban.jsx';
 import OSList from '@/components/os/OSList.jsx';
@@ -50,6 +51,8 @@ export default function OrdensServico() {
   const [showFormModal, setShowFormModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedOS, setSelectedOS] = useState(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deletingOS, setDeletingOS] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -222,6 +225,42 @@ export default function OrdensServico() {
     }
   };
 
+  const handleDeleteOS = (os) => {
+    setDeletingOS(os);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDeleteOS = async () => {
+    if (!deletingOS) return;
+    
+    try {
+      await base44.entities.OrdemServico.delete(deletingOS.id);
+      setShowDeleteDialog(false);
+      setShowDetailModal(false);
+      setDeletingOS(null);
+      setSelectedOS(null);
+      await loadData();
+    } catch (error) {
+      console.error('Error deleting OS:', error);
+    }
+  };
+
+  const canDeleteOS = (os) => {
+    if (!currentUser || !currentPessoa) return false;
+    
+    // Admin pode deletar tudo
+    if (currentUser.role === 'admin') return true;
+    
+    // Gestor pode deletar tudo
+    if (currentPessoa.funcoes?.includes('gestor')) return true;
+    
+    // Líder pode deletar apenas suas próprias ordens
+    if (currentPessoa.funcoes?.includes('lider') && os.lider_id === currentPessoa.id) return true;
+    
+    // Almoxarife não pode deletar
+    return false;
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -332,8 +371,33 @@ export default function OrdensServico() {
         categorias={categorias}
         subcategorias={subcategorias}
         onEdit={handleEditOS}
+        onDelete={handleDeleteOS}
+        canDelete={selectedOS ? canDeleteOS(selectedOS) : false}
         onRefresh={loadData}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Ordem de Serviço</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir a OS <strong>{deletingOS?.codigo}</strong>?
+              <br />
+              Esta ação não pode ser desfeita e todos os comentários e anexos serão perdidos.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteOS}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

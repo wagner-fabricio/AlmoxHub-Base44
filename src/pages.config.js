@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import Home from './pages/Home';
 import Instalacoes from './pages/Instalacoes';
 import NewUserSetup from './pages/NewUserSetup';
+import Notifications from './pages/Notifications';
 import OrdensServico from './pages/OrdensServico';
 import PendingApproval from './pages/PendingApproval';
 import Pessoas from './pages/Pessoas';
@@ -11,7 +12,6 @@ import Projetos from './pages/Projetos';
 import Regionais from './pages/Regionais';
 import ThankYou from './pages/ThankYou';
 import UserApproval from './pages/UserApproval';
-import Notifications from './pages/Notifications';
 import __Layout from './Layout.jsx';
 
 
@@ -22,6 +22,7 @@ export const PAGES = {
     "Home": Home,
     "Instalacoes": Instalacoes,
     "NewUserSetup": NewUserSetup,
+    "Notifications": Notifications,
     "OrdensServico": OrdensServico,
     "PendingApproval": PendingApproval,
     "Pessoas": Pessoas,
@@ -29,7 +30,6 @@ export const PAGES = {
     "Regionais": Regionais,
     "ThankYou": ThankYou,
     "UserApproval": UserApproval,
-    "Notifications": Notifications,
 }
 
 export const pagesConfig = {
