@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Textarea } from '@/components/ui/textarea';
 import MentionInput from '@/components/notifications/MentionInput';
+import GrupoDetalhesModal from '@/components/mensagens/GrupoDetalhesModal';
 
 export default function ChatArea({ 
   conversa, 
@@ -30,6 +31,7 @@ export default function ChatArea({
   const [mensagemEditando, setMensagemEditando] = useState(null);
   const [mensagemRespondendo, setMensagemRespondendo] = useState(null);
   const [mencoesIds, setMencoesIds] = useState([]);
+  const [showGrupoDetalhes, setShowGrupoDetalhes] = useState(false);
   const scrollRef = useRef(null);
   const mentionInputRef = useRef(null);
 
@@ -127,13 +129,25 @@ export default function ChatArea({
             <h3 className="text-lg font-medium mb-2">Selecione uma conversa</h3>
             <p className="text-sm">Escolha uma conversa existente ou inicie uma nova</p>
           </div>
-        </div>
-      </div>
-    );
-  }
+          </div>
+          </div>
+          </>
+          );
+          }
 
-  return (
-    <div className="flex-1 flex flex-col overflow-hidden">
+        return (
+        <>
+        <GrupoDetalhesModal
+        open={showGrupoDetalhes}
+        onClose={() => setShowGrupoDetalhes(false)}
+        conversa={conversa}
+        participantes={participantes}
+        pessoas={pessoas}
+        currentPessoaId={currentPessoaId}
+        onUpdate={() => window.location.reload()}
+        />
+
+        <div className="flex-1 flex flex-col overflow-hidden">
       {/* Header */}
       <div className="px-4 lg:px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0">
         <div className="flex items-center justify-between">
@@ -162,9 +176,20 @@ export default function ChatArea({
               )}
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={onAbrirDetalhes} className="shrink-0">
-            <Settings className="w-5 h-5" />
-          </Button>
+          {conversa.tipo === 'grupo' ? (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setShowGrupoDetalhes(true)} 
+              className="shrink-0"
+            >
+              <Settings className="w-5 h-5" />
+            </Button>
+          ) : (
+            <Button variant="ghost" size="icon" onClick={onAbrirDetalhes} className="shrink-0">
+              <Settings className="w-5 h-5" />
+            </Button>
+          )}
         </div>
       </div>
 
