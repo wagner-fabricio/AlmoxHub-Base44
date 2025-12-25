@@ -479,7 +479,7 @@ export default function Layout({ children, currentPageName }) {
           </header>
 
           {/* Page Content */}
-          <main className="flex-1 overflow-auto bg-slate-50 dark:bg-slate-900">
+          <main className={`flex-1 bg-slate-50 dark:bg-slate-900 ${currentPageName === 'Mensagens' ? 'overflow-hidden' : 'overflow-auto'}`}>
             {children}
           </main>
         </div>
