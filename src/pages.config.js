@@ -12,6 +12,7 @@ import Projetos from './pages/Projetos';
 import Regionais from './pages/Regionais';
 import ThankYou from './pages/ThankYou';
 import UserApproval from './pages/UserApproval';
+import Mensagens from './pages/Mensagens';
 import __Layout from './Layout.jsx';
 
 
@@ -30,6 +31,7 @@ export const PAGES = {
     "Regionais": Regionais,
     "ThankYou": ThankYou,
     "UserApproval": UserApproval,
+    "Mensagens": Mensagens,
 }
 
 export const pagesConfig = {
