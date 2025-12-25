@@ -84,12 +84,12 @@ export default function OSFormModal({
       });
     } else {
       // Defaults for new OS
-      const userPessoa = pessoas.find(p => p.email === currentUser?.email);
+      const userPessoa = Array.isArray(pessoas) ? pessoas.find(p => p?.email === currentUser?.email) : null;
       if (userPessoa) {
         const defaultRegional = userPessoa.regional_id;
-        const userAlmoxarifados = almoxarifados.filter(a => 
-          userPessoa.almoxarifados_ids?.includes(a.id)
-        );
+        const userAlmoxarifados = Array.isArray(almoxarifados) ? almoxarifados.filter(a => 
+          userPessoa.almoxarifados_ids?.includes(a?.id)
+        ) : [];
         
         setFormData(prev => ({
           ...prev,
@@ -101,11 +101,11 @@ export default function OSFormModal({
     }
   }, [os, currentUser, pessoas, almoxarifados]);
 
-  const filteredSubcategorias = subcategorias.filter(s => s.categoria_id === formData.categoria_id);
-  const filteredAlmoxarifados = almoxarifados.filter(a => a.regional_id === formData.regional_id);
+  const filteredSubcategorias = Array.isArray(subcategorias) ? subcategorias.filter(s => s?.categoria_id === formData.categoria_id) : [];
+  const filteredAlmoxarifados = Array.isArray(almoxarifados) ? almoxarifados.filter(a => a?.regional_id === formData.regional_id) : [];
   
-  const selectedCategoria = categorias.find(c => c.id === formData.categoria_id);
-  const selectedSubcategorias = subcategorias.filter(s => formData.subcategorias_ids?.includes(s.id));
+  const selectedCategoria = Array.isArray(categorias) ? categorias.find(c => c?.id === formData.categoria_id) : null;
+  const selectedSubcategorias = Array.isArray(subcategorias) ? subcategorias.filter(s => formData.subcategorias_ids?.includes(s?.id)) : [];
   
   // Check if we should show expedition fields
   const isExpedicaoComReserva = 
@@ -120,14 +120,14 @@ export default function OSFormModal({
       
       if (isNew) {
         // Generate unique ID with regional prefix
-        const regional = regionais.find(r => r.id === formData.regional_id);
+        const regional = Array.isArray(regionais) ? regionais.find(r => r?.id === formData.regional_id) : null;
         const regionalSigla = regional?.sigla || 'XX';
         const today = format(new Date(), 'yyyyMMdd');
         const currentYear = format(new Date(), 'yyyy');
         
         // Get count for current year only
         const allOrdens = await base44.entities.OrdemServico.list();
-        const ordensThisYear = allOrdens.filter(o => o.codigo?.includes(currentYear));
+        const ordensThisYear = Array.isArray(allOrdens) ? allOrdens.filter(o => o?.codigo?.includes(currentYear)) : [];
         const seq = String(ordensThisYear.length + 1).padStart(4, '0');
         
         codigo = `${regionalSigla}-${today}-${seq}`;
