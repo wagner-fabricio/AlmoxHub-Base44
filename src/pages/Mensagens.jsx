@@ -231,21 +231,19 @@ export default function MensagensPage() {
 
   const handleEditarMensagem = async (mensagemId, novoConteudo, conteudoFormatado = null) => {
     try {
-      // Se temos entidades de OS, buscar IDs reais
+      // Se temos entidades de OS com código, converter para ID
       if (conteudoFormatado?.entities?.length > 0) {
         const allOS = await base44.entities.OrdemServico.list();
-        conteudoFormatado.entities = await Promise.all(
-          conteudoFormatado.entities.map(async (entity) => {
-            if (entity.type === 'ordem_servico') {
-              const os = allOS.find(o => o.codigo === entity.os_codigo);
-              return {
-                ...entity,
-                os_codigo: os?.id || entity.os_codigo
-              };
-            }
-            return entity;
-          })
-        );
+        conteudoFormatado.entities = conteudoFormatado.entities.map((entity) => {
+          if (entity.type === 'ordem_servico' && entity.os_codigo && !entity.os_id) {
+            const os = allOS.find(o => o.codigo === entity.os_codigo);
+            return {
+              ...entity,
+              os_id: os?.id || entity.os_codigo
+            };
+          }
+          return entity;
+        });
       }
 
       await base44.entities.MensagemChat.update(mensagemId, {
