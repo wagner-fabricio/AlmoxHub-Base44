@@ -25,7 +25,9 @@ export default function ChatArea({
   onEditarMensagem,
   onExcluirMensagem,
   onAbrirDetalhes,
-  onVoltar
+  onVoltar,
+  onLimparMensagens,
+  onExcluirConversa
 }) {
   const [novaMensagem, setNovaMensagem] = useState('');
   const [mensagemEditando, setMensagemEditando] = useState(null);
@@ -175,20 +177,32 @@ export default function ChatArea({
               )}
             </div>
           </div>
-          {conversa.tipo === 'grupo' ? (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => setShowGrupoDetalhes(true)} 
-              className="shrink-0"
-            >
-              <Settings className="w-5 h-5" />
-            </Button>
-          ) : (
-            <Button variant="ghost" size="icon" onClick={onAbrirDetalhes} className="shrink-0">
-              <Settings className="w-5 h-5" />
-            </Button>
-          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="shrink-0">
+                <Settings className="w-5 h-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {conversa.tipo === 'grupo' && (
+                <DropdownMenuItem onClick={() => setShowGrupoDetalhes(true)}>
+                  <Users className="w-4 h-4 mr-2" />
+                  Detalhes do Grupo
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onClick={() => onLimparMensagens(conversa.id)}>
+                <Trash2 className="w-4 h-4 mr-2" />
+                Limpar Mensagens
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => onExcluirConversa(conversa.id)}
+                className="text-red-600"
+              >
+                <X className="w-4 h-4 mr-2" />
+                Excluir Conversa
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 

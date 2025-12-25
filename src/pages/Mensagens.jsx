@@ -335,6 +335,8 @@ export default function MensagensPage() {
             onExcluirMensagem={handleExcluirMensagem}
             onAbrirDetalhes={() => {}}
             onVoltar={window.innerWidth < 1024 ? handleVoltarLista : undefined}
+            onLimparMensagens={handleLimparMensagens}
+            onExcluirConversa={handleExcluirConversa}
           />
         </div>
       </div>
