@@ -154,18 +154,26 @@ export default function MensagensPage() {
 
     try {
       // Se temos entidades de OS com código, converter para ID
-      if (conteudoFormatado?.entities?.length > 0) {
-        const allOS = await base44.entities.OrdemServico.list() || [];
-        conteudoFormatado.entities = conteudoFormatado.entities.map((entity) => {
-          if (entity.type === 'ordem_servico' && entity.os_codigo && !entity.os_id) {
-            const os = allOS.find(o => o?.codigo === entity.os_codigo);
-            return {
-              ...entity,
-              os_id: os?.id || entity.os_codigo
-            };
-          }
-          return entity;
-        });
+      if (Array.isArray(conteudoFormatado?.entities) && conteudoFormatado.entities.length > 0) {
+        try {
+          const allOS = await base44.entities.OrdemServico.list();
+          const osArray = Array.isArray(allOS) ? allOS : [];
+
+          conteudoFormatado.entities = conteudoFormatado.entities.map((entity) => {
+            if (!entity) return entity;
+
+            if (entity.type === 'ordem_servico' && entity.os_codigo && !entity.os_id) {
+              const os = osArray.find(o => o && o.codigo === entity.os_codigo);
+              return {
+                ...entity,
+                os_id: os?.id || entity.os_codigo
+              };
+            }
+            return entity;
+          }).filter(Boolean);
+        } catch (error) {
+          console.error('Erro ao converter códigos de OS:', error);
+        }
       }
 
       const novaMensagem = await base44.entities.MensagemChat.create({
@@ -230,18 +238,26 @@ export default function MensagensPage() {
   const handleEditarMensagem = async (mensagemId, novoConteudo, conteudoFormatado = null) => {
     try {
       // Se temos entidades de OS com código, converter para ID
-      if (conteudoFormatado?.entities?.length > 0) {
-        const allOS = await base44.entities.OrdemServico.list() || [];
-        conteudoFormatado.entities = conteudoFormatado.entities.map((entity) => {
-          if (entity.type === 'ordem_servico' && entity.os_codigo && !entity.os_id) {
-            const os = allOS.find(o => o?.codigo === entity.os_codigo);
-            return {
-              ...entity,
-              os_id: os?.id || entity.os_codigo
-            };
-          }
-          return entity;
-        });
+      if (Array.isArray(conteudoFormatado?.entities) && conteudoFormatado.entities.length > 0) {
+        try {
+          const allOS = await base44.entities.OrdemServico.list();
+          const osArray = Array.isArray(allOS) ? allOS : [];
+
+          conteudoFormatado.entities = conteudoFormatado.entities.map((entity) => {
+            if (!entity) return entity;
+
+            if (entity.type === 'ordem_servico' && entity.os_codigo && !entity.os_id) {
+              const os = osArray.find(o => o && o.codigo === entity.os_codigo);
+              return {
+                ...entity,
+                os_id: os?.id || entity.os_codigo
+              };
+            }
+            return entity;
+          }).filter(Boolean);
+        } catch (error) {
+          console.error('Erro ao converter códigos de OS:', error);
+        }
       }
 
       await base44.entities.MensagemChat.update(mensagemId, {
