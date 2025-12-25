@@ -165,8 +165,10 @@ export default function ChatArea({
 
   const getOutraPessoa = () => {
     if (conversa?.tipo === 'grupo') return null;
-    const outroPart = Array.isArray(participantes) ? participantes.find(p => p?.pessoa_id !== currentPessoaId) : null;
-    return getPessoaById(outroPart?.pessoa_id);
+    if (!Array.isArray(participantes)) return null;
+    const outroPart = participantes.find(p => p?.pessoa_id !== currentPessoaId);
+    if (!outroPart) return null;
+    return getPessoaById(outroPart.pessoa_id);
   };
 
   const getNomeConversa = () => {

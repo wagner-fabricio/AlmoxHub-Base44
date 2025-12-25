@@ -37,8 +37,10 @@ export default function ConversaList({ conversas, pessoas, currentPessoaId, onSe
   
   const getOutraPessoa = (conversa, participantes) => {
     if (conversa?.tipo === 'grupo') return null;
-    const outroPart = Array.isArray(participantes) ? participantes.find(p => p?.pessoa_id !== currentPessoaId) : null;
-    return pessoasMap.get(outroPart?.pessoa_id) || null;
+    if (!Array.isArray(participantes)) return null;
+    const outroPart = participantes.find(p => p?.pessoa_id !== currentPessoaId);
+    if (!outroPart?.pessoa_id) return null;
+    return pessoasMap.get(outroPart.pessoa_id) || null;
   };
 
   const formatarData = (data) => {
