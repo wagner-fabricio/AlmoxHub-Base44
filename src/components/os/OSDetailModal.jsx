@@ -262,7 +262,27 @@ export default function OSDetailModal({
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      // Calculate proper dimensions to maintain aspect ratio
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = imgWidth / imgHeight;
+      const pdfRatio = pdfWidth / pdfHeight;
+      
+      let finalWidth = pdfWidth;
+      let finalHeight = pdfHeight;
+      
+      if (ratio > pdfRatio) {
+        // Image is wider, fit to width
+        finalHeight = pdfWidth / ratio;
+      } else {
+        // Image is taller, fit to height
+        finalWidth = pdfHeight * ratio;
+      }
+      
+      const x = (pdfWidth - finalWidth) / 2;
+      const y = (pdfHeight - finalHeight) / 2;
+      
+      pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight);
       pdf.save(`Lista_Separacao_${os.codigo}.pdf`);
     } catch (error) {
       console.error('Error generating PDF:', error);
