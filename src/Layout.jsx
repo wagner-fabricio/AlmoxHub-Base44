@@ -33,6 +33,7 @@ import NotificationBell from '@/components/notifications/NotificationBell';
 const menuItems = [
   { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
   { name: 'Ordens de Serviço', icon: ClipboardList, page: 'OrdensServico' },
+  { name: 'Mensagens', icon: MessageSquare, page: 'Mensagens' },
   { name: 'Regionais', icon: MapPin, page: 'Regionais' },
   { name: 'Almoxarifados', icon: Warehouse, page: 'Almoxarifados' },
   { name: 'Instalações', icon: Building2, page: 'Instalacoes' },

@@ -3,6 +3,7 @@ import Categorias from './pages/Categorias';
 import Dashboard from './pages/Dashboard';
 import Home from './pages/Home';
 import Instalacoes from './pages/Instalacoes';
+import Mensagens from './pages/Mensagens';
 import NewUserSetup from './pages/NewUserSetup';
 import Notifications from './pages/Notifications';
 import OrdensServico from './pages/OrdensServico';
@@ -12,7 +13,6 @@ import Projetos from './pages/Projetos';
 import Regionais from './pages/Regionais';
 import ThankYou from './pages/ThankYou';
 import UserApproval from './pages/UserApproval';
-import Mensagens from './pages/Mensagens';
 import __Layout from './Layout.jsx';
 
 
@@ -22,6 +22,7 @@ export const PAGES = {
     "Dashboard": Dashboard,
     "Home": Home,
     "Instalacoes": Instalacoes,
+    "Mensagens": Mensagens,
     "NewUserSetup": NewUserSetup,
     "Notifications": Notifications,
     "OrdensServico": OrdensServico,
@@ -31,7 +32,6 @@ export const PAGES = {
     "Regionais": Regionais,
     "ThankYou": ThankYou,
     "UserApproval": UserApproval,
-    "Mensagens": Mensagens,
 }
 
 export const pagesConfig = {
