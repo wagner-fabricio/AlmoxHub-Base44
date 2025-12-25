@@ -104,11 +104,24 @@ export default function ChatArea({
 
   if (!conversa) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-slate-50 dark:bg-slate-900">
-        <div className="text-center text-slate-500 dark:text-slate-400">
-          <Users className="w-16 h-16 mx-auto mb-4 opacity-50" />
-          <h3 className="text-lg font-medium mb-2">Selecione uma conversa</h3>
-          <p className="text-sm">Escolha uma conversa existente ou inicie uma nova</p>
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {onVoltar && (
+          <div className="px-4 lg:px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0 lg:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onVoltar}
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          </div>
+        )}
+        <div className="flex-1 flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+          <div className="text-center text-slate-500 dark:text-slate-400">
+            <Users className="w-16 h-16 mx-auto mb-4 opacity-50" />
+            <h3 className="text-lg font-medium mb-2">Selecione uma conversa</h3>
+            <p className="text-sm">Escolha uma conversa existente ou inicie uma nova</p>
+          </div>
         </div>
       </div>
     );
