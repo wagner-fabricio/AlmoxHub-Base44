@@ -31,6 +31,7 @@ export default function ChatArea({
   const [mensagemRespondendo, setMensagemRespondendo] = useState(null);
   const [mencoesIds, setMencoesIds] = useState([]);
   const scrollRef = useRef(null);
+  const mentionInputRef = useRef(null);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -310,7 +311,7 @@ export default function ChatArea({
               placeholder="Digite uma mensagem... (use @ para mencionar)"
               className="resize-none min-h-[44px] max-h-32"
               onMentionsChange={setMencoesIds}
-              textareaRef={useRef()}
+              textareaRef={mentionInputRef}
             />
           ) : (
             <Textarea
