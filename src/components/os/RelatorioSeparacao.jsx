@@ -12,7 +12,7 @@ export default function RelatorioSeparacao({ os, regional, almoxarifado, lider, 
   const totalM3 = os.volumes?.reduce((sum, v) => sum + (v.m3 || 0), 0) || 0;
 
   return (
-    <div id="relatorio-separacao" className="bg-white p-8 text-black" style={{ width: '210mm', minHeight: '297mm', margin: '0 auto' }}>
+    <div id="relatorio-separacao" className="bg-white p-8 text-black" style={{ width: '210mm', margin: '0 auto', fontFamily: 'Arial, sans-serif' }}>
       {/* Header */}
       <div className="border-2 border-black p-4 mb-6">
         <h1 className="text-2xl font-bold text-center mb-2">LISTA DE SEPARAÇÃO DE MATERIAIS</h1>

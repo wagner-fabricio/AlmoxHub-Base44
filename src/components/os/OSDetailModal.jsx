@@ -245,7 +245,7 @@ export default function OSDetailModal({
     setShowRelatorio(true);
     
     // Wait for render
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 300));
     
     try {
       const element = document.getElementById('relatorio-separacao');
@@ -254,35 +254,40 @@ export default function OSDetailModal({
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight
       });
 
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
+      
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      // Calculate proper dimensions to maintain aspect ratio
+      // Calculate how many pages we need
       const imgWidth = canvas.width;
       const imgHeight = canvas.height;
       const ratio = imgWidth / imgHeight;
-      const pdfRatio = pdfWidth / pdfHeight;
       
-      let finalWidth = pdfWidth;
-      let finalHeight = pdfHeight;
+      const pageWidth = pdfWidth;
+      const pageHeight = pdfHeight;
       
-      if (ratio > pdfRatio) {
-        // Image is wider, fit to width
-        finalHeight = pdfWidth / ratio;
-      } else {
-        // Image is taller, fit to height
-        finalWidth = pdfHeight * ratio;
+      // Scale to fit page width
+      const scaledHeight = pageWidth / ratio;
+      
+      // Calculate total pages needed
+      const totalPages = Math.ceil(scaledHeight / pageHeight);
+      
+      for (let i = 0; i < totalPages; i++) {
+        if (i > 0) {
+          pdf.addPage();
+        }
+        
+        const yOffset = -(pageHeight * i);
+        pdf.addImage(imgData, 'PNG', 0, yOffset, pageWidth, scaledHeight);
       }
       
-      const x = (pdfWidth - finalWidth) / 2;
-      const y = (pdfHeight - finalHeight) / 2;
-      
-      pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight);
       pdf.save(`Lista_Separacao_${os.codigo}.pdf`);
     } catch (error) {
       console.error('Error generating PDF:', error);
