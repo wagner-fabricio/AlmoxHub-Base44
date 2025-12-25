@@ -115,9 +115,9 @@ export default function ChatArea({
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full">
+    <div className="flex-1 flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+      <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Avatar>
@@ -141,7 +141,7 @@ export default function ChatArea({
       </div>
 
       {/* Mensagens */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 bg-slate-50 dark:bg-slate-900 space-y-4">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 bg-slate-50 dark:bg-slate-900 space-y-4 min-h-0">
         {mensagens.map((mensagem, index) => {
           const isMinha = mensagem.autor_id === currentPessoaId;
           const autor = getPessoaById(mensagem.autor_id);
@@ -248,7 +248,7 @@ export default function ChatArea({
       </div>
 
       {/* Input */}
-      <div className="p-4 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700">
+      <div className="p-4 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 shrink-0">
         {(mensagemEditando || mensagemRespondendo) && (
           <div className="mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg flex items-start justify-between">
             <div className="flex-1">
