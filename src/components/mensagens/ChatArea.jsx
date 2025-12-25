@@ -104,12 +104,13 @@ export default function ChatArea({
   };
 
   const extractOSFromMessage = (mensagem) => {
-    const conteudoFormatado = mensagem.conteudo_formatado;
-    if (!conteudoFormatado || !conteudoFormatado.entities) return [];
+    const conteudoFormatado = mensagem?.conteudo_formatado;
+    if (!conteudoFormatado || !Array.isArray(conteudoFormatado.entities)) return [];
     
     return conteudoFormatado.entities
-      .filter(e => e.type === 'ordem_servico')
-      .map(e => e.os_codigo);
+      .filter(e => e && e.type === 'ordem_servico')
+      .map(e => e.os_codigo || e.os_id)
+      .filter(Boolean);
   };
 
   const handleKeyPress = (e) => {
