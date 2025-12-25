@@ -319,6 +319,7 @@ export default function OrdensServico() {
               pessoas={pessoas}
               categorias={categorias}
               regionais={regionais}
+              instalacoes={instalacoes}
               onOSClick={handleOSClick}
               onStatusChange={handleStatusChange}
             />
@@ -338,6 +339,7 @@ export default function OrdensServico() {
               pessoas={pessoas}
               categorias={categorias}
               regionais={regionais}
+              instalacoes={instalacoes}
               onOSClick={handleOSClick}
             />
           )}

@@ -9,7 +9,7 @@ const columns = [
   { id: 'concluido', title: 'Concluído', color: 'bg-green-500' },
 ];
 
-export default function OSKanban({ ordens, pessoas, categorias, regionais, onOSClick, onStatusChange }) {
+export default function OSKanban({ ordens, pessoas, categorias, regionais, instalacoes, onOSClick, onStatusChange }) {
   const getOSByStatus = (status) => {
     return ordens.filter(os => os.status === status);
   };

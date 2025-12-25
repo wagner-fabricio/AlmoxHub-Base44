@@ -12,10 +12,11 @@ const prioridadeConfig = {
   urgente: { color: 'bg-red-500', label: 'Urgente' },
 };
 
-export default function OSGallery({ ordens, pessoas, categorias, regionais, onOSClick }) {
+export default function OSGallery({ ordens, pessoas, categorias, regionais, instalacoes, onOSClick }) {
   const getLider = (liderId) => pessoas.find(p => p.id === liderId);
   const getCategoria = (catId) => categorias.find(c => c.id === catId);
   const getRegional = (regId) => regionais.find(r => r.id === regId);
+  const getInstalacao = (instId) => instalacoes?.find(i => i.id === instId);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">

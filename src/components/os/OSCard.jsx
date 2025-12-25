@@ -2,7 +2,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Calendar, User, Paperclip, MessageSquare, AlertTriangle, Clock } from 'lucide-react';
+import { Calendar, User, Paperclip, MessageSquare, AlertTriangle, Clock, PackageCheck, MapPin } from 'lucide-react';
 import { format, isPast, isToday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -20,7 +20,7 @@ const statusConfig = {
   cancelado: { color: 'bg-red-500', label: 'Cancelado' },
 };
 
-export default function OSCard({ os, onClick, lider, categoria, regional }) {
+export default function OSCard({ os, onClick, lider, categoria, regional, instalacoes }) {
   const prazoDate = os.prazo ? new Date(os.prazo) : null;
   const isOverdue = prazoDate && isPast(prazoDate) && os.status !== 'concluido';
   const isDueToday = prazoDate && isToday(prazoDate);
@@ -75,6 +75,44 @@ export default function OSCard({ os, onClick, lider, categoria, regional }) {
           </Badge>
         )}
       </div>
+
+      {/* Expedição Details */}
+      {categoria?.nome?.toLowerCase().includes('expedição') && (
+        <div className="mb-3 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg space-y-1.5">
+          {os.num_reserva && (
+            <div className="flex items-center gap-2 text-xs">
+              <PackageCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span className="text-slate-600 dark:text-slate-400">Reserva:</span>
+              <span className="font-medium text-slate-900 dark:text-white">{os.num_reserva}</span>
+            </div>
+          )}
+          {os.num_migo && (
+            <div className="flex items-center gap-2 text-xs">
+              <PackageCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span className="text-slate-600 dark:text-slate-400">MIGO:</span>
+              <span className="font-medium text-slate-900 dark:text-white">{os.num_migo}</span>
+            </div>
+          )}
+          {os.instalacao_destino_id && instalacoes && (
+            <div className="flex items-center gap-2 text-xs">
+              <MapPin className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span className="text-slate-600 dark:text-slate-400">Destino:</span>
+              <span className="font-medium text-slate-900 dark:text-white truncate">
+                {instalacoes.find(i => i.id === os.instalacao_destino_id)?.nome || '-'}
+              </span>
+            </div>
+          )}
+          {os.usuario_reserva && (
+            <div className="flex items-center gap-2 text-xs">
+              <User className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span className="text-slate-600 dark:text-slate-400">Usuário:</span>
+              <span className="font-medium text-slate-900 dark:text-white truncate">
+                {os.usuario_reserva}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Footer */}
       <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700">
