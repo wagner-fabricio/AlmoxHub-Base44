@@ -10,9 +10,9 @@ export default function ConversaList({ conversas, pessoas, currentPessoaId, onSe
   const [filtroAtivo, setFiltroAtivo] = useState('todas');
   
   const getOutraPessoa = (conversa, participantes) => {
-    if (conversa.tipo === 'grupo') return null;
-    const outroPart = participantes.find(p => p.pessoa_id !== currentPessoaId);
-    return pessoas.find(p => p.id === outroPart?.pessoa_id);
+    if (conversa?.tipo === 'grupo') return null;
+    const outroPart = Array.isArray(participantes) ? participantes.find(p => p?.pessoa_id !== currentPessoaId) : null;
+    return Array.isArray(pessoas) ? pessoas.find(p => p?.id === outroPart?.pessoa_id) : null;
   };
 
   const formatarData = (data) => {
@@ -41,8 +41,8 @@ export default function ConversaList({ conversas, pessoas, currentPessoaId, onSe
     };
   };
 
-  const conversasFiltradas = conversas.filter((conv) => {
-    const participante = conv.participantes.find(p => p.pessoa_id === currentPessoaId);
+  const conversasFiltradas = Array.isArray(conversas) ? conversas.filter((conv) => {
+    const participante = Array.isArray(conv?.participantes) ? conv.participantes.find(p => p?.pessoa_id === currentPessoaId) : null;
     
     if (filtroAtivo === 'nao_lidas') {
       return (participante?.mensagens_nao_lidas || 0) > 0;
@@ -51,16 +51,22 @@ export default function ConversaList({ conversas, pessoas, currentPessoaId, onSe
       return participante?.favorito === true;
     }
     if (filtroAtivo === 'grupos') {
-      return conv.conversa.tipo === 'grupo';
+      return conv?.conversa?.tipo === 'grupo';
     }
     return true; // 'todas'
-  });
+  }) : [];
 
   const contadores = {
-    todas: conversas.length,
-    nao_lidas: conversas.filter(c => (c.participantes.find(p => p.pessoa_id === currentPessoaId)?.mensagens_nao_lidas || 0) > 0).length,
-    favoritas: conversas.filter(c => c.participantes.find(p => p.pessoa_id === currentPessoaId)?.favorito === true).length,
-    grupos: conversas.filter(c => c.conversa.tipo === 'grupo').length,
+    todas: Array.isArray(conversas) ? conversas.length : 0,
+    nao_lidas: Array.isArray(conversas) ? conversas.filter(c => {
+      const participante = Array.isArray(c?.participantes) ? c.participantes.find(p => p?.pessoa_id === currentPessoaId) : null;
+      return (participante?.mensagens_nao_lidas || 0) > 0;
+    }).length : 0,
+    favoritas: Array.isArray(conversas) ? conversas.filter(c => {
+      const participante = Array.isArray(c?.participantes) ? c.participantes.find(p => p?.pessoa_id === currentPessoaId) : null;
+      return participante?.favorito === true;
+    }).length : 0,
+    grupos: Array.isArray(conversas) ? conversas.filter(c => c?.conversa?.tipo === 'grupo').length : 0,
   };
 
   return (
@@ -134,9 +140,9 @@ export default function ConversaList({ conversas, pessoas, currentPessoaId, onSe
       ) : (
         <div className="flex-1 overflow-y-auto min-h-0">
           {conversasFiltradas.map((conversa) => {
-            const avatar = getAvatarInfo(conversa.conversa, conversa.participantes);
-            const nomeConversa = getNomeConversa(conversa.conversa, conversa.participantes);
-            const participante = conversa.participantes.find(p => p.pessoa_id === currentPessoaId);
+            const avatar = getAvatarInfo(conversa?.conversa, conversa?.participantes);
+            const nomeConversa = getNomeConversa(conversa?.conversa, conversa?.participantes);
+            const participante = Array.isArray(conversa?.participantes) ? conversa.participantes.find(p => p?.pessoa_id === currentPessoaId) : null;
             const naoLidas = participante?.mensagens_nao_lidas || 0;
             const isFavorito = participante?.favorito || false;
             const isSelected = conversaSelecionada?.id === conversa.conversa.id;
