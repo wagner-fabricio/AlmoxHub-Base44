@@ -5,6 +5,7 @@ import { Plus } from 'lucide-react';
 import ConversaList from '@/components/mensagens/ConversaList';
 import ChatArea from '@/components/mensagens/ChatArea';
 import NovaConversaModal from '@/components/mensagens/NovaConversaModal';
+import { showError, showSuccess } from '@/components/ui/toast-error';
 
 export default function MensagensPage() {
   const [loading, setLoading] = useState(true);
@@ -50,6 +51,7 @@ export default function MensagensPage() {
       }
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
+      showError('Erro ao carregar dados', 'Não foi possível carregar as conversas. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -84,6 +86,7 @@ export default function MensagensPage() {
       setConversas(conversasCompletas);
     } catch (error) {
       console.error('Erro ao carregar conversas:', error);
+      // Silencioso - não mostrar erro em polling automático
     }
   };
 
@@ -91,8 +94,17 @@ export default function MensagensPage() {
     try {
       const msgs = await base44.entities.MensagemChat.filter({ conversa_id: conversaId });
       const mensagensArray = Array.isArray(msgs) ? msgs : [];
-      mensagensArray.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
-      setMensagens(mensagensArray);
+      
+      // Ordenar apenas uma vez
+      const mensagensOrdenadas = mensagensArray.sort((a, b) => 
+        new Date(a.created_date) - new Date(b.created_date)
+      );
+      
+      // Evitar re-render se mensagens não mudaram
+      setMensagens(prev => {
+        if (JSON.stringify(prev) === JSON.stringify(mensagensOrdenadas)) return prev;
+        return mensagensOrdenadas;
+      });
     } catch (error) {
       console.error('Erro ao carregar mensagens:', error);
     }
@@ -153,10 +165,12 @@ export default function MensagensPage() {
 
       await loadConversas();
       setConversaSelecionada(novaConversa);
-    } catch (error) {
+      showSuccess('Conversa criada', tipo === 'grupo' ? `Grupo "${nomeGrupo}" criado com sucesso` : 'Conversa iniciada');
+      } catch (error) {
       console.error('Erro ao criar conversa:', error);
-    }
-  };
+      showError('Erro ao criar conversa', 'Não foi possível criar a conversa. Tente novamente.');
+      }
+      };
 
   // Função para converter códigos de OS para IDs com cache
   const convertOSCodigos = async (entities) => {
@@ -270,10 +284,12 @@ export default function MensagensPage() {
 
       await loadMensagens(conversaSelecionada.id);
       await loadConversas();
-    } catch (error) {
+      showSuccess('Mensagem enviada');
+      } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
-    }
-  };
+      showError('Erro ao enviar mensagem', 'Não foi possível enviar a mensagem. Tente novamente.');
+      }
+      };
 
   const handleEditarMensagem = async (mensagemId, novoConteudo, conteudoFormatado = null) => {
     try {
@@ -289,10 +305,12 @@ export default function MensagensPage() {
         editada_em: new Date().toISOString()
       });
       await loadMensagens(conversaSelecionada.id);
-    } catch (error) {
+      showSuccess('Mensagem editada');
+      } catch (error) {
       console.error('Erro ao editar mensagem:', error);
-    }
-  };
+      showError('Erro ao editar mensagem', 'Não foi possível editar a mensagem.');
+      }
+      };
 
   const handleExcluirMensagem = async (mensagemId) => {
     try {
@@ -301,10 +319,12 @@ export default function MensagensPage() {
         conteudo: 'Mensagem excluída'
       });
       await loadMensagens(conversaSelecionada.id);
-    } catch (error) {
+      showSuccess('Mensagem excluída');
+      } catch (error) {
       console.error('Erro ao excluir mensagem:', error);
-    }
-  };
+      showError('Erro ao excluir mensagem', 'Não foi possível excluir a mensagem.');
+      }
+      };
 
   if (loading) {
     return (

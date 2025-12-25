@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,8 +9,14 @@ import { Users, Star, Plus } from 'lucide-react';
 export default function ConversaList({ conversas, pessoas, currentPessoaId, onSelectConversa, conversaSelecionada, onToggleFavorito, onNovaConversa }) {
   const [filtroAtivo, setFiltroAtivo] = useState('todas');
 
+  // Memoizar mapa de pessoas para lookup rápido
+  const pessoasMap = useMemo(() => {
+    if (!Array.isArray(pessoas)) return new Map();
+    return new Map(pessoas.map(p => [p?.id, p]));
+  }, [pessoas]);
+
   // Memoizar conversas filtradas para evitar recalcular a cada render
-  const conversasFiltradas = React.useMemo(() => {
+  const conversasFiltradas = useMemo(() => {
     if (!Array.isArray(conversas)) return [];
     
     return conversas.filter((conv) => {
@@ -32,7 +38,7 @@ export default function ConversaList({ conversas, pessoas, currentPessoaId, onSe
   const getOutraPessoa = (conversa, participantes) => {
     if (conversa?.tipo === 'grupo') return null;
     const outroPart = Array.isArray(participantes) ? participantes.find(p => p?.pessoa_id !== currentPessoaId) : null;
-    return Array.isArray(pessoas) ? pessoas.find(p => p?.id === outroPart?.pessoa_id) : null;
+    return pessoasMap.get(outroPart?.pessoa_id) || null;
   };
 
   const formatarData = (data) => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -155,7 +155,13 @@ export default function ChatArea({
     return format(new Date(data), 'HH:mm');
   };
 
-  const getPessoaById = (id) => Array.isArray(pessoas) ? pessoas.find(p => p?.id === id) : null;
+  // Memoizar pessoas para evitar buscas repetidas
+  const pessoasMap = useMemo(() => {
+    if (!Array.isArray(pessoas)) return new Map();
+    return new Map(pessoas.map(p => [p?.id, p]));
+  }, [pessoas]);
+
+  const getPessoaById = (id) => pessoasMap.get(id) || null;
 
   const getOutraPessoa = () => {
     if (conversa?.tipo === 'grupo') return null;
