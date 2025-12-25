@@ -26,7 +26,9 @@ import {
   MoreVertical,
   Trash2,
   Trash,
-  Share2
+  Share2,
+  FileText,
+  Printer
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -34,6 +36,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import RelatorioSeparacao from './RelatorioSeparacao';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 const prioridadeConfig = {
   baixa: { color: 'bg-slate-100 text-slate-700', label: 'Baixa' },
@@ -72,6 +77,8 @@ export default function OSDetailModal({
   const [editingContent, setEditingContent] = useState('');
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
+  const [generatingPDF, setGeneratingPDF] = useState(false);
+  const [showRelatorio, setShowRelatorio] = useState(false);
 
   useEffect(() => {
     if (open && os) {
@@ -233,6 +240,38 @@ export default function OSDetailModal({
     return minutesSinceCreation <= 10;
   };
 
+  const handleGeneratePDF = async () => {
+    setGeneratingPDF(true);
+    setShowRelatorio(true);
+    
+    // Wait for render
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    try {
+      const element = document.getElementById('relatorio-separacao');
+      if (!element) return;
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff'
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`Lista_Separacao_${os.codigo}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    } finally {
+      setGeneratingPDF(false);
+      setShowRelatorio(false);
+    }
+  };
+
   const handleShareOS = () => {
     const url = `${window.location.origin}${window.location.pathname}?os_id=${os.id}`;
     navigator.clipboard.writeText(url).then(() => {
@@ -278,6 +317,7 @@ export default function OSDetailModal({
   const almoxarifado = almoxarifados.find(a => a.id === os.almoxarifado_id);
   const lider = pessoas.find(p => p.id === os.lider_id);
   const StatusIcon = statusConfig[os.status]?.icon || Clock;
+  const isExpedicao = categoria?.nome?.toLowerCase().includes('expedição');
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -302,6 +342,23 @@ export default function OSDetailModal({
                 <Share2 className="w-4 h-4 mr-2" />
                 Compartilhar
               </Button>
+              {isExpedicao && (
+                <Button 
+                  variant="outline" 
+                  onClick={handleGeneratePDF}
+                  disabled={generatingPDF}
+                  className="border-blue-500 text-blue-600 hover:bg-blue-50"
+                >
+                  {generatingPDF ? (
+                    <>Gerando...</>
+                  ) : (
+                    <>
+                      <FileText className="w-4 h-4 mr-2" />
+                      Lista de Separação
+                    </>
+                  )}
+                </Button>
+              )}
               <Button onClick={onEdit}>
                 <Edit className="w-4 h-4 mr-2" />
                 Editar
@@ -711,5 +768,21 @@ export default function OSDetailModal({
         </ScrollArea>
       </DialogContent>
     </Dialog>
-  );
-}
+
+    {/* Hidden Relatorio for PDF Generation */}
+    {showRelatorio && (
+      <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+        <RelatorioSeparacao
+          os={os}
+          regional={regional}
+          almoxarifado={almoxarifado}
+          lider={lider}
+          categoria={categoria}
+          subcategorias={subcategorias}
+          currentUser={currentUser}
+        />
+      </div>
+    )}
+    </>
+    );
+    }
