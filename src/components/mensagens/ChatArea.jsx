@@ -68,10 +68,21 @@ export default function ChatArea({
   const parseMessageContent = (text) => {
     const entities = [];
     
-    // Detectar links de OS
-    const osLinkRegex = /(?:\/os\/|ordem-servico\/|OS[:\s#-]*|ALMHUB-)([A-Za-z0-9-]+)/gi;
+    // Detectar links de OS em URLs (ex: ?os_id=xxx ou ?id=xxx)
+    const urlRegex = /(?:os_id|id)=([a-f0-9]{24})/gi;
     let match;
-    while ((match = osLinkRegex.exec(text)) !== null) {
+    while ((match = urlRegex.exec(text)) !== null) {
+      entities.push({
+        type: 'ordem_servico',
+        offset: match.index,
+        length: match[0].length,
+        os_id: match[1]
+      });
+    }
+
+    // Detectar códigos de OS no texto (ex: ALMHUB-20250101-0001)
+    const osCodigoRegex = /(ALMHUB-\d{8}-\d{4})/gi;
+    while ((match = osCodigoRegex.exec(text)) !== null) {
       entities.push({
         type: 'ordem_servico',
         offset: match.index,
@@ -344,7 +355,7 @@ export default function ChatArea({
                         {mensagem.conteudo_formatado?.entities?.filter(e => e.type === 'ordem_servico').map((entity, idx) => (
                           <div key={idx} className="mt-2">
                             <OSCard 
-                              osId={entity.os_codigo}
+                              osId={entity.os_id || entity.os_codigo}
                               onClick={(os) => setOsDetailModal(os)}
                               isMinha={isMinha}
                             />
