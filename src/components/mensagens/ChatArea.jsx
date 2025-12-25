@@ -22,7 +22,8 @@ export default function ChatArea({
   onEnviarMensagem,
   onEditarMensagem,
   onExcluirMensagem,
-  onAbrirDetalhes
+  onAbrirDetalhes,
+  onVoltar
 }) {
   const [novaMensagem, setNovaMensagem] = useState('');
   const [mensagemEditando, setMensagemEditando] = useState(null);
