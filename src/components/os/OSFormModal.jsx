@@ -116,11 +116,18 @@ export default function OSFormModal({
       const isNew = !os;
       
       if (isNew) {
-        // Generate unique ID
+        // Generate unique ID with regional prefix
+        const regional = regionais.find(r => r.id === formData.regional_id);
+        const regionalSigla = regional?.sigla || 'XX';
         const today = format(new Date(), 'yyyyMMdd');
-        const count = await base44.entities.OrdemServico.list();
-        const seq = String(count.length + 1).padStart(4, '0');
-        codigo = `ALMHUB-${today}-${seq}`;
+        const currentYear = format(new Date(), 'yyyy');
+        
+        // Get count for current year only
+        const allOrdens = await base44.entities.OrdemServico.list();
+        const ordensThisYear = allOrdens.filter(o => o.codigo?.includes(currentYear));
+        const seq = String(ordensThisYear.length + 1).padStart(4, '0');
+        
+        codigo = `${regionalSigla}-${today}-${seq}`;
       }
 
       const dataToSave = {
