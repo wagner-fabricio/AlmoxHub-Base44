@@ -122,14 +122,14 @@ export default function MentionInput({
   };
 
   return (
-    <div className="relative">
+    <div className="relative flex-1 w-full">
       <Textarea
         ref={textareaRef}
         placeholder={placeholder}
         value={value}
         onChange={handleInputChange}
         onKeyDown={handleKeyDownInternal}
-        className={className}
+        className={`w-full ${className}`}
         rows={1}
       />
       
