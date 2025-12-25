@@ -67,6 +67,11 @@ export default function MensagensPage() {
         status: 'ativo'
       });
       
+      if (!Array.isArray(participantes)) {
+        setConversas([]);
+        return;
+      }
+      
       const conversasCompletas = await Promise.all(
         participantes.map(async (part) => {
           const conversaResult = await base44.entities.Conversa.filter({ id: part.conversa_id });
@@ -77,13 +82,15 @@ export default function MensagensPage() {
         })
       );
 
-      conversasCompletas.sort((a, b) => {
+      const conversasValidas = conversasCompletas.filter(c => c && c.conversa);
+      
+      conversasValidas.sort((a, b) => {
         const dataA = a?.conversa?.ultima_mensagem_data ? new Date(a.conversa.ultima_mensagem_data) : new Date(0);
         const dataB = b?.conversa?.ultima_mensagem_data ? new Date(b.conversa.ultima_mensagem_data) : new Date(0);
         return dataB - dataA;
       });
 
-      setConversas(conversasCompletas);
+      setConversas(conversasValidas);
     } catch (error) {
       console.error('Erro ao carregar conversas:', error);
       // Silencioso - não mostrar erro em polling automático
@@ -138,8 +145,8 @@ export default function MensagensPage() {
       if (tipo === 'privada') {
         const conversasExistentes = Array.isArray(conversas) ? conversas.filter(c => c && c.conversa && c.conversa.tipo === 'privada') : [];
         for (const conv of conversasExistentes) {
-          const participantesConv = Array.isArray(conv.participantes) ? conv.participantes.map(p => p?.pessoa_id).filter(Boolean) : [];
-          if (participantesConv.includes(participantesIds[0]) && participantesConv.includes(currentPessoa.id)) {
+          const participantesConv = Array.isArray(conv?.participantes) ? conv.participantes.map(p => p?.pessoa_id).filter(Boolean) : [];
+          if (participantesConv.includes(participantesIds?.[0]) && participantesConv.includes(currentPessoa?.id)) {
             setConversaSelecionada(conv.conversa);
             return;
           }
@@ -245,7 +252,7 @@ export default function MensagensPage() {
       await base44.entities.Conversa.update(conversaSelecionada.id, {
         ultima_mensagem: conteudo.substring(0, 50),
         ultima_mensagem_data: new Date().toISOString(),
-        ultima_mensagem_autor: currentPessoa.nome
+        ultima_mensagem_autor: currentPessoa?.nome || ''
       });
 
       // Incrementar contador de não lidas para outros participantes
@@ -262,8 +269,8 @@ export default function MensagensPage() {
       );
 
       // Criar notificações para pessoas mencionadas
-      if (mencoesIds && mencoesIds.length > 0) {
-        const pessoasMencionadas = mencoesIds.filter(id => id !== currentPessoa.id);
+      if (Array.isArray(mencoesIds) && mencoesIds.length > 0) {
+        const pessoasMencionadas = mencoesIds.filter(id => id && id !== currentPessoa?.id);
         await Promise.all(
           pessoasMencionadas.map(pessoaId =>
             base44.entities.Notificacao.create({
