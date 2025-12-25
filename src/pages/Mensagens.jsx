@@ -62,8 +62,10 @@ export default function MensagensPage() {
       
       const conversasCompletas = await Promise.all(
         participantes.map(async (part) => {
-          const conversa = await base44.entities.Conversa.filter({ id: part.conversa_id }).then(c => c[0]);
-          const allParts = await base44.entities.ParticipanteConversa.filter({ conversa_id: part.conversa_id });
+          const conversaResult = await base44.entities.Conversa.filter({ id: part.conversa_id });
+          const conversa = Array.isArray(conversaResult) && conversaResult.length > 0 ? conversaResult[0] : null;
+          const allPartsResult = await base44.entities.ParticipanteConversa.filter({ conversa_id: part.conversa_id });
+          const allParts = Array.isArray(allPartsResult) ? allPartsResult : [];
           return { conversa, participantes: allParts };
         })
       );
@@ -92,12 +94,13 @@ export default function MensagensPage() {
 
   const marcarComoLida = async (conversaId) => {
     if (!currentPessoa) return;
-    
+
     try {
-      const participante = await base44.entities.ParticipanteConversa.filter({
+      const participanteResult = await base44.entities.ParticipanteConversa.filter({
         conversa_id: conversaId,
         pessoa_id: currentPessoa.id
-      }).then(p => p[0]);
+      });
+      const participante = Array.isArray(participanteResult) && participanteResult.length > 0 ? participanteResult[0] : null;
 
       if (participante && participante.mensagens_nao_lidas > 0) {
         await base44.entities.ParticipanteConversa.update(participante.id, {
@@ -115,9 +118,9 @@ export default function MensagensPage() {
     try {
       // Verificar se já existe conversa privada com essa pessoa
       if (tipo === 'privada') {
-        const conversasExistentes = conversas.filter(c => c.conversa.tipo === 'privada');
+        const conversasExistentes = Array.isArray(conversas) ? conversas.filter(c => c && c.conversa && c.conversa.tipo === 'privada') : [];
         for (const conv of conversasExistentes) {
-          const participantesConv = conv.participantes.map(p => p.pessoa_id);
+          const participantesConv = Array.isArray(conv.participantes) ? conv.participantes.map(p => p?.pessoa_id).filter(Boolean) : [];
           if (participantesConv.includes(participantesIds[0]) && participantesConv.includes(currentPessoa.id)) {
             setConversaSelecionada(conv.conversa);
             return;
@@ -196,10 +199,11 @@ export default function MensagensPage() {
       });
 
       // Incrementar contador de não lidas para outros participantes
-      const participantes = conversas.find(c => c.conversa.id === conversaSelecionada.id)?.participantes || [];
+      const conversaAtual = Array.isArray(conversas) ? conversas.find(c => c && c.conversa && c.conversa.id === conversaSelecionada.id) : null;
+      const participantes = conversaAtual && Array.isArray(conversaAtual.participantes) ? conversaAtual.participantes : [];
       await Promise.all(
         participantes
-          .filter(p => p.pessoa_id !== currentPessoa.id)
+          .filter(p => p && p.pessoa_id !== currentPessoa.id)
           .map(p => 
             base44.entities.ParticipanteConversa.update(p.id, {
               mensagens_nao_lidas: (p.mensagens_nao_lidas || 0) + 1
@@ -316,12 +320,13 @@ export default function MensagensPage() {
 
   const handleToggleFavorito = async (conversaId) => {
     if (!currentPessoa) return;
-    
+
     try {
-      const participante = await base44.entities.ParticipanteConversa.filter({
+      const participanteResult = await base44.entities.ParticipanteConversa.filter({
         conversa_id: conversaId,
         pessoa_id: currentPessoa.id
-      }).then(p => p[0]);
+      });
+      const participante = Array.isArray(participanteResult) && participanteResult.length > 0 ? participanteResult[0] : null;
 
       if (participante) {
         await base44.entities.ParticipanteConversa.update(participante.id, {
