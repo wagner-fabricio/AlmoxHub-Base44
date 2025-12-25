@@ -315,7 +315,7 @@ export default function MensagensPage() {
             onEditarMensagem={handleEditarMensagem}
             onExcluirMensagem={handleExcluirMensagem}
             onAbrirDetalhes={() => {}}
-            onVoltar={handleVoltarLista}
+            onVoltar={window.innerWidth < 1024 ? handleVoltarLista : undefined}
           />
         </div>
       </div>
