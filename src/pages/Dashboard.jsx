@@ -160,8 +160,8 @@ export default function Dashboard() {
   })).sort((a, b) => b.total - a.total).slice(0, 5);
 
   // Heatmap data: OS de Expedição agrupadas por instalação de destino
-  const categoriaExpedicao = categorias.find(c => c.nome.toLowerCase().includes('expedi'));
-  const osExpedicao = ordens.filter(os => os.categoria_id === categoriaExpedicao?.id && os.instalacao_destino_id);
+  const categoriaExpedicao = Array.isArray(categorias) ? categorias.find(c => c?.nome?.toLowerCase().includes('expedi')) : null;
+  const osExpedicao = Array.isArray(ordens) ? ordens.filter(os => os?.categoria_id === categoriaExpedicao?.id && os?.instalacao_destino_id) : [];
   
   const heatmapData = instalacoes
     .filter(inst => inst.latitude && inst.longitude)

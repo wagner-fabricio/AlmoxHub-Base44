@@ -74,7 +74,7 @@ export default function OrdensServico() {
       ]);
       
       setCurrentUser(user);
-      const pessoa = pessoasData.find(p => p.email === user.email);
+      const pessoa = Array.isArray(pessoasData) ? pessoasData.find(p => p?.email === user.email) : null;
       setCurrentPessoa(pessoa);
 
       if (user.filtros_preferidos?.OrdensServico) {
@@ -150,7 +150,7 @@ export default function OrdensServico() {
 
   const handleStatusChange = async (osId, newStatus) => {
     try {
-      const os = ordens.find(o => o.id === osId);
+      const os = Array.isArray(ordens) ? ordens.find(o => o?.id === osId) : null;
       await base44.entities.OrdemServico.update(osId, { status: newStatus });
       setOrdens(ordens.map(o => o.id === osId ? { ...o, status: newStatus } : o));
       
