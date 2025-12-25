@@ -5,78 +5,74 @@ export default function MessageContent({ content, isMinha }) {
   const parseMarkdown = (text) => {
     if (!text) return null;
 
-    const parts = [];
-    let currentIndex = 0;
-    let partKey = 0;
+    let result = text;
+    const elements = [];
+    let key = 0;
 
-    // Regex para detectar formatações
-    const patterns = [
-      { regex: /\*\*(.+?)\*\*/g, tag: 'strong', style: 'font-bold' },
-      { regex: /\*(.+?)\*/g, tag: 'em', style: 'italic' },
-      { regex: /__(.+?)__/g, tag: 'u', style: 'underline' },
-      { regex: /~~(.+?)~~/g, tag: 's', style: 'line-through' },
-    ];
-
-    // Criar uma cópia para trabalhar
-    let processedText = text;
-    const matches = [];
-
-    // Encontrar todas as correspondências
-    patterns.forEach((pattern) => {
-      let match;
-      const tempRegex = new RegExp(pattern.regex.source, pattern.regex.flags);
-      while ((match = tempRegex.exec(text)) !== null) {
-        matches.push({
-          start: match.index,
-          end: match.index + match[0].length,
-          fullMatch: match[0],
-          innerText: match[1],
-          tag: pattern.tag,
-          style: pattern.style
-        });
-      }
+    // Processar em ordem: negrito primeiro, depois itálico, etc
+    // Substituir por componentes React temporários com marcadores únicos
+    
+    // 1. Processar negrito **texto**
+    result = result.replace(/\*\*(.+?)\*\*/g, (match, content) => {
+      return `<BOLD_${key++}>${content}</BOLD_${key - 1}>`;
     });
 
-    // Ordenar por posição
-    matches.sort((a, b) => a.start - b.start);
+    // 2. Processar itálico *texto*
+    result = result.replace(/\*(.+?)\*/g, (match, content) => {
+      return `<ITALIC_${key++}>${content}</ITALIC_${key - 1}>`;
+    });
 
-    if (matches.length === 0) {
-      return <span>{text}</span>;
-    }
+    // 3. Processar sublinhado __texto__
+    result = result.replace(/__(.+?)__/g, (match, content) => {
+      return `<UNDERLINE_${key++}>${content}</UNDERLINE_${key - 1}>`;
+    });
 
-    // Construir elementos
-    const elements = [];
-    let lastEnd = 0;
+    // 4. Processar tachado ~~texto~~
+    result = result.replace(/~~(.+?)~~/g, (match, content) => {
+      return `<STRIKE_${key++}>${content}</STRIKE_${key - 1}>`;
+    });
 
-    matches.forEach((match, idx) => {
+    // Agora converter os marcadores em elementos React
+    const parts = [];
+    let lastIndex = 0;
+    const regex = /<(BOLD|ITALIC|UNDERLINE|STRIKE)_(\d+)>(.+?)<\/\1_\2>/g;
+    let match;
+
+    while ((match = regex.exec(result)) !== null) {
       // Adicionar texto antes do match
-      if (match.start > lastEnd) {
-        elements.push(
-          <span key={`text-${idx}`}>
-            {text.substring(lastEnd, match.start)}
+      if (match.index > lastIndex) {
+        parts.push(
+          <span key={`text-${lastIndex}`}>
+            {result.substring(lastIndex, match.index)}
           </span>
         );
       }
 
-      // Adicionar texto formatado
-      const Tag = match.tag;
-      elements.push(
-        <Tag key={`formatted-${idx}`} className={match.style}>
-          {match.innerText}
-        </Tag>
-      );
+      // Adicionar elemento formatado
+      const type = match[1];
+      const content = match[3];
+      
+      if (type === 'BOLD') {
+        parts.push(<strong key={`bold-${match[2]}`} className="font-bold">{content}</strong>);
+      } else if (type === 'ITALIC') {
+        parts.push(<em key={`italic-${match[2]}`} className="italic">{content}</em>);
+      } else if (type === 'UNDERLINE') {
+        parts.push(<u key={`underline-${match[2]}`} className="underline">{content}</u>);
+      } else if (type === 'STRIKE') {
+        parts.push(<s key={`strike-${match[2]}`} className="line-through">{content}</s>);
+      }
 
-      lastEnd = match.end;
-    });
+      lastIndex = match.index + match[0].length;
+    }
 
     // Adicionar texto restante
-    if (lastEnd < text.length) {
-      elements.push(
-        <span key="text-end">{text.substring(lastEnd)}</span>
+    if (lastIndex < result.length) {
+      parts.push(
+        <span key="text-end">{result.substring(lastIndex)}</span>
       );
     }
 
-    return <>{elements}</>;
+    return parts.length > 0 ? <>{parts}</> : <span>{text}</span>;
   };
 
   return (
