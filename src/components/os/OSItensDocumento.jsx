@@ -14,6 +14,7 @@ export default function OSItensDocumento({ itens = [], onChange }) {
       unidade: 'UN',
       r_unit: 0,
       r_total: 0,
+      deposito: '',
       endereco: '',
       saldo: 0,
       seguravel: false,
@@ -58,7 +59,8 @@ export default function OSItensDocumento({ itens = [], onChange }) {
               <TableHead className="w-16">UN</TableHead>
               <TableHead className="w-24">R$ Unit</TableHead>
               <TableHead className="w-24">R$ Total</TableHead>
-              <TableHead className="w-24">Endereço</TableHead>
+              <TableHead className="w-24">Depósito</TableHead>
+              <TableHead className="w-24">Localização</TableHead>
               <TableHead className="w-20">Saldo</TableHead>
               <TableHead className="w-20">Segurável</TableHead>
               <TableHead className="w-12"></TableHead>
@@ -67,7 +69,7 @@ export default function OSItensDocumento({ itens = [], onChange }) {
           <TableBody>
             {itens.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={10} className="text-center py-8 text-slate-500">
+                <TableCell colSpan={11} className="text-center py-8 text-slate-500">
                   Nenhum item adicionado. Clique em "Inserir Item" para começar.
                 </TableCell>
               </TableRow>
@@ -116,6 +118,13 @@ export default function OSItensDocumento({ itens = [], onChange }) {
                     <span className="font-medium text-slate-900 dark:text-white">
                       R$ {(item.r_total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </span>
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      value={item.deposito}
+                      onChange={(e) => updateItem(index, 'deposito', e.target.value)}
+                      className="h-8"
+                    />
                   </TableCell>
                   <TableCell>
                     <Input
