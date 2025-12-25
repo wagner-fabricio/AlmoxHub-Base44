@@ -224,14 +224,18 @@ export default function Dashboard() {
   return (
     <div className="p-6 lg:p-8 space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">Dashboard</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Visão geral das operações</p>
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">Dashboard</h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1">Visão geral das operações</p>
+          </div>
         </div>
-        <div className="flex gap-3 flex-wrap">
+        
+        {/* Filtros - Mobile First */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <Select value={filters.regional} onValueChange={(v) => updateFilters({ ...filters, regional: v })}>
-            <SelectTrigger className="w-40 bg-white dark:bg-slate-800">
+            <SelectTrigger className="w-full bg-white dark:bg-slate-800">
               <SelectValue placeholder="Regional" />
             </SelectTrigger>
             <SelectContent>
@@ -242,7 +246,7 @@ export default function Dashboard() {
             </SelectContent>
           </Select>
           <Select value={filters.categoria} onValueChange={(v) => updateFilters({ ...filters, categoria: v, subcategoria: 'all' })}>
-            <SelectTrigger className="w-44 bg-white dark:bg-slate-800">
+            <SelectTrigger className="w-full bg-white dark:bg-slate-800">
               <SelectValue placeholder="Categoria" />
             </SelectTrigger>
             <SelectContent>
@@ -257,7 +261,7 @@ export default function Dashboard() {
             onValueChange={(v) => updateFilters({ ...filters, subcategoria: v })}
             disabled={filters.categoria === 'all'}
           >
-            <SelectTrigger className="w-44 bg-white dark:bg-slate-800">
+            <SelectTrigger className="w-full bg-white dark:bg-slate-800">
               <SelectValue placeholder="Subcategoria" />
             </SelectTrigger>
             <SelectContent>
@@ -268,7 +272,7 @@ export default function Dashboard() {
             </SelectContent>
           </Select>
           <Select value={filters.periodo} onValueChange={(v) => updateFilters({ ...filters, periodo: v })}>
-            <SelectTrigger className="w-36 bg-white dark:bg-slate-800">
+            <SelectTrigger className="w-full bg-white dark:bg-slate-800">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -532,8 +536,8 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Maps Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Maps Row - Mobile First */}
+      <div className="grid grid-cols-1 gap-6">
         {/* Heatmap Section */}
         <Card className="bg-white dark:bg-slate-800">
           <CardHeader>
@@ -541,39 +545,39 @@ export default function Dashboard() {
               <MapPin className="w-5 h-5 text-orange-500" />
               Mapa de Calor - Expedições
             </CardTitle>
-            <div className="flex flex-wrap gap-4 text-sm">
-              <label className="flex items-center gap-2 cursor-pointer">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700">
                 <Checkbox 
                   checked={heatmapCriteria === 'quantidade_os'}
                   onCheckedChange={(checked) => checked && setHeatmapCriteria('quantidade_os')}
                 />
-                <span className="text-slate-700 dark:text-slate-300">Quantidade de OS</span>
+                <span className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm">Qtd OS</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700">
                 <Checkbox 
                   checked={heatmapCriteria === 'valor_total'}
                   onCheckedChange={(checked) => checked && setHeatmapCriteria('valor_total')}
                 />
-                <span className="text-slate-700 dark:text-slate-300">Valor Total</span>
+                <span className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm">Valor</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700">
                 <Checkbox 
                   checked={heatmapCriteria === 'peso_total'}
                   onCheckedChange={(checked) => checked && setHeatmapCriteria('peso_total')}
                 />
-                <span className="text-slate-700 dark:text-slate-300">Peso Total</span>
+                <span className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm">Peso</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700">
                 <Checkbox 
                   checked={heatmapCriteria === 'quantidade_itens'}
                   onCheckedChange={(checked) => checked && setHeatmapCriteria('quantidade_itens')}
                 />
-                <span className="text-slate-700 dark:text-slate-300">Qtd. Itens</span>
+                <span className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm">Itens</span>
               </label>
               </div>
               </CardHeader>
           <CardContent>
-            <div className="h-[500px] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+            <div className="h-[300px] sm:h-[400px] lg:h-[500px] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
               <MapContainer
                 center={[-15.7801, -47.9292]}
                 zoom={4}
@@ -650,38 +654,38 @@ export default function Dashboard() {
             <MapPin className="w-5 h-5 text-blue-500" />
             Mapa de Instalações e Almoxarifados
           </CardTitle>
-          <div className="flex flex-wrap items-center gap-4 text-sm">
-              <label className="flex items-center gap-2 cursor-pointer">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700">
                 <Checkbox 
                   checked={mapFilters.usina}
                   onCheckedChange={(checked) => setMapFilters({...mapFilters, usina: checked})}
                 />
-                <Zap className="w-4 h-4 text-green-600" />
-                <span className="text-slate-700 dark:text-slate-300">Usinas</span>
+                <Zap className="w-4 h-4 text-green-600 shrink-0" />
+                <span className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm truncate">Usinas</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700">
                 <Checkbox 
                   checked={mapFilters.subestacao}
                   onCheckedChange={(checked) => setMapFilters({...mapFilters, subestacao: checked})}
                 />
-                <Grid className="w-4 h-4 text-blue-600" />
-                <span className="text-slate-700 dark:text-slate-300">Subestações</span>
+                <Grid className="w-4 h-4 text-blue-600 shrink-0" />
+                <span className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm truncate">Subestações</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700">
                 <Checkbox 
                   checked={mapFilters.outros}
                   onCheckedChange={(checked) => setMapFilters({...mapFilters, outros: checked})}
                 />
-                <Building2 className="w-4 h-4 text-slate-600" />
-                <span className="text-slate-700 dark:text-slate-300">Outros</span>
+                <Building2 className="w-4 h-4 text-slate-600 shrink-0" />
+                <span className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm truncate">Outros</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700">
                 <Checkbox 
                   checked={mapFilters.almoxarifadosEntidade}
                   onCheckedChange={(checked) => setMapFilters({...mapFilters, almoxarifadosEntidade: checked})}
                 />
-                <Warehouse className="w-4 h-4 text-purple-600" />
-                <span className="text-slate-700 dark:text-slate-300">Almoxarifados</span>
+                <Warehouse className="w-4 h-4 text-purple-600 shrink-0" />
+                <span className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm truncate">Almox</span>
               </label>
             </div>
         </CardHeader>
