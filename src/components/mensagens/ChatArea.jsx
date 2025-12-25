@@ -117,16 +117,24 @@ export default function ChatArea({
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0">
+      <div className="px-4 lg:px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Avatar>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onVoltar}
+              className="lg:hidden shrink-0"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <Avatar className="shrink-0">
               <AvatarFallback className="bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
                 {conversa.tipo === 'grupo' ? '👥' : getNomeConversa().charAt(0)}
               </AvatarFallback>
             </Avatar>
-            <div>
-              <h2 className="font-semibold text-slate-900 dark:text-white">{getNomeConversa()}</h2>
+            <div className="min-w-0">
+              <h2 className="font-semibold text-slate-900 dark:text-white truncate">{getNomeConversa()}</h2>
               {conversa.tipo === 'grupo' && (
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   {participantes.filter(p => p.status === 'ativo').length} participantes
@@ -134,7 +142,7 @@ export default function ChatArea({
               )}
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={onAbrirDetalhes}>
+          <Button variant="ghost" size="icon" onClick={onAbrirDetalhes} className="shrink-0">
             <Settings className="w-5 h-5" />
           </Button>
         </div>
