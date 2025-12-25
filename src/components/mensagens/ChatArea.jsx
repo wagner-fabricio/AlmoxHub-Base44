@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Textarea } from '@/components/ui/textarea';
+import MentionInput from '@/components/notifications/MentionInput';
 
 export default function ChatArea({ 
   conversa, 
@@ -28,6 +29,7 @@ export default function ChatArea({
   const [novaMensagem, setNovaMensagem] = useState('');
   const [mensagemEditando, setMensagemEditando] = useState(null);
   const [mensagemRespondendo, setMensagemRespondendo] = useState(null);
+  const [mencoesIds, setMencoesIds] = useState([]);
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -43,10 +45,11 @@ export default function ChatArea({
       onEditarMensagem(mensagemEditando.id, novaMensagem);
       setMensagemEditando(null);
     } else {
-      onEnviarMensagem(novaMensagem, mensagemRespondendo);
+      onEnviarMensagem(novaMensagem, mensagemRespondendo, mencoesIds);
       setMensagemRespondendo(null);
     }
     setNovaMensagem('');
+    setMencoesIds([]);
   };
 
   const handleKeyPress = (e) => {
@@ -298,14 +301,26 @@ export default function ChatArea({
         )}
 
         <div className="flex gap-2">
-          <Textarea
-            value={novaMensagem}
-            onChange={(e) => setNovaMensagem(e.target.value)}
-            onKeyDown={handleKeyPress}
-            placeholder="Digite uma mensagem..."
-            className="resize-none min-h-[44px] max-h-32"
-            rows={1}
-          />
+          {conversa.tipo === 'grupo' ? (
+            <MentionInput
+              value={novaMensagem}
+              onChange={setNovaMensagem}
+              onKeyDown={handleKeyPress}
+              pessoas={pessoas}
+              placeholder="Digite uma mensagem... (use @ para mencionar)"
+              className="resize-none min-h-[44px] max-h-32"
+              onMentionsChange={setMencoesIds}
+            />
+          ) : (
+            <Textarea
+              value={novaMensagem}
+              onChange={(e) => setNovaMensagem(e.target.value)}
+              onKeyDown={handleKeyPress}
+              placeholder="Digite uma mensagem..."
+              className="resize-none min-h-[44px] max-h-32"
+              rows={1}
+            />
+          )}
           <Button
             onClick={handleEnviar}
             disabled={!novaMensagem.trim()}

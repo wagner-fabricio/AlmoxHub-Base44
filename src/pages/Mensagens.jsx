@@ -149,7 +149,7 @@ export default function MensagensPage() {
     }
   };
 
-  const handleEnviarMensagem = async (conteudo, mensagemRespondendo) => {
+  const handleEnviarMensagem = async (conteudo, mensagemRespondendo, mencoesIds = []) => {
     if (!conversaSelecionada || !currentPessoa) return;
 
     try {
@@ -183,7 +183,26 @@ export default function MensagensPage() {
           )
       );
 
-      // TODO: Criar notificações para outros participantes
+      // Criar notificações para pessoas mencionadas
+      if (mencoesIds && mencoesIds.length > 0) {
+        const pessoasMencionadas = mencoesIds.filter(id => id !== currentPessoa.id);
+        await Promise.all(
+          pessoasMencionadas.map(pessoaId =>
+            base44.entities.Notificacao.create({
+              destinatario_id: pessoaId,
+              remetente_id: currentPessoa.id,
+              tipo: 'mencao',
+              referencia_id: novaMensagem.id,
+              referencia_tipo: 'mensagem',
+              mensagem: `${currentPessoa.nome} mencionou você em uma mensagem`,
+              contexto_adicional: {
+                conversa_id: conversaSelecionada.id,
+                conversa_nome: conversaSelecionada.tipo === 'grupo' ? conversaSelecionada.nome_grupo : null
+              }
+            })
+          )
+        );
+      }
 
       await loadMensagens(conversaSelecionada.id);
       await loadConversas();
