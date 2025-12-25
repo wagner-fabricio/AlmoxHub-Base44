@@ -19,7 +19,8 @@ import {
   ChevronDown,
   Zap,
   Loader2,
-  UserCircle
+  UserCircle,
+  MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
