@@ -418,6 +418,8 @@ export default function OSDetailModal({
                           <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Código</th>
                           <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Descrição</th>
                           <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Qtd</th>
+                          <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Depósito</th>
+                          <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Localização</th>
                           <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">R$ Total</th>
                         </tr>
                       </thead>
@@ -427,12 +429,24 @@ export default function OSDetailModal({
                             <td className="p-3 font-mono text-sm">{item.codigo}</td>
                             <td className="p-3">{item.descricao}</td>
                             <td className="p-3 text-right">{item.quantidade} {item.unidade}</td>
+                            <td className="p-3 text-sm">{item.deposito || '-'}</td>
+                            <td className="p-3 text-sm">{item.endereco || '-'}</td>
                             <td className="p-3 text-right font-medium">
                               R$ {(item.r_total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                             </td>
                           </tr>
                         ))}
                       </tbody>
+                      <tfoot className="bg-slate-50 dark:bg-slate-800 border-t-2 border-slate-200 dark:border-slate-700">
+                        <tr>
+                          <td colSpan="5" className="p-3 text-right font-semibold text-slate-900 dark:text-white">
+                            Valor Total:
+                          </td>
+                          <td className="p-3 text-right font-bold text-blue-600 text-lg">
+                            R$ {os.itens_documento.reduce((sum, item) => sum + (item.r_total || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </td>
+                        </tr>
+                      </tfoot>
                     </table>
                   </div>
                 ) : (
