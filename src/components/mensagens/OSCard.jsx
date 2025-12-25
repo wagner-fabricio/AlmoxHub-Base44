@@ -32,7 +32,14 @@ export default function OSCard({ osId, onClick, isMinha }) {
 
   const loadOS = async () => {
     try {
-      const osData = await base44.entities.OrdemServico.filter({ id: osId }).then(d => d[0]);
+      // Tentar buscar por ID primeiro, depois por código
+      let osData = await base44.entities.OrdemServico.filter({ id: osId }).then(d => d[0]);
+      
+      if (!osData && osId) {
+        // Se não encontrou por ID, tentar por código
+        osData = await base44.entities.OrdemServico.filter({ codigo: osId }).then(d => d[0]);
+      }
+      
       if (!osData) {
         setLoading(false);
         return;
