@@ -153,21 +153,19 @@ export default function MensagensPage() {
     if (!conversaSelecionada || !currentPessoa) return;
 
     try {
-      // Se temos entidades de OS, buscar IDs reais
+      // Se temos entidades de OS com código, converter para ID
       if (conteudoFormatado?.entities?.length > 0) {
         const allOS = await base44.entities.OrdemServico.list();
-        conteudoFormatado.entities = await Promise.all(
-          conteudoFormatado.entities.map(async (entity) => {
-            if (entity.type === 'ordem_servico') {
-              const os = allOS.find(o => o.codigo === entity.os_codigo);
-              return {
-                ...entity,
-                os_codigo: os?.id || entity.os_codigo
-              };
-            }
-            return entity;
-          })
-        );
+        conteudoFormatado.entities = conteudoFormatado.entities.map((entity) => {
+          if (entity.type === 'ordem_servico' && entity.os_codigo && !entity.os_id) {
+            const os = allOS.find(o => o.codigo === entity.os_codigo);
+            return {
+              ...entity,
+              os_id: os?.id || entity.os_codigo
+            };
+          }
+          return entity;
+        });
       }
 
       const novaMensagem = await base44.entities.MensagemChat.create({
