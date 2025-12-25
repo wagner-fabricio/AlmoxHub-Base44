@@ -35,7 +35,7 @@ export default function MensagensPage() {
     try {
       const user = await base44.auth.me();
       const pessoasData = await base44.entities.Pessoa.list();
-      const pessoaAtual = pessoasData.find(p => p.user_id === user.id);
+      const pessoaAtual = Array.isArray(pessoasData) ? pessoasData.find(p => p?.user_id === user.id) : null;
       
       setPessoas(pessoasData);
       setCurrentPessoa(pessoaAtual);
@@ -71,8 +71,8 @@ export default function MensagensPage() {
       );
 
       conversasCompletas.sort((a, b) => {
-        const dataA = a.conversa.ultima_mensagem_data ? new Date(a.conversa.ultima_mensagem_data) : new Date(0);
-        const dataB = b.conversa.ultima_mensagem_data ? new Date(b.conversa.ultima_mensagem_data) : new Date(0);
+        const dataA = a?.conversa?.ultima_mensagem_data ? new Date(a.conversa.ultima_mensagem_data) : new Date(0);
+        const dataB = b?.conversa?.ultima_mensagem_data ? new Date(b.conversa.ultima_mensagem_data) : new Date(0);
         return dataB - dataA;
       });
 
@@ -85,8 +85,9 @@ export default function MensagensPage() {
   const loadMensagens = async (conversaId) => {
     try {
       const msgs = await base44.entities.MensagemChat.filter({ conversa_id: conversaId });
-      msgs.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
-      setMensagens(msgs);
+      const mensagensArray = Array.isArray(msgs) ? msgs : [];
+      mensagensArray.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
+      setMensagens(mensagensArray);
     } catch (error) {
       console.error('Erro ao carregar mensagens:', error);
     }
@@ -344,7 +345,8 @@ export default function MensagensPage() {
 
     try {
       const msgs = await base44.entities.MensagemChat.filter({ conversa_id: conversaId });
-      await Promise.all(msgs.map(msg => base44.entities.MensagemChat.delete(msg.id)));
+      const mensagensArray = Array.isArray(msgs) ? msgs : [];
+      await Promise.all(mensagensArray.map(msg => base44.entities.MensagemChat.delete(msg.id)));
 
       await base44.entities.Conversa.update(conversaId, {
         ultima_mensagem: null,
@@ -364,10 +366,12 @@ export default function MensagensPage() {
 
     try {
       const participantes = await base44.entities.ParticipanteConversa.filter({ conversa_id: conversaId });
-      await Promise.all(participantes.map(p => base44.entities.ParticipanteConversa.delete(p.id)));
+      const participantesArray = Array.isArray(participantes) ? participantes : [];
+      await Promise.all(participantesArray.map(p => base44.entities.ParticipanteConversa.delete(p.id)));
 
       const msgs = await base44.entities.MensagemChat.filter({ conversa_id: conversaId });
-      await Promise.all(msgs.map(msg => base44.entities.MensagemChat.delete(msg.id)));
+      const mensagensArray = Array.isArray(msgs) ? msgs : [];
+      await Promise.all(mensagensArray.map(msg => base44.entities.MensagemChat.delete(msg.id)));
 
       await base44.entities.Conversa.delete(conversaId);
 
@@ -419,7 +423,7 @@ export default function MensagensPage() {
           <ChatArea
             conversa={conversaSelecionada}
             mensagens={mensagens}
-            participantes={conversas.find(c => c.conversa?.id === conversaSelecionada?.id)?.participantes || []}
+            participantes={Array.isArray(conversas) ? (conversas.find(c => c?.conversa?.id === conversaSelecionada?.id)?.participantes || []) : []}
             pessoas={pessoas}
             currentPessoaId={currentPessoa.id}
             onEnviarMensagem={handleEnviarMensagem}
