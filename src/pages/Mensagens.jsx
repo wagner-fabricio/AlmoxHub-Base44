@@ -237,7 +237,10 @@ export default function MensagensPage() {
 
   const handleSelectConversa = (conv) => {
     setConversaSelecionada(conv.conversa);
-    setMostrarLista(false);
+    // Só oculta lista em mobile
+    if (window.innerWidth < 1024) {
+      setMostrarLista(false);
+    }
   };
 
   const handleVoltarLista = () => {
