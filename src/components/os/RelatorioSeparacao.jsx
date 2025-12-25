@@ -27,30 +27,30 @@ export default function RelatorioSeparacao({ os, regional, almoxarifado, lider, 
         <h2 className="text-lg font-bold bg-gray-200 border-2 border-black p-2 mb-2">DADOS GERAIS</h2>
         <div className="border border-black">
           <div className="grid grid-cols-2 border-b border-black">
-            <div className="p-2 border-r border-black">
+            <div className="p-1 border-r border-black flex items-center">
               <span className="font-semibold">Regional:</span> {getFieldValue(regional?.sigla)}
             </div>
-            <div className="p-2">
+            <div className="p-1 flex items-center">
               <span className="font-semibold">Almoxarifado:</span> {getFieldValue(almoxarifado?.nome)}
             </div>
           </div>
           <div className="grid grid-cols-2 border-b border-black">
-            <div className="p-2 border-r border-black">
+            <div className="p-1 border-r border-black flex items-center">
               <span className="font-semibold">Líder:</span> {getFieldValue(lider?.nome)}
             </div>
-            <div className="p-2">
+            <div className="p-1 flex items-center">
               <span className="font-semibold">Atendente:</span> {getFieldValue(os.atendente_nome)}
             </div>
           </div>
           <div className="grid grid-cols-2 border-b border-black">
-            <div className="p-2 border-r border-black">
+            <div className="p-1 border-r border-black flex items-center">
               <span className="font-semibold">Prazo:</span> {os.prazo ? format(new Date(os.prazo), 'dd/MM/yyyy', { locale: ptBR }) : '_______________________'}
             </div>
-            <div className="p-2">
+            <div className="p-1 flex items-center">
               <span className="font-semibold">Prioridade:</span> {getFieldValue(os.prioridade?.toUpperCase())}
             </div>
           </div>
-          <div className="p-2">
+          <div className="p-1 flex items-center">
             <span className="font-semibold">Descrição:</span> {getFieldValue(os.descricao_resumida)}
           </div>
         </div>
@@ -61,24 +61,24 @@ export default function RelatorioSeparacao({ os, regional, almoxarifado, lider, 
         <h2 className="text-lg font-bold bg-gray-200 border-2 border-black p-2 mb-2">DOCUMENTO</h2>
         <div className="border border-black">
           <div className="grid grid-cols-3 border-b border-black">
-            <div className="p-2 border-r border-black">
+            <div className="p-1 border-r border-black flex items-center">
               <span className="font-semibold">Nº Reserva:</span> {getFieldValue(os.num_reserva)}
             </div>
-            <div className="p-2 border-r border-black">
+            <div className="p-1 border-r border-black flex items-center">
               <span className="font-semibold">Data Reserva:</span> {os.data_reserva ? format(new Date(os.data_reserva), 'dd/MM/yyyy') : '_____________'}
             </div>
-            <div className="p-2">
+            <div className="p-1 flex items-center">
               <span className="font-semibold">Usuário:</span> {getFieldValue(os.usuario_reserva)}
             </div>
           </div>
           <div className="grid grid-cols-3 border-b border-black">
-            <div className="p-2 border-r border-black">
+            <div className="p-1 border-r border-black flex items-center">
               <span className="font-semibold">Órgão:</span> {getFieldValue(os.orgao)}
             </div>
-            <div className="p-2 border-r border-black">
+            <div className="p-1 border-r border-black flex items-center">
               <span className="font-semibold">Data MIGO:</span> {os.data_migo ? format(new Date(os.data_migo), 'dd/MM/yyyy') : '_____________'}
             </div>
-            <div className="p-2">
+            <div className="p-1 flex items-center">
               <span className="font-semibold">Nº MIGO:</span> {getFieldValue(os.num_migo)}
             </div>
           </div>
@@ -92,32 +92,32 @@ export default function RelatorioSeparacao({ os, regional, almoxarifado, lider, 
           <table className="w-full text-xs">
             <thead>
               <tr className="bg-gray-100 border-b border-black">
-                <th className="p-2 border-r border-black text-left font-bold">Código</th>
-                <th className="p-2 border-r border-black text-left font-bold">Descrição</th>
-                <th className="p-2 border-r border-black text-center font-bold">Qtd</th>
-                <th className="p-2 border-r border-black text-center font-bold">Dep.</th>
-                <th className="p-2 text-center font-bold">Localização</th>
+                <th className="p-1 border-r border-black text-left font-bold align-middle">Código</th>
+                <th className="p-1 border-r border-black text-left font-bold align-middle">Descrição</th>
+                <th className="p-1 border-r border-black text-center font-bold align-middle">Qtd</th>
+                <th className="p-1 border-r border-black text-center font-bold align-middle">Dep.</th>
+                <th className="p-1 text-center font-bold align-middle">Localização</th>
               </tr>
             </thead>
             <tbody>
               {os.itens_documento?.length > 0 ? (
                 os.itens_documento.map((item, i) => (
                   <tr key={i} className="border-b border-black">
-                    <td className="p-2 border-r border-black font-mono">{item.codigo || '___________'}</td>
-                    <td className="p-2 border-r border-black">{item.descricao || '______________________________'}</td>
-                    <td className="p-2 border-r border-black text-center">{item.quantidade ? `${item.quantidade} ${item.unidade}` : '_____'}</td>
-                    <td className="p-2 border-r border-black text-center">{item.deposito || '_____'}</td>
-                    <td className="p-2 text-center">{item.endereco || '___________'}</td>
+                    <td className="p-1 border-r border-black font-mono align-middle">{item.codigo || '___________'}</td>
+                    <td className="p-1 border-r border-black align-middle">{item.descricao || '______________________________'}</td>
+                    <td className="p-1 border-r border-black text-center align-middle">{item.quantidade ? `${item.quantidade} ${item.unidade}` : '_____'}</td>
+                    <td className="p-1 border-r border-black text-center align-middle">{item.deposito || '_____'}</td>
+                    <td className="p-1 text-center align-middle">{item.endereco || '___________'}</td>
                   </tr>
                 ))
               ) : (
                 [...Array(5)].map((_, i) => (
                   <tr key={i} className="border-b border-black">
-                    <td className="p-2 border-r border-black">___________</td>
-                    <td className="p-2 border-r border-black">______________________________</td>
-                    <td className="p-2 border-r border-black text-center">_____</td>
-                    <td className="p-2 border-r border-black text-center">_____</td>
-                    <td className="p-2 text-center">___________</td>
+                    <td className="p-1 border-r border-black align-middle">___________</td>
+                    <td className="p-1 border-r border-black align-middle">______________________________</td>
+                    <td className="p-1 border-r border-black text-center align-middle">_____</td>
+                    <td className="p-1 border-r border-black text-center align-middle">_____</td>
+                    <td className="p-1 text-center align-middle">___________</td>
                   </tr>
                 ))
               )}
@@ -133,42 +133,42 @@ export default function RelatorioSeparacao({ os, regional, almoxarifado, lider, 
           <table className="w-full text-xs">
             <thead>
               <tr className="bg-gray-100 border-b border-black">
-                <th className="p-2 border-r border-black text-center font-bold">ID Volume</th>
-                <th className="p-2 border-r border-black text-center font-bold">Largura (m)</th>
-                <th className="p-2 border-r border-black text-center font-bold">Altura (m)</th>
-                <th className="p-2 border-r border-black text-center font-bold">Comp. (m)</th>
-                <th className="p-2 border-r border-black text-center font-bold">Peso (kg)</th>
-                <th className="p-2 text-center font-bold">m³</th>
+                <th className="p-1 border-r border-black text-center font-bold align-middle">ID Volume</th>
+                <th className="p-1 border-r border-black text-center font-bold align-middle">Largura (m)</th>
+                <th className="p-1 border-r border-black text-center font-bold align-middle">Altura (m)</th>
+                <th className="p-1 border-r border-black text-center font-bold align-middle">Comp. (m)</th>
+                <th className="p-1 border-r border-black text-center font-bold align-middle">Peso (kg)</th>
+                <th className="p-1 text-center font-bold align-middle">m³</th>
               </tr>
             </thead>
             <tbody>
               {os.volumes?.length > 0 ? (
                 os.volumes.map((vol, i) => (
                   <tr key={i} className="border-b border-black">
-                    <td className="p-2 border-r border-black text-center">{vol.id_volume || '______'}</td>
-                    <td className="p-2 border-r border-black text-center">{vol.largura || '______'}</td>
-                    <td className="p-2 border-r border-black text-center">{vol.altura || '______'}</td>
-                    <td className="p-2 border-r border-black text-center">{vol.comprimento || '______'}</td>
-                    <td className="p-2 border-r border-black text-center">{vol.peso_bruto || '______'}</td>
-                    <td className="p-2 text-center">{vol.m3 || '______'}</td>
+                    <td className="p-1 border-r border-black text-center align-middle">{vol.id_volume || '______'}</td>
+                    <td className="p-1 border-r border-black text-center align-middle">{vol.largura || '______'}</td>
+                    <td className="p-1 border-r border-black text-center align-middle">{vol.altura || '______'}</td>
+                    <td className="p-1 border-r border-black text-center align-middle">{vol.comprimento || '______'}</td>
+                    <td className="p-1 border-r border-black text-center align-middle">{vol.peso_bruto || '______'}</td>
+                    <td className="p-1 text-center align-middle">{vol.m3 || '______'}</td>
                   </tr>
                 ))
               ) : (
                 [...Array(3)].map((_, i) => (
                   <tr key={i} className="border-b border-black">
-                    <td className="p-2 border-r border-black text-center">______</td>
-                    <td className="p-2 border-r border-black text-center">______</td>
-                    <td className="p-2 border-r border-black text-center">______</td>
-                    <td className="p-2 border-r border-black text-center">______</td>
-                    <td className="p-2 border-r border-black text-center">______</td>
-                    <td className="p-2 text-center">______</td>
+                    <td className="p-1 border-r border-black text-center align-middle">______</td>
+                    <td className="p-1 border-r border-black text-center align-middle">______</td>
+                    <td className="p-1 border-r border-black text-center align-middle">______</td>
+                    <td className="p-1 border-r border-black text-center align-middle">______</td>
+                    <td className="p-1 border-r border-black text-center align-middle">______</td>
+                    <td className="p-1 text-center align-middle">______</td>
                   </tr>
                 ))
               )}
               <tr className="bg-gray-100 font-bold border-t-2 border-black">
-                <td className="p-2 border-r border-black text-right" colSpan="4">TOTAIS:</td>
-                <td className="p-2 border-r border-black text-center">{totalPeso.toFixed(2)} kg</td>
-                <td className="p-2 text-center">{totalM3.toFixed(3)} m³</td>
+                <td className="p-1 border-r border-black text-right align-middle" colSpan="4">TOTAIS:</td>
+                <td className="p-1 border-r border-black text-center align-middle">{totalPeso.toFixed(2)} kg</td>
+                <td className="p-1 text-center align-middle">{totalM3.toFixed(3)} m³</td>
               </tr>
             </tbody>
           </table>
