@@ -36,7 +36,7 @@ export default function OSFormModal({
     regional_id: '',
     almoxarifado_id: '',
     lider_id: '',
-    atendente_id: '',
+    atendente_nome: '',
     executores_ids: [],
     outros_envolvidos_ids: [],
     prazo: '',
@@ -295,19 +295,17 @@ export default function OSFormModal({
                   {/* Atendente */}
                   <div className="space-y-2">
                     <Label>Atendente</Label>
-                    <Select
-                      value={formData.atendente_id}
-                      onValueChange={(v) => setFormData({ ...formData, atendente_id: v })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {pessoas.map(p => (
-                          <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Input
+                      list="pessoas-list"
+                      value={formData.atendente_nome}
+                      onChange={(e) => setFormData({ ...formData, atendente_nome: e.target.value })}
+                      placeholder="Digite ou selecione..."
+                    />
+                    <datalist id="pessoas-list">
+                      {pessoas.map(p => (
+                        <option key={p.id} value={p.nome} />
+                      ))}
+                    </datalist>
                   </div>
                 </div>
 
