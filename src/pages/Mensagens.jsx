@@ -284,9 +284,48 @@ export default function MensagensPage() {
     } catch (error) {
       console.error('Erro ao marcar como favorito:', error);
     }
-  };
+    };
 
-  return (
+    const handleLimparMensagens = async (conversaId) => {
+    if (!window.confirm('Tem certeza que deseja limpar todas as mensagens desta conversa?')) return;
+
+    try {
+      const msgs = await base44.entities.MensagemChat.filter({ conversa_id: conversaId });
+      await Promise.all(msgs.map(msg => base44.entities.MensagemChat.delete(msg.id)));
+
+      await base44.entities.Conversa.update(conversaId, {
+        ultima_mensagem: null,
+        ultima_mensagem_data: null,
+        ultima_mensagem_autor: null
+      });
+
+      await loadMensagens(conversaId);
+      await loadConversas();
+    } catch (error) {
+      console.error('Erro ao limpar mensagens:', error);
+    }
+    };
+
+    const handleExcluirConversa = async (conversaId) => {
+    if (!window.confirm('Tem certeza que deseja excluir esta conversa? Esta ação não pode ser desfeita.')) return;
+
+    try {
+      const participantes = await base44.entities.ParticipanteConversa.filter({ conversa_id: conversaId });
+      await Promise.all(participantes.map(p => base44.entities.ParticipanteConversa.delete(p.id)));
+
+      const msgs = await base44.entities.MensagemChat.filter({ conversa_id: conversaId });
+      await Promise.all(msgs.map(msg => base44.entities.MensagemChat.delete(msg.id)));
+
+      await base44.entities.Conversa.delete(conversaId);
+
+      setConversaSelecionada(null);
+      await loadConversas();
+    } catch (error) {
+      console.error('Erro ao excluir conversa:', error);
+    }
+    };
+
+    return (
     <div className="h-full flex flex-col bg-white dark:bg-slate-900">
       {/* Header - Apenas em desktop */}
       <div className="hidden lg:block px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0">
