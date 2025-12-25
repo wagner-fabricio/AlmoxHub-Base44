@@ -349,51 +349,60 @@ export default function OSDetailModal({
     <>
       <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
-        <DialogHeader className="px-6 py-4 border-b bg-slate-50 dark:bg-slate-800">
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="text-sm font-mono text-slate-500 dark:text-slate-400">{os.codigo}</span>
-              <DialogTitle className="text-xl font-semibold mt-1">
-                {categoria?.nome || 'Ordem de Serviço'}
-              </DialogTitle>
-            </div>
-            <div className="flex items-center gap-3">
-              <Badge className={prioridadeConfig[os.prioridade]?.color}>
-                {prioridadeConfig[os.prioridade]?.label}
-              </Badge>
-              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${statusConfig[os.status]?.color}`}>
-                <StatusIcon className="w-4 h-4" />
-                <span className="text-sm font-medium">{statusConfig[os.status]?.label}</span>
+        <DialogHeader className="px-4 lg:px-6 py-4 border-b bg-slate-50 dark:bg-slate-800">
+          <div className="space-y-4">
+            {/* Linha 1: Título e Status */}
+            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <span className="text-sm font-mono text-slate-500 dark:text-slate-400">{os.codigo}</span>
+                <DialogTitle className="text-xl font-semibold mt-1 break-words">
+                  {categoria?.nome || 'Ordem de Serviço'}
+                </DialogTitle>
               </div>
-              <Button variant="outline" onClick={handleShareOS} id="share-btn">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge className={prioridadeConfig[os.prioridade]?.color}>
+                  {prioridadeConfig[os.prioridade]?.label}
+                </Badge>
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${statusConfig[os.status]?.color}`}>
+                  <StatusIcon className="w-4 h-4" />
+                  <span className="text-sm font-medium">{statusConfig[os.status]?.label}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Linha 2: Ações */}
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="outline" onClick={handleShareOS} id="share-btn" size="sm">
                 <Share2 className="w-4 h-4 mr-2" />
-                Compartilhar
+                <span className="hidden sm:inline">Compartilhar</span>
               </Button>
               {isExpedicao && (
                 <Button 
                   variant="outline" 
                   onClick={handleGeneratePDF}
                   disabled={generatingPDF}
+                  size="sm"
                   className="border-blue-500 text-blue-600 hover:bg-blue-50"
                 >
                   {generatingPDF ? (
-                    <>Gerando...</>
+                    <span className="text-xs">Gerando...</span>
                   ) : (
                     <>
                       <FileText className="w-4 h-4 mr-2" />
-                      Lista de Separação
+                      <span className="hidden sm:inline">Lista de Separação</span>
+                      <span className="sm:hidden">Lista</span>
                     </>
                   )}
                 </Button>
               )}
-              <Button onClick={onEdit}>
+              <Button onClick={onEdit} size="sm">
                 <Edit className="w-4 h-4 mr-2" />
-                Editar
+                <span className="hidden sm:inline">Editar</span>
               </Button>
               {canDelete && (
-                <Button variant="destructive" onClick={() => onDelete?.(os)}>
+                <Button variant="destructive" onClick={() => onDelete?.(os)} size="sm">
                   <Trash className="w-4 h-4 mr-2" />
-                  Excluir
+                  <span className="hidden sm:inline">Excluir</span>
                 </Button>
               )}
             </div>
