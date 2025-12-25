@@ -67,14 +67,7 @@ export default function OSCard({ os, onClick, lider, categoria, regional, instal
         </div>
       </div>
 
-      {/* Tags */}
-      <div className="flex flex-wrap gap-1.5 mb-3">
-        {regional && (
-          <Badge variant="outline" className="text-xs">
-            {regional.sigla}
-          </Badge>
-        )}
-      </div>
+
 
       {/* Expedição Details */}
       {categoria?.nome?.toLowerCase().includes('expedição') && (
