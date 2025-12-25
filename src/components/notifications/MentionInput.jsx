@@ -10,7 +10,8 @@ export default function MentionInput({
   placeholder,
   pessoas,
   textareaRef,
-  className
+  className,
+  onMentionsChange
 }) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [mentionSearch, setMentionSearch] = useState('');
@@ -54,6 +55,16 @@ export default function MentionInput({
     setShowSuggestions(false);
   };
 
+  const extractMentionedPeopleIds = (text) => {
+    const mentionedIds = [];
+    pessoas.forEach(pessoa => {
+      if (text.includes(`@${pessoa.nome}`)) {
+        mentionedIds.push(pessoa.id);
+      }
+    });
+    return mentionedIds;
+  };
+
   const insertMention = (pessoa) => {
     if (mentionStartPos === null) return;
 
@@ -64,6 +75,12 @@ export default function MentionInput({
     onChange({ target: { value: newText } });
     setShowSuggestions(false);
     setMentionStartPos(null);
+    
+    // Atualizar lista de mencionados
+    if (onMentionsChange) {
+      const mentionedIds = extractMentionedPeopleIds(newText);
+      onMentionsChange(mentionedIds);
+    }
     
     // Focar de volta no textarea
     setTimeout(() => {

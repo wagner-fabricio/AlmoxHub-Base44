@@ -304,12 +304,13 @@ export default function ChatArea({
           {conversa.tipo === 'grupo' ? (
             <MentionInput
               value={novaMensagem}
-              onChange={setNovaMensagem}
+              onChange={(e) => setNovaMensagem(e.target.value)}
               onKeyDown={handleKeyPress}
               pessoas={pessoas}
               placeholder="Digite uma mensagem... (use @ para mencionar)"
               className="resize-none min-h-[44px] max-h-32"
               onMentionsChange={setMencoesIds}
+              textareaRef={useRef()}
             />
           ) : (
             <Textarea
