@@ -356,6 +356,7 @@ export default function ChatArea({
           </Button>
         </div>
       </div>
+      </div>
     </>
   );
 }
