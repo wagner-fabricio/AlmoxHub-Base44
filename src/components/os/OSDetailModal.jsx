@@ -94,7 +94,7 @@ export default function OSDetailModal({
       
       // Buscar dados da pessoa para obter foto de perfil
       const pessoaData = await base44.entities.Pessoa.filter({ user_id: user.id });
-      if (pessoaData && pessoaData[0]) {
+      if (Array.isArray(pessoaData) && pessoaData[0]) {
         setCurrentUserPessoa(pessoaData[0]);
       }
     } catch (e) {}
@@ -103,7 +103,8 @@ export default function OSDetailModal({
   const loadComentarios = async () => {
     try {
       const data = await base44.entities.Comentario.filter({ ordem_servico_id: os.id });
-      setComentarios(data.sort((a, b) => new Date(a.created_date) - new Date(b.created_date)));
+      const comentariosArray = Array.isArray(data) ? data : [];
+      setComentarios(comentariosArray.sort((a, b) => new Date(a.created_date) - new Date(b.created_date)));
       setTimeout(() => scrollToBottom(), 100);
     } catch (e) {
       console.error('Error loading comments:', e);
@@ -121,9 +122,9 @@ export default function OSDetailModal({
     
     while ((match = mentionRegex.exec(text)) !== null) {
       const mentionedName = match[1].trim();
-      const pessoa = pessoas.find(p => 
-        p.nome?.toLowerCase() === mentionedName.toLowerCase()
-      );
+      const pessoa = Array.isArray(pessoas) ? pessoas.find(p => 
+        p?.nome?.toLowerCase() === mentionedName.toLowerCase()
+      ) : null;
       if (pessoa) {
         mentions.push(pessoa.id);
       }
@@ -337,10 +338,10 @@ export default function OSDetailModal({
 
   if (!os) return null;
 
-  const categoria = categorias.find(c => c.id === os.categoria_id);
-  const regional = regionais.find(r => r.id === os.regional_id);
-  const almoxarifado = almoxarifados.find(a => a.id === os.almoxarifado_id);
-  const lider = pessoas.find(p => p.id === os.lider_id);
+  const categoria = Array.isArray(categorias) ? categorias.find(c => c?.id === os.categoria_id) : null;
+  const regional = Array.isArray(regionais) ? regionais.find(r => r?.id === os.regional_id) : null;
+  const almoxarifado = Array.isArray(almoxarifados) ? almoxarifados.find(a => a?.id === os.almoxarifado_id) : null;
+  const lider = Array.isArray(pessoas) ? pessoas.find(p => p?.id === os.lider_id) : null;
   const StatusIcon = statusConfig[os.status]?.icon || Clock;
   const isExpedicao = categoria?.nome?.toLowerCase().includes('expedição');
 
@@ -566,7 +567,7 @@ export default function OSDetailModal({
 
                         const comment = item.data;
                         const isOwnMessage = currentUserPessoa?.id === comment.autor_id;
-                        const commentAuthor = pessoas.find(p => p.id === comment.autor_id);
+                        const commentAuthor = Array.isArray(pessoas) ? pessoas.find(p => p?.id === comment.autor_id) : null;
                         const canEdit = canEditOrDelete(comment);
 
                         return (
@@ -633,9 +634,9 @@ export default function OSDetailModal({
                                      {comment.conteudo.split(/(@\S+(?:\s+\S+)*?)(?=\s|$|@)/g).map((part, i) => {
                                        if (part.startsWith('@')) {
                                          const mentionedName = part.slice(1);
-                                         const isPessoaMentioned = pessoas.some(p => 
-                                           p.nome?.toLowerCase() === mentionedName.toLowerCase()
-                                         );
+                                         const isPessoaMentioned = Array.isArray(pessoas) ? pessoas.some(p => 
+                                           p?.nome?.toLowerCase() === mentionedName.toLowerCase()
+                                         ) : false;
                                          return isPessoaMentioned ? (
                                            <span key={i} className={`font-semibold ${isOwnMessage ? 'text-blue-100' : 'text-blue-600 dark:text-blue-400'}`}>
                                              {part}
