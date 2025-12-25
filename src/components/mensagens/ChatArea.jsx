@@ -301,7 +301,7 @@ export default function ChatArea({
           </div>
         )}
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-end">
           {conversa.tipo === 'grupo' ? (
             <MentionInput
               value={novaMensagem}
@@ -309,7 +309,7 @@ export default function ChatArea({
               onKeyDown={handleKeyPress}
               pessoas={pessoas}
               placeholder="Digite uma mensagem... (use @ para mencionar)"
-              className="resize-none min-h-[44px] max-h-32"
+              className="flex-1 resize-none min-h-[42px] max-h-24"
               onMentionsChange={setMencoesIds}
               textareaRef={mentionInputRef}
             />
@@ -319,7 +319,7 @@ export default function ChatArea({
               onChange={(e) => setNovaMensagem(e.target.value)}
               onKeyDown={handleKeyPress}
               placeholder="Digite uma mensagem..."
-              className="resize-none min-h-[44px] max-h-32"
+              className="flex-1 resize-none min-h-[42px] max-h-24"
               rows={1}
             />
           )}
