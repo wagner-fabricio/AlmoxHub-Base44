@@ -149,15 +149,33 @@ export default function MensagensPage() {
     }
   };
 
-  const handleEnviarMensagem = async (conteudo, mensagemRespondendo, mencoesIds = []) => {
+  const handleEnviarMensagem = async (conteudo, mensagemRespondendo, mencoesIds = [], conteudoFormatado = null) => {
     if (!conversaSelecionada || !currentPessoa) return;
 
     try {
+      // Se temos entidades de OS, buscar IDs reais
+      if (conteudoFormatado?.entities?.length > 0) {
+        const allOS = await base44.entities.OrdemServico.list();
+        conteudoFormatado.entities = await Promise.all(
+          conteudoFormatado.entities.map(async (entity) => {
+            if (entity.type === 'ordem_servico') {
+              const os = allOS.find(o => o.codigo === entity.os_codigo);
+              return {
+                ...entity,
+                os_codigo: os?.id || entity.os_codigo
+              };
+            }
+            return entity;
+          })
+        );
+      }
+
       const novaMensagem = await base44.entities.MensagemChat.create({
         conversa_id: conversaSelecionada.id,
         autor_id: currentPessoa.id,
         autor_nome: currentPessoa.nome,
         conteudo,
+        conteudo_formatado: conteudoFormatado,
         mensagem_citada_id: mensagemRespondendo?.id || null,
         mensagem_citada_conteudo: mensagemRespondendo?.conteudo || null,
         mensagem_citada_autor: mensagemRespondendo?.autor_nome || null,
@@ -211,10 +229,28 @@ export default function MensagensPage() {
     }
   };
 
-  const handleEditarMensagem = async (mensagemId, novoConteudo) => {
+  const handleEditarMensagem = async (mensagemId, novoConteudo, conteudoFormatado = null) => {
     try {
+      // Se temos entidades de OS, buscar IDs reais
+      if (conteudoFormatado?.entities?.length > 0) {
+        const allOS = await base44.entities.OrdemServico.list();
+        conteudoFormatado.entities = await Promise.all(
+          conteudoFormatado.entities.map(async (entity) => {
+            if (entity.type === 'ordem_servico') {
+              const os = allOS.find(o => o.codigo === entity.os_codigo);
+              return {
+                ...entity,
+                os_codigo: os?.id || entity.os_codigo
+              };
+            }
+            return entity;
+          })
+        );
+      }
+
       await base44.entities.MensagemChat.update(mensagemId, {
         conteudo: novoConteudo,
+        conteudo_formatado: conteudoFormatado,
         status: 'editada',
         editada_em: new Date().toISOString()
       });

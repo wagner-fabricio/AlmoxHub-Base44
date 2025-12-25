@@ -14,6 +14,10 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import MentionInput from '@/components/notifications/MentionInput';
 import GrupoDetalhesModal from '@/components/mensagens/GrupoDetalhesModal';
+import RichTextEditor from '@/components/mensagens/RichTextEditor';
+import MessageContent from '@/components/mensagens/MessageContent';
+import OSCard from '@/components/mensagens/OSCard';
+import OSDetailModal from '@/components/os/OSDetailModal';
 
 export default function ChatArea({ 
   conversa, 
@@ -34,6 +38,7 @@ export default function ChatArea({
   const [mensagemRespondendo, setMensagemRespondendo] = useState(null);
   const [mencoesIds, setMencoesIds] = useState([]);
   const [showGrupoDetalhes, setShowGrupoDetalhes] = useState(false);
+  const [osDetailModal, setOsDetailModal] = useState(null);
   const scrollRef = useRef(null);
   const mentionInputRef = useRef(null);
 
@@ -46,15 +51,48 @@ export default function ChatArea({
   const handleEnviar = () => {
     if (!novaMensagem.trim()) return;
 
+    // Extrair entidades (OSs) do texto
+    const conteudoFormatado = parseMessageContent(novaMensagem);
+
     if (mensagemEditando) {
-      onEditarMensagem(mensagemEditando.id, novaMensagem);
+      onEditarMensagem(mensagemEditando.id, novaMensagem, conteudoFormatado);
       setMensagemEditando(null);
     } else {
-      onEnviarMensagem(novaMensagem, mensagemRespondendo, mencoesIds);
+      onEnviarMensagem(novaMensagem, mensagemRespondendo, mencoesIds, conteudoFormatado);
       setMensagemRespondendo(null);
     }
     setNovaMensagem('');
     setMencoesIds([]);
+  };
+
+  const parseMessageContent = (text) => {
+    const entities = [];
+    
+    // Detectar links de OS
+    const osLinkRegex = /(?:\/os\/|ordem-servico\/|OS[:\s#-]*|ALMHUB-)([A-Za-z0-9-]+)/gi;
+    let match;
+    while ((match = osLinkRegex.exec(text)) !== null) {
+      entities.push({
+        type: 'ordem_servico',
+        offset: match.index,
+        length: match[0].length,
+        os_codigo: match[1]
+      });
+    }
+
+    return {
+      text: text,
+      entities: entities
+    };
+  };
+
+  const extractOSFromMessage = (mensagem) => {
+    const conteudoFormatado = mensagem.conteudo_formatado;
+    if (!conteudoFormatado || !conteudoFormatado.entities) return [];
+    
+    return conteudoFormatado.entities
+      .filter(e => e.type === 'ordem_servico')
+      .map(e => e.os_codigo);
   };
 
   const handleKeyPress = (e) => {
@@ -291,9 +329,29 @@ export default function ChatArea({
                       </div>
                     )}
 
-                    <p className="text-sm whitespace-pre-wrap break-words">
-                      {mensagem.status === 'excluida' ? 'Mensagem excluída' : mensagem.conteudo}
-                    </p>
+                    {mensagem.status === 'excluida' ? (
+                      <p className="text-sm whitespace-pre-wrap break-words">
+                        Mensagem excluída
+                      </p>
+                    ) : (
+                      <>
+                        <MessageContent 
+                          content={mensagem.conteudo} 
+                          isMinha={isMinha}
+                        />
+                        
+                        {/* Renderizar cards de OS */}
+                        {mensagem.conteudo_formatado?.entities?.filter(e => e.type === 'ordem_servico').map((entity, idx) => (
+                          <div key={idx} className="mt-2">
+                            <OSCard 
+                              osId={entity.os_codigo}
+                              onClick={(os) => setOsDetailModal(os)}
+                              isMinha={isMinha}
+                            />
+                          </div>
+                        ))}
+                      </>
+                    )}
                     
                     <div className="flex items-center justify-end gap-2 mt-1">
                       <span className={`text-xs ${isMinha ? 'text-white/70' : 'text-slate-500 dark:text-slate-400'}`}>
@@ -339,38 +397,51 @@ export default function ChatArea({
           </div>
         )}
 
-        <div className="flex gap-2 items-end">
+        <div className="flex gap-2 items-start">
           {conversa.tipo === 'grupo' ? (
-            <MentionInput
-              value={novaMensagem}
-              onChange={(e) => setNovaMensagem(e.target.value)}
-              onKeyDown={handleKeyPress}
-              pessoas={pessoas}
-              placeholder="Digite uma mensagem... (use @ para mencionar)"
-              className="flex-1 resize-none min-h-[42px] max-h-24"
-              onMentionsChange={setMencoesIds}
-              textareaRef={mentionInputRef}
-            />
+            <div className="flex-1">
+              <MentionInput
+                value={novaMensagem}
+                onChange={(e) => setNovaMensagem(e.target.value)}
+                onKeyDown={handleKeyPress}
+                pessoas={pessoas}
+                placeholder="Digite uma mensagem... (use @ para mencionar)"
+                className="resize-none min-h-[42px] max-h-24"
+                onMentionsChange={setMencoesIds}
+                textareaRef={mentionInputRef}
+              />
+            </div>
           ) : (
-            <Textarea
+            <RichTextEditor
               value={novaMensagem}
               onChange={(e) => setNovaMensagem(e.target.value)}
               onKeyDown={handleKeyPress}
-              placeholder="Digite uma mensagem..."
-              className="flex-1 resize-none min-h-[42px] max-h-24"
-              rows={1}
+              placeholder="Digite uma mensagem... Use códigos de OS (ex: ALMHUB-20250101-0001)"
+              className="resize-none min-h-[42px] max-h-24"
             />
           )}
           <Button
             onClick={handleEnviar}
             disabled={!novaMensagem.trim()}
-            className="shrink-0"
+            className="shrink-0 mt-10"
           >
             <Send className="w-4 h-4" />
           </Button>
         </div>
       </div>
       </div>
+
+      {/* Modal de Detalhes da OS */}
+      {osDetailModal && (
+        <OSDetailModal
+          os={osDetailModal}
+          onClose={() => setOsDetailModal(null)}
+          onUpdate={() => {
+            setOsDetailModal(null);
+            // Recarregar mensagens se necessário
+          }}
+        />
+      )}
     </>
   );
 }
