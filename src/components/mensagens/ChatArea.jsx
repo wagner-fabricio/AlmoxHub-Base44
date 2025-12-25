@@ -177,13 +177,16 @@ export default function ChatArea({
                     }
                   `}>
                     {mensagem.status !== 'excluida' && isMinha && (
-                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-6 w-6">
-                              <MoreVertical className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="absolute top-1 left-[-28px] h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <MoreVertical className="w-3 h-3" />
+                          </Button>
+                        </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => {
                               setMensagemRespondendo(mensagem);
@@ -206,8 +209,7 @@ export default function ChatArea({
                               Excluir
                             </DropdownMenuItem>
                           </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
+                      </DropdownMenu>
                     )}
 
                     {mensagem.mensagem_citada_conteudo && (
