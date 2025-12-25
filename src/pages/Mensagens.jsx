@@ -16,9 +16,13 @@ export default function MensagensPage() {
   const [showNovaConversa, setShowNovaConversa] = useState(false);
   const [mostrarLista, setMostrarLista] = useState(true);
 
+  // Cache para OSs - evita buscar todas as OSs repetidamente
+  const [osCache, setOsCache] = useState(new Map());
+
   useEffect(() => {
     loadData();
-    const interval = setInterval(loadConversas, 3000); // Poll a cada 3s
+    // Aumentado intervalo de polling para reduzir carga
+    const interval = setInterval(loadConversas, 10000); // Poll a cada 10s
     return () => clearInterval(interval);
   }, []);
 
@@ -26,7 +30,8 @@ export default function MensagensPage() {
     if (conversaSelecionada) {
       loadMensagens(conversaSelecionada.id);
       marcarComoLida(conversaSelecionada.id);
-      const interval = setInterval(() => loadMensagens(conversaSelecionada.id), 2000);
+      // Polling mais inteligente - só atualiza se conversa estiver selecionada
+      const interval = setInterval(() => loadMensagens(conversaSelecionada.id), 5000);
       return () => clearInterval(interval);
     }
   }, [conversaSelecionada]);
@@ -153,31 +158,61 @@ export default function MensagensPage() {
     }
   };
 
+  // Função para converter códigos de OS para IDs com cache
+  const convertOSCodigos = async (entities) => {
+    if (!Array.isArray(entities) || entities.length === 0) return entities;
+
+    const codigosParaBuscar = entities
+      .filter(e => e?.type === 'ordem_servico' && e.os_codigo && !e.os_id)
+      .map(e => e.os_codigo);
+
+    if (codigosParaBuscar.length === 0) return entities;
+
+    // Buscar apenas códigos que não estão no cache
+    const codigosNaoCache = codigosParaBuscar.filter(codigo => !osCache.has(codigo));
+
+    if (codigosNaoCache.length > 0) {
+      try {
+        // Buscar apenas as OSs necessárias por código
+        const osEncontradas = await Promise.all(
+          codigosNaoCache.map(codigo => 
+            base44.entities.OrdemServico.filter({ codigo }).then(result => 
+              Array.isArray(result) && result.length > 0 ? result[0] : null
+            )
+          )
+        );
+
+        // Atualizar cache
+        const novoCache = new Map(osCache);
+        osEncontradas.forEach((os, idx) => {
+          if (os) novoCache.set(codigosNaoCache[idx], os.id);
+        });
+        setOsCache(novoCache);
+      } catch (error) {
+        console.error('Erro ao buscar OSs:', error);
+      }
+    }
+
+    // Converter usando cache
+    return entities.map(entity => {
+      if (!entity) return entity;
+      if (entity.type === 'ordem_servico' && entity.os_codigo && !entity.os_id) {
+        return {
+          ...entity,
+          os_id: osCache.get(entity.os_codigo) || entity.os_codigo
+        };
+      }
+      return entity;
+    }).filter(Boolean);
+  };
+
   const handleEnviarMensagem = async (conteudo, mensagemRespondendo, mencoesIds = [], conteudoFormatado = null) => {
     if (!conversaSelecionada || !currentPessoa) return;
 
     try {
-      // Se temos entidades de OS com código, converter para ID
-      if (Array.isArray(conteudoFormatado?.entities) && conteudoFormatado.entities.length > 0) {
-        try {
-          const allOS = await base44.entities.OrdemServico.list();
-          const osArray = Array.isArray(allOS) ? allOS : [];
-
-          conteudoFormatado.entities = conteudoFormatado.entities.map((entity) => {
-            if (!entity) return entity;
-
-            if (entity.type === 'ordem_servico' && entity.os_codigo && !entity.os_id) {
-              const os = osArray.find(o => o && o.codigo === entity.os_codigo);
-              return {
-                ...entity,
-                os_id: os?.id || entity.os_codigo
-              };
-            }
-            return entity;
-          }).filter(Boolean);
-        } catch (error) {
-          console.error('Erro ao converter códigos de OS:', error);
-        }
+      // Converter códigos de OS usando cache
+      if (conteudoFormatado?.entities) {
+        conteudoFormatado.entities = await convertOSCodigos(conteudoFormatado.entities);
       }
 
       const novaMensagem = await base44.entities.MensagemChat.create({
@@ -242,27 +277,9 @@ export default function MensagensPage() {
 
   const handleEditarMensagem = async (mensagemId, novoConteudo, conteudoFormatado = null) => {
     try {
-      // Se temos entidades de OS com código, converter para ID
-      if (Array.isArray(conteudoFormatado?.entities) && conteudoFormatado.entities.length > 0) {
-        try {
-          const allOS = await base44.entities.OrdemServico.list();
-          const osArray = Array.isArray(allOS) ? allOS : [];
-
-          conteudoFormatado.entities = conteudoFormatado.entities.map((entity) => {
-            if (!entity) return entity;
-
-            if (entity.type === 'ordem_servico' && entity.os_codigo && !entity.os_id) {
-              const os = osArray.find(o => o && o.codigo === entity.os_codigo);
-              return {
-                ...entity,
-                os_id: os?.id || entity.os_codigo
-              };
-            }
-            return entity;
-          }).filter(Boolean);
-        } catch (error) {
-          console.error('Erro ao converter códigos de OS:', error);
-        }
+      // Converter códigos de OS usando cache
+      if (conteudoFormatado?.entities) {
+        conteudoFormatado.entities = await convertOSCodigos(conteudoFormatado.entities);
       }
 
       await base44.entities.MensagemChat.update(mensagemId, {

@@ -14,10 +14,19 @@ export default function NovaConversaModal({ open, onClose, pessoas, currentPesso
   const [participantesSelecionados, setParticipantesSelecionados] = useState([]);
   const [nomeGrupo, setNomeGrupo] = useState('');
   const [busca, setBusca] = useState('');
+  const [buscaDebounced, setBuscaDebounced] = useState('');
+
+  // Debounce para busca
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setBuscaDebounced(busca);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [busca]);
 
   const pessoasFiltradas = pessoas.filter(p => 
     p.id !== currentPessoaId && 
-    p.nome.toLowerCase().includes(busca.toLowerCase())
+    p.nome.toLowerCase().includes(buscaDebounced.toLowerCase())
   );
 
   const handleCriar = () => {

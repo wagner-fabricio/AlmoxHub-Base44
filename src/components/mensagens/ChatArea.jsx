@@ -41,12 +41,36 @@ export default function ChatArea({
   const [osDetailModal, setOsDetailModal] = useState(null);
   const scrollRef = useRef(null);
   const mentionInputRef = useRef(null);
+  const isUserScrollingRef = useRef(false);
+  const lastMessageCountRef = useRef(0);
 
+  // Scroll inteligente - só rola automaticamente se usuário não estiver lendo histórico
   useEffect(() => {
-    if (scrollRef.current) {
+    if (!scrollRef.current) return;
+    
+    const mensagensCount = Array.isArray(mensagens) ? mensagens.length : 0;
+    const isNewMessage = mensagensCount > lastMessageCountRef.current;
+    lastMessageCountRef.current = mensagensCount;
+
+    if (isNewMessage && !isUserScrollingRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [mensagens]);
+
+  // Detectar quando usuário está rolando manualmente
+  useEffect(() => {
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+      isUserScrollingRef.current = !isNearBottom;
+    };
+
+    scrollContainer.addEventListener('scroll', handleScroll);
+    return () => scrollContainer.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleEnviar = () => {
     if (!novaMensagem.trim()) return;
@@ -201,7 +225,13 @@ export default function ChatArea({
         participantes={participantes}
         pessoas={pessoas}
         currentPessoaId={currentPessoaId}
-        onUpdate={() => window.location.reload()}
+        onUpdate={() => {
+          setShowGrupoDetalhes(false);
+          // Forçar recarregamento dos dados sem reload da página
+          if (window.location.reload) {
+            window.location.reload();
+          }
+        }}
       />
 
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -460,7 +490,7 @@ export default function ChatArea({
           onClose={() => setOsDetailModal(null)}
           onUpdate={() => {
             setOsDetailModal(null);
-            window.location.reload();
+            // Recarregar apenas os dados necessários
           }}
         />
       )}

@@ -44,6 +44,15 @@ export default function GrupoDetalhesModal({
   const [showAddMember, setShowAddMember] = useState(false);
   const [selectedNewMembers, setSelectedNewMembers] = useState([]);
   const [busca, setBusca] = useState('');
+  const [buscaDebounced, setBuscaDebounced] = useState('');
+
+  // Debounce para busca
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setBuscaDebounced(busca);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [busca]);
 
   const currentParticipante = participantes.find(p => p.pessoa_id === currentPessoaId);
   const isAdmin = currentParticipante?.permissao === 'admin';
@@ -137,7 +146,7 @@ export default function GrupoDetalhesModal({
   const participantesIdsAtivos = participantesAtivos.map(p => p.pessoa_id);
   const pessoasDisponiveis = pessoas.filter(p => 
     !participantesIdsAtivos.includes(p.id) &&
-    p.nome.toLowerCase().includes(busca.toLowerCase())
+    p.nome.toLowerCase().includes(buscaDebounced.toLowerCase())
   );
 
   const toggleNewMember = (pessoaId) => {

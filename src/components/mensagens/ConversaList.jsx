@@ -8,6 +8,26 @@ import { Users, Star, Plus } from 'lucide-react';
 
 export default function ConversaList({ conversas, pessoas, currentPessoaId, onSelectConversa, conversaSelecionada, onToggleFavorito, onNovaConversa }) {
   const [filtroAtivo, setFiltroAtivo] = useState('todas');
+
+  // Memoizar conversas filtradas para evitar recalcular a cada render
+  const conversasFiltradas = React.useMemo(() => {
+    if (!Array.isArray(conversas)) return [];
+    
+    return conversas.filter((conv) => {
+      const participante = Array.isArray(conv?.participantes) ? conv.participantes.find(p => p?.pessoa_id === currentPessoaId) : null;
+      
+      if (filtroAtivo === 'nao_lidas') {
+        return (participante?.mensagens_nao_lidas || 0) > 0;
+      }
+      if (filtroAtivo === 'favoritas') {
+        return participante?.favorito === true;
+      }
+      if (filtroAtivo === 'grupos') {
+        return conv?.conversa?.tipo === 'grupo';
+      }
+      return true;
+    });
+  }, [conversas, filtroAtivo, currentPessoaId]);
   
   const getOutraPessoa = (conversa, participantes) => {
     if (conversa?.tipo === 'grupo') return null;
@@ -41,22 +61,7 @@ export default function ConversaList({ conversas, pessoas, currentPessoaId, onSe
     };
   };
 
-  const conversasFiltradas = Array.isArray(conversas) ? conversas.filter((conv) => {
-    const participante = Array.isArray(conv?.participantes) ? conv.participantes.find(p => p?.pessoa_id === currentPessoaId) : null;
-    
-    if (filtroAtivo === 'nao_lidas') {
-      return (participante?.mensagens_nao_lidas || 0) > 0;
-    }
-    if (filtroAtivo === 'favoritas') {
-      return participante?.favorito === true;
-    }
-    if (filtroAtivo === 'grupos') {
-      return conv?.conversa?.tipo === 'grupo';
-    }
-    return true; // 'todas'
-  }) : [];
-
-  const contadores = {
+  const contadores = React.useMemo(() => ({
     todas: Array.isArray(conversas) ? conversas.length : 0,
     nao_lidas: Array.isArray(conversas) ? conversas.filter(c => {
       const participante = Array.isArray(c?.participantes) ? c.participantes.find(p => p?.pessoa_id === currentPessoaId) : null;
@@ -67,7 +72,7 @@ export default function ConversaList({ conversas, pessoas, currentPessoaId, onSe
       return participante?.favorito === true;
     }).length : 0,
     grupos: Array.isArray(conversas) ? conversas.filter(c => c?.conversa?.tipo === 'grupo').length : 0,
-  };
+  }), [conversas, currentPessoaId]);
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
