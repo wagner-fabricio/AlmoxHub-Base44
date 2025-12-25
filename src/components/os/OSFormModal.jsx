@@ -192,31 +192,32 @@ export default function OSFormModal({
       const jsonSchema = {
         type: "object",
         properties: {
-          n_documento: { type: "string" },
-          data_documento: { type: "string" },
-          tipo_movimento: { type: "string" },
-          centro_estoque: { type: "string" },
-          nome_local_entrega: { type: "string" },
-          centro_custo: { type: "string" },
-          processado_por_nome: { type: "string" },
-          processado_por_matricula: { type: "string" },
+          n_documento: { type: "string", description: "Número do documento" },
+          data_documento: { type: "string", description: "Data do documento no formato DD.MM.YYYY" },
+          tipo_movimento: { type: "string", description: "Tipo de movimento" },
+          centro_estoque: { type: "string", description: "Centro de estoque" },
+          nome_local_entrega: { type: "string", description: "Nome/Local de entrega" },
+          centro_custo: { type: "string", description: "Centro de custo" },
+          processado_por_nome: { type: "string", description: "Nome completo da pessoa que processou" },
+          processado_por_matricula: { type: "string", description: "Matrícula da pessoa que processou" },
           itens: {
             type: "array",
             items: {
               type: "object",
               properties: {
-                item: { type: "string" },
-                material: { type: "string" },
-                texto_breve: { type: "string" },
-                qtd: { type: "number" },
-                un: { type: "string" },
-                localizacao: { type: "string" },
-                dep: { type: "string" },
-                reserva: { type: "string" },
-                saldo_em_estoque: { type: "number" },
-                observacao: { type: "string" }
+                item: { type: "string", description: "Número do item" },
+                material: { type: "string", description: "Código do material" },
+                texto_breve: { type: "string", description: "Descrição breve do material" },
+                qtd: { type: "number", description: "Quantidade" },
+                un: { type: "string", description: "Unidade de medida" },
+                localizacao: { type: "string", description: "Localização física do item" },
+                dep: { type: "string", description: "Depósito (campo 'Dep.' no documento)" },
+                reserva: { type: "string", description: "Número da reserva" },
+                saldo_em_estoque: { type: "number", description: "Saldo disponível em estoque" },
+                observacao: { type: "string", description: "Observação sobre o item" }
               }
-            }
+            },
+            description: "Lista de itens do documento"
           }
         }
       };
