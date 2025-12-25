@@ -80,6 +80,7 @@ export default function OSKanban({ ordens, pessoas, categorias, regionais, insta
                               lider={getLider(os.lider_id)}
                               categoria={getCategoria(os.categoria_id)}
                               regional={getRegional(os.regional_id)}
+                              instalacoes={instalacoes}
                               onClick={onOSClick}
                             />
                           </div>

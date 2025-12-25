@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ImageIcon, Calendar, User } from 'lucide-react';
+import { ImageIcon, Calendar, User, PackageCheck, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -78,6 +78,36 @@ export default function OSGallery({ ordens, pessoas, categorias, regionais, inst
                 <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-3">
                   {os.descricao_resumida}
                 </p>
+              )}
+
+              {/* Expedição Details */}
+              {categoria?.nome?.toLowerCase().includes('expedição') && (os.num_reserva || os.num_migo || os.instalacao_destino_id || os.usuario_reserva) && (
+                <div className="mb-3 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg space-y-1.5 text-xs">
+                  {os.num_reserva && (
+                    <div className="flex items-center gap-2">
+                      <PackageCheck className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                      <span className="text-slate-600 dark:text-slate-400">Reserva: <span className="font-medium text-slate-900 dark:text-white">{os.num_reserva}</span></span>
+                    </div>
+                  )}
+                  {os.num_migo && (
+                    <div className="flex items-center gap-2">
+                      <PackageCheck className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                      <span className="text-slate-600 dark:text-slate-400">MIGO: <span className="font-medium text-slate-900 dark:text-white">{os.num_migo}</span></span>
+                    </div>
+                  )}
+                  {os.instalacao_destino_id && (
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                      <span className="text-slate-600 dark:text-slate-400 truncate">Destino: <span className="font-medium text-slate-900 dark:text-white">{getInstalacao(os.instalacao_destino_id)?.nome || '-'}</span></span>
+                    </div>
+                  )}
+                  {os.usuario_reserva && (
+                    <div className="flex items-center gap-2">
+                      <User className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                      <span className="text-slate-600 dark:text-slate-400 truncate">Usuário: <span className="font-medium text-slate-900 dark:text-white">{os.usuario_reserva}</span></span>
+                    </div>
+                  )}
+                </div>
               )}
 
               <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-700">
