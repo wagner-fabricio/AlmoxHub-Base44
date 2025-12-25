@@ -24,10 +24,10 @@ export default function NovaConversaModal({ open, onClose, pessoas, currentPesso
     return () => clearTimeout(timer);
   }, [busca]);
 
-  const pessoasFiltradas = pessoas.filter(p => 
-    p.id !== currentPessoaId && 
-    p.nome.toLowerCase().includes(buscaDebounced.toLowerCase())
-  );
+  const pessoasFiltradas = Array.isArray(pessoas) ? pessoas.filter(p => 
+    p && p.id !== currentPessoaId && 
+    p.nome?.toLowerCase().includes(buscaDebounced.toLowerCase())
+  ) : [];
 
   const handleCriar = () => {
     if (tipo === 'privada') {

@@ -54,7 +54,7 @@ export default function GrupoDetalhesModal({
     return () => clearTimeout(timer);
   }, [busca]);
 
-  const currentParticipante = participantes.find(p => p.pessoa_id === currentPessoaId);
+  const currentParticipante = Array.isArray(participantes) ? participantes.find(p => p?.pessoa_id === currentPessoaId) : null;
   const isAdmin = currentParticipante?.permissao === 'admin';
 
   const handleUploadImage = async (e) => {
@@ -96,7 +96,7 @@ export default function GrupoDetalhesModal({
     if (!isAdmin) return;
 
     try {
-      const part = participantes.find(p => p.id === participanteId);
+      const part = Array.isArray(participantes) ? participantes.find(p => p?.id === participanteId) : null;
       await base44.entities.ParticipanteConversa.update(participanteId, {
         permissao: part.permissao === 'admin' ? 'membro' : 'admin'
       });
@@ -142,12 +142,12 @@ export default function GrupoDetalhesModal({
     }
   };
 
-  const participantesAtivos = participantes.filter(p => p.status === 'ativo');
-  const participantesIdsAtivos = participantesAtivos.map(p => p.pessoa_id);
-  const pessoasDisponiveis = pessoas.filter(p => 
-    !participantesIdsAtivos.includes(p.id) &&
-    p.nome.toLowerCase().includes(buscaDebounced.toLowerCase())
-  );
+  const participantesAtivos = Array.isArray(participantes) ? participantes.filter(p => p?.status === 'ativo') : [];
+  const participantesIdsAtivos = participantesAtivos.map(p => p?.pessoa_id).filter(Boolean);
+  const pessoasDisponiveis = Array.isArray(pessoas) ? pessoas.filter(p => 
+    p && !participantesIdsAtivos.includes(p.id) &&
+    p.nome?.toLowerCase().includes(buscaDebounced.toLowerCase())
+  ) : [];
 
   const toggleNewMember = (pessoaId) => {
     if (selectedNewMembers.includes(pessoaId)) {
@@ -323,7 +323,7 @@ export default function GrupoDetalhesModal({
             <ScrollArea className="h-96">
               <div className="space-y-2">
                 {participantesAtivos.map((participante) => {
-                  const pessoa = pessoas.find(p => p.id === participante.pessoa_id);
+                  const pessoa = Array.isArray(pessoas) ? pessoas.find(p => p?.id === participante?.pessoa_id) : null;
                   const isCurrentUser = participante.pessoa_id === currentPessoaId;
                   const isParticipanteAdmin = participante.permissao === 'admin';
 
