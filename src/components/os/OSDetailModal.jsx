@@ -320,7 +320,8 @@ export default function OSDetailModal({
   const isExpedicao = categoria?.nome?.toLowerCase().includes('expedição');
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <>
+      <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
         <DialogHeader className="px-6 py-4 border-b bg-slate-50 dark:bg-slate-800">
           <div className="flex items-center justify-between">
@@ -767,10 +768,10 @@ export default function OSDetailModal({
           </div>
         </ScrollArea>
       </DialogContent>
-    </Dialog>
+      </Dialog>
 
-    {/* Hidden Relatorio for PDF Generation */}
-    {showRelatorio && (
+      {/* Hidden Relatorio for PDF Generation */}
+      {showRelatorio && (
       <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
         <RelatorioSeparacao
           os={os}
@@ -782,7 +783,7 @@ export default function OSDetailModal({
           currentUser={currentUser}
         />
       </div>
-    )}
-    </>
-    );
-    }
+      )}
+      </>
+      );
+      }
