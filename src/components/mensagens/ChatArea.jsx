@@ -131,11 +131,11 @@ export default function ChatArea({
     return format(new Date(data), 'HH:mm');
   };
 
-  const getPessoaById = (id) => pessoas.find(p => p.id === id);
+  const getPessoaById = (id) => Array.isArray(pessoas) ? pessoas.find(p => p?.id === id) : null;
 
   const getOutraPessoa = () => {
-    if (conversa.tipo === 'grupo') return null;
-    const outroPart = participantes.find(p => p.pessoa_id !== currentPessoaId);
+    if (conversa?.tipo === 'grupo') return null;
+    const outroPart = Array.isArray(participantes) ? participantes.find(p => p?.pessoa_id !== currentPessoaId) : null;
     return getPessoaById(outroPart?.pessoa_id);
   };
 
@@ -154,8 +154,8 @@ export default function ChatArea({
       </div>
     );
 
-    const mensagemAnterior = mensagens[index - 1];
-    if (!isSameDay(new Date(mensagem.created_date), new Date(mensagemAnterior.created_date))) {
+    const mensagemAnterior = Array.isArray(mensagens) && mensagens[index - 1];
+    if (mensagemAnterior && !isSameDay(new Date(mensagem.created_date), new Date(mensagemAnterior.created_date))) {
       return (
         <div className="flex justify-center my-4">
           <span className="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs px-3 py-1 rounded-full">
@@ -228,7 +228,7 @@ export default function ChatArea({
               <h2 className="font-semibold text-slate-900 dark:text-white truncate">{getNomeConversa()}</h2>
               {conversa.tipo === 'grupo' && (
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {participantes.filter(p => p.status === 'ativo').length} participantes
+                  {Array.isArray(participantes) ? participantes.filter(p => p?.status === 'ativo').length : 0} participantes
                 </p>
               )}
             </div>
@@ -264,7 +264,7 @@ export default function ChatArea({
 
       {/* Mensagens */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 lg:p-6 bg-slate-50 dark:bg-slate-900 space-y-4">
-        {mensagens.map((mensagem, index) => {
+        {Array.isArray(mensagens) && mensagens.map((mensagem, index) => {
           const isMinha = mensagem.autor_id === currentPessoaId;
           const autor = getPessoaById(mensagem.autor_id);
           const mostrarAvatar = conversa.tipo === 'grupo' && !isMinha;
