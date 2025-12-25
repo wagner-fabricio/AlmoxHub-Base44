@@ -10,7 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
-import { Save, Plus, Trash2, Upload, X, Loader2 } from 'lucide-react';
+import { Save, Plus, Trash2, Upload, X, Loader2, Paperclip } from 'lucide-react';
 import OSItensDocumento from './OSItensDocumento';
 import OSVolumes from './OSVolumes';
 import OSDetalhamentoExpedicao from './OSDetalhamentoExpedicao';
@@ -30,6 +30,8 @@ export default function OSFormModal({
   onSave
 }) {
   const [loading, setSaving] = useState(false);
+  const [importingPDF, setImportingPDF] = useState(false);
+  const [zmmtsePDF, setZmmtsePDF] = useState(null);
   const [formData, setFormData] = useState({
     categoria_id: '',
     subcategorias_ids: [],
@@ -168,6 +170,93 @@ export default function OSFormModal({
       ...prev,
       [field]: prev[field].filter((_, i) => i !== index)
     }));
+  };
+
+  const handleZMMTSEUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    try {
+      const result = await base44.integrations.Core.UploadFile({ file });
+      setZmmtsePDF(result.file_url);
+    } catch (error) {
+      console.error('Error uploading ZMMTSE PDF:', error);
+    }
+  };
+
+  const importZMMTSEData = async () => {
+    if (!zmmtsePDF) return;
+    
+    setImportingPDF(true);
+    try {
+      const jsonSchema = {
+        type: "object",
+        properties: {
+          n_documento: { type: "string" },
+          data_documento: { type: "string" },
+          tipo_movimento: { type: "string" },
+          centro_estoque: { type: "string" },
+          nome_local_entrega: { type: "string" },
+          centro_custo: { type: "string" },
+          processado_por_nome: { type: "string" },
+          processado_por_matricula: { type: "string" },
+          itens: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                item: { type: "string" },
+                material: { type: "string" },
+                texto_breve: { type: "string" },
+                qtd: { type: "number" },
+                un: { type: "string" },
+                localizacao: { type: "string" },
+                dep: { type: "string" },
+                reserva: { type: "string" },
+                saldo_em_estoque: { type: "number" },
+                observacao: { type: "string" }
+              }
+            }
+          }
+        }
+      };
+
+      const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
+        file_url: zmmtsePDF,
+        json_schema: jsonSchema
+      });
+
+      if (result.status === "success" && result.output) {
+        const data = result.output;
+        
+        // Mapear campos principais
+        const updates = {
+          num_reserva: data.itens?.[0]?.reserva || '',
+          data_migo: data.data_documento ? format(new Date(data.data_documento.split('.').reverse().join('-')), 'yyyy-MM-dd') : '',
+          atendente_nome: data.processado_por_nome ? `${data.processado_por_nome} (${data.processado_por_matricula || ''})`.trim() : '',
+          descricao_resumida: data.itens?.[0]?.observacao || '',
+          anotacoes: `Centro de estoque: ${data.centro_estoque || ''}, Local Entrega: ${data.nome_local_entrega || ''}, Centro de custo: ${data.centro_custo || ''}, Tipo de movimento: ${data.tipo_movimento || ''}`,
+          itens_documento: data.itens?.map(item => ({
+            codigo: item.material || '',
+            descricao: item.texto_breve || '',
+            quantidade: item.qtd || 0,
+            unidade: item.un || 'UN',
+            r_unit: 0,
+            r_total: 0,
+            deposito: item.dep || '',
+            endereco: item.localizacao || '',
+            saldo: item.saldo_em_estoque || 0,
+            seguravel: false
+          })) || []
+        };
+
+        setFormData(prev => ({ ...prev, ...updates }));
+      }
+    } catch (error) {
+      console.error('Error importing ZMMTSE data:', error);
+    } finally {
+      setImportingPDF(false);
+    }
   };
 
   const isValid = formData.categoria_id && formData.subcategorias_ids?.length > 0 && 
@@ -689,6 +778,47 @@ export default function OSFormModal({
 
               {/* TAB: Anexos */}
               <TabsContent value="anexos" className="space-y-6">
+                {/* ZMMTSE Import Section */}
+                {isExpedicaoComReserva && (
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-800">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <h4 className="font-semibold text-blue-900 dark:text-blue-100">Documento ZMMTSE</h4>
+                        <p className="text-sm text-blue-700 dark:text-blue-300">Faça upload do PDF para importar dados automaticamente</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="flex-1">
+                        <Input
+                          type="file"
+                          accept=".pdf"
+                          onChange={handleZMMTSEUpload}
+                          className="cursor-pointer"
+                        />
+                      </div>
+                      <Button 
+                        onClick={importZMMTSEData}
+                        disabled={!zmmtsePDF || importingPDF}
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        {importingPDF ? (
+                          <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Importando...</>
+                        ) : (
+                          <>Importar Dados</>
+                        )}
+                      </Button>
+                    </div>
+                    {zmmtsePDF && (
+                      <div className="mt-2 flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
+                        <Paperclip className="w-4 h-4" />
+                        <a href={zmmtsePDF} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                          Ver PDF carregado
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Anexos */}
                   <div className="space-y-4">
