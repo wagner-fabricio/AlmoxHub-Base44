@@ -33,11 +33,13 @@ export default function OSCard({ osId, onClick, isMinha }) {
   const loadOS = async () => {
     try {
       // Tentar buscar por ID primeiro, depois por código
-      let osData = await base44.entities.OrdemServico.filter({ id: osId }).then(d => d[0]);
+      const osById = await base44.entities.OrdemServico.filter({ id: osId });
+      let osData = Array.isArray(osById) && osById.length > 0 ? osById[0] : null;
       
       if (!osData && osId) {
         // Se não encontrou por ID, tentar por código
-        osData = await base44.entities.OrdemServico.filter({ codigo: osId }).then(d => d[0]);
+        const osByCodigo = await base44.entities.OrdemServico.filter({ codigo: osId });
+        osData = Array.isArray(osByCodigo) && osByCodigo.length > 0 ? osByCodigo[0] : null;
       }
       
       if (!osData) {
@@ -49,12 +51,14 @@ export default function OSCard({ osId, onClick, isMinha }) {
 
       // Carregar dados relacionados
       if (osData.categoria_id) {
-        const cat = await base44.entities.Categoria.filter({ id: osData.categoria_id }).then(c => c[0]);
+        const catResult = await base44.entities.Categoria.filter({ id: osData.categoria_id });
+        const cat = Array.isArray(catResult) && catResult.length > 0 ? catResult[0] : null;
         setCategoria(cat);
       }
 
       if (osData.regional_id) {
-        const reg = await base44.entities.Regional.filter({ id: osData.regional_id }).then(r => r[0]);
+        const regResult = await base44.entities.Regional.filter({ id: osData.regional_id });
+        const reg = Array.isArray(regResult) && regResult.length > 0 ? regResult[0] : null;
         setRegional(reg);
       }
     } catch (error) {
