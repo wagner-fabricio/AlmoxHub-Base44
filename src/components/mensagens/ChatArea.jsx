@@ -454,13 +454,13 @@ export default function ChatArea({
       </div>
 
       {/* Modal de Detalhes da OS */}
-      {osDetailModal && (
+      {osDetailModal && osDetailModal.id && (
         <OSDetailModal
           os={osDetailModal}
           onClose={() => setOsDetailModal(null)}
           onUpdate={() => {
             setOsDetailModal(null);
-            // Recarregar mensagens se necessário
+            window.location.reload();
           }}
         />
       )}
