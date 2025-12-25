@@ -2,7 +2,7 @@ import React from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-export default function RelatorioSeparacao({ os, regional, almoxarifado, lider, categoria, subcategorias, currentUser, pageNumber = 1 }) {
+export default function RelatorioSeparacao({ os, regional, almoxarifado, lider, categoria, subcategorias, currentUser }) {
   const getFieldValue = (value) => {
     return value || '_______________________';
   };
@@ -12,7 +12,7 @@ export default function RelatorioSeparacao({ os, regional, almoxarifado, lider, 
   const totalM3 = os.volumes?.reduce((sum, v) => sum + (v.m3 || 0), 0) || 0;
 
   return (
-    <div id="relatorio-separacao" className="bg-white p-8 pb-16 text-black" style={{ width: '210mm', height: '297mm', margin: '0 auto', fontFamily: 'Arial, sans-serif', position: 'relative', boxSizing: 'border-box' }}>
+    <div id="relatorio-separacao" className="bg-white p-8 text-black" style={{ width: '210mm', margin: '0 auto', fontFamily: 'Arial, sans-serif' }}>
       {/* Header */}
       <div className="border-2 border-black p-4 mb-6">
         <h1 className="text-2xl font-bold text-center mb-2">LISTA DE SEPARAÇÃO DE MATERIAIS</h1>
@@ -27,30 +27,30 @@ export default function RelatorioSeparacao({ os, regional, almoxarifado, lider, 
         <h2 className="text-lg font-bold bg-gray-200 border-2 border-black p-2 mb-2">DADOS GERAIS</h2>
         <div className="border border-black">
           <div className="grid grid-cols-2 border-b border-black">
-            <div className="p-2 border-r border-black text-center">
+            <div className="p-2 border-r border-black">
               <span className="font-semibold">Regional:</span> {getFieldValue(regional?.sigla)}
             </div>
-            <div className="p-2 text-center">
+            <div className="p-2">
               <span className="font-semibold">Almoxarifado:</span> {getFieldValue(almoxarifado?.nome)}
             </div>
           </div>
           <div className="grid grid-cols-2 border-b border-black">
-            <div className="p-2 border-r border-black text-center">
+            <div className="p-2 border-r border-black">
               <span className="font-semibold">Líder:</span> {getFieldValue(lider?.nome)}
             </div>
-            <div className="p-2 text-center">
+            <div className="p-2">
               <span className="font-semibold">Atendente:</span> {getFieldValue(os.atendente_nome)}
             </div>
           </div>
           <div className="grid grid-cols-2 border-b border-black">
-            <div className="p-2 border-r border-black text-center">
+            <div className="p-2 border-r border-black">
               <span className="font-semibold">Prazo:</span> {os.prazo ? format(new Date(os.prazo), 'dd/MM/yyyy', { locale: ptBR }) : '_______________________'}
             </div>
-            <div className="p-2 text-center">
+            <div className="p-2">
               <span className="font-semibold">Prioridade:</span> {getFieldValue(os.prioridade?.toUpperCase())}
             </div>
           </div>
-          <div className="p-2 text-center">
+          <div className="p-2">
             <span className="font-semibold">Descrição:</span> {getFieldValue(os.descricao_resumida)}
           </div>
         </div>
@@ -61,24 +61,24 @@ export default function RelatorioSeparacao({ os, regional, almoxarifado, lider, 
         <h2 className="text-lg font-bold bg-gray-200 border-2 border-black p-2 mb-2">DOCUMENTO</h2>
         <div className="border border-black">
           <div className="grid grid-cols-3 border-b border-black">
-            <div className="p-2 border-r border-black text-center">
+            <div className="p-2 border-r border-black">
               <span className="font-semibold">Nº Reserva:</span> {getFieldValue(os.num_reserva)}
             </div>
-            <div className="p-2 border-r border-black text-center">
+            <div className="p-2 border-r border-black">
               <span className="font-semibold">Data Reserva:</span> {os.data_reserva ? format(new Date(os.data_reserva), 'dd/MM/yyyy') : '_____________'}
             </div>
-            <div className="p-2 text-center">
+            <div className="p-2">
               <span className="font-semibold">Usuário:</span> {getFieldValue(os.usuario_reserva)}
             </div>
           </div>
           <div className="grid grid-cols-3 border-b border-black">
-            <div className="p-2 border-r border-black text-center">
+            <div className="p-2 border-r border-black">
               <span className="font-semibold">Órgão:</span> {getFieldValue(os.orgao)}
             </div>
-            <div className="p-2 border-r border-black text-center">
+            <div className="p-2 border-r border-black">
               <span className="font-semibold">Data MIGO:</span> {os.data_migo ? format(new Date(os.data_migo), 'dd/MM/yyyy') : '_____________'}
             </div>
-            <div className="p-2 text-center">
+            <div className="p-2">
               <span className="font-semibold">Nº MIGO:</span> {getFieldValue(os.num_migo)}
             </div>
           </div>
@@ -103,8 +103,8 @@ export default function RelatorioSeparacao({ os, regional, almoxarifado, lider, 
               {os.itens_documento?.length > 0 ? (
                 os.itens_documento.map((item, i) => (
                   <tr key={i} className="border-b border-black">
-                    <td className="p-2 border-r border-black font-mono text-center">{item.codigo || '___________'}</td>
-                    <td className="p-2 border-r border-black text-center">{item.descricao || '______________________________'}</td>
+                    <td className="p-2 border-r border-black font-mono">{item.codigo || '___________'}</td>
+                    <td className="p-2 border-r border-black">{item.descricao || '______________________________'}</td>
                     <td className="p-2 border-r border-black text-center">{item.quantidade ? `${item.quantidade} ${item.unidade}` : '_____'}</td>
                     <td className="p-2 border-r border-black text-center">{item.deposito || '_____'}</td>
                     <td className="p-2 text-center">{item.endereco || '___________'}</td>
@@ -113,8 +113,8 @@ export default function RelatorioSeparacao({ os, regional, almoxarifado, lider, 
               ) : (
                 [...Array(5)].map((_, i) => (
                   <tr key={i} className="border-b border-black">
-                    <td className="p-2 border-r border-black text-center">___________</td>
-                    <td className="p-2 border-r border-black text-center">______________________________</td>
+                    <td className="p-2 border-r border-black">___________</td>
+                    <td className="p-2 border-r border-black">______________________________</td>
                     <td className="p-2 border-r border-black text-center">_____</td>
                     <td className="p-2 border-r border-black text-center">_____</td>
                     <td className="p-2 text-center">___________</td>
@@ -193,7 +193,7 @@ export default function RelatorioSeparacao({ os, regional, almoxarifado, lider, 
       </div>
 
       {/* Footer */}
-      <div className="border-t-2 border-black pt-2 text-xs text-gray-600" style={{ position: 'absolute', bottom: '20px', left: '32px', right: '32px' }}>
+      <div className="border-t-2 border-black pt-2 mt-8 text-xs text-gray-600">
         <div className="flex justify-between">
           <div>
             <strong>Gerado por:</strong> {currentUser?.full_name || 'Sistema'}
@@ -202,7 +202,7 @@ export default function RelatorioSeparacao({ os, regional, almoxarifado, lider, 
             <strong>Data/Hora:</strong> {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
           </div>
           <div>
-            <strong>Página:</strong> {pageNumber}
+            <strong>Página:</strong> 1 de 1
           </div>
         </div>
       </div>

@@ -254,7 +254,9 @@ export default function OSDetailModal({
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight
       });
 
       const imgData = canvas.toDataURL('image/png');
@@ -263,8 +265,28 @@ export default function OSDetailModal({
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      // Single page - fit to A4
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      // Calculate how many pages we need
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = imgWidth / imgHeight;
+      
+      const pageWidth = pdfWidth;
+      const pageHeight = pdfHeight;
+      
+      // Scale to fit page width
+      const scaledHeight = pageWidth / ratio;
+      
+      // Calculate total pages needed
+      const totalPages = Math.ceil(scaledHeight / pageHeight);
+      
+      for (let i = 0; i < totalPages; i++) {
+        if (i > 0) {
+          pdf.addPage();
+        }
+        
+        const yOffset = -(pageHeight * i);
+        pdf.addImage(imgData, 'PNG', 0, yOffset, pageWidth, scaledHeight);
+      }
       
       pdf.save(`Lista_Separacao_${os.codigo}.pdf`);
     } catch (error) {
