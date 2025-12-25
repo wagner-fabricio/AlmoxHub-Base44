@@ -129,15 +129,14 @@ export default function ChatArea({
             <h3 className="text-lg font-medium mb-2">Selecione uma conversa</h3>
             <p className="text-sm">Escolha uma conversa existente ou inicie uma nova</p>
           </div>
-          </div>
-          </div>
-          </>
-          );
-          }
+        </div>
+      </div>
+    );
+  }
 
-        return (
-        <>
-        <GrupoDetalhesModal
+  return (
+    <>
+      <GrupoDetalhesModal
         open={showGrupoDetalhes}
         onClose={() => setShowGrupoDetalhes(false)}
         conversa={conversa}
@@ -145,9 +144,9 @@ export default function ChatArea({
         pessoas={pessoas}
         currentPessoaId={currentPessoaId}
         onUpdate={() => window.location.reload()}
-        />
+      />
 
-        <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden">
       {/* Header */}
       <div className="px-4 lg:px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0">
         <div className="flex items-center justify-between">
