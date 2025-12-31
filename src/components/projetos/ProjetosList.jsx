@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Filter, Edit, Trash2, FolderKanban, ChevronDown, ChevronRight, ExternalLink, Clock, CheckCircle, Loader2, AlertTriangle } from 'lucide-react';
+import { Filter, Edit, Trash2, FolderKanban, ChevronDown, ChevronRight, ExternalLink, Clock, CheckCircle, Loader2, AlertTriangle, User, Users } from 'lucide-react';
 import { format } from 'date-fns';
 
 const statusConfig = {
@@ -131,6 +131,8 @@ export default function ProjetosList({
               </div>
             </TableHead>
             <TableHead className="font-semibold">Descrição</TableHead>
+            <TableHead className="font-semibold">Líder</TableHead>
+            <TableHead className="font-semibold">Executores</TableHead>
             <TableHead className="font-semibold">Cor</TableHead>
             <TableHead className="font-semibold">
               <div className="flex items-center gap-2">
@@ -178,6 +180,8 @@ export default function ProjetosList({
             const osCount = getOSCount(projeto.id);
             const projetoOrdens = getProjetoOrdens(projeto.id);
             const isExpanded = expandedProjetoId === projeto.id;
+            const lider = Array.isArray(pessoas) ? pessoas.find(p => p?.id === projeto.lider_id) : null;
+            const executoresIds = getProjetoExecutores(projeto.id);
             
             return (
               <React.Fragment key={projeto.id}>
@@ -207,6 +211,28 @@ export default function ProjetosList({
                     <span className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
                       {projeto.descricao || '-'}
                     </span>
+                  </TableCell>
+                  <TableCell>
+                    {lider ? (
+                      <div className="flex items-center gap-2">
+                        <User className="w-4 h-4 text-slate-400" />
+                        <span className="text-sm text-slate-900 dark:text-white">{lider.nome}</span>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-slate-400">-</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {executoresIds.length > 0 ? (
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4 text-slate-400" />
+                        <span className="text-sm text-slate-900 dark:text-white">
+                          {executoresIds.length} executor{executoresIds.length > 1 ? 'es' : ''}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-slate-400">-</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
