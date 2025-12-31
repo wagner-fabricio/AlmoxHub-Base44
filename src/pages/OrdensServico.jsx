@@ -7,6 +7,7 @@ import OSFilters from '@/components/os/OSFilters.jsx';
 import OSKanban from '@/components/os/OSKanban.jsx';
 import OSList from '@/components/os/OSList.jsx';
 import OSGallery from '@/components/os/OSGallery.jsx';
+import OSByResponsavel from '@/components/os/OSByResponsavel.jsx';
 import OSFormModal from '@/components/os/OSFormModal.jsx';
 import OSDetailModal from '@/components/os/OSDetailModal.jsx';
 
@@ -341,6 +342,17 @@ export default function OrdensServico() {
               regionais={regionais}
               instalacoes={instalacoes}
               onOSClick={handleOSClick}
+            />
+          )}
+          {viewMode === 'responsavel' && (
+            <OSByResponsavel
+              ordensServico={filteredOrdens}
+              pessoas={pessoas}
+              onSelectOS={handleOSClick}
+              onNovaOS={(pessoa) => {
+                setSelectedOS({ lider_id: pessoa?.id });
+                setShowFormModal(true);
+              }}
             />
           )}
         </>
