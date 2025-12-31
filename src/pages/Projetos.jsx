@@ -142,12 +142,13 @@ export default function Projetos() {
   };
 
   const getProjetoExecutores = (projetoId) => {
-    const projetoOrdens = ordens.filter(os => os.projetos_ids?.includes(projetoId));
+    if (!Array.isArray(ordens)) return [];
+    const projetoOrdens = ordens.filter(os => os?.projetos_ids?.includes(projetoId));
     const executoresIds = new Set();
     
     projetoOrdens.forEach(os => {
-      if (os.executores_ids && Array.isArray(os.executores_ids)) {
-        os.executores_ids.forEach(id => executoresIds.add(id));
+      if (os?.executores_ids && Array.isArray(os.executores_ids)) {
+        os.executores_ids.forEach(id => id && executoresIds.add(id));
       }
     });
     
@@ -306,20 +307,24 @@ export default function Projetos() {
                     <Badge className={projeto.ativo !== false ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}>
                       {projeto.ativo !== false ? 'Ativo' : 'Inativo'}
                     </Badge>
-                    {projeto.lider_id && (
+                    {projeto?.lider_id && (
                       <Badge variant="outline" className="flex items-center gap-1">
                         <Users className="w-3 h-3" />
-                        Líder: {pessoas.find(p => p.id === projeto.lider_id)?.nome || 'N/A'}
+                        Líder: {Array.isArray(pessoas) ? pessoas.find(p => p?.id === projeto.lider_id)?.nome || 'N/A' : 'N/A'}
                       </Badge>
                     )}
                     {(() => {
-                      const executoresIds = getProjetoExecutores(projeto.id);
-                      if (executoresIds.length > 0) {
-                        return (
-                          <Badge variant="outline" className="flex items-center gap-1">
-                            {executoresIds.length} Executor{executoresIds.length > 1 ? 'es' : ''}
-                          </Badge>
-                        );
+                      try {
+                        const executoresIds = getProjetoExecutores(projeto.id);
+                        if (executoresIds && executoresIds.length > 0) {
+                          return (
+                            <Badge variant="outline" className="flex items-center gap-1">
+                              {executoresIds.length} Executor{executoresIds.length > 1 ? 'es' : ''}
+                            </Badge>
+                          );
+                        }
+                      } catch (e) {
+                        console.error('Error getting executores:', e);
                       }
                       return null;
                     })()}

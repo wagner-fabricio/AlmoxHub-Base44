@@ -34,12 +34,13 @@ export default function ProjetosList({
   };
 
   const getProjetoExecutores = (projetoId) => {
-    const projetoOrdens = ordens.filter(os => os.projetos_ids?.includes(projetoId));
+    if (!Array.isArray(ordens)) return [];
+    const projetoOrdens = ordens.filter(os => os?.projetos_ids?.includes(projetoId));
     const executoresIds = new Set();
     
     projetoOrdens.forEach(os => {
-      if (os.executores_ids && Array.isArray(os.executores_ids)) {
-        os.executores_ids.forEach(id => executoresIds.add(id));
+      if (os?.executores_ids && Array.isArray(os.executores_ids)) {
+        os.executores_ids.forEach(id => id && executoresIds.add(id));
       }
     });
     
@@ -216,14 +217,14 @@ export default function ProjetosList({
                     {lider ? (
                       <div className="flex items-center gap-2">
                         <User className="w-4 h-4 text-slate-400" />
-                        <span className="text-sm text-slate-900 dark:text-white">{lider.nome}</span>
+                        <span className="text-sm text-slate-900 dark:text-white">{lider?.nome || '-'}</span>
                       </div>
                     ) : (
                       <span className="text-sm text-slate-400">-</span>
                     )}
                   </TableCell>
                   <TableCell>
-                    {executoresIds.length > 0 ? (
+                    {executoresIds && executoresIds.length > 0 ? (
                       <div className="flex items-center gap-2">
                         <Users className="w-4 h-4 text-slate-400" />
                         <span className="text-sm text-slate-900 dark:text-white">
