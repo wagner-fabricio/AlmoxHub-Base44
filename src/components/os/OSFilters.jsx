@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search, Filter, X, LayoutGrid, List, Image } from 'lucide-react';
+import { Search, Filter, X, LayoutGrid, List, Image, Users } from 'lucide-react';
 
 export default function OSFilters({ 
   filters, 
@@ -151,9 +151,17 @@ export default function OSFilters({
             variant={viewMode === 'gallery' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('gallery')}
-            className="rounded-none"
+            className="rounded-none border-x border-slate-200 dark:border-slate-700"
           >
             <Image className="w-4 h-4" />
+          </Button>
+          <Button
+            variant={viewMode === 'responsavel' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('responsavel')}
+            className="rounded-none"
+          >
+            <Users className="w-4 h-4" />
           </Button>
         </div>
       </div>
