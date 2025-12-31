@@ -4,21 +4,41 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Filter, Edit, Trash2, FolderKanban } from 'lucide-react';
+import { Filter, Edit, Trash2, FolderKanban, ChevronDown, ChevronRight, ExternalLink, Clock, CheckCircle, Loader2, AlertTriangle } from 'lucide-react';
+import { format } from 'date-fns';
+
+const statusConfig = {
+  elaboracao: { icon: Clock, color: 'text-slate-500', label: 'Elaboração' },
+  execucao: { icon: Loader2, color: 'text-blue-500', label: 'Execução' },
+  concluido: { icon: CheckCircle, color: 'text-green-500', label: 'Concluído' },
+  cancelado: { icon: AlertTriangle, color: 'text-red-500', label: 'Cancelado' },
+};
 
 export default function ProjetosList({ 
   projetos, 
   ordens,
+  pessoas,
+  categorias,
   onEdit, 
-  onDelete 
+  onDelete,
+  onOpenOS 
 }) {
   const [columnFilters, setColumnFilters] = useState({
     nome: [],
     ativo: []
   });
+  const [expandedProjetoId, setExpandedProjetoId] = useState(null);
 
   const getOSCount = (projetoId) => {
     return ordens.filter(os => os.projetos_ids?.includes(projetoId)).length;
+  };
+
+  const getProjetoOrdens = (projetoId) => {
+    return ordens.filter(os => os.projetos_ids?.includes(projetoId));
+  };
+
+  const toggleExpanded = (projetoId) => {
+    setExpandedProjetoId(expandedProjetoId === projetoId ? null : projetoId);
   };
 
   // Get unique values for each column
@@ -143,78 +163,142 @@ export default function ProjetosList({
         <TableBody>
           {filteredProjetos.map((projeto) => {
             const osCount = getOSCount(projeto.id);
+            const projetoOrdens = getProjetoOrdens(projeto.id);
+            const isExpanded = expandedProjetoId === projeto.id;
             
             return (
-              <TableRow 
-                key={projeto.id} 
-                className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
-              >
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <div 
-                      className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                      style={{ backgroundColor: `${projeto.cor}20` }}
-                    >
-                      <FolderKanban className="w-4 h-4" style={{ color: projeto.cor }} />
+              <React.Fragment key={projeto.id}>
+                <TableRow 
+                  className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
+                  onClick={() => osCount > 0 && toggleExpanded(projeto.id)}
+                >
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      {osCount > 0 && (
+                        <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0">
+                          {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                        </Button>
+                      )}
+                      <div 
+                        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                        style={{ backgroundColor: `${projeto.cor}20` }}
+                      >
+                        <FolderKanban className="w-4 h-4" style={{ color: projeto.cor }} />
+                      </div>
+                      <span className="font-medium text-slate-900 dark:text-white">
+                        {projeto.nome}
+                      </span>
                     </div>
-                    <span className="font-medium text-slate-900 dark:text-white">
-                      {projeto.nome}
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
+                      {projeto.descricao || '-'}
                     </span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <span className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
-                    {projeto.descricao || '-'}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="w-6 h-6 rounded border border-slate-200 dark:border-slate-600"
-                      style={{ backgroundColor: projeto.cor }}
-                    />
-                    <span className="text-sm text-slate-600 dark:text-slate-400 font-mono">
-                      {projeto.cor}
-                    </span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge className={projeto.ativo !== false ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}>
-                    {projeto.ativo !== false ? 'Ativo' : 'Inativo'}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <Badge variant="outline">
-                    {osCount} OS
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center justify-end gap-1">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8" 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit(projeto);
-                      }}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className="w-6 h-6 rounded border border-slate-200 dark:border-slate-600"
+                        style={{ backgroundColor: projeto.cor }}
+                      />
+                      <span className="text-sm text-slate-600 dark:text-slate-400 font-mono">
+                        {projeto.cor}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={projeto.ativo !== false ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}>
+                      {projeto.ativo !== false ? 'Ativo' : 'Inativo'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">
+                      {osCount} OS
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center justify-end gap-1">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEdit(projeto);
+                        }}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(projeto);
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+
+                {/* Expanded OS rows */}
+                {isExpanded && projetoOrdens.map((os) => {
+                  const lider = Array.isArray(pessoas) ? pessoas.find(p => p?.id === os.lider_id) : null;
+                  const categoria = Array.isArray(categorias) ? categorias.find(c => c?.id === os.categoria_id) : null;
+                  const StatusIcon = statusConfig[os.status]?.icon || Clock;
+
+                  return (
+                    <TableRow 
+                      key={`os-${os.id}`}
+                      className="bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                     >
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8" 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDelete(projeto);
-                      }}
-                    >
-                      <Trash2 className="w-4 h-4 text-red-500" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
+                      <TableCell colSpan={6} className="pl-16">
+                        <div className="flex items-center gap-4 py-2">
+                          <span className="font-mono text-sm text-slate-600 dark:text-slate-400 w-40">
+                            {os.codigo}
+                          </span>
+                          <div className="flex items-center gap-2 w-48">
+                            <Badge variant="outline" className="text-xs">
+                              {categoria?.nome || '-'}
+                            </Badge>
+                          </div>
+                          <span className="text-sm text-slate-600 dark:text-slate-400 w-40">
+                            {lider?.nome || 'Não atribuído'}
+                          </span>
+                          <span className="text-sm text-slate-500 dark:text-slate-400 flex-1 line-clamp-1">
+                            {os.descricao_resumida || os.anotacoes || '-'}
+                          </span>
+                          <div className="flex items-center gap-4 w-64">
+                            <div className="text-xs text-slate-500 dark:text-slate-400">
+                              {os.data_inicial ? format(new Date(os.data_inicial), 'dd/MM/yy') : '-'}
+                              {' → '}
+                              {os.prazo ? format(new Date(os.prazo), 'dd/MM/yy') : '-'}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <StatusIcon className={`w-4 h-4 ${statusConfig[os.status]?.color}`} />
+                              <span className="text-xs">{statusConfig[os.status]?.label}</span>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 shrink-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onOpenOS?.(os);
+                            }}
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </React.Fragment>
             );
           })}
         </TableBody>

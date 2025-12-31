@@ -12,6 +12,7 @@ import { Plus, Edit, Trash2, FolderKanban, Loader2, Search, ChevronDown, Chevron
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { createPageUrl } from '../utils';
 import ProjetosList from '../components/projetos/ProjetosList';
+import OSDetailModal from '../components/os/OSDetailModal';
 
 const defaultColors = [
   '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', 
@@ -31,6 +32,8 @@ export default function Projetos() {
   const [showModal, setShowModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedOS, setSelectedOS] = useState(null);
+  const [showOSModal, setShowOSModal] = useState(false);
   const [formData, setFormData] = useState({
     nome: '',
     descricao: '',
@@ -201,8 +204,14 @@ export default function Projetos() {
         <ProjetosList
           projetos={filteredItems}
           ordens={ordens}
+          pessoas={pessoas}
+          categorias={categorias}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          onOpenOS={(os) => {
+            setSelectedOS(os);
+            setShowOSModal(true);
+          }}
         />
       ) : (
         <div className="space-y-4">
@@ -374,6 +383,27 @@ export default function Projetos() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* OS Detail Modal */}
+      {selectedOS && (
+        <OSDetailModal
+          open={showOSModal}
+          onClose={() => {
+            setShowOSModal(false);
+            setSelectedOS(null);
+          }}
+          os={selectedOS}
+          regionais={[]}
+          almoxarifados={almoxarifados}
+          pessoas={pessoas}
+          categorias={categorias}
+          subcategorias={[]}
+          onEdit={() => {}}
+          onDelete={() => {}}
+          canDelete={false}
+          onRefresh={loadData}
+        />
+      )}
     </div>
   );
 }
