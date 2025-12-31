@@ -28,7 +28,8 @@ import {
   Trash,
   Share2,
   FileText,
-  Printer
+  Printer,
+  Users
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -63,6 +64,7 @@ export default function OSDetailModal({
   pessoas,
   categorias,
   subcategorias,
+  instalacoes,
   onEdit,
   onDelete,
   canDelete,
@@ -440,48 +442,108 @@ export default function OSDetailModal({
                 </div>
 
                 {/* Info Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-start gap-3 p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                     <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center shrink-0">
                       <MapPin className="w-5 h-5 text-blue-600" />
                     </div>
-                    <div>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">Regional</p>
-                      <p className="font-medium text-slate-900 dark:text-white">{regional?.sigla} - {regional?.descricao}</p>
+                    <div className="min-w-0">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Regional</p>
+                      <p className="font-medium text-slate-900 dark:text-white text-sm truncate">{regional?.sigla} - {regional?.descricao}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3 p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                     <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center shrink-0">
                       <Building2 className="w-5 h-5 text-amber-600" />
                     </div>
-                    <div>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">Almoxarifado</p>
-                      <p className="font-medium text-slate-900 dark:text-white">{almoxarifado?.nome || '-'}</p>
+                    <div className="min-w-0">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Almoxarifado</p>
+                      <p className="font-medium text-slate-900 dark:text-white text-sm truncate">{almoxarifado?.nome || '-'}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3 p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                     <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center shrink-0">
                       <User className="w-5 h-5 text-green-600" />
                     </div>
-                    <div>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">Líder</p>
-                      <p className="font-medium text-slate-900 dark:text-white">{lider?.nome || '-'}</p>
+                    <div className="min-w-0">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Líder</p>
+                      <p className="font-medium text-slate-900 dark:text-white text-sm truncate">{lider?.nome || '-'}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3 p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                     <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center shrink-0">
                       <Calendar className="w-5 h-5 text-purple-600" />
                     </div>
-                    <div>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">Prazo</p>
-                      <p className="font-medium text-slate-900 dark:text-white">
-                        {os.prazo ? format(new Date(os.prazo), "dd 'de' MMMM 'de' yyyy", { locale: ptBR }) : '-'}
+                    <div className="min-w-0">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Prazo</p>
+                      <p className="font-medium text-slate-900 dark:text-white text-sm">
+                        {os.prazo ? format(new Date(os.prazo), "dd/MM/yyyy", { locale: ptBR }) : '-'}
                       </p>
                     </div>
                   </div>
+
+                  {os.num_reserva && (
+                    <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                      <div className="w-10 h-10 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg flex items-center justify-center shrink-0">
+                        <FileText className="w-5 h-5 text-cyan-600" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Reserva</p>
+                        <p className="font-medium text-slate-900 dark:text-white text-sm truncate">{os.num_reserva}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {os.usuario_reserva && (
+                    <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                      <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center shrink-0">
+                        <User className="w-5 h-5 text-indigo-600" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Usuário</p>
+                        <p className="font-medium text-slate-900 dark:text-white text-sm truncate">{os.usuario_reserva}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {(() => {
+                    const instalacaoDestino = Array.isArray(instalacoes) ? instalacoes.find(i => i?.id === os.instalacao_destino_id) : null;
+                    return instalacaoDestino && (
+                      <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div className="w-10 h-10 bg-rose-100 dark:bg-rose-900/30 rounded-lg flex items-center justify-center shrink-0">
+                          <Building2 className="w-5 h-5 text-rose-600" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs text-slate-500 dark:text-slate-400">Destino</p>
+                          <p className="font-medium text-slate-900 dark:text-white text-sm truncate">{instalacaoDestino.nome}</p>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {os.executores_ids && os.executores_ids.length > 0 && (
+                    <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 md:col-span-2 lg:col-span-3">
+                      <div className="w-10 h-10 bg-teal-100 dark:bg-teal-900/30 rounded-lg flex items-center justify-center shrink-0">
+                        <Users className="w-5 h-5 text-teal-600" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Executores</p>
+                        <div className="flex flex-wrap gap-2">
+                          {os.executores_ids.map(execId => {
+                            const executor = Array.isArray(pessoas) ? pessoas.find(p => p?.id === execId) : null;
+                            return executor ? (
+                              <Badge key={execId} variant="outline" className="text-xs">
+                                {executor.nome}
+                              </Badge>
+                            ) : null;
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Description */}
