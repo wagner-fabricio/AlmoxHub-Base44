@@ -394,17 +394,33 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange }) {
                       id={`frota-axia-${index}`}
                       checked={exp.veiculo?.frota_axia || false}
                       onCheckedChange={(v) => {
-                        updateExpedicao(index, 'veiculo.frota_axia', v);
+                        const updated = [...detalhamento];
                         if (!v) {
                           // Limpar campos quando desmarcar
-                          updateExpedicao(index, 'veiculo.proprietario', '');
-                          updateExpedicao(index, 'veiculo.renavam', '');
-                          updateExpedicao(index, 'veiculo.placa', '');
-                          updateExpedicao(index, 'veiculo.estado', '');
-                          updateExpedicao(index, 'veiculo.tara', 0);
-                          updateExpedicao(index, 'veiculo.carroceria', '');
-                          updateExpedicao(index, 'veiculo.tipo', '');
+                          updated[index] = {
+                            ...updated[index],
+                            veiculo: {
+                              frota_axia: false,
+                              proprietario: '',
+                              renavam: '',
+                              placa: '',
+                              estado: '',
+                              tara: 0,
+                              carroceria: '',
+                              tipo: ''
+                            }
+                          };
+                        } else {
+                          // Apenas marcar como frota axia
+                          updated[index] = {
+                            ...updated[index],
+                            veiculo: {
+                              ...updated[index].veiculo,
+                              frota_axia: true
+                            }
+                          };
                         }
+                        onChange(updated);
                       }}
                     />
                     <Label htmlFor={`frota-axia-${index}`}>Frota Axia?</Label>
