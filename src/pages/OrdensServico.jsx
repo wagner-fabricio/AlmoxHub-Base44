@@ -384,6 +384,7 @@ export default function OrdensServico() {
         pessoas={pessoas}
         categorias={categorias}
         subcategorias={subcategorias}
+        instalacoes={instalacoes}
         onEdit={handleEditOS}
         onDelete={handleDeleteOS}
         canDelete={selectedOS ? canDeleteOS(selectedOS) : false}
