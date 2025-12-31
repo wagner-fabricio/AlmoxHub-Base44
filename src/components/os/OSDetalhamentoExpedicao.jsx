@@ -69,6 +69,13 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange }) {
         tara: 0,
         carroceria: '',
         tipo: ''
+      },
+      motorista: {
+        motorista_axia: false,
+        id_sap: '',
+        cpf: '',
+        nome: '',
+        rg: ''
       }
     };
     onChange([...(detalhamento || []), newExpedicao]);
@@ -590,6 +597,87 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange }) {
                         </SelectContent>
                       </Select>
                     </div>
+                  </div>
+                </div>
+
+                {/* Subsessão Motorista */}
+                <div className="border-t pt-6">
+                  <h5 className="font-semibold mb-4 text-lg">Dados do Motorista</h5>
+
+                  <div className="mb-4 flex items-center space-x-2">
+                    <Checkbox
+                      id={`motorista-axia-${index}`}
+                      checked={exp.motorista?.motorista_axia || false}
+                      onCheckedChange={(v) => {
+                        const updated = [...detalhamento];
+                        updated[index] = {
+                          ...updated[index],
+                          motorista: {
+                            motorista_axia: v,
+                            id_sap: '',
+                            cpf: '',
+                            nome: '',
+                            rg: ''
+                          }
+                        };
+                        onChange(updated);
+                      }}
+                    />
+                    <Label htmlFor={`motorista-axia-${index}`}>Motorista Axia?</Label>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {exp.motorista?.motorista_axia ? (
+                      <>
+                        <div className="space-y-2">
+                          <Label>ID SAP</Label>
+                          <Input
+                            value={exp.motorista?.id_sap || ''}
+                            onChange={(e) => updateExpedicao(index, 'motorista.id_sap', e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>CPF</Label>
+                          <Input
+                            value={exp.motorista?.cpf || ''}
+                            onChange={(e) => updateExpedicao(index, 'motorista.cpf', e.target.value.replace(/\D/g, ''))}
+                            maxLength={11}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Nome</Label>
+                          <Input
+                            value={exp.motorista?.nome || ''}
+                            onChange={(e) => updateExpedicao(index, 'motorista.nome', e.target.value)}
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="space-y-2">
+                          <Label>RG</Label>
+                          <Input
+                            value={exp.motorista?.rg || ''}
+                            onChange={(e) => updateExpedicao(index, 'motorista.rg', e.target.value.replace(/\D/g, ''))}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>CPF</Label>
+                          <Input
+                            value={exp.motorista?.cpf || ''}
+                            onChange={(e) => updateExpedicao(index, 'motorista.cpf', e.target.value.replace(/\D/g, ''))}
+                            maxLength={11}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Nome</Label>
+                          <Input
+                            value={exp.motorista?.nome || ''}
+                            onChange={(e) => updateExpedicao(index, 'motorista.nome', e.target.value)}
+                          />
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 
