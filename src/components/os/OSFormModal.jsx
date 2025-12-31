@@ -59,10 +59,6 @@ export default function OSFormModal({
     instalacao_destino_id: '',
     itens_documento: [],
     volumes: [],
-    modal_transporte: '',
-    modalidade_transporte: '',
-    aproveitando_carona: false,
-    usar_seguro: false,
     detalhamento_expedicao: [],
     status_separacao: 'elaboracao',
     responsavel_separacao: '',
@@ -282,7 +278,6 @@ export default function OSFormModal({
                     <TabsTrigger value="documento">Documento</TabsTrigger>
                     <TabsTrigger value="materiais">Materiais</TabsTrigger>
                     <TabsTrigger value="volumes">Volumes</TabsTrigger>
-                    <TabsTrigger value="transporte">Transporte</TabsTrigger>
                     <TabsTrigger value="expedicao">Expedição</TabsTrigger>
                   </>
                 )}
@@ -680,55 +675,7 @@ export default function OSFormModal({
                 </TabsContent>
               )}
 
-              {/* TAB: Transporte */}
-              {isExpedicaoComReserva && (
-                <TabsContent value="transporte" className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Modal</Label>
-                      <Select
-                        value={formData.modal_transporte}
-                        onValueChange={(v) => setFormData({ ...formData, modal_transporte: v })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="rodoviario">Rodoviário</SelectItem>
-                          <SelectItem value="aereo">Aéreo</SelectItem>
-                          <SelectItem value="maritimo">Marítimo</SelectItem>
-                          <SelectItem value="ferroviario">Ferroviário</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Modalidade</Label>
-                      <Input
-                        value={formData.modalidade_transporte}
-                        onChange={(e) => setFormData({ ...formData, modalidade_transporte: e.target.value })}
-                      />
-                    </div>
-                  </div>
-                  <div className="flex gap-6">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="carona"
-                        checked={formData.aproveitando_carona}
-                        onCheckedChange={(v) => setFormData({ ...formData, aproveitando_carona: v })}
-                      />
-                      <Label htmlFor="carona">Aproveitando Carona?</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="seguro"
-                        checked={formData.usar_seguro}
-                        onCheckedChange={(v) => setFormData({ ...formData, usar_seguro: v })}
-                      />
-                      <Label htmlFor="seguro">Usar Seguro?</Label>
-                    </div>
-                  </div>
-                </TabsContent>
-              )}
+
 
               {/* TAB: Expedição */}
               {isExpedicaoComReserva && (
