@@ -28,7 +28,7 @@ export default function Projetos() {
   const [categorias, setCategorias] = useState([]);
   const [expandedProjetoId, setExpandedProjetoId] = useState(null);
   const [search, setSearch] = useState('');
-  const [viewMode, setViewMode] = useState('cards');
+  const [viewMode, setViewMode] = useState('list');
   const [showModal, setShowModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
