@@ -8,9 +8,10 @@ import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Edit, Trash2, FolderKanban, Loader2, Search, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
+import { Plus, Edit, Trash2, FolderKanban, Loader2, Search, ChevronDown, ChevronUp, ExternalLink, LayoutGrid, List } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { createPageUrl } from '../utils';
+import ProjetosList from '../components/projetos/ProjetosList';
 
 const defaultColors = [
   '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', 
@@ -26,6 +27,7 @@ export default function Projetos() {
   const [categorias, setCategorias] = useState([]);
   const [expandedProjetoId, setExpandedProjetoId] = useState(null);
   const [search, setSearch] = useState('');
+  const [viewMode, setViewMode] = useState('cards');
   const [showModal, setShowModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -156,25 +158,52 @@ export default function Projetos() {
         </Button>
       </div>
 
-      {/* Search */}
+      {/* Search and View Toggle */}
       <Card className="p-4 mb-6">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <Input
-            placeholder="Buscar projetos..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-10"
-          />
+        <div className="flex gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input
+              placeholder="Buscar projetos..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <div className="flex border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+            <Button
+              variant={viewMode === 'cards' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('cards')}
+              className="rounded-none"
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('list')}
+              className="rounded-none border-l border-slate-200 dark:border-slate-700"
+            >
+              <List className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </Card>
 
-      {/* Projects Grid */}
+      {/* Projects View */}
       {filteredItems.length === 0 ? (
         <Card className="p-12 text-center">
           <FolderKanban className="w-12 h-12 mx-auto mb-3 text-slate-300" />
           <p className="text-slate-500">Nenhum projeto cadastrado</p>
         </Card>
+      ) : viewMode === 'list' ? (
+        <ProjetosList
+          projetos={filteredItems}
+          ordens={ordens}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
       ) : (
         <div className="space-y-4">
           {filteredItems.map((projeto) => {
