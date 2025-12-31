@@ -20,7 +20,8 @@ import {
   Zap,
   Loader2,
   UserCircle,
-  MessageSquare
+  MessageSquare,
+  Truck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -41,6 +42,8 @@ const menuItems = [
   { name: 'Instalações', icon: Building2, page: 'Instalacoes' },
   { name: 'Pessoas', icon: Users, page: 'Pessoas' },
   { name: 'Categorias', icon: Tags, page: 'Categorias' },
+  { name: 'Veículos Axia', icon: Truck, page: 'VeiculosAxia' },
+  { name: 'Transportadoras', icon: Building2, page: 'Transportadoras' },
 ];
 
 export default function Layout({ children, currentPageName }) {

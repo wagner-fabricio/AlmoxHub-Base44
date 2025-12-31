@@ -13,6 +13,8 @@ import Projetos from './pages/Projetos';
 import Regionais from './pages/Regionais';
 import ThankYou from './pages/ThankYou';
 import UserApproval from './pages/UserApproval';
+import VeiculosAxia from './pages/VeiculosAxia';
+import Transportadoras from './pages/Transportadoras';
 import __Layout from './Layout.jsx';
 
 
@@ -32,6 +34,8 @@ export const PAGES = {
     "Regionais": Regionais,
     "ThankYou": ThankYou,
     "UserApproval": UserApproval,
+    "VeiculosAxia": VeiculosAxia,
+    "Transportadoras": Transportadoras,
 }
 
 export const pagesConfig = {
