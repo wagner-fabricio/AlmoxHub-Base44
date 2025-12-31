@@ -8,12 +8,15 @@ import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Edit, Trash2, FolderKanban, Loader2, Search, ChevronDown, ChevronUp, ExternalLink, LayoutGrid, List, GanttChart } from 'lucide-react';
+import { Plus, Edit, Trash2, FolderKanban, Loader2, Search, ChevronDown, ChevronUp, ExternalLink, LayoutGrid, List, GanttChart, Users } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { createPageUrl } from '../utils';
 import ProjetosList from '../components/projetos/ProjetosList';
 import OSDetailModal from '../components/os/OSDetailModal';
 import ProjetosGantt from '../components/projetos/ProjetosGantt';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const defaultColors = [
   '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', 
@@ -39,6 +42,8 @@ export default function Projetos() {
     nome: '',
     descricao: '',
     cor: '#3B82F6',
+    lider_id: '',
+    outros_envolvidos_ids: [],
     ativo: true
   });
   const [saving, setSaving] = useState(false);
@@ -75,6 +80,8 @@ export default function Projetos() {
       nome: '',
       descricao: '',
       cor: defaultColors[Math.floor(Math.random() * defaultColors.length)],
+      lider_id: '',
+      outros_envolvidos_ids: [],
       ativo: true
     });
     setShowModal(true);
@@ -86,6 +93,8 @@ export default function Projetos() {
       nome: item.nome || '',
       descricao: item.descricao || '',
       cor: item.cor || '#3B82F6',
+      lider_id: item.lider_id || '',
+      outros_envolvidos_ids: item.outros_envolvidos_ids || [],
       ativo: item.ativo !== false
     });
     setShowModal(true);
@@ -130,6 +139,19 @@ export default function Projetos() {
 
   const getProjetoOrdens = (projetoId) => {
     return ordens.filter(os => os.projetos_ids?.includes(projetoId));
+  };
+
+  const getProjetoExecutores = (projetoId) => {
+    const projetoOrdens = ordens.filter(os => os.projetos_ids?.includes(projetoId));
+    const executoresIds = new Set();
+    
+    projetoOrdens.forEach(os => {
+      if (os.executores_ids && Array.isArray(os.executores_ids)) {
+        os.executores_ids.forEach(id => executoresIds.add(id));
+      }
+    });
+    
+    return Array.from(executoresIds);
   };
 
   const toggleExpanded = (projetoId) => {
@@ -277,13 +299,30 @@ export default function Projetos() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <Badge variant="outline">
                       {osCount} OS
                     </Badge>
                     <Badge className={projeto.ativo !== false ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}>
                       {projeto.ativo !== false ? 'Ativo' : 'Inativo'}
                     </Badge>
+                    {projeto.lider_id && (
+                      <Badge variant="outline" className="flex items-center gap-1">
+                        <Users className="w-3 h-3" />
+                        Líder: {pessoas.find(p => p.id === projeto.lider_id)?.nome || 'N/A'}
+                      </Badge>
+                    )}
+                    {(() => {
+                      const executoresIds = getProjetoExecutores(projeto.id);
+                      if (executoresIds.length > 0) {
+                        return (
+                          <Badge variant="outline" className="flex items-center gap-1">
+                            {executoresIds.length} Executor{executoresIds.length > 1 ? 'es' : ''}
+                          </Badge>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
                 </Card>
 
@@ -374,6 +413,45 @@ export default function Projetos() {
                   />
                 ))}
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Líder Responsável</Label>
+              <Select
+                value={formData.lider_id}
+                onValueChange={(value) => setFormData({ ...formData, lider_id: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o líder" />
+                </SelectTrigger>
+                <SelectContent>
+                  {pessoas.map((pessoa) => (
+                    <SelectItem key={pessoa.id} value={pessoa.id}>
+                      {pessoa.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Outros Envolvidos</Label>
+              <ScrollArea className="h-40 border rounded-lg p-3">
+                <div className="space-y-2">
+                  {pessoas.map((pessoa) => (
+                    <label key={pessoa.id} className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-2 rounded">
+                      <Checkbox
+                        checked={formData.outros_envolvidos_ids?.includes(pessoa.id)}
+                        onCheckedChange={(checked) => {
+                          const newIds = checked
+                            ? [...(formData.outros_envolvidos_ids || []), pessoa.id]
+                            : (formData.outros_envolvidos_ids || []).filter(id => id !== pessoa.id);
+                          setFormData({ ...formData, outros_envolvidos_ids: newIds });
+                        }}
+                      />
+                      <span className="text-sm">{pessoa.nome}</span>
+                    </label>
+                  ))}
+                </div>
+              </ScrollArea>
             </div>
           </div>
           <DialogFooter>

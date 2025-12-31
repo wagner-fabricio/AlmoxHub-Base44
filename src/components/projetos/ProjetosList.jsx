@@ -33,6 +33,19 @@ export default function ProjetosList({
     return ordens.filter(os => os.projetos_ids?.includes(projetoId)).length;
   };
 
+  const getProjetoExecutores = (projetoId) => {
+    const projetoOrdens = ordens.filter(os => os.projetos_ids?.includes(projetoId));
+    const executoresIds = new Set();
+    
+    projetoOrdens.forEach(os => {
+      if (os.executores_ids && Array.isArray(os.executores_ids)) {
+        os.executores_ids.forEach(id => executoresIds.add(id));
+      }
+    });
+    
+    return Array.from(executoresIds);
+  };
+
   const getProjetoOrdens = (projetoId) => {
     return ordens.filter(os => os.projetos_ids?.includes(projetoId));
   };
