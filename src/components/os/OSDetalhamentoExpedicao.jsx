@@ -145,6 +145,13 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange }) {
       return;
     }
 
+    // Verificar se já existe veículo com essa placa
+    const veiculoExistente = veiculosAxia.find(v => v.placa === veiculo.placa);
+    if (veiculoExistente) {
+      alert('Este veículo já está cadastrado na frota Axia!');
+      return;
+    }
+
     try {
       await base44.entities.VeiculoAxia.create({
         proprietario: veiculo.proprietario,
