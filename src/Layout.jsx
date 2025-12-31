@@ -34,13 +34,13 @@ import NotificationBell from '@/components/notifications/NotificationBell';
 const menuItems = [
   { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
   { name: 'Ordens de Serviço', icon: ClipboardList, page: 'OrdensServico' },
+  { name: 'Projetos', icon: FolderKanban, page: 'Projetos' },
   { name: 'Mensagens', icon: MessageSquare, page: 'Mensagens' },
   { name: 'Regionais', icon: MapPin, page: 'Regionais' },
   { name: 'Almoxarifados', icon: Warehouse, page: 'Almoxarifados' },
   { name: 'Instalações', icon: Building2, page: 'Instalacoes' },
   { name: 'Pessoas', icon: Users, page: 'Pessoas' },
   { name: 'Categorias', icon: Tags, page: 'Categorias' },
-  { name: 'Projetos', icon: FolderKanban, page: 'Projetos' },
 ];
 
 export default function Layout({ children, currentPageName }) {
