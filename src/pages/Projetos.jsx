@@ -154,7 +154,7 @@ export default function Projetos() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">Projetos</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Gerencie os projetos/tags para agrupar OS</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Grupos de O.S com objetivos correlacionados</p>
         </div>
         <Button onClick={handleNew} className="bg-blue-600 hover:bg-blue-700">
           <Plus className="w-4 h-4 mr-2" />
