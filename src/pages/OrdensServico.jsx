@@ -207,13 +207,9 @@ export default function OrdensServico() {
     // Preparar descrição para a nova OS
     const newOSDescription = `OS Relacionada à ${originalOS.codigo} - ${categoria?.nome || 'OS'} (${regional?.sigla || ''})`;
     
-    // Criar nova OS com descrição pré-preenchida
+    // Criar nova OS em branco, apenas com descrição pré-preenchida
     setSelectedOS({
-      regional_id: originalOS.regional_id,
-      almoxarifado_id: originalOS.almoxarifado_id,
-      categoria_id: originalOS.categoria_id,
       descricao_resumida: newOSDescription,
-      lider_id: originalOS.lider_id,
       _relatedToOS: originalOS // Passar OS original para referência após criação
     });
     setShowDetailModal(false);
