@@ -8,11 +8,12 @@ import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Edit, Trash2, FolderKanban, Loader2, Search, ChevronDown, ChevronUp, ExternalLink, LayoutGrid, List } from 'lucide-react';
+import { Plus, Edit, Trash2, FolderKanban, Loader2, Search, ChevronDown, ChevronUp, ExternalLink, LayoutGrid, List, GanttChart } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { createPageUrl } from '../utils';
 import ProjetosList from '../components/projetos/ProjetosList';
 import OSDetailModal from '../components/os/OSDetailModal';
+import ProjetosGantt from '../components/projetos/ProjetosGantt';
 
 const defaultColors = [
   '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', 
@@ -190,6 +191,14 @@ export default function Projetos() {
             >
               <List className="w-4 h-4" />
             </Button>
+            <Button
+              variant={viewMode === 'gantt' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('gantt')}
+              className="rounded-none border-l border-slate-200 dark:border-slate-700"
+            >
+              <GanttChart className="w-4 h-4" />
+            </Button>
           </div>
         </div>
       </Card>
@@ -200,6 +209,17 @@ export default function Projetos() {
           <FolderKanban className="w-12 h-12 mx-auto mb-3 text-slate-300" />
           <p className="text-slate-500">Nenhum projeto cadastrado</p>
         </Card>
+      ) : viewMode === 'gantt' ? (
+        <ProjetosGantt
+          projetos={filteredItems}
+          ordens={ordens}
+          pessoas={pessoas}
+          categorias={categorias}
+          onOpenOS={(os) => {
+            setSelectedOS(os);
+            setShowOSModal(true);
+          }}
+        />
       ) : viewMode === 'list' ? (
         <ProjetosList
           projetos={filteredItems}
