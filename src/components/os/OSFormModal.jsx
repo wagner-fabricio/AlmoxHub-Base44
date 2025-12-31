@@ -60,9 +60,10 @@ export default function OSFormModal({
     itens_documento: [],
     volumes: [],
     detalhamento_expedicao: [],
-    status_separacao: 'elaboracao',
+    status_separacao: 'pendente',
     responsavel_separacao: '',
     data_separacao: '',
+    data_entrega: '',
     anexos: [],
     imagens: [],
   });
@@ -77,6 +78,7 @@ export default function OSFormModal({
         data_reserva: os.data_reserva ? format(new Date(os.data_reserva), 'yyyy-MM-dd') : '',
         data_migo: os.data_migo ? format(new Date(os.data_migo), 'yyyy-MM-dd') : '',
         data_separacao: os.data_separacao ? format(new Date(os.data_separacao), 'yyyy-MM-dd') : '',
+        data_entrega: os.data_entrega ? format(new Date(os.data_entrega), 'yyyy-MM-dd') : '',
       });
     } else {
       // Defaults for new OS
@@ -698,9 +700,11 @@ export default function OSFormModal({
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="elaboracao">Em Elaboração</SelectItem>
-                            <SelectItem value="execucao">Em Execução</SelectItem>
-                            <SelectItem value="concluido">Concluído</SelectItem>
+                            <SelectItem value="pendente">Pendente</SelectItem>
+                            <SelectItem value="em_separacao">Em separação</SelectItem>
+                            <SelectItem value="separado">Separado</SelectItem>
+                            <SelectItem value="em_rota">Em rota</SelectItem>
+                            <SelectItem value="entregue">Entregue</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -717,6 +721,20 @@ export default function OSFormModal({
                           type="date"
                           value={formData.data_separacao}
                           onChange={(e) => setFormData({ ...formData, data_separacao: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Data Entrega</Label>
+                        <Input
+                          type="date"
+                          value={formData.data_entrega}
+                          onChange={(e) => {
+                            const newData = { ...formData, data_entrega: e.target.value };
+                            if (e.target.value) {
+                              newData.status_separacao = 'entregue';
+                            }
+                            setFormData(newData);
+                          }}
                         />
                       </div>
                     </div>
