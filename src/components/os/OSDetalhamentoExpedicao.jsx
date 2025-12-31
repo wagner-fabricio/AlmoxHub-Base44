@@ -139,13 +139,21 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange }) {
   const handleVeiculoAxiaChange = (index, veiculoId) => {
     const veiculo = veiculosAxia.find(v => v.id === veiculoId);
     if (veiculo) {
-      updateExpedicao(index, 'veiculo.proprietario', veiculo.proprietario || '');
-      updateExpedicao(index, 'veiculo.renavam', veiculo.renavam || '');
-      updateExpedicao(index, 'veiculo.placa', veiculo.placa || '');
-      updateExpedicao(index, 'veiculo.estado', veiculo.estado || '');
-      updateExpedicao(index, 'veiculo.tara', veiculo.tara || 0);
-      updateExpedicao(index, 'veiculo.carroceria', veiculo.carroceria || '');
-      updateExpedicao(index, 'veiculo.tipo', veiculo.tipo || '');
+      const updated = [...detalhamento];
+      updated[index] = {
+        ...updated[index],
+        veiculo: {
+          ...updated[index].veiculo,
+          proprietario: veiculo.proprietario || '',
+          renavam: veiculo.renavam || '',
+          placa: veiculo.placa || '',
+          estado: veiculo.estado || '',
+          tara: veiculo.tara || 0,
+          carroceria: veiculo.carroceria || '',
+          tipo: veiculo.tipo || ''
+        }
+      };
+      onChange(updated);
     }
   };
 
