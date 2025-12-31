@@ -437,6 +437,7 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange }) {
                       <Input
                         value={exp.veiculo?.proprietario || ''}
                         onChange={(e) => updateExpedicao(index, 'veiculo.proprietario', e.target.value)}
+                        disabled={exp.veiculo?.frota_axia}
                       />
                     </div>
 
@@ -445,6 +446,7 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange }) {
                       <Input
                         value={exp.veiculo?.renavam || ''}
                         onChange={(e) => updateExpedicao(index, 'veiculo.renavam', e.target.value)}
+                        disabled={exp.veiculo?.frota_axia}
                       />
                     </div>
 
@@ -453,6 +455,7 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange }) {
                       <Input
                         value={exp.veiculo?.placa || ''}
                         onChange={(e) => updateExpedicao(index, 'veiculo.placa', e.target.value)}
+                        disabled={exp.veiculo?.frota_axia}
                       />
                     </div>
 
@@ -461,6 +464,7 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange }) {
                       <Select
                         value={exp.veiculo?.estado || ''}
                         onValueChange={(v) => updateExpedicao(index, 'veiculo.estado', v)}
+                        disabled={exp.veiculo?.frota_axia}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione..." />
@@ -479,6 +483,7 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange }) {
                         type="number"
                         value={exp.veiculo?.tara || ''}
                         onChange={(e) => updateExpedicao(index, 'veiculo.tara', parseFloat(e.target.value) || 0)}
+                        disabled={exp.veiculo?.frota_axia}
                       />
                     </div>
 
@@ -487,6 +492,7 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange }) {
                       <Select
                         value={exp.veiculo?.carroceria || ''}
                         onValueChange={(v) => updateExpedicao(index, 'veiculo.carroceria', v)}
+                        disabled={exp.veiculo?.frota_axia}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione..." />
@@ -506,6 +512,7 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange }) {
                       <Select
                         value={exp.veiculo?.tipo || ''}
                         onValueChange={(v) => updateExpedicao(index, 'veiculo.tipo', v)}
+                        disabled={exp.veiculo?.frota_axia}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione..." />
