@@ -30,7 +30,8 @@ export default function ProjetosList({
   const [expandedProjetoId, setExpandedProjetoId] = useState(null);
 
   const getOSCount = (projetoId) => {
-    return ordens.filter(os => os.projetos_ids?.includes(projetoId)).length;
+    if (!Array.isArray(ordens)) return 0;
+    return ordens.filter(os => os?.projetos_ids?.includes(projetoId)).length;
   };
 
   const getProjetoExecutores = (projetoId) => {
@@ -48,7 +49,8 @@ export default function ProjetosList({
   };
 
   const getProjetoOrdens = (projetoId) => {
-    return ordens.filter(os => os.projetos_ids?.includes(projetoId));
+    if (!Array.isArray(ordens)) return [];
+    return ordens.filter(os => os?.projetos_ids?.includes(projetoId));
   };
 
   const toggleExpanded = (projetoId) => {
@@ -82,14 +84,15 @@ export default function ProjetosList({
   };
 
   // Apply filters
-  const filteredProjetos = projetos.filter(projeto => {
+  const filteredProjetos = Array.isArray(projetos) ? projetos.filter(projeto => {
+    if (!projeto) return false;
     if (columnFilters.nome.length > 0 && !columnFilters.nome.includes(projeto.nome)) return false;
     
     const statusLabel = projeto.ativo !== false ? 'Ativo' : 'Inativo';
     if (columnFilters.ativo.length > 0 && !columnFilters.ativo.includes(statusLabel)) return false;
     
     return true;
-  });
+  }) : [];
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">

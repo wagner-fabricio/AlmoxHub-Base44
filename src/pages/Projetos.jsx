@@ -134,11 +134,13 @@ export default function Projetos() {
   };
 
   const getOSCount = (projetoId) => {
-    return ordens.filter(os => os.projetos_ids?.includes(projetoId)).length;
+    if (!Array.isArray(ordens)) return 0;
+    return ordens.filter(os => os?.projetos_ids?.includes(projetoId)).length;
   };
 
   const getProjetoOrdens = (projetoId) => {
-    return ordens.filter(os => os.projetos_ids?.includes(projetoId));
+    if (!Array.isArray(ordens)) return [];
+    return ordens.filter(os => os?.projetos_ids?.includes(projetoId));
   };
 
   const getProjetoExecutores = (projetoId) => {
@@ -159,9 +161,9 @@ export default function Projetos() {
     setExpandedProjetoId(expandedProjetoId === projetoId ? null : projetoId);
   };
 
-  const filteredItems = projetos.filter(p => 
-    p.nome?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredItems = Array.isArray(projetos) ? projetos.filter(p => 
+    p?.nome?.toLowerCase().includes(search.toLowerCase())
+  ) : [];
 
   if (loading) {
     return (
