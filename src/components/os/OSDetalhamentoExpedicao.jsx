@@ -136,6 +136,34 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange }) {
     }
   };
 
+  const salvarNovoVeiculoAxia = async (index) => {
+    const exp = detalhamento[index];
+    const veiculo = exp.veiculo;
+    
+    if (!veiculo.placa || !veiculo.estado) {
+      alert('Placa e Estado são obrigatórios');
+      return;
+    }
+
+    try {
+      await base44.entities.VeiculoAxia.create({
+        proprietario: veiculo.proprietario,
+        renavam: veiculo.renavam,
+        placa: veiculo.placa,
+        estado: veiculo.estado,
+        tara: veiculo.tara || 0,
+        carroceria: veiculo.carroceria,
+        tipo: veiculo.tipo,
+        ativo: true
+      });
+      loadData();
+      alert('Veículo cadastrado na frota Axia com sucesso!');
+    } catch (e) {
+      console.error('Error saving veiculo:', e);
+      alert('Erro ao cadastrar veículo');
+    }
+  };
+
   const handleVeiculoAxiaChange = (index, veiculoId) => {
     const veiculo = veiculosAxia.find(v => v.id === veiculoId);
     if (veiculo) {
@@ -387,7 +415,19 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange }) {
 
                 {/* Subsessão Veículo */}
                 <div className="border-t pt-6">
-                  <h5 className="font-semibold mb-4 text-lg">Dados do Veículo</h5>
+                  <div className="flex items-center justify-between mb-4">
+                    <h5 className="font-semibold text-lg">Dados do Veículo</h5>
+                    {exp.veiculo?.proprietario?.toLowerCase().includes('axia') && !exp.veiculo?.frota_axia && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => salvarNovoVeiculoAxia(index)}
+                      >
+                        Cadastrar na Frota Axia
+                      </Button>
+                    )}
+                  </div>
 
                   <div className="mb-4 flex items-center space-x-2">
                     <Checkbox
