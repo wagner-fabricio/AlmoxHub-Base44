@@ -200,7 +200,47 @@ export default function OrdensServico() {
     setShowFormModal(true);
   };
 
+  const handleCreateRelated = async (originalOS) => {
+    const categoria = Array.isArray(categorias) ? categorias.find(c => c?.id === originalOS.categoria_id) : null;
+    const regional = Array.isArray(regionais) ? regionais.find(r => r?.id === originalOS.regional_id) : null;
+    
+    // Preparar descrição para a nova OS
+    const newOSDescription = `OS Relacionada à ${originalOS.codigo} - ${categoria?.nome || 'OS'} (${regional?.sigla || ''})`;
+    
+    // Criar nova OS com descrição pré-preenchida
+    setSelectedOS({
+      regional_id: originalOS.regional_id,
+      almoxarifado_id: originalOS.almoxarifado_id,
+      categoria_id: originalOS.categoria_id,
+      descricao_resumida: newOSDescription,
+      lider_id: originalOS.lider_id,
+      _relatedToOS: originalOS // Passar OS original para referência após criação
+    });
+    setShowDetailModal(false);
+    setShowFormModal(true);
+  };
+
   const handleFormSave = async (isNew, osData) => {
+    // Se é OS relacionada, atualizar a OS original
+    if (isNew && selectedOS?._relatedToOS) {
+      const originalOS = selectedOS._relatedToOS;
+      const categoria = Array.isArray(categorias) ? categorias.find(c => c?.id === originalOS.categoria_id) : null;
+      const regional = Array.isArray(regionais) ? regionais.find(r => r?.id === originalOS.regional_id) : null;
+      
+      try {
+        // Atualizar OS original com referência à nova
+        const updatedDescription = originalOS.descricao_resumida 
+          ? `${originalOS.descricao_resumida}\n\nOS Relacionada Criada: ${osData.codigo}`
+          : `OS Relacionada Criada: ${osData.codigo}`;
+        
+        await base44.entities.OrdemServico.update(originalOS.id, {
+          descricao_resumida: updatedDescription
+        });
+      } catch (e) {
+        console.error('Error updating original OS:', e);
+      }
+    }
+    
     await loadData();
     
     // Se é nova OS e tem executores, criar notificações de atribuição
@@ -387,6 +427,7 @@ export default function OrdensServico() {
         instalacoes={instalacoes}
         onEdit={handleEditOS}
         onDelete={handleDeleteOS}
+        onCreateRelated={handleCreateRelated}
         canDelete={selectedOS ? canDeleteOS(selectedOS) : false}
         onRefresh={loadData}
       />

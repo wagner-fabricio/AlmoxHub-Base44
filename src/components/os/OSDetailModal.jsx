@@ -29,7 +29,8 @@ import {
   Share2,
   FileText,
   Printer,
-  Users
+  Users,
+  Plus
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -67,6 +68,7 @@ export default function OSDetailModal({
   instalacoes,
   onEdit,
   onDelete,
+  onCreateRelated,
   canDelete,
   onRefresh
 }) {
@@ -377,6 +379,11 @@ export default function OSDetailModal({
               <Button variant="outline" onClick={handleShareOS} id="share-btn" size="sm">
                 <Share2 className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Compartilhar</span>
+              </Button>
+              <Button variant="outline" onClick={() => onCreateRelated?.(os)} size="sm" className="border-green-500 text-green-600 hover:bg-green-50">
+                <Plus className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Nova OS Relacionada</span>
+                <span className="sm:hidden">Relacionada</span>
               </Button>
               {isExpedicao && (
                 <Button 
