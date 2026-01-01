@@ -19,6 +19,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import OSMobileDetail from '@/components/os/OSMobileDetail';
 import ChatMobileSimple from '@/components/mensagens/ChatMobileSimple';
+import NovaConversaModal from '@/components/mensagens/NovaConversaModal';
 
 const statusConfig = {
   elaboracao: { icon: Clock, color: 'bg-slate-500', label: 'Em Elaboração' },
@@ -50,6 +51,7 @@ export default function EmFluxo() {
   const [selectedOS, setSelectedOS] = useState(null);
   const [participantes, setParticipantes] = useState([]);
   const [selectedConversa, setSelectedConversa] = useState(null);
+  const [showNovaConversa, setShowNovaConversa] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -221,6 +223,46 @@ export default function EmFluxo() {
     }
     
     return format(msgDate, 'dd/MM/yy');
+  };
+
+  const handleCriarConversa = async (tipo, participantesIds, nomeGrupo) => {
+    try {
+      // Verificar se já existe conversa privada
+      if (tipo === 'privada') {
+        for (const conv of conversas) {
+          const participantesConv = participantes
+            .filter(p => p.conversa_id === conv.id)
+            .map(p => p.pessoa_id);
+          if (participantesConv.includes(participantesIds[0]) && participantesConv.includes(currentPessoa?.id)) {
+            setSelectedConversa(conv);
+            setShowNovaConversa(false);
+            return;
+          }
+        }
+      }
+
+      const novaConversa = await base44.entities.Conversa.create({
+        tipo,
+        nome_grupo: tipo === 'grupo' ? nomeGrupo : null,
+        criador_id: currentPessoa.id
+      });
+
+      const todosParticipantes = [currentPessoa.id, ...participantesIds];
+      await Promise.all(todosParticipantes.map((pessoaId, index) => 
+        base44.entities.ParticipanteConversa.create({
+          conversa_id: novaConversa.id,
+          pessoa_id: pessoaId,
+          permissao: index === 0 ? 'admin' : 'membro',
+          status: 'ativo'
+        })
+      ));
+
+      await loadData();
+      setSelectedConversa(novaConversa);
+      setShowNovaConversa(false);
+    } catch (error) {
+      console.error('Error creating conversation:', error);
+    }
   };
 
   if (loading) {
@@ -423,6 +465,14 @@ export default function EmFluxo() {
 
         {activeModule === 'mensagens' && (
           <div className="space-y-3">
+            <Button
+              onClick={() => setShowNovaConversa(true)}
+              className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-6 rounded-2xl shadow-lg"
+            >
+              <MessageSquare className="w-5 h-5 mr-2" />
+              Nova Mensagem
+            </Button>
+
             {conversas.length === 0 ? (
               <div className="text-center py-12 text-slate-500">
                 <MessageSquare className="w-16 h-16 mx-auto mb-4 opacity-50" />
@@ -496,6 +546,15 @@ export default function EmFluxo() {
           </div>
         )}
       </div>
+
+      {/* Modal Nova Conversa */}
+      <NovaConversaModal
+        open={showNovaConversa}
+        onClose={() => setShowNovaConversa(false)}
+        pessoas={pessoas}
+        currentPessoaId={currentPessoa?.id}
+        onCriar={handleCriarConversa}
+      />
     </div>
   );
 }
