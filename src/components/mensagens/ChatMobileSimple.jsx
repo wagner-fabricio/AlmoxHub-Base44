@@ -192,7 +192,7 @@ export default function ChatMobileSimple({
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-500 to-green-600 p-4 shadow-lg sticky top-0 z-10">
+      <div className="p-4 shadow-lg sticky top-0 z-10" style={{ backgroundColor: '#0000FF' }}>
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
@@ -275,9 +275,10 @@ export default function ChatMobileSimple({
                   <div 
                     className={`rounded-2xl px-4 py-2 ${
                       isOwnMessage 
-                        ? 'bg-green-600 text-white rounded-tr-sm' 
+                        ? 'text-white rounded-tr-sm' 
                         : 'bg-white text-slate-900 rounded-tl-sm shadow-sm'
                     }`}
+                    style={isOwnMessage ? { backgroundColor: '#0000FF' } : {}}
                   >
                     {message.status === 'excluida' ? (
                       <p className="italic text-slate-400">Mensagem removida</p>
@@ -318,7 +319,8 @@ export default function ChatMobileSimple({
             onClick={handleSendMessage}
             disabled={!newMessage.trim() || sending}
             size="icon"
-            className="bg-green-600 hover:bg-green-700 rounded-full shrink-0"
+            className="rounded-full shrink-0"
+            style={{ backgroundColor: '#0000FF' }}
           >
             {sending ? (
               <Loader2 className="w-5 h-5 animate-spin" />

@@ -243,12 +243,12 @@ export default function Layout({ children, currentPageName }) {
               {!sidebarCollapsed ? (
                 <>
                   <Link to={createPageUrl('Dashboard')} className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#0000FF' }}>
                       <Zap className="w-6 h-6 text-white" />
                     </div>
                     <div>
                       <h1 className="text-lg font-bold text-slate-900 dark:text-white">AlmoxHub</h1>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">Axia Energia</p>
+                      <p className="text-xs" style={{ color: '#0A003C' }}>Axia Energia</p>
                     </div>
                   </Link>
                   <div className="flex items-center gap-2">
@@ -270,7 +270,7 @@ export default function Layout({ children, currentPageName }) {
               ) : (
                 <>
                   <Link to={createPageUrl('Dashboard')} className="flex justify-center">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#0000FF' }}>
                       <Zap className="w-6 h-6 text-white" />
                     </div>
                   </Link>
@@ -298,14 +298,18 @@ export default function Layout({ children, currentPageName }) {
                       flex items-center gap-3 rounded-xl transition-all duration-200
                       ${sidebarCollapsed ? 'px-4 py-3 justify-center' : 'px-4 py-3'}
                       ${isActive 
-                        ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium shadow-sm' 
+                        ? 'font-medium shadow-sm' 
                         : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50'
-                      }
+                      }`}
+                      style={isActive ? { 
+                      backgroundColor: darkMode ? 'rgba(0, 0, 255, 0.1)' : '#E6E6FF',
+                      color: '#0000FF'
+                      } : {}}
                     `}
                     onClick={() => setSidebarOpen(false)}
                     title={sidebarCollapsed ? item.name : ''}
                   >
-                    <Icon className={`w-5 h-5 ${isActive ? 'text-blue-500' : ''} ${sidebarCollapsed ? '' : 'shrink-0'}`} />
+                    <Icon className={`w-5 h-5 ${sidebarCollapsed ? '' : 'shrink-0'}`} style={isActive ? { color: '#0000FF' } : {}} />
                     {!sidebarCollapsed && <span>{item.name}</span>}
                   </Link>
                 );

@@ -125,24 +125,24 @@ export default function EmFluxo() {
       id: 'ordens',
       name: 'Ordens de Serviço',
       icon: ClipboardList,
-      color: 'from-blue-500 to-blue-600',
-      bgColor: 'bg-blue-500',
+      color: '#0000FF',
+      bgColor: '#0000FF',
       count: ordens.length
     },
     {
       id: 'projetos',
       name: 'Projetos',
       icon: FolderKanban,
-      color: 'from-purple-500 to-purple-600',
-      bgColor: 'bg-purple-500',
+      color: '#0A003C',
+      bgColor: '#0A003C',
       count: projetos.length
     },
     {
       id: 'mensagens',
       name: 'Mensagens',
       icon: MessageSquare,
-      color: 'from-green-500 to-green-600',
-      bgColor: 'bg-green-500',
+      color: '#A0B4D2',
+      bgColor: '#A0B4D2',
       count: conversas.length
     }
   ];
@@ -273,7 +273,7 @@ export default function EmFluxo() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0A003C 0%, #0000FF 100%)' }}>
         <Loader2 className="w-12 h-12 animate-spin text-white" />
       </div>
     );
@@ -282,7 +282,7 @@ export default function EmFluxo() {
   // Vista de módulos (home)
   if (!activeModule && !selectedOS) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+      <div className="min-h-screen p-6" style={{ background: 'linear-gradient(135deg, #0A003C 0%, #0000FF 100%)' }}>
         <div className="max-w-md mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
@@ -298,7 +298,8 @@ export default function EmFluxo() {
                 <button
                   key={module.id}
                   onClick={() => handleOpenModule(module.id)}
-                  className={`w-full bg-gradient-to-r ${module.color} rounded-3xl p-6 shadow-2xl transform transition-all hover:scale-105 active:scale-95`}
+                  className="w-full rounded-3xl p-6 shadow-2xl transform transition-all hover:scale-105 active:scale-95"
+                  style={{ backgroundColor: module.color }}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -367,9 +368,9 @@ export default function EmFluxo() {
   const activeModuleData = modules.find(m => m.id === activeModule);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen" style={{ backgroundColor: '#FAF5F0' }}>
       {/* Header */}
-      <div className={`bg-gradient-to-r ${activeModuleData.color} p-4 sticky top-0 z-10 shadow-lg`}>
+      <div className="p-4 sticky top-0 z-10 shadow-lg" style={{ backgroundColor: activeModuleData.color }}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button
@@ -496,7 +497,8 @@ export default function EmFluxo() {
           <div className="space-y-3">
             <Button
               onClick={() => setShowNovaConversa(true)}
-              className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-6 rounded-2xl shadow-lg"
+              className="w-full text-white py-6 rounded-2xl shadow-lg"
+              style={{ backgroundColor: '#0000FF' }}
             >
               <MessageSquare className="w-5 h-5 mr-2" />
               Nova Mensagem

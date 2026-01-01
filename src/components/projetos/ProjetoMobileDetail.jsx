@@ -55,14 +55,14 @@ export default function ProjetoMobileDetail({ projeto, onClose, pessoas, onRefre
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#FAF5F0' }}>
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#0000FF' }} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#FAF5F0' }}>
       {/* Header */}
       <div 
         className="p-4 shadow-lg sticky top-0 z-10"
