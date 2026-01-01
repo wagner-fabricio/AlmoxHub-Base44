@@ -395,13 +395,11 @@ export default function OSMobileDetail({
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <div className="flex-1">
-                          <p className="text-xs font-mono text-slate-500 mb-1">{item.codigo}</p>
-                          <p className={`text-sm font-medium ${checkedItems[index] ? 'text-green-700 line-through' : 'text-slate-900'}`}>
-                            {item.descricao}
-                          </p>
-                        </div>
+                      {/* Linha 1: Código e Check */}
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <p className="text-lg font-bold font-mono text-slate-900">
+                          {item.codigo}
+                        </p>
                         {(checkedItems[index] || item.separado) && (
                           <div className="bg-green-500 rounded-full p-1">
                             <Check className="w-4 h-4 text-white" />
@@ -409,7 +407,13 @@ export default function OSMobileDetail({
                         )}
                       </div>
                       
-                      <div className="flex items-center gap-4 text-xs">
+                      {/* Linha 2: Descrição */}
+                      <p className={`text-sm font-medium mb-2 ${checkedItems[index] ? 'text-green-700 line-through' : 'text-slate-900'}`}>
+                        {item.descricao}
+                      </p>
+                      
+                      {/* Info adicional */}
+                      <div className="flex items-center gap-4 text-xs flex-wrap">
                         <div className="flex items-center gap-1">
                           <span className="text-slate-500">Qtd:</span>
                           <span className={`font-bold ${checkedItems[index] ? 'text-green-700' : 'text-blue-600'}`}>
@@ -422,15 +426,12 @@ export default function OSMobileDetail({
                             <span className="font-medium text-slate-700">{item.endereco}</span>
                           </div>
                         )}
-                      </div>
-
-                      {item.deposito && (
-                        <div className="mt-2 inline-block">
+                        {item.deposito && (
                           <Badge variant="outline" className="text-xs">
                             Dep. {item.deposito}
                           </Badge>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
                 </label>
