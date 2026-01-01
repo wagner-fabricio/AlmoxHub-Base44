@@ -82,6 +82,17 @@ export default function OSMobileDetail({
   const StatusIcon = statusConfig[os.status]?.icon || Clock;
 
   useEffect(() => {
+    // Carregar itens já marcados
+    const initialChecked = {};
+    os.itens_documento?.forEach((item, index) => {
+      if (item.separado) {
+        initialChecked[index] = true;
+      }
+    });
+    setCheckedItems(initialChecked);
+  }, [os.id]);
+
+  useEffect(() => {
     if (activeTab === 'comentarios') {
       loadComentarios();
       loadUser();
@@ -250,33 +261,40 @@ export default function OSMobileDetail({
     }
   };
 
-  const handleToggleItem = (index) => {
-    setCheckedItems(prev => {
-      const newCheckedItems = {
-        ...prev,
-        [index]: !prev[index]
-      };
-      
-      // Verificar status de separação
-      const totalItems = os.itens_documento?.length || 0;
-      const checkedCount = Object.values(newCheckedItems).filter(Boolean).length;
-      
-      // Se marcar o primeiro item, mudar para 'em_separacao'
-      if (checkedCount === 1 && os.status_separacao !== 'em_separacao') {
-        base44.entities.OrdemServico.update(os.id, {
-          status_separacao: 'em_separacao'
-        }).then(() => onRefresh?.());
-      }
-      
-      // Se todos os itens estiverem marcados, mudar para 'separado'
-      if (checkedCount === totalItems && totalItems > 0 && os.status_separacao !== 'separado') {
-        base44.entities.OrdemServico.update(os.id, {
-          status_separacao: 'separado'
-        }).then(() => onRefresh?.());
-      }
-      
-      return newCheckedItems;
-    });
+  const handleToggleItem = async (index) => {
+    const newCheckedItems = {
+      ...checkedItems,
+      [index]: !checkedItems[index]
+    };
+    setCheckedItems(newCheckedItems);
+    
+    // Verificar status de separação
+    const totalItems = os.itens_documento?.length || 0;
+    const checkedCount = Object.values(newCheckedItems).filter(Boolean).length;
+    
+    // Se marcar o primeiro item e não estiver em separação, mudar para 'em_separacao'
+    if (checkedCount >= 1 && checkedCount < totalItems && os.status_separacao !== 'em_separacao') {
+      await base44.entities.OrdemServico.update(os.id, {
+        status_separacao: 'em_separacao'
+      });
+      onRefresh?.();
+    }
+    
+    // Se todos os itens estiverem marcados, mudar para 'separado'
+    if (checkedCount === totalItems && totalItems > 0 && os.status_separacao !== 'separado') {
+      await base44.entities.OrdemServico.update(os.id, {
+        status_separacao: 'separado'
+      });
+      onRefresh?.();
+    }
+    
+    // Se desmarcar todos, voltar para 'pendente'
+    if (checkedCount === 0 && os.status_separacao !== 'pendente') {
+      await base44.entities.OrdemServico.update(os.id, {
+        status_separacao: 'pendente'
+      });
+      onRefresh?.();
+    }
   };
 
   const handleSavePicking = async () => {
@@ -779,7 +797,7 @@ export default function OSMobileDetail({
                   </Button>
                   <Button
                     onClick={handleDeleteSelected}
-                    disabled={selectedImages.length === 0 && selectedAnexos.length === 0 || deleting}
+                    disabled={(selectedImages.length === 0 && selectedAnexos.length === 0) || deleting}
                     className="flex-1 py-6 rounded-2xl bg-red-500 hover:bg-red-600"
                   >
                     {deleting ? (
