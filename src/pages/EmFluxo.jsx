@@ -18,6 +18,7 @@ import {
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import OSMobileDetail from '@/components/os/OSMobileDetail';
+import ChatMobileSimple from '@/components/mensagens/ChatMobileSimple';
 
 const statusConfig = {
   elaboracao: { icon: Clock, color: 'bg-slate-500', label: 'Em Elaboração' },
@@ -284,6 +285,19 @@ export default function EmFluxo() {
         regionais={regionais}
         almoxarifados={almoxarifados}
         instalacoes={instalacoes}
+        onRefresh={loadData}
+      />
+    );
+  }
+
+  // Vista de Chat
+  if (selectedConversa) {
+    return (
+      <ChatMobileSimple
+        conversa={selectedConversa}
+        onClose={handleCloseConversa}
+        pessoas={pessoas}
+        currentPessoaId={currentPessoa?.id}
         onRefresh={loadData}
       />
     );
