@@ -273,8 +273,8 @@ export default function EmFluxo() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0A003C 0%, #0000FF 100%)' }}>
-        <Loader2 className="w-12 h-12 animate-spin text-white" />
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+        <Loader2 className="w-12 h-12 animate-spin" style={{ color: '#0000FF' }} />
       </div>
     );
   }
@@ -282,12 +282,12 @@ export default function EmFluxo() {
   // Vista de módulos (home)
   if (!activeModule && !selectedOS) {
     return (
-      <div className="min-h-screen p-6" style={{ background: 'linear-gradient(135deg, #0A003C 0%, #0000FF 100%)' }}>
+      <div className="min-h-screen p-6 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
         <div className="max-w-md mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Em Fluxo</h1>
-            <p className="text-slate-300">Olá, {currentPessoa?.nome?.split(' ')[0] || 'Usuário'}</p>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Em Fluxo</h1>
+            <p className="text-slate-600 dark:text-slate-400">Olá, {currentPessoa?.nome?.split(' ')[0] || 'Usuário'}</p>
           </div>
 
           {/* Módulos Grid */}
@@ -303,15 +303,15 @@ export default function EmFluxo() {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                        <Icon className="w-8 h-8 text-white" />
+                      <div className="w-16 h-16 bg-white/90 dark:bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-md">
+                        <Icon className="w-8 h-8" style={{ color: module.color }} />
                       </div>
                       <div className="text-left">
                         <h3 className="text-xl font-bold text-white">{module.name}</h3>
-                        <p className="text-white/80 text-sm">{module.count} itens</p>
+                        <p className="text-white/90 text-sm">{module.count} itens</p>
                       </div>
                     </div>
-                    <ChevronRight className="w-6 h-6 text-white" />
+                    <ChevronRight className="w-6 h-6 text-white/90" />
                   </div>
                 </button>
               );
