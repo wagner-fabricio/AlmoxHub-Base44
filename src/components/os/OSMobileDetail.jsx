@@ -19,7 +19,10 @@ import {
   MessageSquare,
   Paperclip,
   Check,
-  Send
+  Send,
+  Camera,
+  Image as ImageIcon,
+  Upload
 } from 'lucide-react';
 import { format, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -57,7 +60,10 @@ export default function OSMobileDetail({
   const [loadingComment, setLoadingComment] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [currentUserPessoa, setCurrentUserPessoa] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
 
   const categoria = categorias.find(c => c.id === os.categoria_id);
   const regional = regionais.find(r => r.id === os.regional_id);
@@ -146,6 +152,31 @@ export default function OSMobileDetail({
     });
     
     return groups;
+  };
+
+  const handleImageUpload = async (file) => {
+    if (!file) return;
+    
+    setUploadingImage(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      
+      const currentImages = os.imagens || [];
+      await base44.entities.OrdemServico.update(os.id, {
+        imagens: [...currentImages, file_url]
+      });
+      
+      onRefresh?.();
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (file) handleImageUpload(file);
   };
 
   const handleToggleItem = (index) => {
@@ -574,52 +605,103 @@ export default function OSMobileDetail({
 
         {activeTab === 'anexos' && (
           <div className="space-y-4">
-            {(!os.imagens?.length && !os.anexos?.length) ? (
-              <div className="text-center py-12 text-slate-500">
-                <Paperclip className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p>Nenhum anexo</p>
-              </div>
-            ) : (
-              <>
-                {os.imagens?.length > 0 && (
-                  <div>
-                    <h4 className="text-sm font-medium text-slate-700 mb-3">Imagens</h4>
-                    <div className="grid grid-cols-2 gap-3">
-                      {os.imagens.map((url, i) => (
-                        <a
-                          key={i}
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="aspect-square rounded-2xl overflow-hidden bg-slate-100"
-                        >
-                          <img src={url} alt={`Imagem ${i + 1}`} className="w-full h-full object-cover" />
-                        </a>
-                      ))}
-                    </div>
-                  </div>
+            {/* Botões de Upload */}
+            <div className="grid grid-cols-2 gap-3">
+              <input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+              
+              <Button
+                onClick={() => cameraInputRef.current?.click()}
+                disabled={uploadingImage}
+                className="w-full py-6 rounded-2xl shadow-md flex flex-col gap-2"
+                style={{ backgroundColor: '#0000FF' }}
+              >
+                {uploadingImage ? (
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                ) : (
+                  <>
+                    <Camera className="w-6 h-6" />
+                    <span className="text-sm">Câmera</span>
+                  </>
                 )}
+              </Button>
 
-                {os.anexos?.length > 0 && (
-                  <div>
-                    <h4 className="text-sm font-medium text-slate-700 mb-3">Arquivos</h4>
-                    <div className="space-y-2">
-                      {os.anexos.map((url, i) => (
-                        <a
-                          key={i}
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-3 p-4 bg-white rounded-2xl shadow-sm"
-                        >
-                          <Paperclip className="w-5 h-5 text-slate-400" />
-                          <span className="text-sm text-blue-600 font-medium">Anexo {i + 1}</span>
-                        </a>
-                      ))}
-                    </div>
-                  </div>
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingImage}
+                className="w-full py-6 rounded-2xl shadow-md flex flex-col gap-2"
+                style={{ backgroundColor: '#0A003C' }}
+              >
+                {uploadingImage ? (
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                ) : (
+                  <>
+                    <ImageIcon className="w-6 h-6" />
+                    <span className="text-sm">Galeria</span>
+                  </>
                 )}
-              </>
+              </Button>
+            </div>
+
+            {/* Imagens */}
+            {os.imagens?.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium text-slate-700 mb-3">Imagens ({os.imagens.length})</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  {os.imagens.map((url, i) => (
+                    <a
+                      key={i}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="aspect-square rounded-2xl overflow-hidden bg-slate-100 shadow-md"
+                    >
+                      <img src={url} alt={`Imagem ${i + 1}`} className="w-full h-full object-cover" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Arquivos */}
+            {os.anexos?.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium text-slate-700 mb-3">Arquivos ({os.anexos.length})</h4>
+                <div className="space-y-2">
+                  {os.anexos.map((url, i) => (
+                    <a
+                      key={i}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-4 bg-white rounded-2xl shadow-sm"
+                    >
+                      <Paperclip className="w-5 h-5 text-slate-400" />
+                      <span className="text-sm text-blue-600 font-medium">Anexo {i + 1}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {(!os.imagens?.length && !os.anexos?.length) && (
+              <div className="text-center py-8 text-slate-500">
+                <Upload className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p className="text-sm">Use os botões acima para adicionar fotos</p>
+              </div>
             )}
           </div>
         )}
