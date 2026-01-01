@@ -659,7 +659,10 @@ export default function OSMobileDetail({
             {/* Imagens */}
             {os.imagens?.length > 0 && (
               <div>
-                <h4 className="text-sm font-medium text-slate-700 mb-3">Imagens ({os.imagens.length})</h4>
+                <div className="flex items-center gap-2 mb-3">
+                  <ImageIcon className="w-5 h-5 text-blue-600" />
+                  <h4 className="text-sm font-medium text-slate-700">Imagens ({os.imagens.length})</h4>
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   {os.imagens.map((url, i) => (
                     <a
@@ -667,7 +670,7 @@ export default function OSMobileDetail({
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="aspect-square rounded-2xl overflow-hidden bg-slate-100 shadow-md"
+                      className="aspect-square rounded-2xl overflow-hidden bg-slate-100 shadow-md hover:shadow-lg transition-shadow"
                     >
                       <img src={url} alt={`Imagem ${i + 1}`} className="w-full h-full object-cover" />
                     </a>
@@ -676,23 +679,37 @@ export default function OSMobileDetail({
               </div>
             )}
 
-            {/* Arquivos */}
+            {/* Documentos/Arquivos */}
             {os.anexos?.length > 0 && (
               <div>
-                <h4 className="text-sm font-medium text-slate-700 mb-3">Arquivos ({os.anexos.length})</h4>
+                <div className="flex items-center gap-2 mb-3">
+                  <Paperclip className="w-5 h-5 text-purple-600" />
+                  <h4 className="text-sm font-medium text-slate-700">Documentos ({os.anexos.length})</h4>
+                </div>
                 <div className="space-y-2">
-                  {os.anexos.map((url, i) => (
-                    <a
-                      key={i}
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 p-4 bg-white rounded-2xl shadow-sm"
-                    >
-                      <Paperclip className="w-5 h-5 text-slate-400" />
-                      <span className="text-sm text-blue-600 font-medium">Anexo {i + 1}</span>
-                    </a>
-                  ))}
+                  {os.anexos.map((url, i) => {
+                    const fileName = url.split('/').pop()?.split('?')[0] || `Documento ${i + 1}`;
+                    const fileExtension = fileName.split('.').pop()?.toUpperCase() || 'ARQUIVO';
+                    
+                    return (
+                      <a
+                        key={i}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 p-4 bg-white rounded-2xl shadow-md hover:shadow-lg transition-all active:scale-95"
+                      >
+                        <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
+                          <Paperclip className="w-6 h-6 text-purple-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-slate-900 truncate">{fileName}</p>
+                          <p className="text-xs text-slate-500">{fileExtension}</p>
+                        </div>
+                        <Upload className="w-5 h-5 text-slate-400 rotate-180 shrink-0" />
+                      </a>
+                    );
+                  })}
                 </div>
               </div>
             )}
