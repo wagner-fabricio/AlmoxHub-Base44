@@ -286,7 +286,7 @@ export default function EmFluxo() {
         <div className="max-w-md mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Em Fluxo</h1>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">AlmoxHub - Atividades em Fluxo</h1>
             <p className="text-slate-600 dark:text-slate-400">Olá, {currentPessoa?.nome?.split(' ')[0] || 'Usuário'}</p>
           </div>
 
