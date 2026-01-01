@@ -20,6 +20,7 @@ import { ptBR } from 'date-fns/locale';
 import OSMobileDetail from '@/components/os/OSMobileDetail';
 import ChatMobileSimple from '@/components/mensagens/ChatMobileSimple';
 import NovaConversaModal from '@/components/mensagens/NovaConversaModal';
+import ProjetoMobileDetail from '@/components/projetos/ProjetoMobileDetail';
 
 const statusConfig = {
   elaboracao: { icon: Clock, color: 'bg-slate-500', label: 'Em Elaboração' },
@@ -52,6 +53,7 @@ export default function EmFluxo() {
   const [participantes, setParticipantes] = useState([]);
   const [selectedConversa, setSelectedConversa] = useState(null);
   const [showNovaConversa, setShowNovaConversa] = useState(false);
+  const [selectedProjeto, setSelectedProjeto] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -169,6 +171,10 @@ export default function EmFluxo() {
 
   const handleCloseConversa = () => {
     setSelectedConversa(null);
+  };
+
+  const handleCloseProjeto = () => {
+    setSelectedProjeto(null);
   };
 
   const getNomeConversa = (conversa) => {
@@ -340,6 +346,18 @@ export default function EmFluxo() {
         onClose={handleCloseConversa}
         pessoas={pessoas}
         currentPessoaId={currentPessoa?.id}
+        onRefresh={loadData}
+      />
+    );
+  }
+
+  // Vista de Projeto Detail
+  if (selectedProjeto) {
+    return (
+      <ProjetoMobileDetail
+        projeto={selectedProjeto}
+        onClose={handleCloseProjeto}
+        pessoas={pessoas}
         onRefresh={loadData}
       />
     );
