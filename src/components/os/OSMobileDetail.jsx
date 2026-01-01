@@ -61,6 +61,10 @@ export default function OSMobileDetail({
   const [currentUser, setCurrentUser] = useState(null);
   const [currentUserPessoa, setCurrentUserPessoa] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [selectedAnexos, setSelectedAnexos] = useState([]);
+  const [deleting, setDeleting] = useState(false);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
@@ -177,6 +181,50 @@ export default function OSMobileDetail({
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
     if (file) handleImageUpload(file);
+  };
+
+  const toggleImageSelection = (url) => {
+    if (selectedImages.includes(url)) {
+      setSelectedImages(selectedImages.filter(u => u !== url));
+    } else {
+      setSelectedImages([...selectedImages, url]);
+    }
+  };
+
+  const toggleAnexoSelection = (url) => {
+    if (selectedAnexos.includes(url)) {
+      setSelectedAnexos(selectedAnexos.filter(u => u !== url));
+    } else {
+      setSelectedAnexos([...selectedAnexos, url]);
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    setDeleting(true);
+    try {
+      const newImages = (os.imagens || []).filter(img => !selectedImages.includes(img));
+      const newAnexos = (os.anexos || []).filter(anx => !selectedAnexos.includes(anx));
+      
+      await base44.entities.OrdemServico.update(os.id, {
+        imagens: newImages,
+        anexos: newAnexos
+      });
+      
+      setSelectedImages([]);
+      setSelectedAnexos([]);
+      setSelectionMode(false);
+      onRefresh?.();
+    } catch (error) {
+      console.error('Error deleting attachments:', error);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const cancelSelection = () => {
+    setSelectionMode(false);
+    setSelectedImages([]);
+    setSelectedAnexos([]);
   };
 
   const handleToggleItem = (index) => {
@@ -605,55 +653,90 @@ export default function OSMobileDetail({
 
         {activeTab === 'anexos' && (
           <div className="space-y-4">
-            {/* Botões de Upload */}
-            <div className="grid grid-cols-2 gap-3">
-              <input
-                ref={cameraInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={handleFileSelect}
-                className="hidden"
-              />
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileSelect}
-                className="hidden"
-              />
-              
-              <Button
-                onClick={() => cameraInputRef.current?.click()}
-                disabled={uploadingImage}
-                className="w-full py-6 rounded-2xl shadow-md flex flex-col gap-2"
-                style={{ backgroundColor: '#0000FF' }}
-              >
-                {uploadingImage ? (
-                  <Loader2 className="w-6 h-6 animate-spin" />
-                ) : (
-                  <>
-                    <Camera className="w-6 h-6" />
-                    <span className="text-sm">Câmera</span>
-                  </>
-                )}
-              </Button>
+            {/* Botões de Upload e Seleção */}
+            <div className="flex gap-3">
+              {!selectionMode ? (
+                <>
+                  <input
+                    ref={cameraInputRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                  
+                  <Button
+                    onClick={() => cameraInputRef.current?.click()}
+                    disabled={uploadingImage}
+                    className="flex-1 py-6 rounded-2xl shadow-md flex flex-col gap-2"
+                    style={{ backgroundColor: '#0000FF' }}
+                  >
+                    {uploadingImage ? (
+                      <Loader2 className="w-6 h-6 animate-spin" />
+                    ) : (
+                      <>
+                        <Camera className="w-6 h-6" />
+                        <span className="text-sm">Câmera</span>
+                      </>
+                    )}
+                  </Button>
 
-              <Button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploadingImage}
-                className="w-full py-6 rounded-2xl shadow-md flex flex-col gap-2"
-                style={{ backgroundColor: '#0A003C' }}
-              >
-                {uploadingImage ? (
-                  <Loader2 className="w-6 h-6 animate-spin" />
-                ) : (
-                  <>
-                    <ImageIcon className="w-6 h-6" />
-                    <span className="text-sm">Galeria</span>
-                  </>
-                )}
-              </Button>
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingImage}
+                    className="flex-1 py-6 rounded-2xl shadow-md flex flex-col gap-2"
+                    style={{ backgroundColor: '#0A003C' }}
+                  >
+                    {uploadingImage ? (
+                      <Loader2 className="w-6 h-6 animate-spin" />
+                    ) : (
+                      <>
+                        <ImageIcon className="w-6 h-6" />
+                        <span className="text-sm">Galeria</span>
+                      </>
+                    )}
+                  </Button>
+
+                  {(os.imagens?.length > 0 || os.anexos?.length > 0) && (
+                    <Button
+                      onClick={() => setSelectionMode(true)}
+                      variant="outline"
+                      className="px-4 py-6 rounded-2xl shadow-md"
+                    >
+                      <X className="w-5 h-5" />
+                    </Button>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Button
+                    onClick={cancelSelection}
+                    variant="outline"
+                    className="flex-1 py-6 rounded-2xl"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    onClick={handleDeleteSelected}
+                    disabled={selectedImages.length === 0 && selectedAnexos.length === 0 || deleting}
+                    className="flex-1 py-6 rounded-2xl bg-red-500 hover:bg-red-600"
+                  >
+                    {deleting ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      `Excluir (${selectedImages.length + selectedAnexos.length})`
+                    )}
+                  </Button>
+                </>
+              )}
             </div>
 
             {/* Imagens */}
@@ -665,15 +748,38 @@ export default function OSMobileDetail({
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   {os.imagens.map((url, i) => (
-                    <a
+                    <div
                       key={i}
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="aspect-square rounded-2xl overflow-hidden bg-slate-100 shadow-md hover:shadow-lg transition-shadow"
+                      onClick={(e) => {
+                        if (selectionMode) {
+                          e.preventDefault();
+                          toggleImageSelection(url);
+                        }
+                      }}
+                      className="relative aspect-square rounded-2xl overflow-hidden bg-slate-100 shadow-md hover:shadow-lg transition-shadow"
                     >
-                      <img src={url} alt={`Imagem ${i + 1}`} className="w-full h-full object-cover" />
-                    </a>
+                      {!selectionMode ? (
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block w-full h-full"
+                        >
+                          <img src={url} alt={`Imagem ${i + 1}`} className="w-full h-full object-cover" />
+                        </a>
+                      ) : (
+                        <>
+                          <img src={url} alt={`Imagem ${i + 1}`} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                            <div className={`w-8 h-8 rounded-full border-2 border-white flex items-center justify-center ${
+                              selectedImages.includes(url) ? 'bg-blue-500' : 'bg-transparent'
+                            }`}>
+                              {selectedImages.includes(url) && <Check className="w-5 h-5 text-white" />}
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   ))}
                 </div>
               </div>
@@ -690,15 +796,29 @@ export default function OSMobileDetail({
                   {os.anexos.map((url, i) => {
                     const fileName = url.split('/').pop()?.split('?')[0] || `Documento ${i + 1}`;
                     const fileExtension = fileName.split('.').pop()?.toUpperCase() || 'ARQUIVO';
+                    const isSelected = selectedAnexos.includes(url);
                     
                     return (
-                      <a
+                      <div
                         key={i}
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 p-4 bg-white rounded-2xl shadow-md hover:shadow-lg transition-all active:scale-95"
+                        onClick={(e) => {
+                          if (selectionMode) {
+                            e.preventDefault();
+                            toggleAnexoSelection(url);
+                          }
+                        }}
+                        className={`flex items-center gap-3 p-4 bg-white rounded-2xl shadow-md hover:shadow-lg transition-all ${
+                          !selectionMode ? 'active:scale-95' : ''
+                        } ${isSelected ? 'ring-2 ring-blue-500' : ''}`}
                       >
+                        {selectionMode && (
+                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                            isSelected ? 'bg-blue-500 border-blue-500' : 'border-slate-300'
+                          }`}>
+                            {isSelected && <Check className="w-4 h-4 text-white" />}
+                          </div>
+                        )}
+                        
                         <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
                           <Paperclip className="w-6 h-6 text-purple-600" />
                         </div>
@@ -706,8 +826,18 @@ export default function OSMobileDetail({
                           <p className="text-sm font-medium text-slate-900 truncate">{fileName}</p>
                           <p className="text-xs text-slate-500">{fileExtension}</p>
                         </div>
-                        <Upload className="w-5 h-5 text-slate-400 rotate-180 shrink-0" />
-                      </a>
+                        
+                        {!selectionMode && (
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Upload className="w-5 h-5 text-slate-400 rotate-180 shrink-0" />
+                          </a>
+                        )}
+                      </div>
                     );
                   })}
                 </div>
