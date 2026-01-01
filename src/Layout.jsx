@@ -300,12 +300,12 @@ export default function Layout({ children, currentPageName }) {
                       ${isActive 
                         ? 'font-medium shadow-sm' 
                         : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50'
-                      }`}
-                      style={isActive ? { 
+                      }
+                    `}
+                    style={isActive ? { 
                       backgroundColor: darkMode ? 'rgba(0, 0, 255, 0.1)' : '#E6E6FF',
                       color: '#0000FF'
-                      } : {}}
-                    `}
+                    } : {}}
                     onClick={() => setSidebarOpen(false)}
                     title={sidebarCollapsed ? item.name : ''}
                   >
