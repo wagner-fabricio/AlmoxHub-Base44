@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { Slider } from '@/components/ui/slider';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { base44 } from '@/api/base44Client';
 import {
@@ -55,6 +56,8 @@ export default function OSMobileDetail({
   const [activeTab, setActiveTab] = useState('detalhes');
   const [checkedItems, setCheckedItems] = useState({});
   const [saving, setSaving] = useState(false);
+  const [localProgress, setLocalProgress] = useState(os.progresso || 0);
+  const [savingProgress, setSavingProgress] = useState(false);
   const [comentarios, setComentarios] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [loadingComment, setLoadingComment] = useState(false);
@@ -227,11 +230,53 @@ export default function OSMobileDetail({
     setSelectedAnexos([]);
   };
 
+  const handleProgressChange = async (value) => {
+    const newProgress = value[0];
+    setLocalProgress(newProgress);
+  };
+
+  const handleProgressCommit = async (value) => {
+    const newProgress = value[0];
+    setSavingProgress(true);
+    try {
+      await base44.entities.OrdemServico.update(os.id, {
+        progresso: newProgress
+      });
+      onRefresh?.();
+    } catch (error) {
+      console.error('Error updating progress:', error);
+    } finally {
+      setSavingProgress(false);
+    }
+  };
+
   const handleToggleItem = (index) => {
-    setCheckedItems(prev => ({
-      ...prev,
-      [index]: !prev[index]
-    }));
+    setCheckedItems(prev => {
+      const newCheckedItems = {
+        ...prev,
+        [index]: !prev[index]
+      };
+      
+      // Verificar status de separação
+      const totalItems = os.itens_documento?.length || 0;
+      const checkedCount = Object.values(newCheckedItems).filter(Boolean).length;
+      
+      // Se marcar o primeiro item, mudar para 'em_separacao'
+      if (checkedCount === 1 && os.status_separacao !== 'em_separacao') {
+        base44.entities.OrdemServico.update(os.id, {
+          status_separacao: 'em_separacao'
+        }).then(() => onRefresh?.());
+      }
+      
+      // Se todos os itens estiverem marcados, mudar para 'separado'
+      if (checkedCount === totalItems && totalItems > 0 && os.status_separacao !== 'separado') {
+        base44.entities.OrdemServico.update(os.id, {
+          status_separacao: 'separado'
+        }).then(() => onRefresh?.());
+      }
+      
+      return newCheckedItems;
+    });
   };
 
   const handleSavePicking = async () => {
@@ -291,14 +336,22 @@ export default function OSMobileDetail({
           </div>
         </div>
 
-        {/* Progress bar */}
-        <div className="bg-white/20 rounded-full h-3 overflow-hidden">
-          <div 
-            className="bg-white h-3 transition-all duration-300 rounded-full"
-            style={{ width: `${os.progresso || 0}%` }}
+        {/* Progress Slider */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-white/90 text-sm font-medium">Progresso</span>
+            <span className="text-white text-lg font-bold">{localProgress}%</span>
+          </div>
+          <Slider
+            value={[localProgress]}
+            onValueChange={handleProgressChange}
+            onValueCommit={handleProgressCommit}
+            max={100}
+            step={5}
+            className="cursor-pointer"
+            disabled={savingProgress}
           />
         </div>
-        <p className="text-white/90 text-right text-xs mt-1">{os.progresso || 0}% concluído</p>
       </div>
 
       {/* Tabs */}
