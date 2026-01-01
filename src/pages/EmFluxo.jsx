@@ -465,18 +465,29 @@ export default function EmFluxo() {
                 <p>Nenhum projeto</p>
               </div>
             ) : (
-              projetos.map((projeto) => (
-                <div
-                  key={projeto.id}
-                  className="bg-white rounded-2xl p-4 shadow-md border-l-4"
-                  style={{ borderLeftColor: projeto.cor }}
-                >
-                  <h3 className="text-lg font-bold text-slate-900 mb-2">{projeto.nome}</h3>
-                  {projeto.descricao && (
-                    <p className="text-sm text-slate-600">{projeto.descricao}</p>
-                  )}
-                </div>
-              ))
+              projetos.map((projeto) => {
+                const lider = pessoas.find(p => p.id === projeto.lider_id);
+                
+                return (
+                  <button
+                    key={projeto.id}
+                    onClick={() => setSelectedProjeto(projeto)}
+                    className="w-full bg-white rounded-2xl p-4 shadow-md border-l-4 text-left transition-all active:scale-95"
+                    style={{ borderLeftColor: projeto.cor || '#8b5cf6' }}
+                  >
+                    <h3 className="text-lg font-bold text-slate-900 mb-1">{projeto.nome}</h3>
+                    {projeto.descricao && (
+                      <p className="text-sm text-slate-600 mb-2 line-clamp-2">{projeto.descricao}</p>
+                    )}
+                    {lider && (
+                      <div className="flex items-center gap-2 text-xs text-slate-500">
+                        <User className="w-3 h-3" />
+                        <span>Líder: {lider.nome}</span>
+                      </div>
+                    )}
+                  </button>
+                );
+              })
             )}
           </div>
         )}
