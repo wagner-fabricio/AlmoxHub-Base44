@@ -47,6 +47,8 @@ export default function EmFluxo() {
   const [instalacoes, setInstalacoes] = useState([]);
   const [currentPessoa, setCurrentPessoa] = useState(null);
   const [selectedOS, setSelectedOS] = useState(null);
+  const [participantes, setParticipantes] = useState([]);
+  const [selectedConversa, setSelectedConversa] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -65,7 +67,8 @@ export default function EmFluxo() {
         subcategoriasData,
         regionaisData,
         almoxarifadosData,
-        instalacoesData
+        instalacoesData,
+        participantesData
       ] = await Promise.all([
         base44.entities.Pessoa.list(),
         base44.entities.OrdemServico.list(),
@@ -76,6 +79,7 @@ export default function EmFluxo() {
         base44.entities.Regional.list(),
         base44.entities.Almoxarifado.list(),
         base44.entities.Instalacao.list(),
+        base44.entities.ParticipanteConversa.list(),
       ]);
 
       setPessoas(pessoasData);
@@ -88,7 +92,17 @@ export default function EmFluxo() {
       );
       setOrdens(minhasOrdens);
       setProjetos(projetosData);
-      setConversas(conversasData);
+      
+      // Filtrar conversas onde o usuário participa
+      const minhasConversas = conversasData.filter(conv => {
+        const participaConversa = participantesData.some(p => 
+          p.conversa_id === conv.id && p.pessoa_id === pessoa?.id
+        );
+        return participaConversa;
+      });
+      setConversas(minhasConversas);
+      setParticipantes(participantesData);
+      
       setCategorias(categoriasData);
       setSubcategorias(subcategoriasData);
       setRegionais(regionaisData);
@@ -144,6 +158,68 @@ export default function EmFluxo() {
 
   const handleCloseOS = () => {
     setSelectedOS(null);
+  };
+
+  const handleOpenConversa = (conversa) => {
+    setSelectedConversa(conversa);
+  };
+
+  const handleCloseConversa = () => {
+    setSelectedConversa(null);
+  };
+
+  const getNomeConversa = (conversa) => {
+    if (conversa.tipo === 'grupo') {
+      return conversa.nome_grupo;
+    }
+    
+    const participantesConversa = participantes.filter(p => p.conversa_id === conversa.id);
+    const outroPessoa = participantesConversa.find(p => p.pessoa_id !== currentPessoa?.id);
+    if (outroPessoa) {
+      const pessoa = pessoas.find(p => p.id === outroPessoa.pessoa_id);
+      return pessoa?.nome || 'Conversa';
+    }
+    return 'Conversa';
+  };
+
+  const getAvatarInfo = (conversa) => {
+    if (conversa.tipo === 'grupo') {
+      return {
+        initials: conversa.nome_grupo?.substring(0, 2).toUpperCase() || 'G',
+        url: conversa.avatar_grupo,
+        isGroup: true
+      };
+    }
+    
+    const participantesConversa = participantes.filter(p => p.conversa_id === conversa.id);
+    const outroPessoa = participantesConversa.find(p => p.pessoa_id !== currentPessoa?.id);
+    if (outroPessoa) {
+      const pessoa = pessoas.find(p => p.id === outroPessoa.pessoa_id);
+      return {
+        initials: pessoa?.nome?.charAt(0) || 'U',
+        url: pessoa?.foto_perfil,
+        isGroup: false
+      };
+    }
+    return { initials: 'U', url: null, isGroup: false };
+  };
+
+  const formatarData = (date) => {
+    if (!date) return '';
+    const now = new Date();
+    const msgDate = new Date(date);
+    
+    if (msgDate.toDateString() === now.toDateString()) {
+      return format(msgDate, 'HH:mm');
+    }
+    
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (msgDate.toDateString() === yesterday.toDateString()) {
+      return 'Ontem';
+    }
+    
+    return format(msgDate, 'dd/MM/yy');
   };
 
   if (loading) {
@@ -333,10 +409,76 @@ export default function EmFluxo() {
 
         {activeModule === 'mensagens' && (
           <div className="space-y-3">
-            <div className="text-center py-12 text-slate-500">
-              <MessageSquare className="w-16 h-16 mx-auto mb-4 opacity-50" />
-              <p>Funcionalidade em desenvolvimento</p>
-            </div>
+            {conversas.length === 0 ? (
+              <div className="text-center py-12 text-slate-500">
+                <MessageSquare className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <p>Nenhuma conversa</p>
+              </div>
+            ) : (
+              conversas.map((conversa) => {
+                const avatar = getAvatarInfo(conversa);
+                const participante = participantes.find(p => 
+                  p.conversa_id === conversa.id && p.pessoa_id === currentPessoa?.id
+                );
+                const naoLidas = participante?.mensagens_nao_lidas || 0;
+
+                return (
+                  <button
+                    key={conversa.id}
+                    onClick={() => handleOpenConversa(conversa)}
+                    className="w-full bg-white rounded-2xl p-4 shadow-md text-left transition-all active:scale-95"
+                  >
+                    <div className="flex items-start gap-3">
+                      {/* Avatar */}
+                      <div className="shrink-0">
+                        {avatar.url ? (
+                          <img
+                            src={avatar.url}
+                            alt={getNomeConversa(conversa)}
+                            className="w-14 h-14 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg ${
+                            avatar.isGroup ? 'bg-gradient-to-br from-purple-500 to-purple-600' : 'bg-gradient-to-br from-blue-500 to-blue-600'
+                          }`}>
+                            {avatar.initials}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <h3 className="text-base font-bold text-slate-900 truncate">
+                            {getNomeConversa(conversa)}
+                          </h3>
+                          {conversa.ultima_mensagem_data && (
+                            <span className="text-xs text-slate-500 shrink-0">
+                              {formatarData(conversa.ultima_mensagem_data)}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-sm text-slate-600 line-clamp-1 flex-1">
+                            {conversa.ultima_mensagem_autor && conversa.tipo === 'grupo' && (
+                              <span className="font-medium">{conversa.ultima_mensagem_autor}: </span>
+                            )}
+                            {conversa.ultima_mensagem || 'Sem mensagens'}
+                          </p>
+                          
+                          {naoLidas > 0 && (
+                            <div className="bg-green-500 text-white text-xs font-bold rounded-full min-w-[24px] h-6 flex items-center justify-center px-2 shrink-0">
+                              {naoLidas > 99 ? '99+' : naoLidas}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })
+            )}
           </div>
         )}
       </div>

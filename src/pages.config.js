@@ -1,6 +1,7 @@
 import Almoxarifados from './pages/Almoxarifados';
 import Categorias from './pages/Categorias';
 import Dashboard from './pages/Dashboard';
+import EmFluxo from './pages/EmFluxo';
 import Home from './pages/Home';
 import Instalacoes from './pages/Instalacoes';
 import Mensagens from './pages/Mensagens';
@@ -15,7 +16,6 @@ import ThankYou from './pages/ThankYou';
 import Transportadoras from './pages/Transportadoras';
 import UserApproval from './pages/UserApproval';
 import VeiculosAxia from './pages/VeiculosAxia';
-import EmFluxo from './pages/EmFluxo';
 import __Layout from './Layout.jsx';
 
 
@@ -23,6 +23,7 @@ export const PAGES = {
     "Almoxarifados": Almoxarifados,
     "Categorias": Categorias,
     "Dashboard": Dashboard,
+    "EmFluxo": EmFluxo,
     "Home": Home,
     "Instalacoes": Instalacoes,
     "Mensagens": Mensagens,
@@ -37,7 +38,6 @@ export const PAGES = {
     "Transportadoras": Transportadoras,
     "UserApproval": UserApproval,
     "VeiculosAxia": VeiculosAxia,
-    "EmFluxo": EmFluxo,
 }
 
 export const pagesConfig = {
