@@ -86,7 +86,7 @@ export default function ChatMobileSimple({
 
     setSending(true);
     try {
-      const currentPessoa = pessoas.find(p => p.id === currentPessoaId);
+      const currentPessoa = (pessoas || []).find(p => p.id === currentPessoaId);
       
       await base44.entities.MensagemChat.create({
         conversa_id: conversa.id,
@@ -104,7 +104,7 @@ export default function ChatMobileSimple({
 
       // Incrementar contador para outros participantes
       await Promise.all(
-        participantes
+        (participantes || [])
           .filter(p => p.pessoa_id !== currentPessoaId)
           .map(p => 
             base44.entities.ParticipanteConversa.update(p.id, {
@@ -128,9 +128,9 @@ export default function ChatMobileSimple({
       return conversa.nome_grupo;
     }
     
-    const outroPessoa = participantes.find(p => p.pessoa_id !== currentPessoaId);
+    const outroPessoa = (participantes || []).find(p => p.pessoa_id !== currentPessoaId);
     if (outroPessoa) {
-      const pessoa = pessoas.find(p => p.id === outroPessoa.pessoa_id);
+      const pessoa = (pessoas || []).find(p => p.id === outroPessoa.pessoa_id);
       return pessoa?.nome || 'Conversa';
     }
     return 'Conversa';
@@ -145,9 +145,9 @@ export default function ChatMobileSimple({
       };
     }
     
-    const outroPessoa = participantes.find(p => p.pessoa_id !== currentPessoaId);
+    const outroPessoa = (participantes || []).find(p => p.pessoa_id !== currentPessoaId);
     if (outroPessoa) {
-      const pessoa = pessoas.find(p => p.id === outroPessoa.pessoa_id);
+      const pessoa = (pessoas || []).find(p => p.id === outroPessoa.pessoa_id);
       return {
         initials: pessoa?.nome?.charAt(0) || 'U',
         url: pessoa?.foto_perfil,
@@ -167,7 +167,7 @@ export default function ChatMobileSimple({
     const groups = [];
     let currentDate = null;
     
-    messages.forEach((msg) => {
+    (messages || []).forEach((msg) => {
       const msgDate = format(new Date(msg.created_date), 'yyyy-MM-dd');
       if (msgDate !== currentDate) {
         groups.push({ type: 'separator', date: msg.created_date });
@@ -249,7 +249,7 @@ export default function ChatMobileSimple({
 
             const message = item.data;
             const isOwnMessage = message.autor_id === currentPessoaId;
-            const autor = pessoas.find(p => p.id === message.autor_id);
+            const autor = (pessoas || []).find(p => p.id === message.autor_id);
 
             return (
               <div 

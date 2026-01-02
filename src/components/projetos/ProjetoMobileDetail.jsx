@@ -43,14 +43,14 @@ export default function ProjetoMobileDetail({ projeto, onClose, pessoas, onRefre
     }
   };
 
-  const lider = pessoas?.find(p => p.id === projeto.lider_id);
-  const outrosEnvolvidos = pessoas?.filter(p => projeto.outros_envolvidos_ids?.includes(p.id)) || [];
+  const lider = (pessoas || []).find(p => p.id === projeto.lider_id);
+  const outrosEnvolvidos = (pessoas || []).filter(p => projeto.outros_envolvidos_ids?.includes(p.id)) || [];
 
   const osStats = {
-    total: ordensServico.length,
-    concluidas: ordensServico.filter(os => os.status === 'concluido').length,
-    emAndamento: ordensServico.filter(os => os.status === 'execucao').length,
-    pendentes: ordensServico.filter(os => os.status === 'elaboracao').length,
+    total: (ordensServico || []).length,
+    concluidas: (ordensServico || []).filter(os => os.status === 'concluido').length,
+    emAndamento: (ordensServico || []).filter(os => os.status === 'execucao').length,
+    pendentes: (ordensServico || []).filter(os => os.status === 'elaboracao').length,
   };
 
   if (loading) {
@@ -143,7 +143,7 @@ export default function ProjetoMobileDetail({ projeto, onClose, pessoas, onRefre
                 <h3 className="font-semibold text-slate-900">Outros Envolvidos ({outrosEnvolvidos.length})</h3>
               </div>
               <div className="space-y-3">
-                {outrosEnvolvidos.map((pessoa) => (
+                {(outrosEnvolvidos || []).map((pessoa) => (
                   <div key={pessoa.id} className="flex items-center gap-3">
                     <Avatar className="w-10 h-10">
                       {pessoa.foto_perfil && <AvatarImage src={pessoa.foto_perfil} />}
@@ -167,19 +167,19 @@ export default function ProjetoMobileDetail({ projeto, onClose, pessoas, onRefre
           <div className="bg-white rounded-xl p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
               <FileText className="w-5 h-5 text-purple-600" />
-              <h3 className="font-semibold text-slate-900">Ordens de Serviço ({ordensServico.length})</h3>
+              <h3 className="font-semibold text-slate-900">Ordens de Serviço ({(ordensServico || []).length})</h3>
             </div>
             
-            {ordensServico.length === 0 ? (
+            {(ordensServico || []).length === 0 ? (
               <div className="text-center py-8 text-slate-500">
                 <p className="text-sm">Nenhuma OS vinculada a este projeto</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {ordensServico.map((os) => {
-                  const categoria = categorias.find(c => c.id === os.categoria_id);
-                  const regional = regionais.find(r => r.id === os.regional_id);
-                  const liderOS = pessoas?.find(p => p.id === os.lider_id);
+                {(ordensServico || []).map((os) => {
+                  const categoria = (categorias || []).find(c => c.id === os.categoria_id);
+                  const regional = (regionais || []).find(r => r.id === os.regional_id);
+                  const liderOS = (pessoas || []).find(p => p.id === os.lider_id);
                   const StatusIcon = statusConfig[os.status]?.icon || Clock;
 
                   return (
