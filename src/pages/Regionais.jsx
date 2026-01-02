@@ -22,7 +22,11 @@ export default function Regionais() {
     sigla: '',
     descricao: '',
     area_abrangencia: '',
-    gerencia: ''
+    gerencia: '',
+    gestor_nome: '',
+    gestor_email: '',
+    gestor_telefone: '',
+    cidade_sede: ''
   });
   const [saving, setSaving] = useState(false);
 
@@ -44,7 +48,16 @@ export default function Regionais() {
 
   const handleNew = () => {
     setSelectedRegional(null);
-    setFormData({ sigla: '', descricao: '', area_abrangencia: '', gerencia: '' });
+    setFormData({ 
+      sigla: '', 
+      descricao: '', 
+      area_abrangencia: '', 
+      gerencia: '',
+      gestor_nome: '',
+      gestor_email: '',
+      gestor_telefone: '',
+      cidade_sede: ''
+    });
     setShowModal(true);
   };
 
@@ -54,7 +67,11 @@ export default function Regionais() {
       sigla: regional.sigla || '',
       descricao: regional.descricao || '',
       area_abrangencia: regional.area_abrangencia || '',
-      gerencia: regional.gerencia || ''
+      gerencia: regional.gerencia || '',
+      gestor_nome: regional.gestor_nome || '',
+      gestor_email: regional.gestor_email || '',
+      gestor_telefone: regional.gestor_telefone || '',
+      cidade_sede: regional.cidade_sede || ''
     });
     setShowModal(true);
   };
@@ -140,14 +157,15 @@ export default function Regionais() {
               <TableHead className="font-semibold">Sigla</TableHead>
               <TableHead className="font-semibold">Descrição</TableHead>
               <TableHead className="font-semibold">Gerência</TableHead>
-              <TableHead className="font-semibold">Área de Abrangência</TableHead>
+              <TableHead className="font-semibold">Cidade Sede</TableHead>
+              <TableHead className="font-semibold">Gestor</TableHead>
               <TableHead className="font-semibold text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredRegionais.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-12 text-slate-500">
+                <TableCell colSpan={6} className="text-center py-12 text-slate-500">
                   <MapPin className="w-12 h-12 mx-auto mb-3 text-slate-300" />
                   <p>Nenhuma regional cadastrada</p>
                 </TableCell>
@@ -167,8 +185,11 @@ export default function Regionais() {
                   <TableCell className="text-slate-600 dark:text-slate-400">
                     {regional.gerencia || '-'}
                   </TableCell>
-                  <TableCell className="text-slate-600 dark:text-slate-400 max-w-xs truncate">
-                    {regional.area_abrangencia || '-'}
+                  <TableCell className="text-slate-600 dark:text-slate-400">
+                    {regional.cidade_sede || '-'}
+                  </TableCell>
+                  <TableCell className="text-slate-600 dark:text-slate-400">
+                    {regional.gestor_nome || '-'}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
@@ -225,6 +246,39 @@ export default function Regionais() {
                   <SelectItem value="GLAO">GLAO</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Cidade Sede</Label>
+              <Input
+                value={formData.cidade_sede}
+                onChange={(e) => setFormData({ ...formData, cidade_sede: e.target.value })}
+                placeholder="Ex: São Paulo"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Nome do Gestor</Label>
+              <Input
+                value={formData.gestor_nome}
+                onChange={(e) => setFormData({ ...formData, gestor_nome: e.target.value })}
+                placeholder="Nome completo do gestor"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>E-mail do Gestor</Label>
+              <Input
+                type="email"
+                value={formData.gestor_email}
+                onChange={(e) => setFormData({ ...formData, gestor_email: e.target.value })}
+                placeholder="email@exemplo.com"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Telefone do Gestor</Label>
+              <Input
+                value={formData.gestor_telefone}
+                onChange={(e) => setFormData({ ...formData, gestor_telefone: e.target.value })}
+                placeholder="(00) 00000-0000"
+              />
             </div>
             <div className="space-y-2">
               <Label>Área de Abrangência</Label>
