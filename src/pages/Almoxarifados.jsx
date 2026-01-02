@@ -26,6 +26,9 @@ export default function Almoxarifados() {
     endereco: '',
     latitude: '',
     longitude: '',
+    regiao: '',
+    instalacao: '',
+    local_negocios: '',
     ativo: true
   });
   const [saving, setSaving] = useState(false);
@@ -58,6 +61,9 @@ export default function Almoxarifados() {
       endereco: '',
       latitude: '',
       longitude: '',
+      regiao: '',
+      instalacao: '',
+      local_negocios: '',
       ativo: true
     });
     setShowModal(true);
@@ -71,6 +77,9 @@ export default function Almoxarifados() {
       endereco: item.endereco || '',
       latitude: item.latitude || '',
       longitude: item.longitude || '',
+      regiao: item.regiao || '',
+      instalacao: item.instalacao || '',
+      local_negocios: item.local_negocios || '',
       ativo: item.ativo !== false
     });
     setShowModal(true);
@@ -98,7 +107,8 @@ export default function Almoxarifados() {
       const data = {
         ...formData,
         latitude: formData.latitude ? parseFloat(formData.latitude) : null,
-        longitude: formData.longitude ? parseFloat(formData.longitude) : null
+        longitude: formData.longitude ? parseFloat(formData.longitude) : null,
+        local_negocios: formData.local_negocios ? parseFloat(formData.local_negocios) : null
       };
       
       if (selectedItem) {
@@ -279,6 +289,43 @@ export default function Almoxarifados() {
                 onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
                 placeholder="Endereço completo"
               />
+            </div>
+            <div className="space-y-2">
+              <Label>Região</Label>
+              <Select
+                value={formData.regiao}
+                onValueChange={(v) => setFormData({ ...formData, regiao: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Norte">Norte</SelectItem>
+                  <SelectItem value="Nordeste">Nordeste</SelectItem>
+                  <SelectItem value="Centro Oeste">Centro Oeste</SelectItem>
+                  <SelectItem value="Sudeste">Sudeste</SelectItem>
+                  <SelectItem value="Sul">Sul</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Instalação</Label>
+                <Input
+                  value={formData.instalacao}
+                  onChange={(e) => setFormData({ ...formData, instalacao: e.target.value })}
+                  placeholder="Instalação"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Local de Negócios</Label>
+                <Input
+                  type="number"
+                  value={formData.local_negocios}
+                  onChange={(e) => setFormData({ ...formData, local_negocios: e.target.value })}
+                  placeholder="Número"
+                />
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
