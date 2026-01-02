@@ -253,7 +253,8 @@ export default function OSMobileDetail({
       await base44.entities.OrdemServico.update(os.id, {
         progresso: newProgress
       });
-      onRefresh?.();
+      // Atualizar estado local sem recarregar a lista
+      os.progresso = newProgress;
     } catch (error) {
       console.error('Error updating progress:', error);
     } finally {
