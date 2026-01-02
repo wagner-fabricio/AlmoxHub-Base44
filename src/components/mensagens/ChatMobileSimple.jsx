@@ -38,10 +38,10 @@ export default function ChatMobileSimple({
     try {
       const msgs = await base44.entities.MensagemChat.filter({ conversa_id: conversa.id });
       const mensagensArray = Array.isArray(msgs) ? msgs : [];
-      const mensagensOrdenadas = mensagensArray.sort((a, b) => 
+      const mensagensOrdenadas = (mensagensArray || []).sort((a, b) => 
         new Date(a.created_date) - new Date(b.created_date)
       );
-      setMensagens(mensagensOrdenadas);
+      setMensagens(mensagensOrdenadas || []);
       scrollToBottom();
       marcarComoLida();
     } catch (error) {
@@ -234,7 +234,7 @@ export default function ChatMobileSimple({
             <p className="text-sm mt-1">Comece a conversa</p>
           </div>
         ) : (
-          groupMessagesByDate(mensagens).map((item, idx) => {
+          groupMessagesByDate(mensagens || []).map((item, idx) => {
             if (item.type === 'separator') {
               return (
                 <div key={`sep-${idx}`} className="flex items-center gap-3 my-4">
