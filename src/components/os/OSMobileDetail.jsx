@@ -484,7 +484,7 @@ export default function OSMobileDetail({
                   <span className="text-xs font-medium">Executores</span>
                 </div>
                 <div className="space-y-2">
-                  {os.executores_ids.map(execId => {
+                  {(os.executores_ids || []).map(execId => {
                     const executor = pessoas.find(p => p.id === execId);
                     return executor ? (
                       <div key={execId} className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
