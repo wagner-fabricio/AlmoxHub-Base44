@@ -159,13 +159,14 @@ export default function Regionais() {
               <TableHead className="font-semibold">Gerência</TableHead>
               <TableHead className="font-semibold">Cidade Sede</TableHead>
               <TableHead className="font-semibold">Gestor</TableHead>
+              <TableHead className="font-semibold">Área de Abrangência</TableHead>
               <TableHead className="font-semibold text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredRegionais.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-12 text-slate-500">
+                <TableCell colSpan={7} className="text-center py-12 text-slate-500">
                   <MapPin className="w-12 h-12 mx-auto mb-3 text-slate-300" />
                   <p>Nenhuma regional cadastrada</p>
                 </TableCell>
@@ -190,6 +191,9 @@ export default function Regionais() {
                   </TableCell>
                   <TableCell className="text-slate-600 dark:text-slate-400">
                     {regional.gestor_nome || '-'}
+                  </TableCell>
+                  <TableCell className="text-slate-600 dark:text-slate-400 max-w-xs truncate">
+                    {regional.area_abrangencia || '-'}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
