@@ -153,7 +153,7 @@ export default function OSCard({ osId, isMinha }) {
             <div className="flex items-center gap-1 text-xs text-slate-600">
               <Users className="w-3 h-3" />
               <span className="font-medium">Executores:</span>
-              <span>{(executores || []).map(e => e.nome).join(', ')}</span>
+              <span>{((executores || []).filter(e => e && e.nome)).map(e => e.nome).join(', ')}</span>
             </div>
           )}
 

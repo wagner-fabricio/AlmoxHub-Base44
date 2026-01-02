@@ -143,7 +143,7 @@ export default function ProjetoMobileDetail({ projeto, onClose, pessoas, onRefre
                 <h3 className="font-semibold text-slate-900">Outros Envolvidos ({outrosEnvolvidos.length})</h3>
               </div>
               <div className="space-y-3">
-                {(outrosEnvolvidos || []).map((pessoa) => (
+                {((outrosEnvolvidos || []).filter(p => p)).map((pessoa) => (
                   <div key={pessoa.id} className="flex items-center gap-3">
                     <Avatar className="w-10 h-10">
                       {pessoa.foto_perfil && <AvatarImage src={pessoa.foto_perfil} />}
@@ -176,7 +176,7 @@ export default function ProjetoMobileDetail({ projeto, onClose, pessoas, onRefre
               </div>
             ) : (
               <div className="space-y-3">
-                {(ordensServico || []).map((os) => {
+                {((ordensServico || []).filter(os => os)).map((os) => {
                   const categoria = (categorias || []).find(c => c.id === os.categoria_id);
                   const regional = (regionais || []).find(r => r.id === os.regional_id);
                   const liderOS = (pessoas || []).find(p => p.id === os.lider_id);

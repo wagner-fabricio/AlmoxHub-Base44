@@ -485,8 +485,8 @@ export default function OSMobileDetail({
                   <span className="text-xs font-medium">Executores</span>
                 </div>
                 <div className="space-y-2">
-                  {(os.executores_ids || []).map(execId => {
-                    const executor = pessoas.find(p => p.id === execId);
+                  {((os.executores_ids || []).filter(id => id)).map(execId => {
+                    const executor = (pessoas || []).find(p => p && p.id === execId);
                     return executor ? (
                       <div key={execId} className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
                         <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 font-bold text-sm">
@@ -531,7 +531,7 @@ export default function OSMobileDetail({
                 <p>Nenhum material cadastrado</p>
               </div>
             ) : (
-              (os.itens_documento || []).map((item, index) => (
+              ((os.itens_documento || []).filter(item => item)).map((item, index) => (
                 <label
                   key={index}
                   className={`block bg-white rounded-2xl p-4 shadow-sm transition-all ${
@@ -625,7 +625,7 @@ export default function OSMobileDetail({
                   <p className="text-sm mt-1">Seja o primeiro a comentar</p>
                 </div>
               ) : (
-                groupMessagesByDate(comentarios).map((item, idx) => {
+                groupMessagesByDate(comentarios || []).map((item, idx) => {
                   if (item.type === 'separator') {
                     return (
                       <div key={`sep-${idx}`} className="flex items-center gap-3 my-4">
@@ -820,7 +820,7 @@ export default function OSMobileDetail({
                   <h4 className="text-sm font-medium text-slate-700">Imagens ({os.imagens.length})</h4>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  {os.imagens.map((url, i) => (
+                  {(os.imagens || []).map((url, i) => (
                     <div
                       key={i}
                       onClick={(e) => {
@@ -866,7 +866,7 @@ export default function OSMobileDetail({
                   <h4 className="text-sm font-medium text-slate-700">Documentos ({os.anexos.length})</h4>
                 </div>
                 <div className="space-y-2">
-                  {os.anexos.map((url, i) => {
+                  {(os.anexos || []).map((url, i) => {
                     const fileName = url.split('/').pop()?.split('?')[0] || `Documento ${i + 1}`;
                     const fileExtension = fileName.split('.').pop()?.toUpperCase() || 'ARQUIVO';
                     const isSelected = selectedAnexos.includes(url);

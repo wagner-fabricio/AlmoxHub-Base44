@@ -234,7 +234,7 @@ export default function ChatMobileSimple({
             <p className="text-sm mt-1">Comece a conversa</p>
           </div>
         ) : (
-          groupMessagesByDate(mensagens || []).map((item, idx) => {
+          (groupMessagesByDate(mensagens || []) || []).map((item, idx) => {
             if (item.type === 'separator') {
               return (
                 <div key={`sep-${idx}`} className="flex items-center gap-3 my-4">
