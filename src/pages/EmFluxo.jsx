@@ -187,10 +187,10 @@ export default function EmFluxo() {
       return conversa.nome_grupo;
     }
     
-    const participantesConversa = (participantes || []).filter(p => p.conversa_id === conversa.id);
-    const outroPessoa = participantesConversa.find(p => p.pessoa_id !== currentPessoa?.id);
+    const participantesConversa = (participantes || []).filter(p => p && p.conversa_id === conversa.id);
+    const outroPessoa = (participantesConversa || []).find(p => p && p.pessoa_id !== currentPessoa?.id);
     if (outroPessoa) {
-      const pessoa = (pessoas || []).find(p => p.id === outroPessoa.pessoa_id);
+      const pessoa = (pessoas || []).find(p => p && p.id === outroPessoa.pessoa_id);
       return pessoa?.nome || 'Conversa';
     }
     return 'Conversa';
@@ -205,10 +205,10 @@ export default function EmFluxo() {
       };
     }
     
-    const participantesConversa = (participantes || []).filter(p => p.conversa_id === conversa.id);
-    const outroPessoa = participantesConversa.find(p => p.pessoa_id !== currentPessoa?.id);
+    const participantesConversa = (participantes || []).filter(p => p && p.conversa_id === conversa.id);
+    const outroPessoa = (participantesConversa || []).find(p => p && p.pessoa_id !== currentPessoa?.id);
     if (outroPessoa) {
-      const pessoa = (pessoas || []).find(p => p.id === outroPessoa.pessoa_id);
+      const pessoa = (pessoas || []).find(p => p && p.id === outroPessoa.pessoa_id);
       return {
         initials: pessoa?.nome?.charAt(0) || 'U',
         url: pessoa?.foto_perfil,
