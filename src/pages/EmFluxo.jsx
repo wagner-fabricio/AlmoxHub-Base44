@@ -98,7 +98,7 @@ export default function EmFluxo() {
 
       // Filtrar apenas OS onde o usuário é líder ou executor
       const minhasOrdens = (ordensData || []).filter(os => 
-        os.lider_id === pessoa?.id || os.executores_ids?.includes(pessoa?.id)
+        os.lider_id === pessoa?.id || (os.executores_ids || []).includes(pessoa?.id)
       );
       setOrdens(minhasOrdens);
       setProjetos(projetosData || []);
@@ -106,7 +106,7 @@ export default function EmFluxo() {
       // Filtrar conversas onde o usuário participa
       const minhasConversas = (conversasData || []).filter(conv => {
         const participaConversa = (participantesData || []).some(p => 
-          p.conversa_id === conv.id && p.pessoa_id === pessoa?.id
+          p && p.conversa_id === conv.id && p.pessoa_id === pessoa?.id
         );
         return participaConversa;
       });
@@ -240,9 +240,9 @@ export default function EmFluxo() {
     try {
       // Verificar se já existe conversa privada
       if (tipo === 'privada') {
-        for (const conv of conversas) {
+        for (const conv of (conversas || [])) {
           const participantesConv = (participantes || [])
-            .filter(p => p.conversa_id === conv.id)
+            .filter(p => p && p.conversa_id === conv.id)
             .map(p => p.pessoa_id);
           if (participantesConv.includes(participantesIds[0]) && participantesConv.includes(currentPessoa?.id)) {
             setSelectedConversa(conv);
