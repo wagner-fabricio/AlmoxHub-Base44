@@ -17,6 +17,7 @@ export default function Almoxarifados() {
   const [regionais, setRegionais] = useState([]);
   const [search, setSearch] = useState('');
   const [filterRegional, setFilterRegional] = useState('all');
+  const [filterRegiao, setFilterRegiao] = useState('all');
   const [showModal, setShowModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -129,6 +130,7 @@ export default function Almoxarifados() {
 
   const filteredItems = almoxarifados.filter(a => {
     if (filterRegional !== 'all' && a.regional_id !== filterRegional) return false;
+    if (filterRegiao !== 'all' && a.regiao !== filterRegiao) return false;
     if (search && !a.nome?.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
@@ -178,6 +180,19 @@ export default function Almoxarifados() {
               ))}
             </SelectContent>
           </Select>
+          <Select value={filterRegiao} onValueChange={setFilterRegiao}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Região" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas Regiões</SelectItem>
+              <SelectItem value="Norte">Norte</SelectItem>
+              <SelectItem value="Nordeste">Nordeste</SelectItem>
+              <SelectItem value="Centro Oeste">Centro Oeste</SelectItem>
+              <SelectItem value="Sudeste">Sudeste</SelectItem>
+              <SelectItem value="Sul">Sul</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </Card>
 
@@ -188,8 +203,9 @@ export default function Almoxarifados() {
             <TableRow className="bg-slate-50 dark:bg-slate-800">
               <TableHead className="font-semibold">Nome</TableHead>
               <TableHead className="font-semibold">Regional</TableHead>
+              <TableHead className="font-semibold">Região</TableHead>
+              <TableHead className="font-semibold">Instalação</TableHead>
               <TableHead className="font-semibold">Endereço</TableHead>
-              <TableHead className="font-semibold">Coordenadas</TableHead>
               <TableHead className="font-semibold">Status</TableHead>
               <TableHead className="font-semibold text-right">Ações</TableHead>
             </TableRow>
@@ -197,7 +213,7 @@ export default function Almoxarifados() {
           <TableBody>
             {filteredItems.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-12 text-slate-500">
+                <TableCell colSpan={7} className="text-center py-12 text-slate-500">
                   <Warehouse className="w-12 h-12 mx-auto mb-3 text-slate-300" />
                   <p>Nenhum almoxarifado cadastrado</p>
                 </TableCell>
@@ -218,15 +234,14 @@ export default function Almoxarifados() {
                     <TableCell>
                       <Badge variant="outline">{regional?.sigla || '-'}</Badge>
                     </TableCell>
-                    <TableCell className="text-slate-600 dark:text-slate-400 max-w-xs truncate">
-                      {item.endereco || '-'}
+                    <TableCell className="text-slate-600 dark:text-slate-400">
+                      {item.regiao || '-'}
                     </TableCell>
                     <TableCell className="text-slate-600 dark:text-slate-400">
-                      {item.latitude && item.longitude ? (
-                        <span className="font-mono text-xs">
-                          {item.latitude.toFixed(4)}, {item.longitude.toFixed(4)}
-                        </span>
-                      ) : '-'}
+                      {item.instalacao || '-'}
+                    </TableCell>
+                    <TableCell className="text-slate-600 dark:text-slate-400 max-w-xs truncate">
+                      {item.endereco || '-'}
                     </TableCell>
                     <TableCell>
                       <Badge className={item.ativo !== false ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}>
