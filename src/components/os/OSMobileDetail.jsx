@@ -410,22 +410,34 @@ export default function OSMobileDetail({
             </div>
 
             {/* Info Cards */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white rounded-2xl p-4 shadow-sm">
-                <div className="flex items-center gap-2 text-blue-600 mb-2">
-                  <MapPin className="w-5 h-5" />
-                  <span className="text-xs font-medium">Regional</span>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white rounded-2xl p-4 shadow-sm">
+                  <div className="flex items-center gap-2 text-blue-600 mb-2">
+                    <MapPin className="w-5 h-5" />
+                    <span className="text-xs font-medium">Regional</span>
+                  </div>
+                  <p className="text-sm font-bold text-slate-900">{regional?.sigla}</p>
                 </div>
-                <p className="text-sm font-bold text-slate-900">{regional?.sigla}</p>
+
+                <div className="bg-white rounded-2xl p-4 shadow-sm">
+                  <div className="flex items-center gap-2 text-amber-600 mb-2">
+                    <Building2 className="w-5 h-5" />
+                    <span className="text-xs font-medium">Almoxarifado</span>
+                  </div>
+                  <p className="text-sm font-bold text-slate-900 truncate">{almoxarifado?.nome || '-'}</p>
+                </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-4 shadow-sm">
-                <div className="flex items-center gap-2 text-amber-600 mb-2">
-                  <Building2 className="w-5 h-5" />
-                  <span className="text-xs font-medium">Almoxarifado</span>
+              {instalacaoDestino && (
+                <div className="bg-white rounded-2xl p-4 shadow-sm">
+                  <div className="flex items-center gap-2 text-rose-600 mb-2">
+                    <Building2 className="w-5 h-5" />
+                    <span className="text-xs font-medium">Destino</span>
+                  </div>
+                  <p className="text-sm font-bold text-slate-900">{instalacaoDestino.nome}</p>
                 </div>
-                <p className="text-sm font-bold text-slate-900 truncate">{almoxarifado?.nome || '-'}</p>
-              </div>
+              )}
 
               <div className="bg-white rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center gap-2 text-green-600 mb-2">
@@ -444,38 +456,31 @@ export default function OSMobileDetail({
                   {os.prazo ? format(new Date(os.prazo), 'dd/MM/yy') : '-'}
                 </p>
               </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {os.num_reserva && (
+                  <div className="bg-white rounded-2xl p-4 shadow-sm">
+                    <div className="flex items-center gap-2 text-cyan-600 mb-2">
+                      <Package className="w-5 h-5" />
+                      <span className="text-xs font-medium">Reserva</span>
+                    </div>
+                    <p className="text-sm font-bold text-slate-900">{os.num_reserva}</p>
+                  </div>
+                )}
+
+                {os.usuario_reserva && (
+                  <div className="bg-white rounded-2xl p-4 shadow-sm">
+                    <div className="flex items-center gap-2 text-indigo-600 mb-2">
+                      <User className="w-5 h-5" />
+                      <span className="text-xs font-medium">Usuário</span>
+                    </div>
+                    <p className="text-sm font-bold text-slate-900">{os.usuario_reserva}</p>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Campos Expedição */}
-            {os.num_reserva && (
-              <div className="bg-white rounded-2xl p-4 shadow-sm">
-                <div className="flex items-center gap-2 text-cyan-600 mb-2">
-                  <Package className="w-5 h-5" />
-                  <span className="text-xs font-medium">Reserva</span>
-                </div>
-                <p className="text-sm font-bold text-slate-900">{os.num_reserva}</p>
-              </div>
-            )}
 
-            {instalacaoDestino && (
-              <div className="bg-white rounded-2xl p-4 shadow-sm">
-                <div className="flex items-center gap-2 text-rose-600 mb-2">
-                  <Building2 className="w-5 h-5" />
-                  <span className="text-xs font-medium">Destino</span>
-                </div>
-                <p className="text-sm font-bold text-slate-900">{instalacaoDestino.nome}</p>
-              </div>
-            )}
-
-            {os.usuario_reserva && (
-              <div className="bg-white rounded-2xl p-4 shadow-sm">
-                <div className="flex items-center gap-2 text-indigo-600 mb-2">
-                  <User className="w-5 h-5" />
-                  <span className="text-xs font-medium">Usuário</span>
-                </div>
-                <p className="text-sm font-bold text-slate-900">{os.usuario_reserva}</p>
-              </div>
-            )}
 
             {/* Executores */}
             {os.executores_ids?.length > 0 && (
