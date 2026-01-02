@@ -352,7 +352,14 @@ export default function Almoxarifados() {
                 <Label>Instalação</Label>
                 <Select
                   value={formData.instalacao_id}
-                  onValueChange={(v) => setFormData({ ...formData, instalacao_id: v })}
+                  onValueChange={(v) => {
+                    const instalacao = instalacoes.find(i => i.id === v);
+                    setFormData({ 
+                      ...formData, 
+                      instalacao_id: v,
+                      local_negocios: instalacao?.local_negocios || ''
+                    });
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione..." />
