@@ -7,20 +7,20 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 const prioridadeConfig = {
-  baixa: { cor: 'bg-slate-100 text-slate-700 border-slate-200', label: 'Baixa' },
-  media: { cor: 'bg-blue-100 text-blue-700 border-blue-200', label: 'Média' },
-  alta: { cor: 'bg-orange-100 text-orange-700 border-orange-200', label: 'Alta' },
-  urgente: { cor: 'bg-red-100 text-red-700 border-red-200', label: 'Urgente' }
+  baixa: { cor: 'bg-slate-50 text-slate-600', label: 'Baixa' },
+  media: { cor: 'bg-blue-50 text-blue-600', label: 'Média' },
+  alta: { cor: 'bg-orange-50 text-orange-600', label: 'Alta' },
+  urgente: { cor: 'bg-red-50 text-red-600', label: 'Urgente' }
 };
 
 const statusConfig = {
-  elaboracao: { label: 'Em Elaboração', cor: 'bg-amber-100 text-amber-700' },
-  execucao: { label: 'Em Execução', cor: 'bg-blue-100 text-blue-700' },
-  concluido: { label: 'Concluído', cor: 'bg-green-100 text-green-700' },
-  cancelado: { label: 'Cancelado', cor: 'bg-red-100 text-red-700' }
+  elaboracao: { label: 'Em Elaboração', cor: 'bg-amber-50 text-amber-600' },
+  execucao: { label: 'Em Execução', cor: 'bg-blue-50 text-blue-600' },
+  concluido: { label: 'Concluído', cor: 'bg-green-50 text-green-600' },
+  cancelado: { label: 'Cancelado', cor: 'bg-red-50 text-red-600' }
 };
 
-export default function OSCard({ osId, onClick, isMinha }) {
+export default function OSCard({ osId, isMinha }) {
   const [os, setOs] = useState(null);
   const [loading, setLoading] = useState(true);
   const [categoria, setCategoria] = useState(null);
@@ -32,12 +32,10 @@ export default function OSCard({ osId, onClick, isMinha }) {
 
   const loadOS = async () => {
     try {
-      // Tentar buscar por ID primeiro, depois por código
       const osById = await base44.entities.OrdemServico.filter({ id: osId });
       let osData = Array.isArray(osById) && osById.length > 0 ? osById[0] : null;
       
       if (!osData && osId) {
-        // Se não encontrou por ID, tentar por código
         const osByCodigo = await base44.entities.OrdemServico.filter({ codigo: osId });
         osData = Array.isArray(osByCodigo) && osByCodigo.length > 0 ? osByCodigo[0] : null;
       }
@@ -49,17 +47,14 @@ export default function OSCard({ osId, onClick, isMinha }) {
       
       setOs(osData);
 
-      // Carregar dados relacionados
       if (osData.categoria_id) {
         const catResult = await base44.entities.Categoria.filter({ id: osData.categoria_id });
-        const cat = Array.isArray(catResult) && catResult.length > 0 ? catResult[0] : null;
-        setCategoria(cat);
+        setCategoria(Array.isArray(catResult) && catResult.length > 0 ? catResult[0] : null);
       }
 
       if (osData.regional_id) {
         const regResult = await base44.entities.Regional.filter({ id: osData.regional_id });
-        const reg = Array.isArray(regResult) && regResult.length > 0 ? regResult[0] : null;
-        setRegional(reg);
+        setRegional(Array.isArray(regResult) && regResult.length > 0 ? regResult[0] : null);
       }
     } catch (error) {
       console.error('Erro ao carregar OS:', error);
@@ -70,14 +65,10 @@ export default function OSCard({ osId, onClick, isMinha }) {
 
   if (loading) {
     return (
-      <Card className={`p-3 cursor-pointer hover:shadow-md transition-shadow ${
-        isMinha ? 'bg-blue-700' : 'bg-white dark:bg-slate-800'
-      }`}>
+      <Card className={`p-3 ${isMinha ? 'bg-blue-50/50' : 'bg-slate-50/50'}`}>
         <div className="flex items-center gap-2">
-          <ClipboardList className={`w-5 h-5 ${isMinha ? 'text-white' : 'text-slate-400'}`} />
-          <span className={`text-sm ${isMinha ? 'text-white' : 'text-slate-600'}`}>
-            Carregando ordem de serviço...
-          </span>
+          <ClipboardList className="w-4 h-4 text-slate-400" />
+          <span className="text-xs text-slate-500">Carregando...</span>
         </div>
       </Card>
     );
@@ -85,90 +76,60 @@ export default function OSCard({ osId, onClick, isMinha }) {
 
   if (!os) {
     return (
-      <Card className={`p-3 ${isMinha ? 'bg-blue-700' : 'bg-white dark:bg-slate-800'}`}>
+      <Card className={`p-3 ${isMinha ? 'bg-blue-50/50' : 'bg-slate-50/50'}`}>
         <div className="flex items-center gap-2">
-          <ClipboardList className={`w-5 h-5 ${isMinha ? 'text-white/60' : 'text-slate-400'}`} />
-          <span className={`text-sm ${isMinha ? 'text-white/80' : 'text-slate-500'}`}>
-            Ordem de serviço não encontrada
-          </span>
+          <ClipboardList className="w-4 h-4 text-slate-400" />
+          <span className="text-xs text-slate-500">OS não encontrada</span>
         </div>
       </Card>
     );
   }
 
   return (
-    <Card 
-      className={`p-3 cursor-pointer hover:shadow-md transition-all border-2 ${
-        isMinha 
-          ? 'bg-blue-700 border-blue-500 hover:border-blue-400' 
-          : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-blue-400'
-      }`}
-      onClick={() => onClick && onClick(os)}
-    >
+    <Card className={`p-3 ${isMinha ? 'bg-blue-50 border-blue-100' : 'bg-slate-50 border-slate-100'}`}>
       <div className="space-y-2">
-        {/* Header */}
         <div className="flex items-start justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <ClipboardList className={`w-5 h-5 ${isMinha ? 'text-white' : 'text-blue-600'}`} />
-            <div>
-              <div className={`font-bold ${isMinha ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <ClipboardList className={`w-4 h-4 ${isMinha ? 'text-blue-600' : 'text-slate-600'} shrink-0`} />
+            <div className="min-w-0 flex-1">
+              <div className={`font-semibold text-sm ${isMinha ? 'text-blue-900' : 'text-slate-900 dark:text-white'} truncate`}>
                 {os.codigo || 'Sem código'}
               </div>
               {categoria && (
-                <div className={`text-xs ${isMinha ? 'text-white/80' : 'text-slate-500'}`}>
+                <div className="text-xs text-slate-500 truncate">
                   {categoria.nome}
                 </div>
               )}
             </div>
           </div>
           
-          <Badge 
-            className={`${
-              isMinha 
-                ? 'bg-white/20 text-white border-white/30' 
-                : statusConfig[os.status]?.cor
-            } text-xs`}
-          >
+          <Badge className={`${statusConfig[os.status]?.cor} text-xs shrink-0`}>
             {statusConfig[os.status]?.label || os.status}
           </Badge>
         </div>
 
-        {/* Descrição */}
         {os.descricao_resumida && (
-          <p className={`text-sm line-clamp-2 ${
-            isMinha ? 'text-white/90' : 'text-slate-600 dark:text-slate-300'
-          }`}>
+          <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2">
             {os.descricao_resumida}
           </p>
         )}
 
-        {/* Info adicional */}
         <div className="flex flex-wrap gap-2 text-xs">
           {regional && (
-            <div className={`flex items-center gap-1 ${
-              isMinha ? 'text-white/80' : 'text-slate-500'
-            }`}>
+            <div className="flex items-center gap-1 text-slate-500">
               <MapPin className="w-3 h-3" />
               <span>{regional.sigla}</span>
             </div>
           )}
           
           {os.prazo && (
-            <div className={`flex items-center gap-1 ${
-              isMinha ? 'text-white/80' : 'text-slate-500'
-            }`}>
+            <div className="flex items-center gap-1 text-slate-500">
               <Calendar className="w-3 h-3" />
-              <span>{format(new Date(os.prazo), 'dd/MM/yyyy', { locale: ptBR })}</span>
+              <span>{format(new Date(os.prazo), 'dd/MM/yy', { locale: ptBR })}</span>
             </div>
           )}
 
-          <Badge 
-            className={`${
-              isMinha 
-                ? 'bg-white/20 text-white border-white/30' 
-                : prioridadeConfig[os.prioridade]?.cor
-            }`}
-          >
+          <Badge className={prioridadeConfig[os.prioridade]?.cor}>
             {prioridadeConfig[os.prioridade]?.label || os.prioridade}
           </Badge>
         </div>
