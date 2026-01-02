@@ -15,6 +15,9 @@ export default function Almoxarifados() {
   const [loading, setLoading] = useState(true);
   const [almoxarifados, setAlmoxarifados] = useState([]);
   const [regionais, setRegionais] = useState([]);
+  const [instalacoes, setInstalacoes] = useState([]);
+  const [selectedInstalacao, setSelectedInstalacao] = useState(null);
+  const [showInstalacaoModal, setShowInstalacaoModal] = useState(false);
   const [search, setSearch] = useState('');
   const [filterRegional, setFilterRegional] = useState('all');
   const [filterRegiao, setFilterRegiao] = useState('all');
@@ -41,12 +44,14 @@ export default function Almoxarifados() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [almoxData, regionaisData] = await Promise.all([
+      const [almoxData, regionaisData, instalacoesData] = await Promise.all([
         base44.entities.Almoxarifado.list(),
-        base44.entities.Regional.list()
+        base44.entities.Regional.list(),
+        base44.entities.Instalacao.list()
       ]);
       setAlmoxarifados(almoxData);
       setRegionais(regionaisData);
+      setInstalacoes(instalacoesData);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -63,7 +68,7 @@ export default function Almoxarifados() {
       latitude: '',
       longitude: '',
       regiao: '',
-      instalacao: '',
+      instalacao_id: '',
       local_negocios: '',
       ativo: true
     });
@@ -79,7 +84,7 @@ export default function Almoxarifados() {
       latitude: item.latitude || '',
       longitude: item.longitude || '',
       regiao: item.regiao || '',
-      instalacao: item.instalacao || '',
+      instalacao_id: item.instalacao_id || '',
       local_negocios: item.local_negocios || '',
       ativo: item.ativo !== false
     });
@@ -127,6 +132,15 @@ export default function Almoxarifados() {
   };
 
   const getRegional = (id) => regionais.find(r => r.id === id);
+  const getInstalacao = (id) => instalacoes.find(i => i.id === id);
+
+  const handleViewInstalacao = (instalacaoId) => {
+    const instalacao = getInstalacao(instalacaoId);
+    if (instalacao) {
+      setSelectedInstalacao(instalacao);
+      setShowInstalacaoModal(true);
+    }
+  };
 
   const filteredItems = almoxarifados.filter(a => {
     if (filterRegional !== 'all' && a.regional_id !== filterRegional) return false;
@@ -221,6 +235,7 @@ export default function Almoxarifados() {
             ) : (
               filteredItems.map((item) => {
                 const regional = getRegional(item.regional_id);
+                const instalacao = getInstalacao(item.instalacao_id);
                 return (
                   <TableRow key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800">
                     <TableCell>
@@ -237,8 +252,17 @@ export default function Almoxarifados() {
                     <TableCell className="text-slate-600 dark:text-slate-400">
                       {item.regiao || '-'}
                     </TableCell>
-                    <TableCell className="text-slate-600 dark:text-slate-400">
-                      {item.instalacao || '-'}
+                    <TableCell>
+                      {instalacao ? (
+                        <button
+                          onClick={() => handleViewInstalacao(item.instalacao_id)}
+                          className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                        >
+                          {instalacao.nome}
+                        </button>
+                      ) : (
+                        <span className="text-slate-400">-</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-slate-600 dark:text-slate-400 max-w-xs truncate">
                       {item.endereco || '-'}
@@ -326,11 +350,19 @@ export default function Almoxarifados() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Instalação</Label>
-                <Input
-                  value={formData.instalacao}
-                  onChange={(e) => setFormData({ ...formData, instalacao: e.target.value })}
-                  placeholder="Instalação"
-                />
+                <Select
+                  value={formData.instalacao_id}
+                  onValueChange={(v) => setFormData({ ...formData, instalacao_id: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {instalacoes.map(i => (
+                      <SelectItem key={i.id} value={i.id}>{i.nome}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label>Local de Negócios</Label>
@@ -371,6 +403,65 @@ export default function Almoxarifados() {
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Salvar
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Instalação Details Modal */}
+      <Dialog open={showInstalacaoModal} onOpenChange={setShowInstalacaoModal}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Detalhes da Instalação</DialogTitle>
+          </DialogHeader>
+          {selectedInstalacao && (
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-slate-500 text-xs">Nome</Label>
+                  <p className="font-medium text-slate-900 dark:text-white">{selectedInstalacao.nome}</p>
+                </div>
+                <div>
+                  <Label className="text-slate-500 text-xs">Classificação</Label>
+                  <p className="font-medium text-slate-900 dark:text-white">{selectedInstalacao.classificacao || '-'}</p>
+                </div>
+              </div>
+              <div>
+                <Label className="text-slate-500 text-xs">Endereço</Label>
+                <p className="font-medium text-slate-900 dark:text-white">
+                  {selectedInstalacao.logradouro && selectedInstalacao.numero 
+                    ? `${selectedInstalacao.logradouro}, ${selectedInstalacao.numero}`
+                    : selectedInstalacao.logradouro || '-'}
+                </p>
+                {selectedInstalacao.complemento && (
+                  <p className="text-sm text-slate-600">{selectedInstalacao.complemento}</p>
+                )}
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label className="text-slate-500 text-xs">Cidade</Label>
+                  <p className="font-medium text-slate-900 dark:text-white">{selectedInstalacao.cidade || '-'}</p>
+                </div>
+                <div>
+                  <Label className="text-slate-500 text-xs">Estado</Label>
+                  <p className="font-medium text-slate-900 dark:text-white">{selectedInstalacao.estado || '-'}</p>
+                </div>
+                <div>
+                  <Label className="text-slate-500 text-xs">CEP</Label>
+                  <p className="font-medium text-slate-900 dark:text-white">{selectedInstalacao.cep || '-'}</p>
+                </div>
+              </div>
+              {(selectedInstalacao.latitude && selectedInstalacao.longitude) && (
+                <div>
+                  <Label className="text-slate-500 text-xs">Coordenadas</Label>
+                  <p className="font-mono text-sm text-slate-700 dark:text-slate-300">
+                    {selectedInstalacao.latitude.toFixed(6)}, {selectedInstalacao.longitude.toFixed(6)}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowInstalacaoModal(false)}>Fechar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
