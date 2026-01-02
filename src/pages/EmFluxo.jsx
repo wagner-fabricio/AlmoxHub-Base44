@@ -13,7 +13,9 @@ import {
   Loader2,
   AlertTriangle,
   User,
-  MapPin
+  MapPin,
+  Plus,
+  Filter
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -21,6 +23,7 @@ import OSMobileDetail from '@/components/os/OSMobileDetail';
 import ChatMobileSimple from '@/components/mensagens/ChatMobileSimple';
 import NovaConversaModal from '@/components/mensagens/NovaConversaModal';
 import ProjetoMobileDetail from '@/components/projetos/ProjetoMobileDetail';
+import OSFormModal from '@/components/os/OSFormModal';
 
 const statusConfig = {
   elaboracao: { icon: Clock, color: 'bg-slate-500', label: 'Em Elaboração' },
@@ -54,6 +57,8 @@ export default function EmFluxo() {
   const [selectedConversa, setSelectedConversa] = useState(null);
   const [showNovaConversa, setShowNovaConversa] = useState(false);
   const [selectedProjeto, setSelectedProjeto] = useState(null);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [showOSForm, setShowOSForm] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -390,13 +395,54 @@ export default function EmFluxo() {
       <div className="p-4 pb-20">
         {activeModule === 'ordens' && (
           <div className="space-y-3">
-            {ordens.length === 0 ? (
+            {/* Controles de Filtro e Criar */}
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <Button
+                  onClick={() => {
+                    const options = [
+                      { value: 'all', label: 'Todas' },
+                      { value: 'elaboracao', label: 'Em Elaboração' },
+                      { value: 'execucao', label: 'Em Execução' },
+                      { value: 'concluido', label: 'Concluído' },
+                      { value: 'cancelado', label: 'Cancelado' }
+                    ];
+                    const currentIndex = options.findIndex(o => o.value === statusFilter);
+                    const nextIndex = (currentIndex + 1) % options.length;
+                    setStatusFilter(options[nextIndex].value);
+                  }}
+                  variant="outline"
+                  className="w-full justify-between"
+                >
+                  <div className="flex items-center gap-2">
+                    <Filter className="w-4 h-4" />
+                    <span>
+                      {statusFilter === 'all' ? 'Todas' : 
+                       statusFilter === 'elaboracao' ? 'Em Elaboração' :
+                       statusFilter === 'execucao' ? 'Em Execução' :
+                       statusFilter === 'concluido' ? 'Concluído' : 'Cancelado'}
+                    </span>
+                  </div>
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+              <Button
+                onClick={() => setShowOSForm(true)}
+                size="icon"
+                className="shrink-0"
+                style={{ backgroundColor: '#0000FF' }}
+              >
+                <Plus className="w-5 h-5" />
+              </Button>
+            </div>
+
+            {ordens.filter(os => statusFilter === 'all' || os.status === statusFilter).length === 0 ? (
               <div className="text-center py-12 text-slate-500">
                 <ClipboardList className="w-16 h-16 mx-auto mb-4 opacity-50" />
                 <p>Nenhuma ordem de serviço</p>
               </div>
             ) : (
-              ordens.map((os) => {
+              ordens.filter(os => statusFilter === 'all' || os.status === statusFilter).map((os) => {
                 const categoria = categorias.find(c => c.id === os.categoria_id);
                 const regional = regionais.find(r => r.id === os.regional_id);
                 const StatusIcon = statusConfig[os.status]?.icon || Clock;
@@ -586,6 +632,24 @@ export default function EmFluxo() {
         currentPessoaId={currentPessoa?.id}
         onCriar={handleCriarConversa}
       />
+
+      {/* Modal Criar OS */}
+      {showOSForm && (
+        <OSFormModal
+          open={showOSForm}
+          onClose={() => setShowOSForm(false)}
+          onSubmit={async (osData) => {
+            await loadData();
+            setShowOSForm(false);
+          }}
+          pessoas={pessoas}
+          categorias={categorias}
+          subcategorias={subcategorias}
+          regionais={regionais}
+          almoxarifados={almoxarifados}
+          instalacoes={instalacoes}
+        />
+      )}
     </div>
   );
 }
