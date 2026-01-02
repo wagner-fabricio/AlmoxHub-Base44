@@ -404,7 +404,6 @@ export default function ChatArea({
                               <div key={idx} className="mt-2">
                                 <OSCard 
                                   osId={entity.os_id || entity.os_codigo}
-                                  onClick={(os) => setOsDetailModal(os)}
                                   isMinha={isMinha}
                                 />
                               </div>
