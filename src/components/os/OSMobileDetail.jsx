@@ -96,7 +96,7 @@ export default function OSMobileDetail({
     if (activeTab === 'comentarios') {
       loadComentarios();
       loadUser();
-      const interval = setInterval(loadComentarios, 5000);
+      const interval = setInterval(() => loadComentarios(), 5000);
       return () => clearInterval(interval);
     }
   }, [activeTab]);
@@ -116,7 +116,8 @@ export default function OSMobileDetail({
     try {
       const data = await base44.entities.Comentario.filter({ ordem_servico_id: os.id });
       const comentariosArray = Array.isArray(data) ? data : [];
-      setComentarios(comentariosArray.sort((a, b) => new Date(a.created_date) - new Date(b.created_date)));
+            const sortedComentarios = comentariosArray.filter(c => c).sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
+            setComentarios(sortedComentarios);
       setTimeout(() => scrollToBottom(), 100);
     } catch (e) {
       console.error('Error loading comments:', e);
@@ -160,7 +161,7 @@ export default function OSMobileDetail({
     const groups = [];
     let currentDate = null;
     
-    messages.forEach((msg) => {
+    (messages || []).forEach((msg) => {
       const msgDate = format(new Date(msg.created_date), 'yyyy-MM-dd');
       if (msgDate !== currentDate) {
         groups.push({ type: 'separator', date: msg.created_date });
@@ -524,13 +525,13 @@ export default function OSMobileDetail({
               <p className="text-white/80 text-sm">Marque os itens conforme separa</p>
             </div>
 
-            {os.itens_documento?.length === 0 ? (
+            {(!os.itens_documento || os.itens_documento?.length === 0) ? (
               <div className="text-center py-12 text-slate-500">
                 <Package className="w-16 h-16 mx-auto mb-4 opacity-50" />
                 <p>Nenhum material cadastrado</p>
               </div>
             ) : (
-              os.itens_documento?.map((item, index) => (
+              (os.itens_documento || []).map((item, index) => (
                 <label
                   key={index}
                   className={`block bg-white rounded-2xl p-4 shadow-sm transition-all ${
