@@ -436,13 +436,13 @@ export default function EmFluxo() {
               </Button>
             </div>
 
-            {ordens.filter(os => statusFilter === 'all' || os.status === statusFilter).length === 0 ? (
+            {(ordens || []).filter(os => statusFilter === 'all' || os.status === statusFilter).length === 0 ? (
               <div className="text-center py-12 text-slate-500">
                 <ClipboardList className="w-16 h-16 mx-auto mb-4 opacity-50" />
                 <p>Nenhuma ordem de serviço</p>
               </div>
             ) : (
-              ordens.filter(os => statusFilter === 'all' || os.status === statusFilter).map((os) => {
+              (ordens || []).filter(os => statusFilter === 'all' || os.status === statusFilter).map((os) => {
                 const categoria = categorias.find(c => c.id === os.categoria_id);
                 const regional = regionais.find(r => r.id === os.regional_id);
                 const StatusIcon = statusConfig[os.status]?.icon || Clock;
