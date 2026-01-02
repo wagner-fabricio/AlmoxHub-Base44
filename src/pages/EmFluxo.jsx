@@ -243,7 +243,7 @@ export default function EmFluxo() {
         for (const conv of (conversas || [])) {
           const participantesConv = (participantes || [])
             .filter(p => p && p.conversa_id === conv.id)
-            .map(p => p.pessoa_id);
+            .map(p => p && p.pessoa_id);
           if (participantesConv.includes(participantesIds[0]) && participantesConv.includes(currentPessoa?.id)) {
             setSelectedConversa(conv);
             setShowNovaConversa(false);
@@ -436,13 +436,13 @@ export default function EmFluxo() {
               </Button>
             </div>
 
-            {(ordens || []).filter(os => statusFilter === 'all' || os.status === statusFilter).length === 0 ? (
+            {(ordens || []).filter(os => os && (statusFilter === 'all' || os.status === statusFilter)).length === 0 ? (
               <div className="text-center py-12 text-slate-500">
                 <ClipboardList className="w-16 h-16 mx-auto mb-4 opacity-50" />
                 <p>Nenhuma ordem de serviço</p>
               </div>
             ) : (
-              (ordens || []).filter(os => statusFilter === 'all' || os.status === statusFilter).map((os) => {
+              (ordens || []).filter(os => os && (statusFilter === 'all' || os.status === statusFilter)).map((os) => {
                 const categoria = (categorias || []).find(c => c && c.id === os.categoria_id);
                 const regional = (regionais || []).find(r => r && r.id === os.regional_id);
                 const StatusIcon = statusConfig[os.status]?.icon || Clock;
@@ -512,7 +512,7 @@ export default function EmFluxo() {
                 <p>Nenhum projeto</p>
               </div>
             ) : (
-              (projetos || []).map((projeto) => {
+              (projetos || []).filter(p => p).map((projeto) => {
                 const lider = (pessoas || []).find(p => p && p.id === projeto.lider_id);
                 
                 return (
@@ -556,7 +556,7 @@ export default function EmFluxo() {
                 <p>Nenhuma conversa</p>
               </div>
             ) : (
-              (conversas || []).map((conversa) => {
+              (conversas || []).filter(c => c).map((conversa) => {
                 const avatar = getAvatarInfo(conversa);
                 const participante = (participantes || []).find(p => 
                   p && p.conversa_id === conversa.id && p.pessoa_id === currentPessoa?.id
