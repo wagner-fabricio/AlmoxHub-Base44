@@ -416,7 +416,7 @@ export default function Layout({ children, currentPageName }) {
                             <div className="flex items-start gap-2">
                               <span className="font-medium text-slate-700 dark:text-slate-300">Funções:</span>
                               <span className="flex-1">
-                                {pessoa.funcoes.map(f => {
+                                {(pessoa?.funcoes || []).map(f => {
                                   const labels = { gestor: 'Gestor', lider: 'Líder', almoxarife: 'Almoxarife' };
                                   return labels[f];
                                 }).join(', ')}

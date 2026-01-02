@@ -258,7 +258,7 @@ export default function EmFluxo() {
         criador_id: currentPessoa.id
       });
 
-      const todosParticipantes = [currentPessoa.id, ...(participantesIds || [])];
+      const todosParticipantes = [currentPessoa?.id, ...(participantesIds || [])].filter(id => id);
       await Promise.all((todosParticipantes || []).map((pessoaId, index) => 
         base44.entities.ParticipanteConversa.create({
           conversa_id: novaConversa.id,

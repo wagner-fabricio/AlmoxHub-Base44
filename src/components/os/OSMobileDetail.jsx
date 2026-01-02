@@ -84,7 +84,7 @@ export default function OSMobileDetail({
   useEffect(() => {
     // Carregar itens já marcados
     const initialChecked = {};
-    os.itens_documento?.forEach((item, index) => {
+    (os.itens_documento || []).forEach((item, index) => {
       if (item.separado) {
         initialChecked[index] = true;
       }
@@ -302,7 +302,7 @@ export default function OSMobileDetail({
   const handleSavePicking = async () => {
     setSaving(true);
     try {
-      const updatedItems = os.itens_documento.map((item, index) => ({
+      const updatedItems = (os.itens_documento || []).map((item, index) => ({
         ...item,
         separado: checkedItems[index] || false
       }));

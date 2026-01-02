@@ -104,8 +104,8 @@ export default function ChatMobileSimple({
 
       // Incrementar contador para outros participantes
       await Promise.all(
-        (participantes || [])
-          .filter(p => p.pessoa_id !== currentPessoaId)
+        ((participantes || [])
+          .filter(p => p && p.pessoa_id !== currentPessoaId) || [])
           .map(p => 
             base44.entities.ParticipanteConversa.update(p.id, {
               mensagens_nao_lidas: (p.mensagens_nao_lidas || 0) + 1
