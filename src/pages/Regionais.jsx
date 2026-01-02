@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, Edit, Trash2, MapPin, Loader2, Search } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -20,7 +21,8 @@ export default function Regionais() {
   const [formData, setFormData] = useState({
     sigla: '',
     descricao: '',
-    area_abrangencia: ''
+    area_abrangencia: '',
+    gerencia: ''
   });
   const [saving, setSaving] = useState(false);
 
@@ -42,7 +44,7 @@ export default function Regionais() {
 
   const handleNew = () => {
     setSelectedRegional(null);
-    setFormData({ sigla: '', descricao: '', area_abrangencia: '' });
+    setFormData({ sigla: '', descricao: '', area_abrangencia: '', gerencia: '' });
     setShowModal(true);
   };
 
@@ -51,7 +53,8 @@ export default function Regionais() {
     setFormData({
       sigla: regional.sigla || '',
       descricao: regional.descricao || '',
-      area_abrangencia: regional.area_abrangencia || ''
+      area_abrangencia: regional.area_abrangencia || '',
+      gerencia: regional.gerencia || ''
     });
     setShowModal(true);
   };
@@ -136,6 +139,7 @@ export default function Regionais() {
             <TableRow className="bg-slate-50 dark:bg-slate-800">
               <TableHead className="font-semibold">Sigla</TableHead>
               <TableHead className="font-semibold">Descrição</TableHead>
+              <TableHead className="font-semibold">Gerência</TableHead>
               <TableHead className="font-semibold">Área de Abrangência</TableHead>
               <TableHead className="font-semibold text-right">Ações</TableHead>
             </TableRow>
@@ -143,7 +147,7 @@ export default function Regionais() {
           <TableBody>
             {filteredRegionais.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-12 text-slate-500">
+                <TableCell colSpan={5} className="text-center py-12 text-slate-500">
                   <MapPin className="w-12 h-12 mx-auto mb-3 text-slate-300" />
                   <p>Nenhuma regional cadastrada</p>
                 </TableCell>
@@ -160,6 +164,9 @@ export default function Regionais() {
                     </div>
                   </TableCell>
                   <TableCell className="text-slate-600 dark:text-slate-400">{regional.descricao}</TableCell>
+                  <TableCell className="text-slate-600 dark:text-slate-400">
+                    {regional.gerencia || '-'}
+                  </TableCell>
                   <TableCell className="text-slate-600 dark:text-slate-400 max-w-xs truncate">
                     {regional.area_abrangencia || '-'}
                   </TableCell>
@@ -203,6 +210,21 @@ export default function Regionais() {
                 onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
                 placeholder="Ex: Regional Nordeste"
               />
+            </div>
+            <div className="space-y-2">
+              <Label>Gerência</Label>
+              <Select
+                value={formData.gerencia}
+                onValueChange={(v) => setFormData({ ...formData, gerencia: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="GLOA">GLOA</SelectItem>
+                  <SelectItem value="GLAO">GLAO</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label>Área de Abrangência</Label>
