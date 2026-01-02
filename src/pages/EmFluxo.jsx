@@ -92,32 +92,32 @@ export default function EmFluxo() {
         base44.entities.ParticipanteConversa.list(),
       ]);
 
-      setPessoas(pessoasData);
-      const pessoa = pessoasData.find(p => p.email === user.email);
+      setPessoas(pessoasData || []);
+      const pessoa = (pessoasData || []).find(p => p.email === user.email);
       setCurrentPessoa(pessoa);
 
       // Filtrar apenas OS onde o usuário é líder ou executor
-      const minhasOrdens = ordensData.filter(os => 
+      const minhasOrdens = (ordensData || []).filter(os => 
         os.lider_id === pessoa?.id || os.executores_ids?.includes(pessoa?.id)
       );
       setOrdens(minhasOrdens);
-      setProjetos(projetosData);
+      setProjetos(projetosData || []);
       
       // Filtrar conversas onde o usuário participa
-      const minhasConversas = conversasData.filter(conv => {
-        const participaConversa = participantesData.some(p => 
+      const minhasConversas = (conversasData || []).filter(conv => {
+        const participaConversa = (participantesData || []).some(p => 
           p.conversa_id === conv.id && p.pessoa_id === pessoa?.id
         );
         return participaConversa;
       });
       setConversas(minhasConversas);
-      setParticipantes(participantesData);
+      setParticipantes(participantesData || []);
       
-      setCategorias(categoriasData);
-      setSubcategorias(subcategoriasData);
-      setRegionais(regionaisData);
-      setAlmoxarifados(almoxarifadosData);
-      setInstalacoes(instalacoesData);
+      setCategorias(categoriasData || []);
+      setSubcategorias(subcategoriasData || []);
+      setRegionais(regionaisData || []);
+      setAlmoxarifados(almoxarifadosData || []);
+      setInstalacoes(instalacoesData || []);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
