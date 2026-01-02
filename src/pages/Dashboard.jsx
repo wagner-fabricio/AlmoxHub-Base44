@@ -10,7 +10,7 @@ import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+const COLORS = ['#0000FF', '#FF6B00', '#10B981', '#A0B4D2', '#0A003C', '#EC4899'];
 
 const statusLabels = {
   elaboracao: 'Em Elaboração',
@@ -110,16 +110,44 @@ export default function Dashboard() {
     ? subcategorias 
     : subcategorias.filter(s => s.categoria_id === filters.categoria);
 
-  // KPIs
+  // KPIs - Com comparação de ontem
+  const yesterday = subDays(new Date(), 1);
+  const yesterdayStart = new Date(yesterday.setHours(0, 0, 0, 0));
+  
+  const ordensOntem = ordens.filter(os => {
+    const createdDate = new Date(os.created_date);
+    return createdDate < yesterdayStart;
+  });
+  
   const totalOS = filteredOrdens.length;
+  const totalOSOntem = ordensOntem.length;
+  const diffTotalOS = totalOS - totalOSOntem;
+  const percTotalOS = totalOSOntem > 0 ? ((diffTotalOS / totalOSOntem) * 100).toFixed(1) : 0;
+  
   const osEmElaboracao = filteredOrdens.filter(os => os.status === 'elaboracao').length;
+  const osEmElaboracaoOntem = ordensOntem.filter(os => os.status === 'elaboracao').length;
+  const diffElaboracao = osEmElaboracao - osEmElaboracaoOntem;
+  const percElaboracao = osEmElaboracaoOntem > 0 ? ((diffElaboracao / osEmElaboracaoOntem) * 100).toFixed(1) : 0;
+  
   const osEmExecucao = filteredOrdens.filter(os => os.status === 'execucao').length;
+  const osEmExecucaoOntem = ordensOntem.filter(os => os.status === 'execucao').length;
+  const diffExecucao = osEmExecucao - osEmExecucaoOntem;
+  const percExecucao = osEmExecucaoOntem > 0 ? ((diffExecucao / osEmExecucaoOntem) * 100).toFixed(1) : 0;
+  
   const osConcluidas = filteredOrdens.filter(os => os.status === 'concluido').length;
+  const osConcluidasOntem = ordensOntem.filter(os => os.status === 'concluido').length;
+  const diffConcluidas = osConcluidas - osConcluidasOntem;
+  const percConcluidas = osConcluidasOntem > 0 ? ((diffConcluidas / osConcluidasOntem) * 100).toFixed(1) : 0;
 
   // Average progress
   const avgProgress = totalOS > 0 
     ? Math.round(filteredOrdens.reduce((sum, os) => sum + (os.progresso || 0), 0) / totalOS)
     : 0;
+  const avgProgressOntem = totalOSOntem > 0 
+    ? Math.round(ordensOntem.reduce((sum, os) => sum + (os.progresso || 0), 0) / totalOSOntem)
+    : 0;
+  const diffProgress = avgProgress - avgProgressOntem;
+  const percProgress = avgProgressOntem > 0 ? ((diffProgress / avgProgressOntem) * 100).toFixed(1) : 0;
 
   // On-time completion rate
   const completedOS = filteredOrdens.filter(os => os.status === 'concluido' && os.data_conclusao && os.prazo);
@@ -285,60 +313,112 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* KPI Cards */}
+      {/* KPI Cards - Cores Axia */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0">
+        <Card className="border-0 shadow-lg" style={{ background: 'linear-gradient(135deg, #0000FF 0%, #0A003C 100%)' }}>
           <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-100 text-sm">Total de OS</p>
-                <p className="text-3xl font-bold mt-1">{totalOS}</p>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex-1">
+                <p className="text-white/80 text-sm font-medium">Total de OS</p>
+                <p className="text-4xl font-bold text-white mt-1">{totalOS}</p>
               </div>
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <ClipboardList className="w-6 h-6" />
+              <div className="w-14 h-14 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                <ClipboardList className="w-7 h-7 text-white" />
               </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {percTotalOS >= 0 ? (
+                <>
+                  <div className="text-green-300 text-sm font-semibold">↑ {Math.abs(percTotalOS)}%</div>
+                  <span className="text-white/60 text-xs">vs. ontem</span>
+                </>
+              ) : (
+                <>
+                  <div className="text-red-300 text-sm font-semibold">↓ {Math.abs(percTotalOS)}%</div>
+                  <span className="text-white/60 text-xs">vs. ontem</span>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-amber-500 to-orange-500 text-white border-0">
+        <Card className="border-0 shadow-lg" style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #FF8C00 100%)' }}>
           <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-amber-100 text-sm">Em Execução</p>
-                <p className="text-3xl font-bold mt-1">{osEmExecucao}</p>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex-1">
+                <p className="text-white/80 text-sm font-medium">Em Execução</p>
+                <p className="text-4xl font-bold text-white mt-1">{osEmExecucao}</p>
               </div>
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <Clock className="w-6 h-6" />
+              <div className="w-14 h-14 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                <Clock className="w-7 h-7 text-white" />
               </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {percExecucao >= 0 ? (
+                <>
+                  <div className="text-green-300 text-sm font-semibold">↑ {Math.abs(percExecucao)}%</div>
+                  <span className="text-white/60 text-xs">vs. ontem</span>
+                </>
+              ) : (
+                <>
+                  <div className="text-red-300 text-sm font-semibold">↓ {Math.abs(percExecucao)}%</div>
+                  <span className="text-white/60 text-xs">vs. ontem</span>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-500 to-emerald-500 text-white border-0">
+        <Card className="border-0 shadow-lg" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
           <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-green-100 text-sm">Concluídas</p>
-                <p className="text-3xl font-bold mt-1">{osConcluidas}</p>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex-1">
+                <p className="text-white/80 text-sm font-medium">Concluídas</p>
+                <p className="text-4xl font-bold text-white mt-1">{osConcluidas}</p>
               </div>
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <CheckCircle className="w-6 h-6" />
+              <div className="w-14 h-14 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                <CheckCircle className="w-7 h-7 text-white" />
               </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {percConcluidas >= 0 ? (
+                <>
+                  <div className="text-green-200 text-sm font-semibold">↑ {Math.abs(percConcluidas)}%</div>
+                  <span className="text-white/60 text-xs">vs. ontem</span>
+                </>
+              ) : (
+                <>
+                  <div className="text-red-300 text-sm font-semibold">↓ {Math.abs(percConcluidas)}%</div>
+                  <span className="text-white/60 text-xs">vs. ontem</span>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-500 to-violet-500 text-white border-0">
+        <Card className="border-0 shadow-lg" style={{ background: 'linear-gradient(135deg, #A0B4D2 0%, #7A95BA 100%)' }}>
           <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-purple-100 text-sm">Progresso Médio</p>
-                <p className="text-3xl font-bold mt-1">{avgProgress}%</p>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex-1">
+                <p className="text-white/90 text-sm font-medium">Progresso Médio</p>
+                <p className="text-4xl font-bold text-white mt-1">{avgProgress}%</p>
               </div>
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <TrendingUp className="w-6 h-6" />
+              <div className="w-14 h-14 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                <TrendingUp className="w-7 h-7 text-white" />
               </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {percProgress >= 0 ? (
+                <>
+                  <div className="text-green-200 text-sm font-semibold">↑ {Math.abs(percProgress)}%</div>
+                  <span className="text-white/70 text-xs">vs. ontem</span>
+                </>
+              ) : (
+                <>
+                  <div className="text-red-300 text-sm font-semibold">↓ {Math.abs(percProgress)}%</div>
+                  <span className="text-white/70 text-xs">vs. ontem</span>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -416,7 +496,7 @@ export default function Dashboard() {
                       borderRadius: '8px'
                     }} 
                   />
-                  <Bar dataKey="total" fill="#3B82F6" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="total" fill="#0000FF" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -484,7 +564,7 @@ export default function Dashboard() {
                   <XAxis type="number" tick={{ fill: '#64748b', fontSize: 12 }} />
                   <YAxis type="category" dataKey="name" tick={{ fill: '#64748b', fontSize: 12 }} width={80} />
                   <Tooltip />
-                  <Bar dataKey="total" fill="#8B5CF6" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="total" fill="#0000FF" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -508,8 +588,12 @@ export default function Dashboard() {
               <div className="space-y-4">
                 {osByAlmoxarifado.map((item, index) => (
                   <div key={index} className="flex items-center gap-4">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-semibold text-sm
-                      ${index === 0 ? 'bg-amber-500' : index === 1 ? 'bg-slate-400' : index === 2 ? 'bg-amber-700' : 'bg-slate-300'}`}>
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-semibold text-sm"
+                      style={{ 
+                        background: index === 0 ? '#0000FF' : 
+                                  index === 1 ? '#FF6B00' : 
+                                  index === 2 ? '#A0B4D2' : '#cbd5e1'
+                      }}>
                       {index + 1}
                     </div>
                     <div className="flex-1">
@@ -518,8 +602,11 @@ export default function Dashboard() {
                       </p>
                       <div className="mt-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full"
-                          style={{ width: `${(item.total / osByAlmoxarifado[0].total) * 100}%` }}
+                          className="h-full rounded-full"
+                          style={{ 
+                            width: `${(item.total / osByAlmoxarifado[0].total) * 100}%`,
+                            background: 'linear-gradient(90deg, #FF6B00 0%, #FF8C00 100%)'
+                          }}
                         />
                       </div>
                     </div>
