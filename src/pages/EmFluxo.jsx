@@ -150,7 +150,7 @@ export default function EmFluxo() {
       bgColor: '#A0B4D2',
       count: (conversas || []).length
     }
-  ];
+  ] || [];
 
   const handleOpenModule = (moduleId) => {
     setActiveModule(moduleId);
@@ -259,7 +259,7 @@ export default function EmFluxo() {
       });
 
       const todosParticipantes = [currentPessoa.id, ...(participantesIds || [])];
-      await Promise.all(todosParticipantes.map((pessoaId, index) => 
+      await Promise.all((todosParticipantes || []).map((pessoaId, index) => 
         base44.entities.ParticipanteConversa.create({
           conversa_id: novaConversa.id,
           pessoa_id: pessoaId,
@@ -297,7 +297,7 @@ export default function EmFluxo() {
 
           {/* Módulos Grid */}
           <div className="space-y-4">
-            {modules.map((module) => {
+            {(modules || []).map((module) => {
               const Icon = module.icon;
               return (
                 <button
@@ -370,12 +370,12 @@ export default function EmFluxo() {
   }
 
   // Vista de módulo expandido
-  const activeModuleData = modules.find(m => m.id === activeModule);
+  const activeModuleData = (modules || []).find(m => m.id === activeModule);
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#FAF5F0' }}>
       {/* Header */}
-      <div className="p-4 sticky top-0 z-10 shadow-lg" style={{ backgroundColor: activeModuleData.color }}>
+      <div className="p-4 sticky top-0 z-10 shadow-lg" style={{ backgroundColor: activeModuleData?.color }}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button
@@ -386,7 +386,7 @@ export default function EmFluxo() {
             >
               <X className="w-6 h-6" />
             </Button>
-            <h2 className="text-xl font-bold text-white">{activeModuleData.name}</h2>
+            <h2 className="text-xl font-bold text-white">{activeModuleData?.name}</h2>
           </div>
         </div>
       </div>
@@ -443,8 +443,8 @@ export default function EmFluxo() {
               </div>
             ) : (
               (ordens || []).filter(os => statusFilter === 'all' || os.status === statusFilter).map((os) => {
-                const categoria = (categorias || []).find(c => c.id === os.categoria_id);
-                const regional = (regionais || []).find(r => r.id === os.regional_id);
+                const categoria = (categorias || []).find(c => c && c.id === os.categoria_id);
+                const regional = (regionais || []).find(r => r && r.id === os.regional_id);
                 const StatusIcon = statusConfig[os.status]?.icon || Clock;
 
                 return (
@@ -513,7 +513,7 @@ export default function EmFluxo() {
               </div>
             ) : (
               (projetos || []).map((projeto) => {
-                const lider = (pessoas || []).find(p => p.id === projeto.lider_id);
+                const lider = (pessoas || []).find(p => p && p.id === projeto.lider_id);
                 
                 return (
                   <button
@@ -559,7 +559,7 @@ export default function EmFluxo() {
               (conversas || []).map((conversa) => {
                 const avatar = getAvatarInfo(conversa);
                 const participante = (participantes || []).find(p => 
-                  p.conversa_id === conversa.id && p.pessoa_id === currentPessoa?.id
+                  p && p.conversa_id === conversa.id && p.pessoa_id === currentPessoa?.id
                 );
                 const naoLidas = participante?.mensagens_nao_lidas || 0;
 
