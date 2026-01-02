@@ -638,16 +638,17 @@ export default function EmFluxo() {
         <OSFormModal
           open={showOSForm}
           onClose={() => setShowOSForm(false)}
-          onSubmit={async (osData) => {
+          onSave={async () => {
             await loadData();
             setShowOSForm(false);
           }}
-          pessoas={pessoas}
-          categorias={categorias}
-          subcategorias={subcategorias}
-          regionais={regionais}
-          almoxarifados={almoxarifados}
-          instalacoes={instalacoes}
+          pessoas={pessoas || []}
+          categorias={categorias || []}
+          subcategorias={subcategorias || []}
+          regionais={regionais || []}
+          almoxarifados={almoxarifados || []}
+          instalacoes={instalacoes || []}
+          projetos={projetos || []}
         />
       )}
     </div>

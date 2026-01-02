@@ -300,7 +300,7 @@ export default function OSFormModal({
                         <SelectValue placeholder="Selecione..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {categorias.map(c => (
+                        {(categorias || []).map(c => (
                           <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
                         ))}
                       </SelectContent>
@@ -318,7 +318,7 @@ export default function OSFormModal({
                         <SelectValue placeholder="Selecione..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {filteredSubcategorias.map(s => (
+                        {(filteredSubcategorias || []).map(s => (
                           <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
                         ))}
                       </SelectContent>
@@ -336,7 +336,7 @@ export default function OSFormModal({
                         <SelectValue placeholder="Selecione..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {regionais.map(r => (
+                        {(regionais || []).map(r => (
                           <SelectItem key={r.id} value={r.id}>{r.sigla} - {r.descricao}</SelectItem>
                         ))}
                       </SelectContent>
@@ -354,7 +354,7 @@ export default function OSFormModal({
                         <SelectValue placeholder="Selecione..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {filteredAlmoxarifados.map(a => (
+                        {(filteredAlmoxarifados || []).map(a => (
                           <SelectItem key={a.id} value={a.id}>{a.nome}</SelectItem>
                         ))}
                       </SelectContent>
@@ -372,7 +372,7 @@ export default function OSFormModal({
                         <SelectValue placeholder="Selecione..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {pessoas.filter(p => p.funcoes?.includes('lider')).map(p => (
+                        {(pessoas || []).filter(p => p && p.funcoes?.includes('lider')).map(p => (
                           <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
                         ))}
                       </SelectContent>
@@ -389,7 +389,7 @@ export default function OSFormModal({
                       placeholder="Digite ou selecione..."
                     />
                     <datalist id="pessoas-list">
-                      {pessoas.map(p => (
+                      {(pessoas || []).map(p => (
                         <option key={p.id} value={p.nome} />
                       ))}
                     </datalist>
@@ -404,9 +404,9 @@ export default function OSFormModal({
                   </p>
                   <div className="border rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto bg-slate-50 dark:bg-slate-800">
                     {formData.almoxarifado_id ? (
-                      pessoas.filter(p => p.almoxarifados_ids?.includes(formData.almoxarifado_id)).length > 0 ? (
-                        pessoas
-                          .filter(p => p.almoxarifados_ids?.includes(formData.almoxarifado_id))
+                      (pessoas || []).filter(p => p && p.almoxarifados_ids?.includes(formData.almoxarifado_id)).length > 0 ? (
+                        (pessoas || [])
+                          .filter(p => p && p.almoxarifados_ids?.includes(formData.almoxarifado_id))
                           .map((pessoa) => (
                             <div key={pessoa.id} className="flex items-center gap-2">
                               <Checkbox
@@ -527,7 +527,7 @@ export default function OSFormModal({
                         <SelectValue placeholder="Selecione..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {projetos.map(p => (
+                        {(projetos || []).map(p => (
                           <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
                         ))}
                       </SelectContent>
@@ -631,7 +631,7 @@ export default function OSFormModal({
                           <SelectValue placeholder="Selecione..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {almoxarifados.map(a => (
+                          {(almoxarifados || []).map(a => (
                             <SelectItem key={a.id} value={a.id}>{a.nome}</SelectItem>
                           ))}
                         </SelectContent>
@@ -647,7 +647,7 @@ export default function OSFormModal({
                           <SelectValue placeholder="Selecione..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {instalacoes.map(i => (
+                          {(instalacoes || []).map(i => (
                             <SelectItem key={i.id} value={i.id}>{i.nome}</SelectItem>
                           ))}
                         </SelectContent>
@@ -807,7 +807,7 @@ export default function OSFormModal({
                     </div>
                     {formData.anexos?.length > 0 && (
                       <div className="space-y-2">
-                        {formData.anexos.map((url, i) => (
+                        {(formData.anexos || []).map((url, i) => (
                           <div key={i} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800 rounded-lg">
                             <a href={url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline truncate">
                               Anexo {i + 1}
@@ -843,7 +843,7 @@ export default function OSFormModal({
                     </div>
                     {formData.imagens?.length > 0 && (
                       <div className="grid grid-cols-3 gap-2">
-                        {formData.imagens.map((url, i) => (
+                        {(formData.imagens || []).map((url, i) => (
                           <div key={i} className="relative group">
                             <img src={url} alt={`Imagem ${i + 1}`} className="w-full aspect-square object-cover rounded-lg" />
                             <Button 
