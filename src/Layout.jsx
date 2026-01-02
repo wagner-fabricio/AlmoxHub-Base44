@@ -287,7 +287,7 @@ export default function Layout({ children, currentPageName }) {
 
             {/* Navigation */}
             <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-              {menuItems.map((item) => {
+              {(menuItems || []).map((item) => {
                 const isActive = currentPageName === item.page;
                 const Icon = item.icon;
                 return (
@@ -354,7 +354,7 @@ export default function Layout({ children, currentPageName }) {
                               <div className="flex items-start gap-2">
                                 <span className="font-medium text-slate-700 dark:text-slate-300">Funções:</span>
                                 <span className="flex-1">
-                                  {pessoa.funcoes.map(f => {
+                                  {(pessoa.funcoes || []).map(f => {
                                     const labels = { gestor: 'Gestor', lider: 'Líder', almoxarife: 'Almoxarife' };
                                     return labels[f];
                                   }).join(', ')}
@@ -371,7 +371,7 @@ export default function Layout({ children, currentPageName }) {
                               <div className="flex items-start gap-2">
                                 <span className="font-medium text-slate-700 dark:text-slate-300">Almoxarifados:</span>
                                 <span className="flex-1">
-                                  {almoxarifados.slice(0, 2).map(a => a.nome).join(', ')}
+                                  {(almoxarifados || []).slice(0, 2).map(a => a && a.nome).filter(n => n).join(', ')}
                                   {almoxarifados.length > 2 && ` +${almoxarifados.length - 2}`}
                                 </span>
                               </div>
