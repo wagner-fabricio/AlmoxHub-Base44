@@ -132,7 +132,7 @@ export default function EmFluxo() {
       icon: ClipboardList,
       color: '#0000FF',
       bgColor: '#0000FF',
-      count: ordens.length
+      count: (ordens || []).length
     },
     {
       id: 'projetos',
@@ -140,7 +140,7 @@ export default function EmFluxo() {
       icon: FolderKanban,
       color: '#0A003C',
       bgColor: '#0A003C',
-      count: projetos.length
+      count: (projetos || []).length
     },
     {
       id: 'mensagens',
@@ -148,7 +148,7 @@ export default function EmFluxo() {
       icon: MessageSquare,
       color: '#A0B4D2',
       bgColor: '#A0B4D2',
-      count: conversas.length
+      count: (conversas || []).length
     }
   ];
 
@@ -187,10 +187,10 @@ export default function EmFluxo() {
       return conversa.nome_grupo;
     }
     
-    const participantesConversa = participantes.filter(p => p.conversa_id === conversa.id);
+    const participantesConversa = (participantes || []).filter(p => p.conversa_id === conversa.id);
     const outroPessoa = participantesConversa.find(p => p.pessoa_id !== currentPessoa?.id);
     if (outroPessoa) {
-      const pessoa = pessoas.find(p => p.id === outroPessoa.pessoa_id);
+      const pessoa = (pessoas || []).find(p => p.id === outroPessoa.pessoa_id);
       return pessoa?.nome || 'Conversa';
     }
     return 'Conversa';
@@ -205,10 +205,10 @@ export default function EmFluxo() {
       };
     }
     
-    const participantesConversa = participantes.filter(p => p.conversa_id === conversa.id);
+    const participantesConversa = (participantes || []).filter(p => p.conversa_id === conversa.id);
     const outroPessoa = participantesConversa.find(p => p.pessoa_id !== currentPessoa?.id);
     if (outroPessoa) {
-      const pessoa = pessoas.find(p => p.id === outroPessoa.pessoa_id);
+      const pessoa = (pessoas || []).find(p => p.id === outroPessoa.pessoa_id);
       return {
         initials: pessoa?.nome?.charAt(0) || 'U',
         url: pessoa?.foto_perfil,
@@ -241,7 +241,7 @@ export default function EmFluxo() {
       // Verificar se já existe conversa privada
       if (tipo === 'privada') {
         for (const conv of conversas) {
-          const participantesConv = participantes
+          const participantesConv = (participantes || [])
             .filter(p => p.conversa_id === conv.id)
             .map(p => p.pessoa_id);
           if (participantesConv.includes(participantesIds[0]) && participantesConv.includes(currentPessoa?.id)) {
@@ -443,8 +443,8 @@ export default function EmFluxo() {
               </div>
             ) : (
               (ordens || []).filter(os => statusFilter === 'all' || os.status === statusFilter).map((os) => {
-                const categoria = categorias.find(c => c.id === os.categoria_id);
-                const regional = regionais.find(r => r.id === os.regional_id);
+                const categoria = (categorias || []).find(c => c.id === os.categoria_id);
+                const regional = (regionais || []).find(r => r.id === os.regional_id);
                 const StatusIcon = statusConfig[os.status]?.icon || Clock;
 
                 return (
@@ -506,14 +506,14 @@ export default function EmFluxo() {
 
         {activeModule === 'projetos' && (
           <div className="space-y-3">
-            {projetos.length === 0 ? (
+            {(projetos || []).length === 0 ? (
               <div className="text-center py-12 text-slate-500">
                 <FolderKanban className="w-16 h-16 mx-auto mb-4 opacity-50" />
                 <p>Nenhum projeto</p>
               </div>
             ) : (
-              projetos.map((projeto) => {
-                const lider = pessoas.find(p => p.id === projeto.lider_id);
+              (projetos || []).map((projeto) => {
+                const lider = (pessoas || []).find(p => p.id === projeto.lider_id);
                 
                 return (
                   <button
@@ -550,15 +550,15 @@ export default function EmFluxo() {
               Nova Mensagem
             </Button>
 
-            {conversas.length === 0 ? (
+            {(conversas || []).length === 0 ? (
               <div className="text-center py-12 text-slate-500">
                 <MessageSquare className="w-16 h-16 mx-auto mb-4 opacity-50" />
                 <p>Nenhuma conversa</p>
               </div>
             ) : (
-              conversas.map((conversa) => {
+              (conversas || []).map((conversa) => {
                 const avatar = getAvatarInfo(conversa);
-                const participante = participantes.find(p => 
+                const participante = (participantes || []).find(p => 
                   p.conversa_id === conversa.id && p.pessoa_id === currentPessoa?.id
                 );
                 const naoLidas = participante?.mensagens_nao_lidas || 0;
