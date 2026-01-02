@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ClipboardList, Calendar, User, MapPin } from 'lucide-react';
+import { ClipboardList, Calendar, User, MapPin, Users, TrendingUp, Building2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -25,6 +25,10 @@ export default function OSCard({ osId, isMinha }) {
   const [loading, setLoading] = useState(true);
   const [categoria, setCategoria] = useState(null);
   const [regional, setRegional] = useState(null);
+  const [lider, setLider] = useState(null);
+  const [executores, setExecutores] = useState([]);
+  const [instalacaoOrigem, setInstalacaoOrigem] = useState(null);
+  const [instalacaoDestino, setInstalacaoDestino] = useState(null);
 
   useEffect(() => {
     loadOS();
@@ -55,6 +59,27 @@ export default function OSCard({ osId, isMinha }) {
       if (osData.regional_id) {
         const regResult = await base44.entities.Regional.filter({ id: osData.regional_id });
         setRegional(Array.isArray(regResult) && regResult.length > 0 ? regResult[0] : null);
+      }
+
+      if (osData.lider_id) {
+        const liderResult = await base44.entities.Pessoa.filter({ id: osData.lider_id });
+        setLider(Array.isArray(liderResult) && liderResult.length > 0 ? liderResult[0] : null);
+      }
+
+      if (osData.executores_ids?.length > 0) {
+        const pessoasResult = await base44.entities.Pessoa.list();
+        const execList = pessoasResult.filter(p => osData.executores_ids.includes(p.id));
+        setExecutores(execList);
+      }
+
+      if (osData.instalacao_origem_id) {
+        const instOrigem = await base44.entities.Instalacao.filter({ id: osData.instalacao_origem_id });
+        setInstalacaoOrigem(Array.isArray(instOrigem) && instOrigem.length > 0 ? instOrigem[0] : null);
+      }
+
+      if (osData.instalacao_destino_id) {
+        const instDestino = await base44.entities.Instalacao.filter({ id: osData.instalacao_destino_id });
+        setInstalacaoDestino(Array.isArray(instDestino) && instDestino.length > 0 ? instDestino[0] : null);
       }
     } catch (error) {
       console.error('Erro ao carregar OS:', error);
@@ -114,24 +139,85 @@ export default function OSCard({ osId, isMinha }) {
           </p>
         )}
 
-        <div className="flex flex-wrap gap-2 text-xs">
-          {regional && (
-            <div className="flex items-center gap-1 text-slate-500">
-              <MapPin className="w-3 h-3" />
-              <span>{regional.sigla}</span>
-            </div>
-          )}
-          
-          {os.prazo && (
-            <div className="flex items-center gap-1 text-slate-500">
-              <Calendar className="w-3 h-3" />
-              <span>{format(new Date(os.prazo), 'dd/MM/yy', { locale: ptBR })}</span>
+        <div className="space-y-1.5">
+          {/* Líder e Executores */}
+          {lider && (
+            <div className="flex items-center gap-1 text-xs text-slate-600">
+              <User className="w-3 h-3" />
+              <span className="font-medium">Líder:</span>
+              <span>{lider.nome}</span>
             </div>
           )}
 
-          <Badge className={prioridadeConfig[os.prioridade]?.cor}>
-            {prioridadeConfig[os.prioridade]?.label || os.prioridade}
-          </Badge>
+          {executores.length > 0 && (
+            <div className="flex items-center gap-1 text-xs text-slate-600">
+              <Users className="w-3 h-3" />
+              <span className="font-medium">Executores:</span>
+              <span>{executores.map(e => e.nome).join(', ')}</span>
+            </div>
+          )}
+
+          {/* Progresso */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 text-xs text-slate-600">
+              <TrendingUp className="w-3 h-3" />
+              <span className="font-medium">{os.progresso || 0}%</span>
+            </div>
+            <div className="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-blue-500 rounded-full transition-all"
+                style={{ width: `${os.progresso || 0}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Campos de Expedição */}
+          {categoria?.nome?.toLowerCase().includes('expedição') && (
+            <>
+              {os.num_reserva && (
+                <div className="flex items-center gap-1 text-xs text-slate-600">
+                  <ClipboardList className="w-3 h-3" />
+                  <span className="font-medium">Reserva:</span>
+                  <span>{os.num_reserva}</span>
+                </div>
+              )}
+              {instalacaoOrigem && (
+                <div className="flex items-center gap-1 text-xs text-slate-600">
+                  <Building2 className="w-3 h-3" />
+                  <span className="font-medium">Origem:</span>
+                  <span>{instalacaoOrigem.nome}</span>
+                </div>
+              )}
+              {instalacaoDestino && (
+                <div className="flex items-center gap-1 text-xs text-slate-600">
+                  <Building2 className="w-3 h-3" />
+                  <span className="font-medium">Destino:</span>
+                  <span>{instalacaoDestino.nome}</span>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Info adicional */}
+          <div className="flex flex-wrap gap-2 text-xs">
+            {regional && (
+              <div className="flex items-center gap-1 text-slate-500">
+                <MapPin className="w-3 h-3" />
+                <span>{regional.sigla}</span>
+              </div>
+            )}
+            
+            {os.prazo && (
+              <div className="flex items-center gap-1 text-slate-500">
+                <Calendar className="w-3 h-3" />
+                <span>{format(new Date(os.prazo), 'dd/MM/yy', { locale: ptBR })}</span>
+              </div>
+            )}
+
+            <Badge className={prioridadeConfig[os.prioridade]?.cor}>
+              {prioridadeConfig[os.prioridade]?.label || os.prioridade}
+            </Badge>
+          </div>
         </div>
       </div>
     </Card>
