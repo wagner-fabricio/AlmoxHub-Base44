@@ -70,7 +70,8 @@ export default function Instalacoes() {
     latitude: '',
     longitude: '',
     classificacao: 'Outros',
-    regional_id: ''
+    regional_id: '',
+    local_negocios: ''
   });
 
   useEffect(() => {
@@ -131,7 +132,8 @@ export default function Instalacoes() {
       latitude: '',
       longitude: '',
       classificacao: 'Outros',
-      regional_id: ''
+      regional_id: '',
+      local_negocios: ''
     });
     setShowModal(true);
   };
@@ -149,7 +151,8 @@ export default function Instalacoes() {
       latitude: item.latitude || '',
       longitude: item.longitude || '',
       classificacao: item.classificacao || 'Outros',
-      regional_id: item.regional_id || ''
+      regional_id: item.regional_id || '',
+      local_negocios: item.local_negocios || ''
     });
     setShowModal(true);
   };
@@ -165,6 +168,7 @@ export default function Instalacoes() {
         ...formData,
         latitude: formData.latitude ? parseFloat(formData.latitude) : null,
         longitude: formData.longitude ? parseFloat(formData.longitude) : null,
+        local_negocios: formData.local_negocios ? parseFloat(formData.local_negocios) : null,
       };
 
       if (selectedItem) {
@@ -465,6 +469,15 @@ export default function Instalacoes() {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div>
+              <Label>Local de Negócios</Label>
+              <Input
+                type="number"
+                value={formData.local_negocios}
+                onChange={(e) => setFormData({ ...formData, local_negocios: e.target.value })}
+                placeholder="Número"
+              />
             </div>
             <div>
               <Label>Latitude</Label>
