@@ -253,12 +253,12 @@ export default function Layout({ children, currentPageName }) {
                   </Link>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={toggleSidebarCollapse}
-                      className="hidden lg:block p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all"
-                      title="Recolher menu"
-                    >
-                      <Menu className="w-5 h-5" />
-                    </button>
+                        onClick={toggleSidebarCollapse}
+                        className="hidden lg:block p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all"
+                        title="Recolher menu"
+                      >
+                        <span className="font-bold text-lg">«</span>
+                      </button>
                     <button 
                       className="lg:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400"
                       onClick={() => setSidebarOpen(false)}
@@ -279,7 +279,7 @@ export default function Layout({ children, currentPageName }) {
                     className="hidden lg:block p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all"
                     title="Expandir menu"
                   >
-                    <Menu className="w-5 h-5" />
+                    <span className="font-bold text-lg">»</span>
                   </button>
                 </>
               )}
