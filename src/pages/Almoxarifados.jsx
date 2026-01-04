@@ -8,8 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, Warehouse, Loader2, Search, MapPin, FileSpreadsheet, BarChart3 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Plus, Edit, Trash2, Warehouse, Loader2, Search, MapPin, FileSpreadsheet } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import BulkUpdateModal from '@/components/bulk/BulkUpdateModal';
 
@@ -247,68 +246,6 @@ export default function Almoxarifados() {
           );
         })}
       </div>
-
-      {/* Gráfico de Barras por Região */}
-      <Card className="p-6 mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <BarChart3 className="w-5 h-5 text-slate-700 dark:text-slate-300" />
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Distribuição por Região</h2>
-        </div>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart
-            data={(() => {
-              const regioes = ['Norte', 'Nordeste', 'Centro Oeste', 'Sudeste', 'Sul'];
-              return regioes.map(regiao => {
-                const dataPoint = { regiao };
-                regionais.forEach(regional => {
-                  const count = filteredItems.filter(
-                    a => a.regiao === regiao && a.regional_id === regional.id
-                  ).length;
-                  dataPoint[regional.sigla] = count;
-                });
-                return dataPoint;
-              });
-            })()}
-            margin={{ top: 5, right: 10, left: -20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis 
-              dataKey="regiao" 
-              tick={{ fontSize: 12 }}
-              stroke="#64748b"
-            />
-            <YAxis 
-              tick={{ fontSize: 12 }}
-              stroke="#64748b"
-              allowDecimals={false}
-            />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'white', 
-                border: '1px solid #e2e8f0',
-                borderRadius: '8px',
-                fontSize: '12px'
-              }}
-            />
-            <Legend 
-              wrapperStyle={{ fontSize: '12px' }}
-              iconType="square"
-            />
-            {regionais.map((regional, index) => {
-              const colors = ['#0000FF', '#FF8C00', '#00A86B', '#DC143C', '#9370DB', '#FFD700', '#00CED1'];
-              return (
-                <Bar 
-                  key={regional.id}
-                  dataKey={regional.sigla} 
-                  stackId="a" 
-                  fill={colors[index % colors.length]}
-                  radius={index === regionais.length - 1 ? [4, 4, 0, 0] : 0}
-                />
-              );
-            })}
-          </BarChart>
-        </ResponsiveContainer>
-      </Card>
 
       {/* Table */}
       <Card className="overflow-hidden">
