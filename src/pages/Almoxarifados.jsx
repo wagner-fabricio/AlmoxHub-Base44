@@ -289,11 +289,11 @@ export default function Almoxarifados() {
                     <TableCell className="text-slate-600 dark:text-slate-400">
                       {item.regiao || '-'}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-left">
                       {instalacao ? (
                         <button
                           onClick={() => handleViewInstalacao(item.instalacao_id)}
-                          className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                          className="text-blue-600 hover:text-blue-800 hover:underline font-medium text-left"
                         >
                           {instalacao.nome}
                         </button>
