@@ -222,45 +222,23 @@ export default function Almoxarifados() {
       </Card>
 
       {/* Cards de Contagem */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-3 mb-6">
+      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2 mb-6">
         {/* Card Total */}
-        <Card className="relative overflow-hidden group hover:shadow-xl transition-all duration-300 border-0" style={{ background: 'linear-gradient(135deg, #0000FF 0%, #0A003C 100%)' }}>
-          <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -mr-12 -mt-12" />
-          <div className="relative p-4">
-            <div className="flex items-center justify-between mb-2">
-              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Warehouse className="w-5 h-5 text-white" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-white mb-1">{filteredItems.length}</p>
-            <p className="text-xs text-white/80 font-medium">Total Geral</p>
+        <Card className="p-3 text-white hover:shadow-md transition-shadow" style={{ background: 'linear-gradient(135deg, #0000FF 0%, #0A003C 100%)' }}>
+          <div className="flex flex-col">
+            <p className="text-2xl font-bold">{filteredItems.length}</p>
+            <p className="text-xs opacity-90 mt-0.5">Total</p>
           </div>
         </Card>
 
         {/* Cards por Regional */}
-        {regionais.map((regional, index) => {
+        {regionais.map(regional => {
           const count = filteredItems.filter(a => a.regional_id === regional.id).length;
-          const colors = [
-            { bg: 'from-blue-50 to-blue-100', text: 'text-blue-600', icon: 'bg-blue-500' },
-            { bg: 'from-purple-50 to-purple-100', text: 'text-purple-600', icon: 'bg-purple-500' },
-            { bg: 'from-green-50 to-green-100', text: 'text-green-600', icon: 'bg-green-500' },
-            { bg: 'from-orange-50 to-orange-100', text: 'text-orange-600', icon: 'bg-orange-500' },
-            { bg: 'from-pink-50 to-pink-100', text: 'text-pink-600', icon: 'bg-pink-500' },
-            { bg: 'from-cyan-50 to-cyan-100', text: 'text-cyan-600', icon: 'bg-cyan-500' },
-          ];
-          const color = colors[index % colors.length];
-          
           return (
-            <Card key={regional.id} className={`relative overflow-hidden group hover:shadow-lg transition-all duration-300 border border-slate-200/50 dark:border-slate-700 bg-gradient-to-br ${color.bg} dark:from-slate-800 dark:to-slate-800/50`}>
-              <div className="absolute top-0 right-0 w-20 h-20 bg-white/30 dark:bg-white/5 rounded-full -mr-10 -mt-10" />
-              <div className="relative p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className={`w-9 h-9 rounded-lg ${color.icon} flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm`}>
-                    <MapPin className="w-4 h-4 text-white" />
-                  </div>
-                </div>
-                <p className={`text-2xl font-bold ${color.text} dark:text-white mb-1`}>{count}</p>
-                <p className="text-xs font-medium text-slate-600 dark:text-slate-400 truncate" title={regional.sigla}>
+            <Card key={regional.id} className="p-3 hover:shadow-md transition-shadow border border-slate-200 dark:border-slate-700">
+              <div className="flex flex-col">
+                <p className="text-xl font-bold text-slate-900 dark:text-white">{count}</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 truncate" title={regional.sigla}>
                   {regional.sigla}
                 </p>
               </div>
