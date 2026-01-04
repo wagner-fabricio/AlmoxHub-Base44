@@ -216,14 +216,22 @@ export default function Instalacoes() {
       inst.logradouro?.toLowerCase().includes(search.toLowerCase()) ||
       inst.cidade?.toLowerCase().includes(search.toLowerCase()) ||
       inst.cep?.toLowerCase().includes(search.toLowerCase());
-    
+
     const matchesRegional = filterRegional === 'all' || inst.regional_id === filterRegional;
     const matchesClassificacao = filterClassificacao === 'all' || inst.classificacao === filterClassificacao;
     const matchesCidade = filterCidade === 'all' || inst.cidade === filterCidade;
     const matchesEstado = filterEstado === 'all' || inst.estado === filterEstado;
-    
+
     return matchesSearch && matchesRegional && matchesClassificacao && matchesCidade && matchesEstado;
   });
+
+  // Contagem por classificação
+  const countByClassificacao = {
+    'Usina': instalacoes.filter(i => i.classificacao === 'Usina').length,
+    'Subestação': instalacoes.filter(i => i.classificacao === 'Subestação').length,
+    'Almoxarifado': instalacoes.filter(i => i.classificacao === 'Almoxarifado').length,
+    'Outros': instalacoes.filter(i => i.classificacao === 'Outros').length,
+  };
 
   if (loading) {
     return (
