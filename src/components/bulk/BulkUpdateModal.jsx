@@ -73,7 +73,7 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
       // Para Almoxarifado, buscar regionais e instalações
       let allRegionais = [];
       let allInstalacoes = [];
-      
+
       if (entityName === 'Almoxarifado') {
         [allRegionais, allInstalacoes] = await Promise.all([
           base44.entities.Regional.list(),
@@ -90,32 +90,33 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
           }
         });
       });
-      
+
       // Garantir que 'id' seja o primeiro campo
       const fields = ['id', ...Array.from(allKeys).filter(k => k !== 'id')];
 
       // Preparar dados para Excel com todos os campos
       const excelData = data.map(item => {
         const row = {};
-        
+
         // Adicionar todos os campos na ordem
         fields.forEach(key => {
           if (entityName === 'Almoxarifado') {
-            // Substituir IDs por nomes legíveis
+            // Substituir IDs por nomes legíveis e remover campos que vêm da instalação
             if (key === 'regional_id') {
               const regional = allRegionais.find(r => r.id === item.regional_id);
               row['regional_nome'] = regional?.sigla || '';
             } else if (key === 'instalacao_id') {
               const instalacao = allInstalacoes.find(i => i.id === item.instalacao_id);
               row['instalacao_nome'] = instalacao?.nome || '';
-            } else {
+            } else if (!['endereco', 'latitude', 'longitude', 'local_negocios', 'regiao'].includes(key)) {
+              // Não incluir campos que virão automaticamente da instalação
               row[key] = item[key] !== undefined && item[key] !== null ? item[key] : '';
             }
           } else {
             row[key] = item[key] !== undefined && item[key] !== null ? item[key] : '';
           }
         });
-        
+
         return row;
       });
 
@@ -253,6 +254,29 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
 
       console.log('✅ Validação inicial OK, processando linhas...');
 
+      // Para Almoxarifado, buscar regionais e instalações para conversão de nomes
+      let regionaisMap = new Map();
+      let instalacoesMap = new Map();
+
+      if (entityName === 'Almoxarifado') {
+        const [regionais, instalacoes] = await Promise.all([
+          base44.entities.Regional.list(),
+          base44.entities.Instalacao.list()
+        ]);
+
+        // Criar mapas para busca rápida
+        regionais.forEach(r => {
+          regionaisMap.set(r.sigla?.toLowerCase(), r);
+          regionaisMap.set(r.descricao?.toLowerCase(), r);
+        });
+
+        instalacoes.forEach(i => {
+          instalacoesMap.set(i.nome?.toLowerCase(), i);
+        });
+
+        console.log('📍 Carregadas', regionais.length, 'regionais e', instalacoes.length, 'instalações para mapeamento');
+      }
+
       // Processar cada linha
       const errorLog = [];
       const skippedLog = [];
@@ -283,6 +307,54 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
               if (key === 'id' || key === 'ID' || key === 'Id' || 
                   key === 'created_date' || key === 'updated_date' || key === 'created_by') {
                 continue;
+              }
+
+              // Para Almoxarifado, processar campos especiais
+              if (entityName === 'Almoxarifado') {
+                // Converter regional_nome para regional_id
+                if (key === 'regional_nome' && value) {
+                  const regional = regionaisMap.get(String(value).toLowerCase().trim());
+                  if (regional) {
+                    createData['regional_id'] = regional.id;
+                    hasData = true;
+                  } else {
+                    throw new Error(`Regional "${value}" não encontrada`);
+                  }
+                  continue;
+                }
+
+                // Converter instalacao_nome para instalacao_id e preencher campos relacionados
+                if (key === 'instalacao_nome' && value) {
+                  const instalacao = instalacoesMap.get(String(value).toLowerCase().trim());
+                  if (instalacao) {
+                    createData['instalacao_id'] = instalacao.id;
+                    // Preencher automaticamente os campos da instalação
+                    if (instalacao.latitude) createData['latitude'] = instalacao.latitude;
+                    if (instalacao.longitude) createData['longitude'] = instalacao.longitude;
+                    if (instalacao.local_negocios) createData['local_negocios'] = instalacao.local_negocios;
+                    if (instalacao.regiao) createData['regiao'] = instalacao.regiao;
+
+                    // Construir endereço completo
+                    const enderecoCompleto = [
+                      instalacao.logradouro,
+                      instalacao.numero,
+                      instalacao.bairro,
+                      instalacao.cidade,
+                      instalacao.estado
+                    ].filter(Boolean).join(', ');
+                    if (enderecoCompleto) createData['endereco'] = enderecoCompleto;
+
+                    hasData = true;
+                  } else {
+                    throw new Error(`Instalação "${value}" não encontrada`);
+                  }
+                  continue;
+                }
+
+                // Ignorar campos que vêm da instalação
+                if (['endereco', 'latitude', 'longitude', 'local_negocios', 'regiao'].includes(key)) {
+                  continue;
+                }
               }
 
               // Pular valores vazios
@@ -334,9 +406,52 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
               continue;
             }
 
-            // Ignorar campos de nome que são apenas para visualização
-            if (entityName === 'Almoxarifado' && (key === 'regional_nome' || key === 'instalacao_nome')) {
-              continue;
+            // Para Almoxarifado, processar campos especiais
+            if (entityName === 'Almoxarifado') {
+              // Converter regional_nome para regional_id
+              if (key === 'regional_nome' && value) {
+                const regional = regionaisMap.get(String(value).toLowerCase().trim());
+                if (regional) {
+                  updateData['regional_id'] = regional.id;
+                  hasChanges = true;
+                } else {
+                  throw new Error(`Regional "${value}" não encontrada`);
+                }
+                continue;
+              }
+
+              // Converter instalacao_nome para instalacao_id e preencher campos relacionados
+              if (key === 'instalacao_nome' && value) {
+                const instalacao = instalacoesMap.get(String(value).toLowerCase().trim());
+                if (instalacao) {
+                  updateData['instalacao_id'] = instalacao.id;
+                  // Preencher automaticamente os campos da instalação
+                  if (instalacao.latitude) updateData['latitude'] = instalacao.latitude;
+                  if (instalacao.longitude) updateData['longitude'] = instalacao.longitude;
+                  if (instalacao.local_negocios) updateData['local_negocios'] = instalacao.local_negocios;
+                  if (instalacao.regiao) updateData['regiao'] = instalacao.regiao;
+
+                  // Construir endereço completo
+                  const enderecoCompleto = [
+                    instalacao.logradouro,
+                    instalacao.numero,
+                    instalacao.bairro,
+                    instalacao.cidade,
+                    instalacao.estado
+                  ].filter(Boolean).join(', ');
+                  if (enderecoCompleto) updateData['endereco'] = enderecoCompleto;
+
+                  hasChanges = true;
+                } else {
+                  throw new Error(`Instalação "${value}" não encontrada`);
+                }
+                continue;
+              }
+
+              // Ignorar campos que vêm da instalação
+              if (['endereco', 'latitude', 'longitude', 'local_negocios', 'regiao'].includes(key)) {
+                continue;
+              }
             }
 
             // Pular valores vazios
