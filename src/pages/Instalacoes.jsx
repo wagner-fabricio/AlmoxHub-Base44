@@ -325,7 +325,18 @@ export default function Instalacoes() {
         </div>
 
         {/* Cards de Contagem */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-3xl font-bold text-white">{instalacoes.length}</p>
+                <p className="text-xs text-blue-100 mt-1">Total</p>
+              </div>
+              <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
+                <Building2 className="w-5 h-5 text-white" />
+              </div>
+            </div>
+          </div>
         <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
