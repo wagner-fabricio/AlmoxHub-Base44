@@ -72,28 +72,32 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
     try {
       // Auto-detectar tipo se não especificado
       if (fieldType === 'auto') {
-        // Se for número
-        if (typeof value === 'number') {
-          return { valid: true, value };
-        }
-        // Se for string que parece número
-        if (typeof value === 'string' && !isNaN(parseFloat(value)) && isFinite(value)) {
-          return { valid: true, value: parseFloat(value) };
-        }
         // Se for boolean
         if (typeof value === 'boolean') {
           return { valid: true, value };
         }
         // Se for string que parece boolean
         const strVal = String(value).toLowerCase();
-        if (['true', 'false', '1', '0', 'sim', 'não', 'yes', 'no', 'nao'].includes(strVal)) {
+        if (['true', 'false', 'sim', 'não', 'yes', 'no', 'nao'].includes(strVal)) {
           return { valid: true, value: ['true', '1', 'sim', 'yes'].includes(strVal) };
         }
         // Se for array
         if (Array.isArray(value)) {
           return { valid: true, value };
         }
-        // Default: string
+        // Se for número puro (não string de número)
+        if (typeof value === 'number') {
+          return { valid: true, value };
+        }
+        // IMPORTANTE: Campos como latitude, longitude, local_negocios que são numéricos
+        // devem ser convertidos, mas campos como "numero" (endereço) devem permanecer string
+        const numericFields = ['latitude', 'longitude', 'local_negocios', 'tara', 'quantidade', 'r_unit', 'r_total', 'saldo', 'peso', 'valor_total', 'progresso'];
+        if (numericFields.includes(fieldName)) {
+          if (typeof value === 'string' && !isNaN(parseFloat(value)) && isFinite(value)) {
+            return { valid: true, value: parseFloat(value) };
+          }
+        }
+        // Default: manter como string
         return { valid: true, value: String(value) };
       }
 
