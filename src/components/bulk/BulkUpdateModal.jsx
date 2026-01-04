@@ -244,24 +244,30 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
         } catch (error) {
           console.error(`❌ Erro na linha ${rowNumber}:`, error);
           errorLog.push(`Linha ${rowNumber}: ${error.message}`);
-          skippedCount++;
+          // Não incrementar skippedCount aqui, pois é um erro
         }
       }
 
       console.log('✅ Processamento concluído:', { successCount, skippedCount, errors: errorLog.length });
+      console.log('📝 Erros encontrados:', errorLog);
 
-      setResults({
+      const finalResults = {
         total: jsonData.length,
         success: successCount,
-        skipped: skippedCount,
+        skipped: skippedCount - errorLog.length, // Ajustar: skipped não deve incluir erros
         errors: errorLog.length
-      });
+      };
+
+      console.log('📊 Definindo resultados:', finalResults);
+      setResults(finalResults);
       setErrors(errorLog);
 
       if (successCount > 0) {
         console.log('🔄 Atualizando lista...');
         await onRefresh?.();
       }
+      
+      console.log('✅ State atualizado, modal deve exibir resultados agora');
 
     } catch (error) {
       console.error('❌ Erro geral ao processar arquivo:', error);
