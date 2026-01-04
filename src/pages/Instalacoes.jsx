@@ -74,6 +74,7 @@ export default function Instalacoes() {
     classificacao: 'Outros',
     regional_id: '',
     local_negocios: '',
+    regiao: '',
     cnpj: '',
     inscricao_estadual: ''
   });
@@ -138,6 +139,7 @@ export default function Instalacoes() {
       classificacao: 'Outros',
       regional_id: '',
       local_negocios: '',
+      regiao: '',
       cnpj: '',
       inscricao_estadual: ''
     });
@@ -159,6 +161,7 @@ export default function Instalacoes() {
       classificacao: item.classificacao || 'Outros',
       regional_id: item.regional_id || '',
       local_negocios: item.local_negocios || '',
+      regiao: item.regiao || '',
       cnpj: item.cnpj || '',
       inscricao_estadual: item.inscricao_estadual || ''
     });
@@ -492,6 +495,24 @@ export default function Instalacoes() {
                 onChange={(e) => setFormData({ ...formData, local_negocios: e.target.value })}
                 placeholder="Número"
               />
+            </div>
+            <div>
+              <Label>Região</Label>
+              <Select
+                value={formData.regiao}
+                onValueChange={(value) => setFormData({ ...formData, regiao: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Norte">Norte</SelectItem>
+                  <SelectItem value="Nordeste">Nordeste</SelectItem>
+                  <SelectItem value="Centro Oeste">Centro Oeste</SelectItem>
+                  <SelectItem value="Sudeste">Sudeste</SelectItem>
+                  <SelectItem value="Sul">Sul</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label>Latitude</Label>

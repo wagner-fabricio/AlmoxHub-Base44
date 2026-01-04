@@ -343,21 +343,12 @@ export default function Almoxarifados() {
             </div>
             <div className="space-y-2">
               <Label>Região</Label>
-              <Select
+              <Input
                 value={formData.regiao}
-                onValueChange={(v) => setFormData({ ...formData, regiao: v })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Norte">Norte</SelectItem>
-                  <SelectItem value="Nordeste">Nordeste</SelectItem>
-                  <SelectItem value="Centro Oeste">Centro Oeste</SelectItem>
-                  <SelectItem value="Sudeste">Sudeste</SelectItem>
-                  <SelectItem value="Sul">Sul</SelectItem>
-                </SelectContent>
-              </Select>
+                disabled
+                placeholder="Região"
+                className="bg-slate-100 dark:bg-slate-800"
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -388,6 +379,7 @@ export default function Almoxarifados() {
                       local_negocios: instalacao?.local_negocios || '',
                       latitude: instalacao?.latitude || '',
                       longitude: instalacao?.longitude || '',
+                      regiao: instalacao?.regiao || '',
                       endereco: enderecoCompleto
                     });
                   }}
