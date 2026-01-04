@@ -436,10 +436,12 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
             <p className="text-sm text-slate-600 ml-4 sm:ml-10">
               Edite os campos desejados. Linhas com ID serão <strong>atualizadas</strong>. Linhas sem ID mas com nome preenchido serão <strong>criadas</strong>.
             </p>
-            <Alert className="ml-4 sm:ml-10 mr-4 sm:mr-0">
+            <Alert className="ml-4 sm:ml-10 mr-4">
               <AlertTriangle className="w-4 h-4 shrink-0" />
-              <AlertDescription className="text-xs break-words">
-                <strong>Dica:</strong> Para criar novos registros, deixe a coluna "id" em branco e preencha os demais campos (especialmente o nome).
+              <AlertDescription className="text-xs">
+                <div className="break-words overflow-wrap-anywhere">
+                  <strong>Dica:</strong> Para criar novos registros, deixe a coluna "id" em branco e preencha os demais campos (especialmente o nome).
+                </div>
               </AlertDescription>
             </Alert>
           </div>
