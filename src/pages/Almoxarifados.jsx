@@ -222,19 +222,24 @@ export default function Almoxarifados() {
       </Card>
 
       {/* Cards de Contagem */}
-      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-2 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 mb-6">
         {/* Cards por Regional */}
         {regionais.map(regional => {
           const count = filteredItems.filter(a => a.regional_id === regional.id).length;
           return (
-            <Card key={regional.id} className="p-3 hover:shadow-md transition-shadow border border-slate-200 dark:border-slate-700">
-              <div className="flex flex-col">
-                <p className="text-xl font-bold text-slate-900 dark:text-white">{count}</p>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 truncate" title={regional.sigla}>
-                  {regional.sigla}
-                </p>
+            <div key={regional.id} className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-2xl font-bold text-slate-900 dark:text-white">{count}</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1" title={regional.sigla}>
+                    {regional.sigla}
+                  </p>
+                </div>
+                <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                  <MapPin className="w-5 h-5 text-blue-600" />
+                </div>
               </div>
-            </Card>
+            </div>
           );
         })}
       </div>
