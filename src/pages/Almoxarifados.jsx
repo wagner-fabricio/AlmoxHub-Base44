@@ -222,15 +222,7 @@ export default function Almoxarifados() {
       </Card>
 
       {/* Cards de Contagem */}
-      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2 mb-6">
-        {/* Card Total */}
-        <Card className="p-3 text-white hover:shadow-md transition-shadow" style={{ background: 'linear-gradient(135deg, #0000FF 0%, #0A003C 100%)' }}>
-          <div className="flex flex-col">
-            <p className="text-2xl font-bold">{filteredItems.length}</p>
-            <p className="text-xs opacity-90 mt-0.5">Total</p>
-          </div>
-        </Card>
-
+      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-2 mb-6">
         {/* Cards por Regional */}
         {regionais.map(regional => {
           const count = filteredItems.filter(a => a.regional_id === regional.id).length;
@@ -323,6 +315,14 @@ export default function Almoxarifados() {
                 );
               })
             )}
+            <TableRow className="bg-slate-50 dark:bg-slate-800 font-semibold border-t-2 border-slate-300 dark:border-slate-600">
+              <TableCell colSpan={6} className="text-slate-900 dark:text-white">
+                Total de Almoxarifados
+              </TableCell>
+              <TableCell className="text-right text-slate-900 dark:text-white">
+                {filteredItems.length}
+              </TableCell>
+            </TableRow>
           </TableBody>
         </Table>
       </Card>
