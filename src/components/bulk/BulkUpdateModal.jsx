@@ -14,6 +14,51 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
   const [results, setResults] = useState(null);
   const [errors, setErrors] = useState([]);
 
+  // Função para gerar e baixar log de erros
+  const downloadErrorLog = (errorLog, results, entityDisplayName) => {
+    const timestamp = new Date().toLocaleString('pt-BR');
+    const fileName = `${entityName}_erros_${new Date().toISOString().split('T')[0]}_${Date.now()}.txt`;
+    
+    let logContent = `========================================\n`;
+    logContent += `LOG DE IMPORTAÇÃO - ${entityDisplayName}\n`;
+    logContent += `========================================\n\n`;
+    logContent += `Data/Hora: ${timestamp}\n`;
+    logContent += `Arquivo processado: ${entityName}\n\n`;
+    
+    logContent += `RESUMO:\n`;
+    logContent += `-------\n`;
+    logContent += `Total de linhas: ${results.total}\n`;
+    logContent += `✓ Atualizados: ${results.success - (results.created || 0)}\n`;
+    logContent += `✓ Criados: ${results.created || 0}\n`;
+    logContent += `⊘ Ignorados: ${results.skipped}\n`;
+    logContent += `✗ Erros: ${results.errors}\n\n`;
+    
+    if (errorLog.length > 0) {
+      logContent += `DETALHAMENTO DOS ERROS:\n`;
+      logContent += `------------------------\n\n`;
+      errorLog.forEach((error, index) => {
+        logContent += `${index + 1}. ${error}\n`;
+      });
+    }
+    
+    logContent += `\n========================================\n`;
+    logContent += `Fim do relatório\n`;
+    logContent += `========================================\n`;
+    
+    // Criar blob e fazer download
+    const blob = new Blob([logContent], { type: 'text/plain;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+    
+    console.log(`📥 Log de erros baixado: ${fileName}`);
+  };
+
   // Gerar template Excel
   const handleExportTemplate = async () => {
     try {
@@ -309,11 +354,16 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
       setResults(finalResults);
       setErrors(errorLog);
 
+      // Download automático do log se houver erros
+      if (errorLog.length > 0) {
+        downloadErrorLog(errorLog, finalResults, displayName);
+      }
+
       if (successCount > 0) {
         console.log('🔄 Atualizando lista...');
         await onRefresh?.();
       }
-      
+
       console.log('✅ State atualizado, modal deve exibir resultados agora');
 
     } catch (error) {
