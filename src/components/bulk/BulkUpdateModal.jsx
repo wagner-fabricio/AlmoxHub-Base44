@@ -70,6 +70,34 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
     }
 
     try {
+      // Auto-detectar tipo se não especificado
+      if (fieldType === 'auto') {
+        // Se for número
+        if (typeof value === 'number') {
+          return { valid: true, value };
+        }
+        // Se for string que parece número
+        if (typeof value === 'string' && !isNaN(parseFloat(value)) && isFinite(value)) {
+          return { valid: true, value: parseFloat(value) };
+        }
+        // Se for boolean
+        if (typeof value === 'boolean') {
+          return { valid: true, value };
+        }
+        // Se for string que parece boolean
+        const strVal = String(value).toLowerCase();
+        if (['true', 'false', '1', '0', 'sim', 'não', 'yes', 'no', 'nao'].includes(strVal)) {
+          return { valid: true, value: ['true', '1', 'sim', 'yes'].includes(strVal) };
+        }
+        // Se for array
+        if (Array.isArray(value)) {
+          return { valid: true, value };
+        }
+        // Default: string
+        return { valid: true, value: String(value) };
+      }
+
+      // Validação por tipo específico
       switch (fieldType) {
         case 'number':
           const num = parseFloat(value);
@@ -91,7 +119,6 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
         
         case 'array':
           if (Array.isArray(value)) return { valid: true, value };
-          // Tentar parsear string como array
           if (typeof value === 'string') {
             try {
               const parsed = JSON.parse(value);
@@ -99,7 +126,6 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
                 return { valid: true, value: parsed };
               }
             } catch {
-              // Tentar split por vírgula
               return { valid: true, value: value.split(',').map(v => v.trim()).filter(Boolean) };
             }
           }
@@ -111,17 +137,6 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
     } catch (error) {
       return { valid: false, error: `${fieldName}: erro de validação` };
     }
-  };
-
-  // Obter tipo de campo do schema
-  const getFieldType = (schema, fieldName) => {
-    if (!schema?.properties?.[fieldName]) return 'string';
-    const prop = schema.properties[fieldName];
-    
-    if (prop.type === 'array') return 'array';
-    if (prop.type === 'number' || prop.type === 'integer') return 'number';
-    if (prop.type === 'boolean') return 'boolean';
-    return 'string';
   };
 
   // Processar arquivo
@@ -149,9 +164,6 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
       if (!jsonData[0].hasOwnProperty('id')) {
         throw new Error('Arquivo deve conter a coluna "id"');
       }
-
-      // Buscar schema da entidade
-      const schema = await base44.entities[entityName].schema();
 
       // Processar cada linha
       const errorLog = [];
@@ -182,9 +194,8 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
               continue;
             }
 
-            // Validar tipo
-            const fieldType = getFieldType(schema, key);
-            const validation = validateFieldValue(value, fieldType, key);
+            // Validar tipo (inferido do valor)
+            const validation = validateFieldValue(value, 'auto', key);
 
             if (!validation.valid) {
               throw new Error(validation.error);
