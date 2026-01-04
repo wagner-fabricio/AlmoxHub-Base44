@@ -6,8 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, Search, Truck } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Truck, FileSpreadsheet } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import BulkUpdateModal from '@/components/bulk/BulkUpdateModal';
 
 const estadosBrasil = [
   "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", 
@@ -21,6 +22,7 @@ export default function VeiculosAxia() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingVeiculo, setEditingVeiculo] = useState(null);
   const [search, setSearch] = useState('');
+  const [showBulkUpdate, setShowBulkUpdate] = useState(false);
   const [formData, setFormData] = useState({
     proprietario: 'Axia Energia S.A.',
     renavam: '',
@@ -127,10 +129,16 @@ export default function VeiculosAxia() {
               <p className="text-sm text-slate-500 dark:text-slate-400">Gerenciamento da frota própria</p>
             </div>
           </div>
-          <Button onClick={handleNew}>
-            <Plus className="w-4 h-4 mr-2" />
-            Novo Veículo
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => setShowBulkUpdate(true)} variant="outline">
+              <FileSpreadsheet className="w-4 h-4 mr-2" />
+              Atualização em Massa
+            </Button>
+            <Button onClick={handleNew}>
+              <Plus className="w-4 h-4 mr-2" />
+              Novo Veículo
+            </Button>
+          </div>
         </div>
 
         <div className="relative">
@@ -302,6 +310,15 @@ export default function VeiculosAxia() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Bulk Update Modal */}
+      <BulkUpdateModal
+        open={showBulkUpdate}
+        onClose={() => setShowBulkUpdate(false)}
+        entityName="VeiculoAxia"
+        displayName="Veículos Axia"
+        onRefresh={loadVeiculos}
+      />
     </div>
   );
 }
