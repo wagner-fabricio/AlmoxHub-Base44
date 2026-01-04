@@ -27,11 +27,12 @@ export default function Almoxarifados() {
   const [formData, setFormData] = useState({
     nome: '',
     regional_id: '',
+    tipo_almoxarifado: '',
     endereco: '',
     latitude: '',
     longitude: '',
     regiao: '',
-    instalacao: '',
+    instalacao_id: '',
     local_negocios: '',
     ativo: true
   });
@@ -64,6 +65,7 @@ export default function Almoxarifados() {
     setFormData({
       nome: '',
       regional_id: '',
+      tipo_almoxarifado: '',
       endereco: '',
       latitude: '',
       longitude: '',
@@ -80,6 +82,7 @@ export default function Almoxarifados() {
     setFormData({
       nome: item.nome || '',
       regional_id: item.regional_id || '',
+      tipo_almoxarifado: item.tipo_almoxarifado || '',
       endereco: item.endereco || '',
       latitude: item.latitude || '',
       longitude: item.longitude || '',
@@ -349,6 +352,14 @@ export default function Almoxarifados() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
+                <Label>Tipo Almoxarifado</Label>
+                <Input
+                  value={formData.tipo_almoxarifado}
+                  onChange={(e) => setFormData({ ...formData, tipo_almoxarifado: e.target.value })}
+                  placeholder="Tipo do almoxarifado"
+                />
+              </div>
+              <div className="space-y-2">
                 <Label>Instalação</Label>
                 <Select
                   value={formData.instalacao_id}
@@ -357,7 +368,9 @@ export default function Almoxarifados() {
                     setFormData({ 
                       ...formData, 
                       instalacao_id: v,
-                      local_negocios: instalacao?.local_negocios || ''
+                      local_negocios: instalacao?.local_negocios || '',
+                      latitude: instalacao?.latitude || '',
+                      longitude: instalacao?.longitude || ''
                     });
                   }}
                 >
@@ -388,8 +401,9 @@ export default function Almoxarifados() {
                   type="number"
                   step="any"
                   value={formData.latitude}
-                  onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
+                  disabled
                   placeholder="-23.5505"
+                  className="bg-slate-100 dark:bg-slate-800"
                 />
               </div>
               <div className="space-y-2">
@@ -398,8 +412,9 @@ export default function Almoxarifados() {
                   type="number"
                   step="any"
                   value={formData.longitude}
-                  onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
+                  disabled
                   placeholder="-46.6333"
+                  className="bg-slate-100 dark:bg-slate-800"
                 />
               </div>
             </div>
