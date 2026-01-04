@@ -70,6 +70,17 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
         return;
       }
 
+      // Para Almoxarifado, buscar regionais e instalações
+      let allRegionais = [];
+      let allInstalacoes = [];
+      
+      if (entityName === 'Almoxarifado') {
+        [allRegionais, allInstalacoes] = await Promise.all([
+          base44.entities.Regional.list(),
+          base44.entities.Instalacao.list()
+        ]);
+      }
+
       // Coletar todos os campos únicos de todos os registros (exceto campos de auditoria)
       const allKeys = new Set();
       data.forEach(item => {
@@ -89,7 +100,20 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
         
         // Adicionar todos os campos na ordem
         fields.forEach(key => {
-          row[key] = item[key] !== undefined && item[key] !== null ? item[key] : '';
+          if (entityName === 'Almoxarifado') {
+            // Substituir IDs por nomes legíveis
+            if (key === 'regional_id') {
+              const regional = allRegionais.find(r => r.id === item.regional_id);
+              row['regional_nome'] = regional?.sigla || '';
+            } else if (key === 'instalacao_id') {
+              const instalacao = allInstalacoes.find(i => i.id === item.instalacao_id);
+              row['instalacao_nome'] = instalacao?.nome || '';
+            } else {
+              row[key] = item[key] !== undefined && item[key] !== null ? item[key] : '';
+            }
+          } else {
+            row[key] = item[key] !== undefined && item[key] !== null ? item[key] : '';
+          }
         });
         
         return row;
@@ -307,6 +331,11 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
           for (const [key, value] of Object.entries(row)) {
             if (key === 'id' || key === 'ID' || key === 'Id' || 
                 key === 'created_date' || key === 'updated_date' || key === 'created_by') {
+              continue;
+            }
+
+            // Ignorar campos de nome que são apenas para visualização
+            if (entityName === 'Almoxarifado' && (key === 'regional_nome' || key === 'instalacao_nome')) {
               continue;
             }
 
