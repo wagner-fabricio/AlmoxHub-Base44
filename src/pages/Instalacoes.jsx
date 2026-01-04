@@ -230,10 +230,10 @@ export default function Instalacoes() {
 
   // Contagem por classificação
   const countByClassificacao = {
-    'Usina': instalacoes.filter(i => i.classificacao === 'Usina').length,
-    'Subestação': instalacoes.filter(i => i.classificacao === 'Subestação').length,
-    'Almoxarifado': instalacoes.filter(i => i.classificacao === 'Almoxarifado').length,
-    'Outros': instalacoes.filter(i => i.classificacao === 'Outros').length,
+    'Usina': filteredInstalacoes.filter(i => i.classificacao === 'Usina').length,
+    'Subestação': filteredInstalacoes.filter(i => i.classificacao === 'Subestação').length,
+    'Almoxarifado': filteredInstalacoes.filter(i => i.classificacao === 'Almoxarifado').length,
+    'Outros': filteredInstalacoes.filter(i => i.classificacao === 'Outros').length,
   };
 
   if (loading) {
@@ -345,7 +345,7 @@ export default function Instalacoes() {
           <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-3xl font-bold text-white">{instalacoes.length}</p>
+                <p className="text-3xl font-bold text-white">{filteredInstalacoes.length}</p>
                 <p className="text-xs text-blue-100 mt-1">Total</p>
               </div>
               <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
