@@ -322,10 +322,61 @@ export default function Instalacoes() {
             </SelectContent>
           </Select>
         </div>
-      </div>
+        </div>
 
-      {/* Table */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        {/* Cards de Contagem */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-2xl font-bold text-green-600">{countByClassificacao['Usina']}</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Usinas</p>
+            </div>
+            <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+              <Building2 className="w-5 h-5 text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-2xl font-bold text-blue-600">{countByClassificacao['Subestação']}</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Subestações</p>
+            </div>
+            <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+              <Building2 className="w-5 h-5 text-blue-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-2xl font-bold text-amber-600">{countByClassificacao['Almoxarifado']}</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Almoxarifados</p>
+            </div>
+            <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+              <Building2 className="w-5 h-5 text-amber-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-2xl font-bold text-slate-600">{countByClassificacao['Outros']}</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Outros</p>
+            </div>
+            <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+              <Building2 className="w-5 h-5 text-slate-600" />
+            </div>
+          </div>
+        </div>
+        </div>
+
+        {/* Table */}
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
