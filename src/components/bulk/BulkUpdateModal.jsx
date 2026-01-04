@@ -17,22 +17,31 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
   // Gerar template Excel
   const handleExportTemplate = async () => {
     try {
-      // Buscar dados existentes
-      const data = await base44.entities[entityName].list();
+      // Buscar schema e dados existentes
+      const [schema, data] = await Promise.all([
+        base44.entities[entityName].schema(),
+        base44.entities[entityName].list()
+      ]);
       
       if (!data || data.length === 0) {
         alert('Nenhum registro encontrado para exportar');
         return;
       }
 
-      // Preparar dados para Excel (incluindo ID)
+      // Obter todos os campos do schema (exceto os de auditoria)
+      const schemaFields = Object.keys(schema?.properties || {}).filter(
+        key => !['created_date', 'updated_date', 'created_by'].includes(key)
+      );
+
+      // Preparar dados para Excel com todos os campos do schema
       const excelData = data.map(item => {
         const row = { id: item.id };
-        Object.keys(item).forEach(key => {
-          if (key !== 'created_date' && key !== 'updated_date' && key !== 'created_by') {
-            row[key] = item[key];
-          }
+        
+        // Adicionar todos os campos do schema na ordem
+        schemaFields.forEach(key => {
+          row[key] = item[key] !== undefined && item[key] !== null ? item[key] : '';
         });
+        
         return row;
       });
 
