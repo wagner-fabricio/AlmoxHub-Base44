@@ -222,12 +222,12 @@ export default function Almoxarifados() {
       </Card>
 
       {/* Cards de Contagem */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 mb-6">
+      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2 mb-6">
         {/* Card Total */}
-        <Card className="p-4 bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:shadow-lg transition-shadow">
+        <Card className="p-3 text-white hover:shadow-md transition-shadow" style={{ background: 'linear-gradient(135deg, #0000FF 0%, #0A003C 100%)' }}>
           <div className="flex flex-col">
-            <p className="text-3xl font-bold">{filteredItems.length}</p>
-            <p className="text-xs text-blue-100 mt-1">Total Geral</p>
+            <p className="text-2xl font-bold">{filteredItems.length}</p>
+            <p className="text-xs opacity-90 mt-0.5">Total</p>
           </div>
         </Card>
 
@@ -235,10 +235,10 @@ export default function Almoxarifados() {
         {regionais.map(regional => {
           const count = filteredItems.filter(a => a.regional_id === regional.id).length;
           return (
-            <Card key={regional.id} className="p-4 hover:shadow-lg transition-shadow">
+            <Card key={regional.id} className="p-3 hover:shadow-md transition-shadow border border-slate-200 dark:border-slate-700">
               <div className="flex flex-col">
-                <p className="text-2xl font-bold text-slate-900 dark:text-white">{count}</p>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 truncate" title={regional.sigla}>
+                <p className="text-xl font-bold text-slate-900 dark:text-white">{count}</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 truncate" title={regional.sigla}>
                   {regional.sigla}
                 </p>
               </div>
