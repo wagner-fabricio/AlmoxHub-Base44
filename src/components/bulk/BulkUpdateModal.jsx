@@ -17,46 +17,34 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
   // Gerar template Excel
   const handleExportTemplate = async () => {
     try {
-      // Buscar schema e dados existentes
-      const [schema, data] = await Promise.all([
-        base44.entities[entityName].schema(),
-        base44.entities[entityName].list()
-      ]);
+      // Buscar dados existentes
+      const data = await base44.entities[entityName].list();
       
       if (!data || data.length === 0) {
         alert('Nenhum registro encontrado para exportar');
         return;
       }
 
-      // Obter todos os campos do schema (exceto os de auditoria)
-      const schemaFields = Object.keys(schema?.properties || {}).filter(
-        key => !['created_date', 'updated_date', 'created_by'].includes(key)
-      );
-
-      // Se não há campos do schema, usar campos dos dados
-      if (schemaFields.length === 0) {
-        const allKeys = new Set();
-        data.forEach(item => {
-          Object.keys(item).forEach(key => {
-            if (!['id', 'created_date', 'updated_date', 'created_by'].includes(key)) {
-              allKeys.add(key);
-            }
-          });
-        });
-        schemaFields.push(...Array.from(allKeys));
-      }
-
-      // Preparar dados para Excel com todos os campos do schema
-      const excelData = data.map(item => {
-        const row = { id: item.id };
-        
-        // Adicionar todos os campos do schema na ordem, mesmo que vazios
-        schemaFields.forEach(key => {
-          if (item.hasOwnProperty(key)) {
-            row[key] = item[key] !== null && item[key] !== undefined ? item[key] : '';
-          } else {
-            row[key] = ''; // Campo existe no schema mas não nos dados
+      // Coletar todos os campos únicos de todos os registros (exceto campos de auditoria)
+      const allKeys = new Set();
+      data.forEach(item => {
+        Object.keys(item).forEach(key => {
+          if (!['created_date', 'updated_date', 'created_by'].includes(key)) {
+            allKeys.add(key);
           }
+        });
+      });
+      
+      // Garantir que 'id' seja o primeiro campo
+      const fields = ['id', ...Array.from(allKeys).filter(k => k !== 'id')];
+
+      // Preparar dados para Excel com todos os campos
+      const excelData = data.map(item => {
+        const row = {};
+        
+        // Adicionar todos os campos na ordem
+        fields.forEach(key => {
+          row[key] = item[key] !== undefined && item[key] !== null ? item[key] : '';
         });
         
         return row;
@@ -71,7 +59,7 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
       XLSX.writeFile(wb, `${entityName}_template_${new Date().toISOString().split('T')[0]}.xlsx`);
     } catch (error) {
       console.error('Error exporting template:', error);
-      alert('Erro ao exportar template: ' + error.message);
+      alert('Erro ao exportar template');
     }
   };
 
