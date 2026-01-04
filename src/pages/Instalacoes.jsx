@@ -56,6 +56,7 @@ export default function Instalacoes() {
   const [filterClassificacao, setFilterClassificacao] = useState('all');
   const [filterCidade, setFilterCidade] = useState('all');
   const [filterEstado, setFilterEstado] = useState('all');
+  const [filterRegiao, setFilterRegiao] = useState('all');
   
   const [showModal, setShowModal] = useState(false);
   const [showBulkUpdate, setShowBulkUpdate] = useState(false);
@@ -102,6 +103,7 @@ export default function Instalacoes() {
         setFilterClassificacao(saved.filterClassificacao || 'all');
         setFilterCidade(saved.filterCidade || 'all');
         setFilterEstado(saved.filterEstado || 'all');
+        setFilterRegiao(saved.filterRegiao || 'all');
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -221,8 +223,9 @@ export default function Instalacoes() {
     const matchesClassificacao = filterClassificacao === 'all' || inst.classificacao === filterClassificacao;
     const matchesCidade = filterCidade === 'all' || inst.cidade === filterCidade;
     const matchesEstado = filterEstado === 'all' || inst.estado === filterEstado;
+    const matchesRegiao = filterRegiao === 'all' || inst.regiao === filterRegiao;
 
-    return matchesSearch && matchesRegional && matchesClassificacao && matchesCidade && matchesEstado;
+    return matchesSearch && matchesRegional && matchesClassificacao && matchesCidade && matchesEstado && matchesRegiao;
   });
 
   // Contagem por classificação
@@ -276,7 +279,7 @@ export default function Instalacoes() {
               className="pl-10 bg-slate-50 dark:bg-slate-900"
             />
           </div>
-          <Select value={filterRegional} onValueChange={(v) => { setFilterRegional(v); saveFilters({ search, filterRegional: v, filterClassificacao, filterCidade, filterEstado }); }}>
+          <Select value={filterRegional} onValueChange={(v) => { setFilterRegional(v); saveFilters({ search, filterRegional: v, filterClassificacao, filterCidade, filterEstado, filterRegiao }); }}>
             <SelectTrigger className="w-full lg:w-36 bg-slate-50 dark:bg-slate-900">
               <SelectValue placeholder="Regional" />
             </SelectTrigger>
@@ -287,7 +290,7 @@ export default function Instalacoes() {
               ))}
             </SelectContent>
           </Select>
-          <Select value={filterClassificacao} onValueChange={(v) => { setFilterClassificacao(v); saveFilters({ search, filterRegional, filterClassificacao: v, filterCidade, filterEstado }); }}>
+          <Select value={filterClassificacao} onValueChange={(v) => { setFilterClassificacao(v); saveFilters({ search, filterRegional, filterClassificacao: v, filterCidade, filterEstado, filterRegiao }); }}>
             <SelectTrigger className="w-full lg:w-40 bg-slate-50 dark:bg-slate-900">
               <SelectValue placeholder="Classificação" />
             </SelectTrigger>
@@ -299,7 +302,20 @@ export default function Instalacoes() {
               <SelectItem value="Outros">Outros</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={filterEstado} onValueChange={(v) => { setFilterEstado(v); saveFilters({ search, filterRegional, filterClassificacao, filterCidade, filterEstado: v }); }}>
+          <Select value={filterRegiao} onValueChange={(v) => { setFilterRegiao(v); saveFilters({ search, filterRegional, filterClassificacao, filterCidade, filterEstado, filterRegiao: v }); }}>
+            <SelectTrigger className="w-full lg:w-36 bg-slate-50 dark:bg-slate-900">
+              <SelectValue placeholder="Região" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              <SelectItem value="Norte">Norte</SelectItem>
+              <SelectItem value="Nordeste">Nordeste</SelectItem>
+              <SelectItem value="Centro Oeste">Centro Oeste</SelectItem>
+              <SelectItem value="Sudeste">Sudeste</SelectItem>
+              <SelectItem value="Sul">Sul</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={filterEstado} onValueChange={(v) => { setFilterEstado(v); saveFilters({ search, filterRegional, filterClassificacao, filterCidade, filterEstado: v, filterRegiao }); }}>
             <SelectTrigger className="w-full lg:w-32 bg-slate-50 dark:bg-slate-900">
               <SelectValue placeholder="Estado" />
             </SelectTrigger>
@@ -310,7 +326,7 @@ export default function Instalacoes() {
               ))}
             </SelectContent>
           </Select>
-          <Select value={filterCidade} onValueChange={(v) => { setFilterCidade(v); saveFilters({ search, filterRegional, filterClassificacao, filterCidade: v, filterEstado }); }}>
+          <Select value={filterCidade} onValueChange={(v) => { setFilterCidade(v); saveFilters({ search, filterRegional, filterClassificacao, filterCidade: v, filterEstado, filterRegiao }); }}>
             <SelectTrigger className="w-full lg:w-40 bg-slate-50 dark:bg-slate-900">
               <SelectValue placeholder="Cidade" />
             </SelectTrigger>
