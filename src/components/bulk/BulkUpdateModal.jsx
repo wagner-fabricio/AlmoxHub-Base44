@@ -72,6 +72,12 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
     try {
       // Auto-detectar tipo se não especificado
       if (fieldType === 'auto') {
+        // Campos que DEVEM ser sempre strings (endereços, códigos, etc)
+        const stringFields = ['numero', 'cep', 'complemento', 'logradouro', 'bairro', 'cnpj', 'cpf', 'rg', 'placa', 'renavam', 'telefones', 'codigo', 'inscricao_estadual', 'codigo_sap'];
+        if (stringFields.includes(fieldName)) {
+          return { valid: true, value: String(value) };
+        }
+        
         // Se for boolean
         if (typeof value === 'boolean') {
           return { valid: true, value };
@@ -85,19 +91,24 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
         if (Array.isArray(value)) {
           return { valid: true, value };
         }
-        // Se for número puro (não string de número)
-        if (typeof value === 'number') {
-          return { valid: true, value };
-        }
-        // IMPORTANTE: Campos numéricos explícitos
+        
+        // Campos numéricos explícitos
         const numericFields = ['latitude', 'longitude', 'local_negocios', 'tara', 'quantidade', 'r_unit', 'r_total', 'saldo', 'peso', 'valor_total', 'progresso'];
         if (numericFields.includes(fieldName)) {
+          if (typeof value === 'number') {
+            return { valid: true, value };
+          }
           if (typeof value === 'string' && !isNaN(parseFloat(value)) && isFinite(value)) {
             return { valid: true, value: parseFloat(value) };
           }
         }
-        // Se for string de número mas não está na lista de campos numéricos, manter como string
-        // Isso garante que campos como "numero" (endereço), "cep", etc fiquem como string
+        
+        // Se for número puro e não está em nenhuma lista específica
+        if (typeof value === 'number') {
+          return { valid: true, value };
+        }
+        
+        // Default: manter como string
         return { valid: true, value: String(value) };
       }
 
