@@ -71,7 +71,9 @@ export default function Instalacoes() {
     longitude: '',
     classificacao: 'Outros',
     regional_id: '',
-    local_negocios: ''
+    local_negocios: '',
+    cnpj: '',
+    inscricao_estadual: ''
   });
 
   useEffect(() => {
@@ -133,7 +135,9 @@ export default function Instalacoes() {
       longitude: '',
       classificacao: 'Outros',
       regional_id: '',
-      local_negocios: ''
+      local_negocios: '',
+      cnpj: '',
+      inscricao_estadual: ''
     });
     setShowModal(true);
   };
@@ -152,7 +156,9 @@ export default function Instalacoes() {
       longitude: item.longitude || '',
       classificacao: item.classificacao || 'Outros',
       regional_id: item.regional_id || '',
-      local_negocios: item.local_negocios || ''
+      local_negocios: item.local_negocios || '',
+      cnpj: item.cnpj || '',
+      inscricao_estadual: item.inscricao_estadual || ''
     });
     setShowModal(true);
   };
@@ -497,6 +503,22 @@ export default function Instalacoes() {
                 value={formData.longitude}
                 onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
                 placeholder="-46.633308"
+              />
+            </div>
+            <div>
+              <Label>CNPJ</Label>
+              <Input
+                value={formData.cnpj}
+                onChange={(e) => setFormData({ ...formData, cnpj: e.target.value })}
+                placeholder="00.000.000/0000-00"
+              />
+            </div>
+            <div>
+              <Label>Inscrição Estadual</Label>
+              <Input
+                value={formData.inscricao_estadual}
+                onChange={(e) => setFormData({ ...formData, inscricao_estadual: e.target.value })}
+                placeholder="123.456.789.012"
               />
             </div>
           </div>
