@@ -205,6 +205,11 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
               continue;
             }
 
+            // Pular valores vazios
+            if (value === null || value === undefined || value === '') {
+              continue;
+            }
+
             // Validar tipo (inferido do valor)
             const validation = validateFieldValue(value, 'auto', key);
 
@@ -212,10 +217,8 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
               throw new Error(validation.error);
             }
 
-            if (validation.value !== null && validation.value !== undefined && validation.value !== '') {
-              updateData[key] = validation.value;
-              hasChanges = true;
-            }
+            updateData[key] = validation.value;
+            hasChanges = true;
           }
 
           // Só atualizar se houver mudanças
