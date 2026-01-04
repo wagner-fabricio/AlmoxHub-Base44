@@ -17,24 +17,24 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
   // Gerar template Excel
   const handleExportTemplate = async () => {
     try {
-      // Buscar dados existentes
-      const data = await base44.entities[entityName].list();
+      // Buscar schema e dados existentes
+      const [schema, data] = await Promise.all([
+        base44.entities[entityName].schema(),
+        base44.entities[entityName].list()
+      ]);
       
       if (!data || data.length === 0) {
         alert('Nenhum registro encontrado para exportar');
         return;
       }
 
-      // Tentar buscar schema, mas continuar se falhar
-      let schemaFields = [];
-      try {
-        const schema = await base44.entities[entityName].schema();
-        schemaFields = Object.keys(schema?.properties || {}).filter(
-          key => !['created_date', 'updated_date', 'created_by'].includes(key)
-        );
-      } catch (schemaError) {
-        console.log('Schema not available, using data keys');
-        // Se schema não estiver disponível, coletar todos os campos dos dados
+      // Obter todos os campos do schema (exceto os de auditoria)
+      const schemaFields = Object.keys(schema?.properties || {}).filter(
+        key => !['created_date', 'updated_date', 'created_by'].includes(key)
+      );
+
+      // Se não há campos do schema, usar campos dos dados
+      if (schemaFields.length === 0) {
         const allKeys = new Set();
         data.forEach(item => {
           Object.keys(item).forEach(key => {
@@ -43,16 +43,20 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
             }
           });
         });
-        schemaFields = Array.from(allKeys);
+        schemaFields.push(...Array.from(allKeys));
       }
 
-      // Preparar dados para Excel com todos os campos
+      // Preparar dados para Excel com todos os campos do schema
       const excelData = data.map(item => {
         const row = { id: item.id };
         
-        // Adicionar todos os campos na ordem
+        // Adicionar todos os campos do schema na ordem, mesmo que vazios
         schemaFields.forEach(key => {
-          row[key] = item[key] !== undefined && item[key] !== null ? item[key] : '';
+          if (item.hasOwnProperty(key)) {
+            row[key] = item[key] !== null && item[key] !== undefined ? item[key] : '';
+          } else {
+            row[key] = ''; // Campo existe no schema mas não nos dados
+          }
         });
         
         return row;
@@ -67,7 +71,7 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
       XLSX.writeFile(wb, `${entityName}_template_${new Date().toISOString().split('T')[0]}.xlsx`);
     } catch (error) {
       console.error('Error exporting template:', error);
-      alert('Erro ao exportar template');
+      alert('Erro ao exportar template: ' + error.message);
     }
   };
 
