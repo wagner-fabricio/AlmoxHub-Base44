@@ -411,13 +411,13 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
               </div>
               <h3 className="font-semibold text-slate-900">Exportar Planilha Atual</h3>
             </div>
-            <p className="text-sm text-slate-600 ml-10">
+            <p className="text-sm text-slate-600 ml-4 sm:ml-10">
               Baixe a planilha com todos os registros existentes. Para atualizar, mantenha o ID. Para criar novos, deixe o ID em branco.
             </p>
             <Button
               onClick={handleExportTemplate}
               variant="outline"
-              className="ml-10"
+              className="ml-4 sm:ml-10"
               disabled={processing}
             >
               <Download className="w-4 h-4 mr-2" />
@@ -433,12 +433,12 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
               </div>
               <h3 className="font-semibold text-slate-900">Editar a Planilha</h3>
             </div>
-            <p className="text-sm text-slate-600 ml-10">
+            <p className="text-sm text-slate-600 ml-4 sm:ml-10">
               Edite os campos desejados. Linhas com ID serão <strong>atualizadas</strong>. Linhas sem ID mas com nome preenchido serão <strong>criadas</strong>.
             </p>
-            <Alert className="ml-10">
-              <AlertTriangle className="w-4 h-4" />
-              <AlertDescription className="text-xs">
+            <Alert className="ml-4 sm:ml-10 mr-4 sm:mr-0">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+              <AlertDescription className="text-xs break-words">
                 <strong>Dica:</strong> Para criar novos registros, deixe a coluna "id" em branco e preencha os demais campos (especialmente o nome).
               </AlertDescription>
             </Alert>
@@ -452,10 +452,10 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
               </div>
               <h3 className="font-semibold text-slate-900">Fazer Upload</h3>
             </div>
-            <p className="text-sm text-slate-600 ml-10">
+            <p className="text-sm text-slate-600 ml-4 sm:ml-10">
               Envie a planilha editada. O sistema validará e atualizará os registros.
             </p>
-            <div className="ml-10">
+            <div className="ml-4 sm:ml-10">
               <Label
                 htmlFor="bulk-upload"
                 className="flex items-center justify-center gap-2 px-4 py-8 border-2 border-dashed border-slate-300 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-colors cursor-pointer"
