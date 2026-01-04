@@ -231,6 +231,7 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
 
       // Processar cada linha
       const errorLog = [];
+      const skippedLog = [];
       let successCount = 0;
       let createdCount = 0;
       let skippedCount = 0;
@@ -282,6 +283,7 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
               createdCount++;
               successCount++;
             } else {
+              skippedLog.push(`Linha ${rowNumber}: Ignorada - tentativa de criar registro sem ID, mas nenhum dado válido foi fornecido além do nome.`);
               skippedCount++;
             }
 
@@ -291,6 +293,7 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
           // Se não tem ID e não tem nome, ignorar
           if (!id) {
             console.log(`⚠️ Linha ${rowNumber} sem ID e sem nome - ignorando`);
+            skippedLog.push(`Linha ${rowNumber}: Ignorada - linha sem ID e sem campo "nome" preenchido. Para criar um novo registro, preencha o nome.`);
             skippedCount++;
             continue;
           }
@@ -329,6 +332,7 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
             await base44.entities[entityName].update(id, updateData);
             successCount++;
           } else {
+            skippedLog.push(`Linha ${rowNumber}: Ignorada - registro com ID "${id}" não possui alterações. Todos os campos estão vazios ou iguais aos valores atuais.`);
             skippedCount++;
           }
 
@@ -341,6 +345,10 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
 
       console.log('✅ Processamento concluído:', { successCount, createdCount, skippedCount, errors: errorLog.length });
       console.log('📝 Erros encontrados:', errorLog);
+      console.log('📝 Linhas ignoradas:', skippedLog);
+
+      // Combinar logs de erro e ignorados
+      const combinedLog = [...errorLog, ...skippedLog];
 
       const finalResults = {
         total: jsonData.length,
@@ -352,11 +360,11 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
 
       console.log('📊 Definindo resultados:', finalResults);
       setResults(finalResults);
-      setErrors(errorLog);
+      setErrors(combinedLog);
 
-      // Download automático do log se houver erros
-      if (errorLog.length > 0) {
-        downloadErrorLog(errorLog, finalResults, displayName);
+      // Download automático do log se houver erros ou linhas ignoradas
+      if (combinedLog.length > 0) {
+        downloadErrorLog(combinedLog, finalResults, displayName);
       }
 
       if (successCount > 0) {
