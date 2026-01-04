@@ -144,17 +144,22 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
     const file = e.target.files?.[0];
     if (!file) return;
 
+    console.log('🔄 Iniciando processamento do arquivo:', file.name);
+    
     setProcessing(true);
     setProgress(0);
     setErrors([]);
     setResults(null);
 
     try {
+      console.log('📖 Lendo arquivo...');
       // Ler arquivo
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data);
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+      console.log('📊 Dados lidos:', jsonData.length, 'linhas');
 
       if (jsonData.length === 0) {
         throw new Error('Arquivo vazio');
@@ -164,6 +169,8 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
       if (!jsonData[0].hasOwnProperty('id')) {
         throw new Error('Arquivo deve conter a coluna "id"');
       }
+
+      console.log('✅ Validação inicial OK, processando linhas...');
 
       // Processar cada linha
       const errorLog = [];
@@ -209,6 +216,7 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
 
           // Só atualizar se houver mudanças
           if (hasChanges) {
+            console.log(`⚡ Atualizando registro ${id}...`);
             await base44.entities[entityName].update(id, updateData);
             successCount++;
           } else {
@@ -216,10 +224,13 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
           }
 
         } catch (error) {
+          console.error(`❌ Erro na linha ${rowNumber}:`, error);
           errorLog.push(`Linha ${rowNumber}: ${error.message}`);
           skippedCount++;
         }
       }
+
+      console.log('✅ Processamento concluído:', { successCount, skippedCount, errors: errorLog.length });
 
       setResults({
         total: jsonData.length,
@@ -230,12 +241,14 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
       setErrors(errorLog);
 
       if (successCount > 0) {
+        console.log('🔄 Atualizando lista...');
         await onRefresh?.();
       }
 
     } catch (error) {
-      console.error('Error processing file:', error);
-      setErrors([`Erro geral: ${error.message}`]);
+      console.error('❌ Erro geral ao processar arquivo:', error);
+      const errorMessage = error.message || 'Erro desconhecido';
+      setErrors([`Erro geral: ${errorMessage}`]);
       setResults({
         total: 0,
         success: 0,
@@ -243,12 +256,18 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
         errors: 1
       });
     } finally {
+      console.log('🏁 Finalizando processamento');
       setProcessing(false);
       e.target.value = ''; // Reset input
     }
   };
 
   const handleClose = () => {
+    if (processing) {
+      console.log('⚠️ Tentativa de fechar durante processamento - bloqueado');
+      return; // Não permitir fechar durante processamento
+    }
+    console.log('🚪 Fechando modal');
     setResults(null);
     setErrors([]);
     setProgress(0);
@@ -256,7 +275,7 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={(newOpen) => !newOpen && handleClose()}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Atualização em Massa - {displayName}</DialogTitle>
