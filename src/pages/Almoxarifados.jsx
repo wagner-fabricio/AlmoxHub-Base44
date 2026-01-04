@@ -221,6 +221,32 @@ export default function Almoxarifados() {
         </div>
       </Card>
 
+      {/* Cards de Contagem */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 mb-6">
+        {/* Card Total */}
+        <Card className="p-4 bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:shadow-lg transition-shadow">
+          <div className="flex flex-col">
+            <p className="text-3xl font-bold">{filteredItems.length}</p>
+            <p className="text-xs text-blue-100 mt-1">Total Geral</p>
+          </div>
+        </Card>
+
+        {/* Cards por Regional */}
+        {regionais.map(regional => {
+          const count = filteredItems.filter(a => a.regional_id === regional.id).length;
+          return (
+            <Card key={regional.id} className="p-4 hover:shadow-lg transition-shadow">
+              <div className="flex flex-col">
+                <p className="text-2xl font-bold text-slate-900 dark:text-white">{count}</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 truncate" title={regional.sigla}>
+                  {regional.sigla}
+                </p>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+
       {/* Table */}
       <Card className="overflow-hidden">
         <Table>
