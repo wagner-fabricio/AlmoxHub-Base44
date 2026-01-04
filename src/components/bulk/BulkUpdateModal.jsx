@@ -17,34 +17,34 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
   // Função para gerar e baixar log de erros
   const downloadErrorLog = (errorLog, results, entityDisplayName) => {
     const timestamp = new Date().toLocaleString('pt-BR');
-    const fileName = `${entityName}_erros_${new Date().toISOString().split('T')[0]}_${Date.now()}.txt`;
-    
+    const fileName = `${entityName}_log_importacao_${new Date().toISOString().split('T')[0]}_${Date.now()}.txt`;
+
     let logContent = `========================================\n`;
     logContent += `LOG DE IMPORTAÇÃO - ${entityDisplayName}\n`;
     logContent += `========================================\n\n`;
     logContent += `Data/Hora: ${timestamp}\n`;
-    logContent += `Arquivo processado: ${entityName}\n\n`;
-    
+    logContent += `Entidade: ${entityName}\n\n`;
+
     logContent += `RESUMO:\n`;
     logContent += `-------\n`;
-    logContent += `Total de linhas: ${results.total}\n`;
-    logContent += `✓ Atualizados: ${results.success - (results.created || 0)}\n`;
-    logContent += `✓ Criados: ${results.created || 0}\n`;
-    logContent += `⊘ Ignorados: ${results.skipped}\n`;
-    logContent += `✗ Erros: ${results.errors}\n\n`;
-    
+    logContent += `Total de linhas processadas: ${results.total}\n`;
+    logContent += `✓ Registros atualizados: ${results.success - (results.created || 0)}\n`;
+    logContent += `✓ Registros criados: ${results.created || 0}\n`;
+    logContent += `⊘ Linhas ignoradas: ${results.skipped}\n`;
+    logContent += `✗ Erros encontrados: ${results.errors}\n\n`;
+
     if (errorLog.length > 0) {
-      logContent += `DETALHAMENTO DOS ERROS:\n`;
-      logContent += `------------------------\n\n`;
+      logContent += `DETALHAMENTO:\n`;
+      logContent += `-------------\n\n`;
       errorLog.forEach((error, index) => {
         logContent += `${index + 1}. ${error}\n`;
       });
     }
-    
+
     logContent += `\n========================================\n`;
-    logContent += `Fim do relatório\n`;
+    logContent += `Fim do relatório de importação\n`;
     logContent += `========================================\n`;
-    
+
     // Criar blob e fazer download
     const blob = new Blob([logContent], { type: 'text/plain;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
@@ -55,8 +55,8 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
-    
-    console.log(`📥 Log de erros baixado: ${fileName}`);
+
+    console.log(`📥 Log de importação baixado: ${fileName}`);
   };
 
   // Gerar template Excel
