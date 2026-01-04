@@ -328,8 +328,9 @@ export default function Almoxarifados() {
               <Label>Endereço</Label>
               <Input
                 value={formData.endereco}
-                onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
+                disabled
                 placeholder="Endereço completo"
+                className="bg-slate-100 dark:bg-slate-800"
               />
             </div>
             <div className="space-y-2">
@@ -365,12 +366,21 @@ export default function Almoxarifados() {
                   value={formData.instalacao_id}
                   onValueChange={(v) => {
                     const instalacao = instalacoes.find(i => i.id === v);
+                    const enderecoCompleto = instalacao 
+                      ? [
+                          instalacao.logradouro,
+                          instalacao.numero,
+                          instalacao.cidade,
+                          instalacao.estado
+                        ].filter(Boolean).join(', ')
+                      : '';
                     setFormData({ 
                       ...formData, 
                       instalacao_id: v,
                       local_negocios: instalacao?.local_negocios || '',
                       latitude: instalacao?.latitude || '',
-                      longitude: instalacao?.longitude || ''
+                      longitude: instalacao?.longitude || '',
+                      endereco: enderecoCompleto
                     });
                   }}
                 >
