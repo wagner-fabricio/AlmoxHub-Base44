@@ -410,6 +410,8 @@ export default function Instalacoes() {
               <TableHead>Nome</TableHead>
               <TableHead>Classificação</TableHead>
               <TableHead>Endereço</TableHead>
+              <TableHead>Número</TableHead>
+              <TableHead>Bairro</TableHead>
               <TableHead>Cidade</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead>Regional</TableHead>
@@ -419,7 +421,7 @@ export default function Instalacoes() {
           <TableBody>
             {filteredInstalacoes.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-12 text-slate-500">
+                <TableCell colSpan={9} className="text-center py-12 text-slate-500">
                   <Building2 className="w-12 h-12 mx-auto mb-3 text-slate-300" />
                   <p>Nenhuma instalação encontrada</p>
                 </TableCell>
@@ -436,7 +438,9 @@ export default function Instalacoes() {
                         {inst.classificacao}
                       </Badge>
                     </TableCell>
-                    <TableCell className="max-w-xs truncate">{enderecoCompleto || '-'}</TableCell>
+                    <TableCell className="max-w-xs truncate">{inst.logradouro || '-'}</TableCell>
+                    <TableCell>{inst.numero || '-'}</TableCell>
+                    <TableCell>{inst.bairro || '-'}</TableCell>
                     <TableCell>{inst.cidade || '-'}</TableCell>
                     <TableCell>{inst.estado || '-'}</TableCell>
                     <TableCell>
