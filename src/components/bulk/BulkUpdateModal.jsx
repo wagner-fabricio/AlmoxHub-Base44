@@ -17,27 +17,40 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
   // Gerar template Excel
   const handleExportTemplate = async () => {
     try {
-      // Buscar schema e dados existentes
-      const [schema, data] = await Promise.all([
-        base44.entities[entityName].schema(),
-        base44.entities[entityName].list()
-      ]);
+      // Buscar dados existentes
+      const data = await base44.entities[entityName].list();
       
       if (!data || data.length === 0) {
         alert('Nenhum registro encontrado para exportar');
         return;
       }
 
-      // Obter todos os campos do schema (exceto os de auditoria)
-      const schemaFields = Object.keys(schema?.properties || {}).filter(
-        key => !['created_date', 'updated_date', 'created_by'].includes(key)
-      );
+      // Tentar buscar schema, mas continuar se falhar
+      let schemaFields = [];
+      try {
+        const schema = await base44.entities[entityName].schema();
+        schemaFields = Object.keys(schema?.properties || {}).filter(
+          key => !['created_date', 'updated_date', 'created_by'].includes(key)
+        );
+      } catch (schemaError) {
+        console.log('Schema not available, using data keys');
+        // Se schema não estiver disponível, coletar todos os campos dos dados
+        const allKeys = new Set();
+        data.forEach(item => {
+          Object.keys(item).forEach(key => {
+            if (!['id', 'created_date', 'updated_date', 'created_by'].includes(key)) {
+              allKeys.add(key);
+            }
+          });
+        });
+        schemaFields = Array.from(allKeys);
+      }
 
-      // Preparar dados para Excel com todos os campos do schema
+      // Preparar dados para Excel com todos os campos
       const excelData = data.map(item => {
         const row = { id: item.id };
         
-        // Adicionar todos os campos do schema na ordem
+        // Adicionar todos os campos na ordem
         schemaFields.forEach(key => {
           row[key] = item[key] !== undefined && item[key] !== null ? item[key] : '';
         });
