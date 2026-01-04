@@ -131,6 +131,7 @@ export default function Instalacoes() {
       logradouro: '',
       numero: '',
       complemento: '',
+      bairro: '',
       cidade: '',
       estado: '',
       cep: '',
@@ -153,6 +154,7 @@ export default function Instalacoes() {
       logradouro: item.logradouro || '',
       numero: item.numero || '',
       complemento: item.complemento || '',
+      bairro: item.bairro || '',
       cidade: item.cidade || '',
       estado: item.estado || '',
       cep: item.cep || '',
@@ -425,6 +427,14 @@ export default function Instalacoes() {
                 value={formData.complemento}
                 onChange={(e) => setFormData({ ...formData, complemento: e.target.value })}
                 placeholder="Apto, Bloco, etc"
+              />
+            </div>
+            <div>
+              <Label>Bairro</Label>
+              <Input
+                value={formData.bairro}
+                onChange={(e) => setFormData({ ...formData, bairro: e.target.value })}
+                placeholder="Centro"
               />
             </div>
             <div>

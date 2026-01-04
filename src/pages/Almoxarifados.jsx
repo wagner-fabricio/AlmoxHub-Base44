@@ -369,6 +369,7 @@ export default function Almoxarifados() {
                       ? [
                           instalacao.logradouro,
                           instalacao.numero,
+                          instalacao.bairro,
                           instalacao.cidade,
                           instalacao.estado
                         ].filter(Boolean).join(', ')
