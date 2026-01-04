@@ -36,7 +36,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, Pencil, Trash2, Loader2, MapPin, Building2 } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, Loader2, MapPin, Building2, FileSpreadsheet } from 'lucide-react';
+import BulkUpdateModal from '@/components/bulk/BulkUpdateModal';
 
 const classificacaoColors = {
   'Usina': 'bg-green-100 text-green-700',
@@ -57,6 +58,7 @@ export default function Instalacoes() {
   const [filterEstado, setFilterEstado] = useState('all');
   
   const [showModal, setShowModal] = useState(false);
+  const [showBulkUpdate, setShowBulkUpdate] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [formData, setFormData] = useState({
@@ -234,10 +236,16 @@ export default function Instalacoes() {
           <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">Instalações</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">Gerencie as instalações da Axia Energia</p>
         </div>
-        <Button onClick={handleCreate} className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="w-4 h-4 mr-2" />
-          Nova Instalação
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setShowBulkUpdate(true)} variant="outline">
+            <FileSpreadsheet className="w-4 h-4 mr-2" />
+            Atualização em Massa
+          </Button>
+          <Button onClick={handleCreate} className="bg-blue-600 hover:bg-blue-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Nova Instalação
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -554,6 +562,15 @@ export default function Instalacoes() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Bulk Update Modal */}
+      <BulkUpdateModal
+        open={showBulkUpdate}
+        onClose={() => setShowBulkUpdate(false)}
+        entityName="Instalacao"
+        displayName="Instalações"
+        onRefresh={loadData}
+      />
     </div>
   );
 }

@@ -8,8 +8,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, Warehouse, Loader2, Search, MapPin } from 'lucide-react';
+import { Plus, Edit, Trash2, Warehouse, Loader2, Search, MapPin, FileSpreadsheet } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import BulkUpdateModal from '@/components/bulk/BulkUpdateModal';
 
 export default function Almoxarifados() {
   const [loading, setLoading] = useState(true);
@@ -37,6 +38,7 @@ export default function Almoxarifados() {
     ativo: true
   });
   const [saving, setSaving] = useState(false);
+  const [showBulkUpdate, setShowBulkUpdate] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -168,10 +170,16 @@ export default function Almoxarifados() {
           <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">Almoxarifados</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">Gerencie os almoxarifados</p>
         </div>
-        <Button onClick={handleNew} className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="w-4 h-4 mr-2" />
-          Novo Almoxarifado
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setShowBulkUpdate(true)} variant="outline">
+            <FileSpreadsheet className="w-4 h-4 mr-2" />
+            Atualização em Massa
+          </Button>
+          <Button onClick={handleNew} className="bg-blue-600 hover:bg-blue-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Novo Almoxarifado
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -516,6 +524,15 @@ export default function Almoxarifados() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Bulk Update Modal */}
+      <BulkUpdateModal
+        open={showBulkUpdate}
+        onClose={() => setShowBulkUpdate(false)}
+        entityName="Almoxarifado"
+        displayName="Almoxarifados"
+        onRefresh={loadData}
+      />
     </div>
   );
 }
