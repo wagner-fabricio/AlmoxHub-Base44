@@ -182,35 +182,70 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
         throw new Error('Arquivo vazio');
       }
 
-      // Validar se tem coluna ID (aceitar variações)
-      const hasId = jsonData[0].hasOwnProperty('id') || 
-                   jsonData[0].hasOwnProperty('ID') || 
-                   jsonData[0].hasOwnProperty('Id');
-
-      if (!hasId) {
-        throw new Error(`Arquivo deve conter a coluna "id". Colunas encontradas: ${Object.keys(jsonData[0]).join(', ')}`);
-      }
-
       console.log('✅ Validação inicial OK, processando linhas...');
 
       // Processar cada linha
       const errorLog = [];
       let successCount = 0;
+      let createdCount = 0;
       let skippedCount = 0;
 
       for (let i = 0; i < jsonData.length; i++) {
         const row = jsonData[i];
         const rowNumber = i + 2; // +2 porque Excel começa em 1 e tem header
-        
+
         setProgress(Math.round(((i + 1) / jsonData.length) * 100));
 
         try {
           // Aceitar variações de "id" (id, ID, Id)
           const id = row.id || row.ID || row.Id;
+          const nome = row.nome;
 
+          // Se não tem ID mas tem nome, criar novo registro
+          if (!id && nome) {
+            console.log(`➕ Linha ${rowNumber} sem ID mas com nome - criando novo registro`);
+
+            // Preparar dados para criação
+            const createData = {};
+            let hasData = false;
+
+            for (const [key, value] of Object.entries(row)) {
+              if (key === 'id' || key === 'ID' || key === 'Id' || 
+                  key === 'created_date' || key === 'updated_date' || key === 'created_by') {
+                continue;
+              }
+
+              // Pular valores vazios
+              if (value === null || value === undefined || value === '') {
+                continue;
+              }
+
+              // Validar tipo
+              const validation = validateFieldValue(value, 'auto', key);
+
+              if (!validation.valid) {
+                throw new Error(validation.error);
+              }
+
+              createData[key] = validation.value;
+              hasData = true;
+            }
+
+            if (hasData) {
+              console.log(`✨ Criando novo registro...`);
+              await base44.entities[entityName].create(createData);
+              createdCount++;
+              successCount++;
+            } else {
+              skippedCount++;
+            }
+
+            continue;
+          }
+
+          // Se não tem ID e não tem nome, ignorar
           if (!id) {
-            console.log(`⚠️ Linha ${rowNumber} sem ID:`, row);
-            errorLog.push(`Linha ${rowNumber}: ID vazio, registro ignorado. Dados: ${JSON.stringify(Object.keys(row))}`);
+            console.log(`⚠️ Linha ${rowNumber} sem ID e sem nome - ignorando`);
             skippedCount++;
             continue;
           }
@@ -222,7 +257,8 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
           let hasChanges = false;
 
           for (const [key, value] of Object.entries(row)) {
-            if (key === 'id' || key === 'created_date' || key === 'updated_date' || key === 'created_by') {
+            if (key === 'id' || key === 'ID' || key === 'Id' || 
+                key === 'created_date' || key === 'updated_date' || key === 'created_by') {
               continue;
             }
 
@@ -258,13 +294,14 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
         }
       }
 
-      console.log('✅ Processamento concluído:', { successCount, skippedCount, errors: errorLog.length });
+      console.log('✅ Processamento concluído:', { successCount, createdCount, skippedCount, errors: errorLog.length });
       console.log('📝 Erros encontrados:', errorLog);
 
       const finalResults = {
         total: jsonData.length,
         success: successCount,
-        skipped: skippedCount - errorLog.length, // Ajustar: skipped não deve incluir erros
+        created: createdCount,
+        skipped: skippedCount - errorLog.length,
         errors: errorLog.length
       };
 
@@ -325,7 +362,7 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
               <h3 className="font-semibold text-slate-900">Exportar Planilha Atual</h3>
             </div>
             <p className="text-sm text-slate-600 ml-10">
-              Baixe a planilha com todos os registros existentes. Cada linha contém o ID único para atualização.
+              Baixe a planilha com todos os registros existentes. Para atualizar, mantenha o ID. Para criar novos, deixe o ID em branco.
             </p>
             <Button
               onClick={handleExportTemplate}
@@ -347,12 +384,12 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
               <h3 className="font-semibold text-slate-900">Editar a Planilha</h3>
             </div>
             <p className="text-sm text-slate-600 ml-10">
-              Edite os campos desejados. <strong>Não remova a coluna "id"</strong> - ela identifica qual registro será atualizado.
+              Edite os campos desejados. Linhas com ID serão <strong>atualizadas</strong>. Linhas sem ID mas com nome preenchido serão <strong>criadas</strong>.
             </p>
             <Alert className="ml-10">
               <AlertTriangle className="w-4 h-4" />
               <AlertDescription className="text-xs">
-                <strong>Importante:</strong> Deixe a coluna "id" intacta. Apenas edite os valores dos campos que deseja atualizar.
+                <strong>Dica:</strong> Para criar novos registros, deixe a coluna "id" em branco e preencha os demais campos (especialmente o nome).
               </AlertDescription>
             </Alert>
           </div>
@@ -412,10 +449,14 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
                 <h3 className="font-semibold text-slate-900">Processamento Concluído</h3>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="bg-green-50 rounded-lg p-3 text-center">
-                  <p className="text-2xl font-bold text-green-600">{results.success}</p>
+                  <p className="text-2xl font-bold text-green-600">{results.success - (results.created || 0)}</p>
                   <p className="text-xs text-green-700">Atualizados</p>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-3 text-center">
+                  <p className="text-2xl font-bold text-blue-600">{results.created || 0}</p>
+                  <p className="text-xs text-blue-700">Criados</p>
                 </div>
                 <div className="bg-slate-50 rounded-lg p-3 text-center">
                   <p className="text-2xl font-bold text-slate-600">{results.skipped}</p>
