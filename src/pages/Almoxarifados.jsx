@@ -389,8 +389,9 @@ export default function Almoxarifados() {
                 <Input
                   type="number"
                   value={formData.local_negocios}
-                  onChange={(e) => setFormData({ ...formData, local_negocios: e.target.value })}
+                  disabled
                   placeholder="Número"
+                  className="bg-slate-100 dark:bg-slate-800"
                 />
               </div>
             </div>
