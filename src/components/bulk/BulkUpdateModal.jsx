@@ -230,11 +230,18 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
       setErrors(errorLog);
 
       if (successCount > 0) {
-        onRefresh?.();
+        await onRefresh?.();
       }
 
     } catch (error) {
-      alert(`Erro ao processar arquivo: ${error.message}`);
+      console.error('Error processing file:', error);
+      setErrors([`Erro geral: ${error.message}`]);
+      setResults({
+        total: 0,
+        success: 0,
+        skipped: 0,
+        errors: 1
+      });
     } finally {
       setProcessing(false);
       e.target.value = ''; // Reset input
