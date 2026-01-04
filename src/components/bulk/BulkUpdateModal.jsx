@@ -175,14 +175,20 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
       console.log('📊 Dados lidos:', jsonData.length, 'linhas');
+      console.log('📋 Colunas encontradas:', Object.keys(jsonData[0] || {}));
+      console.log('🔍 Primeiros 3 registros:', jsonData.slice(0, 3));
 
       if (jsonData.length === 0) {
         throw new Error('Arquivo vazio');
       }
 
-      // Validar se tem coluna ID
-      if (!jsonData[0].hasOwnProperty('id')) {
-        throw new Error('Arquivo deve conter a coluna "id"');
+      // Validar se tem coluna ID (aceitar variações)
+      const hasId = jsonData[0].hasOwnProperty('id') || 
+                   jsonData[0].hasOwnProperty('ID') || 
+                   jsonData[0].hasOwnProperty('Id');
+
+      if (!hasId) {
+        throw new Error(`Arquivo deve conter a coluna "id". Colunas encontradas: ${Object.keys(jsonData[0]).join(', ')}`);
       }
 
       console.log('✅ Validação inicial OK, processando linhas...');
@@ -199,13 +205,17 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
         setProgress(Math.round(((i + 1) / jsonData.length) * 100));
 
         try {
-          const id = row.id;
-          
+          // Aceitar variações de "id" (id, ID, Id)
+          const id = row.id || row.ID || row.Id;
+
           if (!id) {
-            errorLog.push(`Linha ${rowNumber}: ID vazio, registro ignorado`);
+            console.log(`⚠️ Linha ${rowNumber} sem ID:`, row);
+            errorLog.push(`Linha ${rowNumber}: ID vazio, registro ignorado. Dados: ${JSON.stringify(Object.keys(row))}`);
             skippedCount++;
             continue;
           }
+
+          console.log(`🔄 Processando linha ${rowNumber}, ID: ${id}`);
 
           // Preparar dados para update
           const updateData = {};
