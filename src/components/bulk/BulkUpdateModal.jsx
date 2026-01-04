@@ -89,15 +89,15 @@ export default function BulkUpdateModal({ open, onClose, entityName, displayName
         if (typeof value === 'number') {
           return { valid: true, value };
         }
-        // IMPORTANTE: Campos como latitude, longitude, local_negocios que são numéricos
-        // devem ser convertidos, mas campos como "numero" (endereço) devem permanecer string
+        // IMPORTANTE: Campos numéricos explícitos
         const numericFields = ['latitude', 'longitude', 'local_negocios', 'tara', 'quantidade', 'r_unit', 'r_total', 'saldo', 'peso', 'valor_total', 'progresso'];
         if (numericFields.includes(fieldName)) {
           if (typeof value === 'string' && !isNaN(parseFloat(value)) && isFinite(value)) {
             return { valid: true, value: parseFloat(value) };
           }
         }
-        // Default: manter como string
+        // Se for string de número mas não está na lista de campos numéricos, manter como string
+        // Isso garante que campos como "numero" (endereço), "cep", etc fiquem como string
         return { valid: true, value: String(value) };
       }
 
