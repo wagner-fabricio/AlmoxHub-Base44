@@ -19,6 +19,7 @@ export default function NewUserSetup() {
   const [regionais, setRegionais] = useState([]);
   const [almoxarifados, setAlmoxarifados] = useState([]);
   const [formData, setFormData] = useState({
+    nome: '',
     matricula: '',
     funcao: '',
     regional_id: '',
@@ -60,6 +61,7 @@ export default function NewUserSetup() {
       setCurrentUser(user);
       setRegionais(regionaisData);
       setAlmoxarifados(almoxarifadosData);
+      setFormData(prev => ({ ...prev, nome: user.full_name || '' }));
     } catch (err) {
       setError('Erro ao carregar dados. Tente novamente.');
       console.error(err);
@@ -131,7 +133,7 @@ export default function NewUserSetup() {
       // Criar registro de Pessoa
       await base44.entities.Pessoa.create({
         matricula: formData.matricula,
-        nome: currentUser.full_name,
+        nome: formData.nome,
         email: currentUser.email,
         funcao: formData.funcao,
         funcoes: formData.funcoes,
@@ -229,11 +231,12 @@ export default function NewUserSetup() {
                 <div className="space-y-4 pb-6 border-b">
                   <h3 className="font-semibold text-slate-900 dark:text-white">Informações da Conta</h3>
                   <div>
-                    <Label>Nome Completo</Label>
+                    <Label>Nome Completo *</Label>
                     <Input 
-                      value={currentUser?.full_name || ''} 
-                      disabled 
-                      className="bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100" 
+                      value={formData.nome} 
+                      onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                      placeholder="Digite seu nome completo"
+                      required
                     />
                   </div>
                   <div>
@@ -411,7 +414,7 @@ export default function NewUserSetup() {
 
                 <Button
                   type="submit"
-                  disabled={saving || !formData.matricula || !formData.regional_id || formData.funcoes.length === 0}
+                  disabled={saving || !formData.nome || !formData.matricula || !formData.regional_id || formData.funcoes.length === 0}
                   className="w-full bg-blue-600 hover:bg-blue-700"
                 >
                   {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
