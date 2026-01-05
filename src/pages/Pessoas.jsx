@@ -230,6 +230,135 @@ export default function Pessoas() {
       await base44.entities.Pessoa.update(pessoa.id, {
         status_aprovacao: nextStatus
       });
+
+      // Enviar e-mail se for aprovado ou rejeitado
+      if (nextStatus === 'aprovado' || nextStatus === 'rejeitado') {
+        const regional = regionais.find(r => r.id === pessoa.regional_id);
+        const almoxs = almoxarifados.filter(a => pessoa.almoxarifados_ids?.includes(a.id));
+        const funcoesTexto = (pessoa.funcoes || []).map(f => {
+          const labels = { gestor: 'Gestor', lider: 'Líder', almoxarife: 'Almoxarife' };
+          return labels[f];
+        }).join(', ');
+
+        let assunto = '';
+        let corpo = '';
+
+        if (nextStatus === 'aprovado') {
+          assunto = 'Bem-vindo ao AlmoxHub - Acesso Aprovado! 🎉';
+          corpo = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #0000FF 0%, #0A003C 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+                .content { background: #ffffff; padding: 30px; border: 1px solid #e0e0e0; }
+                .footer { background: #f5f5f5; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; font-size: 12px; color: #666; }
+                .dados { background: #f9f9f9; padding: 15px; border-left: 4px solid #FF6B00; margin: 20px 0; }
+                .dados-item { margin: 8px 0; }
+                .label { font-weight: bold; color: #0000FF; }
+                .button { display: inline-block; background: #FF6B00; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1>🎉 Parabéns!</h1>
+                  <p style="font-size: 18px; margin: 10px 0 0 0;">Seu acesso foi aprovado</p>
+                </div>
+                <div class="content">
+                  <p>Prezado(a) <strong>${pessoa.nome}</strong>,</p>
+                  
+                  <p>É com grande satisfação que informamos que sua solicitação de acesso ao sistema <strong>AlmoxHub</strong> foi aprovada com sucesso!</p>
+                  
+                  <p>A partir de agora, você faz parte da nossa equipe e pode acessar todas as funcionalidades do sistema de acordo com seu perfil.</p>
+                  
+                  <div class="dados">
+                    <h3 style="margin-top: 0; color: #0000FF;">Dados do seu Cadastro</h3>
+                    <div class="dados-item"><span class="label">Nome:</span> ${pessoa.nome}</div>
+                    <div class="dados-item"><span class="label">Matrícula:</span> ${pessoa.matricula}</div>
+                    <div class="dados-item"><span class="label">E-mail:</span> ${pessoa.email}</div>
+                    <div class="dados-item"><span class="label">Função/Cargo:</span> ${pessoa.funcao || '-'}</div>
+                    <div class="dados-item"><span class="label">Perfis:</span> ${funcoesTexto}</div>
+                    <div class="dados-item"><span class="label">Regional:</span> ${regional?.sigla || '-'}</div>
+                    ${almoxs.length > 0 ? `<div class="dados-item"><span class="label">Almoxarifados:</span> ${almoxs.map(a => a.nome).join(', ')}</div>` : ''}
+                  </div>
+                  
+                  <p>Estamos à disposição para auxiliá-lo em qualquer dúvida ou necessidade.</p>
+                  
+                  <p style="margin-top: 30px;">Atenciosamente,<br><strong>Equipe AlmoxHub - Axia Energia</strong></p>
+                </div>
+                <div class="footer">
+                  <p>Este é um e-mail automático. Por favor, não responda.</p>
+                  <p style="color: #0000FF; font-weight: bold;">Axia Energia</p>
+                </div>
+              </div>
+            </body>
+            </html>
+          `;
+        } else {
+          assunto = 'AlmoxHub - Atualização sobre sua Solicitação de Acesso';
+          corpo = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #0000FF 0%, #0A003C 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+                .content { background: #ffffff; padding: 30px; border: 1px solid #e0e0e0; }
+                .footer { background: #f5f5f5; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; font-size: 12px; color: #666; }
+                .dados { background: #f9f9f9; padding: 15px; border-left: 4px solid #FF6B00; margin: 20px 0; }
+                .dados-item { margin: 8px 0; }
+                .label { font-weight: bold; color: #0000FF; }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1>AlmoxHub</h1>
+                  <p style="font-size: 18px; margin: 10px 0 0 0;">Atualização sobre sua Solicitação</p>
+                </div>
+                <div class="content">
+                  <p>Prezado(a) <strong>${pessoa.nome}</strong>,</p>
+                  
+                  <p>Lamentamos informar que, após análise, sua solicitação de acesso ao sistema <strong>AlmoxHub</strong> não pôde ser aprovada no momento.</p>
+                  
+                  <p>Caso acredite que houve algum equívoco ou deseje mais informações, por favor, entre em contato com o administrador do sistema.</p>
+                  
+                  <div class="dados">
+                    <h3 style="margin-top: 0; color: #0000FF;">Dados da sua Solicitação</h3>
+                    <div class="dados-item"><span class="label">Nome:</span> ${pessoa.nome}</div>
+                    <div class="dados-item"><span class="label">Matrícula:</span> ${pessoa.matricula}</div>
+                    <div class="dados-item"><span class="label">E-mail:</span> ${pessoa.email}</div>
+                    <div class="dados-item"><span class="label">Função/Cargo:</span> ${pessoa.funcao || '-'}</div>
+                    <div class="dados-item"><span class="label">Perfis Solicitados:</span> ${funcoesTexto}</div>
+                    <div class="dados-item"><span class="label">Regional:</span> ${regional?.sigla || '-'}</div>
+                  </div>
+                  
+                  <p>Agradecemos seu interesse no AlmoxHub.</p>
+                  
+                  <p style="margin-top: 30px;">Atenciosamente,<br><strong>Equipe AlmoxHub - Axia Energia</strong></p>
+                </div>
+                <div class="footer">
+                  <p>Este é um e-mail automático. Por favor, não responda.</p>
+                  <p style="color: #0000FF; font-weight: bold;">Axia Energia</p>
+                </div>
+              </div>
+            </body>
+            </html>
+          `;
+        }
+
+        await base44.integrations.Core.SendEmail({
+          from_name: 'AlmoxHub - Axia Energia',
+          to: pessoa.email,
+          subject: assunto,
+          body: corpo
+        });
+      }
+
       await loadData();
     } catch (error) {
       console.error('Error updating approval status:', error);
