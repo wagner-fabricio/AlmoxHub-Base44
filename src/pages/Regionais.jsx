@@ -14,6 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 export default function Regionais() {
   const [loading, setLoading] = useState(true);
   const [regionais, setRegionais] = useState([]);
+  const [currentPessoa, setCurrentPessoa] = useState(null);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -37,7 +38,12 @@ export default function Regionais() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const data = await base44.entities.Regional.list();
+      const [user, data] = await Promise.all([
+        base44.auth.me(),
+        base44.entities.Regional.list()
+      ]);
+      const pessoaData = await base44.entities.Pessoa.filter({ user_id: user.id });
+      setCurrentPessoa(pessoaData[0]);
       setRegionais(data);
     } catch (error) {
       console.error('Error loading regionais:', error);
@@ -130,10 +136,12 @@ export default function Regionais() {
           <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">Regionais</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">Gerencie as regionais da empresa</p>
         </div>
-        <Button onClick={handleNew} className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="w-4 h-4 mr-2" />
-          Nova Regional
-        </Button>
+        {currentPessoa?.funcoes?.includes('gestor') && (
+          <Button onClick={handleNew} className="bg-blue-600 hover:bg-blue-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Nova Regional
+          </Button>
+        )}
       </div>
 
       {/* Search */}
@@ -196,14 +204,16 @@ export default function Regionais() {
                     {regional.area_abrangencia || '-'}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => handleEdit(regional)}>
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(regional)}>
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
-                    </div>
+                    {currentPessoa?.funcoes?.includes('gestor') && (
+                      <div className="flex items-center justify-end gap-2">
+                        <Button variant="ghost" size="icon" onClick={() => handleEdit(regional)}>
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(regional)}>
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
+                      </div>
+                    )}
                   </TableCell>
                 </TableRow>
               ))

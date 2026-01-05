@@ -49,6 +49,7 @@ const classificacaoColors = {
 export default function Instalacoes() {
   const [loading, setLoading] = useState(true);
   const [instalacoes, setInstalacoes] = useState([]);
+  const [currentPessoa, setCurrentPessoa] = useState(null);
   const [regionais, setRegionais] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [search, setSearch] = useState('');

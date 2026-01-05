@@ -15,6 +15,7 @@ import BulkUpdateModal from '@/components/bulk/BulkUpdateModal';
 export default function Almoxarifados() {
   const [loading, setLoading] = useState(true);
   const [almoxarifados, setAlmoxarifados] = useState([]);
+  const [currentPessoa, setCurrentPessoa] = useState(null);
   const [regionais, setRegionais] = useState([]);
   const [instalacoes, setInstalacoes] = useState([]);
   const [selectedInstalacao, setSelectedInstalacao] = useState(null);
@@ -47,11 +48,14 @@ export default function Almoxarifados() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [almoxData, regionaisData, instalacoesData] = await Promise.all([
+      const [user, almoxData, regionaisData, instalacoesData] = await Promise.all([
+        base44.auth.me(),
         base44.entities.Almoxarifado.list(),
         base44.entities.Regional.list(),
         base44.entities.Instalacao.list()
       ]);
+      const pessoaData = await base44.entities.Pessoa.filter({ user_id: user.id });
+      setCurrentPessoa(pessoaData[0]);
       setAlmoxarifados(almoxData);
       setRegionais(regionaisData);
       setInstalacoes(instalacoesData);
@@ -170,16 +174,18 @@ export default function Almoxarifados() {
           <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">Almoxarifados</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">Gerencie os almoxarifados</p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={() => setShowBulkUpdate(true)} variant="outline">
-            <FileSpreadsheet className="w-4 h-4 mr-2" />
-            Atualização em Massa
-          </Button>
-          <Button onClick={handleNew} className="bg-blue-600 hover:bg-blue-700">
-            <Plus className="w-4 h-4 mr-2" />
-            Novo Almoxarifado
-          </Button>
-        </div>
+        {currentPessoa?.funcoes?.includes('gestor') && (
+          <div className="flex gap-2">
+            <Button onClick={() => setShowBulkUpdate(true)} variant="outline">
+              <FileSpreadsheet className="w-4 h-4 mr-2" />
+              Atualização em Massa
+            </Button>
+            <Button onClick={handleNew} className="bg-blue-600 hover:bg-blue-700">
+              <Plus className="w-4 h-4 mr-2" />
+              Novo Almoxarifado
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Filters */}
@@ -307,14 +313,16 @@ export default function Almoxarifados() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}>
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(item)}>
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </Button>
-                      </div>
+                      {currentPessoa?.funcoes?.includes('gestor') && (
+                        <div className="flex items-center justify-end gap-2">
+                          <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}>
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleDelete(item)}>
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </Button>
+                        </div>
+                      )}
                     </TableCell>
                   </TableRow>
                 );
