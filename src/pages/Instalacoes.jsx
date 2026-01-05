@@ -93,6 +93,8 @@ export default function Instalacoes() {
         base44.entities.Instalacao.list(),
         base44.entities.Regional.list()
       ]);
+      const pessoaData = await base44.entities.Pessoa.filter({ user_id: user.id });
+      setCurrentPessoa(pessoaData[0]);
       setCurrentUser(user);
       setInstalacoes(instalacoesData);
       setRegionais(regionaisData);
@@ -253,16 +255,18 @@ export default function Instalacoes() {
           <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">Instalações</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">Gerencie as instalações da Axia Energia</p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={() => setShowBulkUpdate(true)} variant="outline">
-            <FileSpreadsheet className="w-4 h-4 mr-2" />
-            Atualização em Massa
-          </Button>
-          <Button onClick={handleCreate} className="bg-blue-600 hover:bg-blue-700">
-            <Plus className="w-4 h-4 mr-2" />
-            Nova Instalação
-          </Button>
-        </div>
+        {currentPessoa?.funcoes?.includes('gestor') && (
+          <div className="flex gap-2">
+            <Button onClick={() => setShowBulkUpdate(true)} variant="outline">
+              <FileSpreadsheet className="w-4 h-4 mr-2" />
+              Atualização em Massa
+            </Button>
+            <Button onClick={handleCreate} className="bg-blue-600 hover:bg-blue-700">
+              <Plus className="w-4 h-4 mr-2" />
+              Nova Instalação
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Filters */}
@@ -453,23 +457,25 @@ export default function Instalacoes() {
                       ) : '-'}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(inst)}
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(inst)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+                      {currentPessoa?.funcoes?.includes('gestor') && (
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(inst)}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(inst)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      )}
                     </TableCell>
                   </TableRow>
                 );
