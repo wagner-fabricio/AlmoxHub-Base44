@@ -72,7 +72,7 @@ export default function ChatArea({
     return () => scrollContainer.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleEnviar = () => {
+  const handleEnviar = useCallback(() => {
     if (!novaMensagem.trim()) return;
 
     // Extrair entidades (OSs) do texto
@@ -87,7 +87,7 @@ export default function ChatArea({
     }
     setNovaMensagem('');
     setMencoesIds([]);
-  };
+  }, [novaMensagem, mensagemEditando, mensagemRespondendo, mencoesIds, onEditarMensagem, onEnviarMensagem]);
 
   const parseMessageContent = (text) => {
     if (!text) return { text: '', entities: [] };
