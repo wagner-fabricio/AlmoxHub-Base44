@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
@@ -19,10 +19,13 @@ export default function MentionInput({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const suggestionsRef = useRef(null);
 
-  const filteredPessoas = pessoas.filter(p => 
-    p.nome?.toLowerCase().includes(mentionSearch.toLowerCase()) ||
-    p.email?.toLowerCase().includes(mentionSearch.toLowerCase())
-  ).slice(0, 5);
+  const filteredPessoas = useMemo(() => 
+    pessoas.filter(p => 
+      p.nome?.toLowerCase().includes(mentionSearch.toLowerCase()) ||
+      p.email?.toLowerCase().includes(mentionSearch.toLowerCase())
+    ).slice(0, 5),
+    [pessoas, mentionSearch]
+  );
 
   useEffect(() => {
     if (showSuggestions) {
