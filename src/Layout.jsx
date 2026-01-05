@@ -137,7 +137,7 @@ export default function Layout({ children, currentPageName }) {
   };
 
   // Páginas que não devem exibir o layout (sidebar e header)
-  const pagesWithoutLayout = ['NewUserSetup', 'PendingApproval', 'UserApproval'];
+  const pagesWithoutLayout = ['NewUserSetup', 'PendingApproval', 'UserApproval', 'ThankYou'];
   const shouldHideLayout = pagesWithoutLayout.includes(currentPageName);
 
   // Se a página não deve ter layout, renderizar apenas o children
