@@ -144,16 +144,16 @@ export default function ChatArea({
     }
   }, [handleEnviar]);
 
-  const formatarDataSeparador = (data) => {
+  const formatarDataSeparador = useCallback((data) => {
     const date = new Date(data);
     if (isToday(date)) return 'Hoje';
     if (isYesterday(date)) return 'Ontem';
     return format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
-  };
+  }, []);
 
-  const formatarHora = (data) => {
+  const formatarHora = useCallback((data) => {
     return format(new Date(data), 'HH:mm');
-  };
+  }, []);
 
   // Memoizar pessoas para evitar buscas repetidas
   const pessoasMap = useMemo(() => {
