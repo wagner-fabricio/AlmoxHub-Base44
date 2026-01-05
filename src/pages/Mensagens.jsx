@@ -31,8 +31,8 @@ export default function MensagensPage() {
     if (conversaSelecionada) {
       loadMensagens(conversaSelecionada.id);
       marcarComoLida(conversaSelecionada.id);
-      // Polling mais inteligente - só atualiza se conversa estiver selecionada
-      const interval = setInterval(() => loadMensagens(conversaSelecionada.id), 5000);
+      // Polling mais espaçado para mensagens - 8s é suficiente para chat
+      const interval = setInterval(() => loadMensagens(conversaSelecionada.id), 8000);
       return () => clearInterval(interval);
     }
   }, [conversaSelecionada]);
