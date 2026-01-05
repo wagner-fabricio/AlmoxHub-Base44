@@ -22,8 +22,8 @@ export default function MensagensPage() {
 
   useEffect(() => {
     loadData();
-    // Aumentado intervalo de polling para reduzir carga
-    const interval = setInterval(loadConversas, 10000); // Poll a cada 10s
+    // Polling mais espaçado para reduzir carga no servidor
+    const interval = setInterval(loadConversas, 15000); // Poll a cada 15s
     return () => clearInterval(interval);
   }, []);
 
