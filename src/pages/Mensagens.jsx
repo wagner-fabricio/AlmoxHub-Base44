@@ -62,35 +62,68 @@ export default function MensagensPage() {
     if (!pessoaId) return;
 
     try {
-      const participantes = await base44.entities.ParticipanteConversa.filter({ 
-        pessoa_id: pessoaId,
-        status: 'ativo'
-      });
+      // Otimização: carregar todas as conversas e participantes em batch
+      const [participantes, todasConversas, todosParticipantes] = await Promise.all([
+        base44.entities.ParticipanteConversa.filter({ 
+          pessoa_id: pessoaId,
+          status: 'ativo'
+        }),
+        base44.entities.Conversa.list(),
+        base44.entities.ParticipanteConversa.list()
+      ]);
       
       if (!Array.isArray(participantes)) {
         setConversas([]);
         return;
       }
-      
-      const conversasCompletas = await Promise.all(
-        participantes.map(async (part) => {
-          const conversaResult = await base44.entities.Conversa.filter({ id: part.conversa_id });
-          const conversa = Array.isArray(conversaResult) && conversaResult.length > 0 ? conversaResult[0] : null;
-          const allPartsResult = await base44.entities.ParticipanteConversa.filter({ conversa_id: part.conversa_id });
-          const allParts = Array.isArray(allPartsResult) ? allPartsResult : [];
-          return { conversa, participantes: allParts };
-        })
-      );
 
-      const conversasValidas = conversasCompletas.filter(c => c && c.conversa);
+      // Criar mapas para lookup rápido
+      const conversasMap = new Map((todasConversas || []).map(c => [c.id, c]));
       
-      conversasValidas.sort((a, b) => {
+      // Agrupar participantes por conversa
+      const participantesPorConversa = new Map();
+      (todosParticipantes || []).forEach(p => {
+        if (!participantesPorConversa.has(p.conversa_id)) {
+          participantesPorConversa.set(p.conversa_id, []);
+        }
+        participantesPorConversa.get(p.conversa_id).push(p);
+      });
+      
+      // Montar conversas completas
+      const conversasCompletas = participantes
+        .map(part => {
+          const conversa = conversasMap.get(part.conversa_id);
+          const allParts = participantesPorConversa.get(part.conversa_id) || [];
+          return conversa ? { conversa, participantes: allParts } : null;
+        })
+        .filter(Boolean);
+      
+      conversasCompletas.sort((a, b) => {
         const dataA = a?.conversa?.ultima_mensagem_data ? new Date(a.conversa.ultima_mensagem_data) : new Date(0);
         const dataB = b?.conversa?.ultima_mensagem_data ? new Date(b.conversa.ultima_mensagem_data) : new Date(0);
         return dataB - dataA;
       });
 
-      setConversas(conversasValidas);
+      // Evitar re-render se dados não mudaram
+      setConversas(prev => {
+        const prevIds = prev.map(c => c.conversa?.id).join(',');
+        const newIds = conversasCompletas.map(c => c.conversa?.id).join(',');
+        if (prevIds === newIds) {
+          // Verificar se alguma conversa teve alteração
+          const prevStr = JSON.stringify(prev.map(c => ({
+            id: c.conversa?.id,
+            ultima: c.conversa?.ultima_mensagem_data,
+            naoLidas: c.participantes?.find(p => p.pessoa_id === pessoaId)?.mensagens_nao_lidas
+          })));
+          const newStr = JSON.stringify(conversasCompletas.map(c => ({
+            id: c.conversa?.id,
+            ultima: c.conversa?.ultima_mensagem_data,
+            naoLidas: c.participantes?.find(p => p.pessoa_id === pessoaId)?.mensagens_nao_lidas
+          })));
+          if (prevStr === newStr) return prev;
+        }
+        return conversasCompletas;
+      });
     } catch (error) {
       console.error('Erro ao carregar conversas:', error);
       // Silencioso - não mostrar erro em polling automático
