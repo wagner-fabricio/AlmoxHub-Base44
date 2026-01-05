@@ -24,7 +24,8 @@ export default function ChatMobileSimple({
   useEffect(() => {
     if (conversa) {
       loadData();
-      const interval = setInterval(loadMensagens, 5000);
+      // Polling mais espaçado para reduzir carga
+      const interval = setInterval(loadMensagens, 8000);
       return () => clearInterval(interval);
     }
   }, [conversa]);
