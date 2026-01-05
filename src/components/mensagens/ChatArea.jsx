@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { format, isToday, isYesterday, isSameDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { X, Send, Users, Settings, ArrowLeft } from 'lucide-react';
+import { X, Send, Users, Settings, ArrowLeft, Trash2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
