@@ -8,6 +8,7 @@ import { CheckCheck, Loader2, MessageSquare, UserPlus, RefreshCw, Bell, Trash2 }
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { createPageUrl } from '@/utils';
+import AlertasButton from '@/components/dashboard/AlertasButton';
 
 const notificationIcons = {
   mencao: MessageSquare,
@@ -156,6 +157,24 @@ export default function Notifications() {
           Não lidas ({unreadCount})
         </Button>
       </div>
+
+      {/* Sistema de Alertas - Apenas para Gestores e Líderes */}
+      {currentUserPessoa?.funcoes && (currentUserPessoa.funcoes.includes('gestor') || currentUserPessoa.funcoes.includes('lider')) && (
+        <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-6">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+                Sistema de Alertas Automáticos
+              </h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                Envie alertas por e-mail e notificações no sistema para responsáveis de OSs atrasadas, 
+                paradas, expedições sem seguro ou sem transporte definido.
+              </p>
+              <AlertasButton />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Notifications List */}
       {filteredNotificacoes.length === 0 ? (
