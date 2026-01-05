@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { CheckCheck, Loader2, MessageSquare, UserPlus, RefreshCw, Bell, Trash2 } from 'lucide-react';
+import { CheckCheck, Loader2, MessageSquare, UserPlus, RefreshCw, Bell } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { createPageUrl } from '@/utils';
@@ -244,18 +244,7 @@ export default function Notifications() {
                     </p>
                   </div>
 
-                  {/* Delete Button */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="shrink-0 opacity-0 group-hover:opacity-100 hover:text-red-600"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteNotification(notif.id);
-                    }}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+
                 </div>
               </Card>
             );
