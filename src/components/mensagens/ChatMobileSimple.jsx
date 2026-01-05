@@ -39,11 +39,21 @@ export default function ChatMobileSimple({
     try {
       const msgs = await base44.entities.MensagemChat.filter({ conversa_id: conversa.id });
       const mensagensArray = Array.isArray(msgs) ? msgs : [];
-      const mensagensOrdenadas = (mensagensArray || []).sort((a, b) => 
+      const mensagensOrdenadas = mensagensArray.sort((a, b) => 
         new Date(a.created_date) - new Date(b.created_date)
       );
-      setMensagens(mensagensOrdenadas || []);
-      scrollToBottom();
+      
+      // Evitar re-render se mensagens não mudaram
+      setMensagens(prev => {
+        if (prev.length === mensagensOrdenadas.length) {
+          const prevIds = prev.map(m => m.id).join(',');
+          const newIds = mensagensOrdenadas.map(m => m.id).join(',');
+          if (prevIds === newIds) return prev;
+        }
+        scrollToBottom();
+        return mensagensOrdenadas;
+      });
+      
       marcarComoLida();
     } catch (error) {
       console.error('Error loading messages:', error);
