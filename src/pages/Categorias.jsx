@@ -25,7 +25,7 @@ export default function Categorias() {
   const [selectedSubcategoria, setSelectedSubcategoria] = useState(null);
   
   const [categoriaForm, setCategoriaForm] = useState({ nome: '', descricao: '', cor: '#3B82F6' });
-  const [subcategoriaForm, setSubcategoriaForm] = useState({ nome: '', categoria_id: '' });
+  const [subcategoriaForm, setSubcategoriaForm] = useState({ nome: '', descricao: '', categoria_id: '' });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -95,7 +95,7 @@ export default function Categorias() {
   // Subcategoria handlers
   const handleNewSubcategoria = (categoriaId) => {
     setSelectedSubcategoria(null);
-    setSubcategoriaForm({ nome: '', categoria_id: categoriaId });
+    setSubcategoriaForm({ nome: '', descricao: '', categoria_id: categoriaId });
     setShowSubcategoriaModal(true);
   };
 
@@ -103,6 +103,7 @@ export default function Categorias() {
     setSelectedSubcategoria(sub);
     setSubcategoriaForm({
       nome: sub.nome || '',
+      descricao: sub.descricao || '',
       categoria_id: sub.categoria_id || ''
     });
     setShowSubcategoriaModal(true);
@@ -245,11 +246,16 @@ export default function Categorias() {
                               key={sub.id}
                               className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg"
                             >
-                              <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-3 flex-1">
                                 <Tag className="w-4 h-4 text-slate-400" />
-                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                  {sub.nome}
-                                </span>
+                                <div className="flex-1">
+                                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                    {sub.nome}
+                                  </span>
+                                  {sub.descricao && (
+                                    <p className="text-xs text-slate-500 mt-0.5">{sub.descricao}</p>
+                                  )}
+                                </div>
                               </div>
                               <div className="flex items-center gap-1">
                                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditSubcategoria(sub)}>
@@ -336,6 +342,14 @@ export default function Categorias() {
                 value={subcategoriaForm.nome}
                 onChange={(e) => setSubcategoriaForm({ ...subcategoriaForm, nome: e.target.value })}
                 placeholder="Nome da subcategoria"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Descrição</Label>
+              <Input
+                value={subcategoriaForm.descricao}
+                onChange={(e) => setSubcategoriaForm({ ...subcategoriaForm, descricao: e.target.value })}
+                placeholder="Descrição opcional"
               />
             </div>
           </div>
