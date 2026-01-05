@@ -11,7 +11,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Textarea } from '@/components/ui/textarea';
 import MentionInput from '@/components/notifications/MentionInput';
 import GrupoDetalhesModal from '@/components/mensagens/GrupoDetalhesModal';
 import RichTextEditor from '@/components/mensagens/RichTextEditor';
