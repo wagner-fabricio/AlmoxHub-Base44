@@ -10,7 +10,6 @@ import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import DashboardInsights from '@/components/dashboard/DashboardInsights';
-import AlertasButton from '@/components/dashboard/AlertasButton';
 
 const COLORS = ['#0000FF', '#FF6B00', '#10B981', '#A0B4D2', '#0A003C', '#EC4899'];
 
@@ -428,24 +427,6 @@ export default function Dashboard() {
 
       {/* Observações Section */}
       <DashboardInsights ordens={filteredOrdens} pessoas={[]} categorias={categorias} />
-
-      {/* Botão de Alertas Manuais */}
-      {currentUser?.role === 'admin' && (
-        <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-xl p-6">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-                Sistema de Alertas Automáticos
-              </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                Envie alertas por e-mail e notificações no sistema para responsáveis de OSs atrasadas, 
-                paradas, expedições sem seguro ou sem transporte definido.
-              </p>
-              <AlertasButton />
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Secondary KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
