@@ -25,6 +25,7 @@ export default function Pessoas() {
   const [regionais, setRegionais] = useState([]);
   const [almoxarifados, setAlmoxarifados] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+  const [currentPessoa, setCurrentPessoa] = useState(null);
   const [search, setSearch] = useState('');
   const [filterRegional, setFilterRegional] = useState('all');
   const [showModal, setShowModal] = useState(false);
@@ -57,8 +58,7 @@ export default function Pessoas() {
     if (urlParams.get('view') === 'me' && currentUser && pessoas.length > 0) {
       const minhaPessoa = pessoas.find(p => p.user_id === currentUser.id);
       if (minhaPessoa) {
-        setViewingItem(minhaPessoa);
-        setShowViewModal(true);
+        handleEdit(minhaPessoa);
         window.history.replaceState({}, '', window.location.pathname);
       }
     }
@@ -74,6 +74,8 @@ export default function Pessoas() {
         base44.entities.Almoxarifado.list()
       ]);
       setCurrentUser(user);
+      const pessoa = pessoasData.find(p => p.user_id === user.id);
+      setCurrentPessoa(pessoa);
       setPessoas(pessoasData);
       setRegionais(regionaisData);
       setAlmoxarifados(almoxData);
@@ -101,6 +103,11 @@ export default function Pessoas() {
   };
 
   const handleEdit = (item) => {
+    const isGestor = currentPessoa?.funcoes?.includes('gestor');
+    const isOwnProfile = item.id === currentPessoa?.id;
+    
+    if (!isGestor && !isOwnProfile) return;
+    
     setSelectedItem(item);
     setFormData({
       matricula: item.matricula || '',
@@ -274,10 +281,12 @@ export default function Pessoas() {
           <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">Pessoas</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">Gerencie os colaboradores</p>
         </div>
-        <Button onClick={handleNew} className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="w-4 h-4 mr-2" />
-          Nova Pessoa
-        </Button>
+        {currentPessoa?.funcoes?.includes('gestor') && (
+          <Button onClick={handleNew} className="bg-blue-600 hover:bg-blue-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Nova Pessoa
+          </Button>
+        )}
       </div>
 
       {/* Filters */}
@@ -396,12 +405,16 @@ export default function Pessoas() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}>
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(item)}>
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </Button>
+                        {(currentPessoa?.funcoes?.includes('gestor') || item.id === currentPessoa?.id) && (
+                          <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}>
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        )}
+                        {currentPessoa?.funcoes?.includes('gestor') && (
+                          <Button variant="ghost" size="icon" onClick={() => handleDelete(item)}>
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -416,7 +429,9 @@ export default function Pessoas() {
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>{selectedItem ? 'Editar Pessoa' : 'Nova Pessoa'}</DialogTitle>
+            <DialogTitle>
+              {selectedItem?.id === currentPessoa?.id ? 'Editar Meu Perfil' : selectedItem ? 'Editar Pessoa' : 'Nova Pessoa'}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
             <div className="space-y-2">
@@ -526,11 +541,17 @@ export default function Pessoas() {
                       id={`funcao-${key}`}
                       checked={formData.funcoes.includes(key)}
                       onCheckedChange={() => toggleFuncao(key)}
+                      disabled={selectedItem?.id === currentPessoa?.id && !currentPessoa?.funcoes?.includes('gestor')}
                     />
                     <Label htmlFor={`funcao-${key}`} className="cursor-pointer">{val.label}</Label>
                   </div>
                 ))}
               </div>
+              {selectedItem?.id === currentPessoa?.id && !currentPessoa?.funcoes?.includes('gestor') && (
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Apenas gestores podem alterar funções
+                </p>
+              )}
             </div>
             {formData.regional_id && (
               <div className="space-y-2">
