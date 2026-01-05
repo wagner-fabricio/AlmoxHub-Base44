@@ -9,6 +9,7 @@ import { format, subDays, differenceInDays } from 'date-fns';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import DashboardInsights from '@/components/dashboard/DashboardInsights';
 
 const COLORS = ['#0000FF', '#FF6B00', '#10B981', '#A0B4D2', '#0A003C', '#EC4899'];
 
