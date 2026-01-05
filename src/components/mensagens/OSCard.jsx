@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -20,79 +20,160 @@ const statusConfig = {
   cancelado: { label: 'Cancelado', cor: 'bg-red-50 text-red-600' }
 };
 
-export default function OSCard({ osId, isMinha }) {
+// Cache global para dados relacionados - evita consultas repetidas
+const dataCache = {
+  categorias: new Map(),
+  regionais: new Map(),
+  pessoas: new Map(),
+  instalacoes: new Map(),
+  ordens: new Map(),
+  lastFetch: {
+    categorias: 0,
+    regionais: 0,
+    pessoas: 0,
+    instalacoes: 0
+  }
+};
+
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+
+// Função para carregar dados em batch
+const loadRelatedData = async () => {
+  const now = Date.now();
+  const promises = [];
+  
+  // Carregar categorias se cache expirou
+  if (now - dataCache.lastFetch.categorias > CACHE_TTL) {
+    promises.push(
+      base44.entities.Categoria.list().then(data => {
+        (data || []).forEach(c => dataCache.categorias.set(c.id, c));
+        dataCache.lastFetch.categorias = now;
+      }).catch(() => {})
+    );
+  }
+  
+  // Carregar regionais se cache expirou
+  if (now - dataCache.lastFetch.regionais > CACHE_TTL) {
+    promises.push(
+      base44.entities.Regional.list().then(data => {
+        (data || []).forEach(r => dataCache.regionais.set(r.id, r));
+        dataCache.lastFetch.regionais = now;
+      }).catch(() => {})
+    );
+  }
+  
+  // Carregar pessoas se cache expirou
+  if (now - dataCache.lastFetch.pessoas > CACHE_TTL) {
+    promises.push(
+      base44.entities.Pessoa.list().then(data => {
+        (data || []).forEach(p => dataCache.pessoas.set(p.id, p));
+        dataCache.lastFetch.pessoas = now;
+      }).catch(() => {})
+    );
+  }
+  
+  // Carregar instalações se cache expirou
+  if (now - dataCache.lastFetch.instalacoes > CACHE_TTL) {
+    promises.push(
+      base44.entities.Instalacao.list().then(data => {
+        (data || []).forEach(i => dataCache.instalacoes.set(i.id, i));
+        dataCache.lastFetch.instalacoes = now;
+      }).catch(() => {})
+    );
+  }
+  
+  await Promise.all(promises);
+};
+
+// Componente memoizado para evitar re-renders desnecessários
+const OSCard = memo(function OSCard({ osId, isMinha }) {
   const [os, setOs] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [categoria, setCategoria] = useState(null);
-  const [regional, setRegional] = useState(null);
-  const [lider, setLider] = useState(null);
-  const [executores, setExecutores] = useState([]);
-  const [instalacaoOrigem, setInstalacaoOrigem] = useState(null);
-  const [instalacaoDestino, setInstalacaoDestino] = useState(null);
+  const [relatedData, setRelatedData] = useState({
+    categoria: null,
+    regional: null,
+    lider: null,
+    executores: [],
+    instalacaoOrigem: null,
+    instalacaoDestino: null
+  });
 
   useEffect(() => {
-    loadOS();
-  }, [osId]);
-
-  const loadOS = async () => {
-    try {
-      const osById = await base44.entities.OrdemServico.filter({ id: osId });
-      let osData = Array.isArray(osById) && osById.length > 0 ? osById[0] : null;
-      
-      if (!osData && osId) {
-        const osByCodigo = await base44.entities.OrdemServico.filter({ codigo: osId });
-        osData = Array.isArray(osByCodigo) && osByCodigo.length > 0 ? osByCodigo[0] : null;
-      }
-      
-      if (!osData) {
+    let isMounted = true;
+    
+    const loadOS = async () => {
+      if (!osId) {
         setLoading(false);
         return;
       }
-      
-      setOs(osData);
 
-      if (osData.categoria_id) {
-        const catResult = await base44.entities.Categoria.filter({ id: osData.categoria_id });
-        setCategoria(Array.isArray(catResult) && catResult.length > 0 ? catResult[0] : null);
-      }
+      try {
+        // Verificar cache primeiro
+        let osData = dataCache.ordens.get(osId);
+        
+        if (!osData) {
+          // Tentar buscar por ID
+          const osById = await base44.entities.OrdemServico.filter({ id: osId });
+          osData = Array.isArray(osById) && osById.length > 0 ? osById[0] : null;
+          
+          // Se não encontrou, tentar por código
+          if (!osData) {
+            const osByCodigo = await base44.entities.OrdemServico.filter({ codigo: osId });
+            osData = Array.isArray(osByCodigo) && osByCodigo.length > 0 ? osByCodigo[0] : null;
+          }
+          
+          // Adicionar ao cache
+          if (osData) {
+            dataCache.ordens.set(osId, osData);
+            dataCache.ordens.set(osData.id, osData);
+            if (osData.codigo) dataCache.ordens.set(osData.codigo, osData);
+          }
+        }
 
-      if (osData.regional_id) {
-        const regResult = await base44.entities.Regional.filter({ id: osData.regional_id });
-        setRegional(Array.isArray(regResult) && regResult.length > 0 ? regResult[0] : null);
-      }
+        if (!isMounted) return;
 
-      if (osData.lider_id) {
-        const liderResult = await base44.entities.Pessoa.filter({ id: osData.lider_id });
-        setLider(Array.isArray(liderResult) && liderResult.length > 0 ? liderResult[0] : null);
-      }
+        if (!osData) {
+          setLoading(false);
+          return;
+        }
 
-      if (osData.executores_ids?.length > 0) {
-        const pessoasResult = await base44.entities.Pessoa.list();
-        const execList = (pessoasResult || []).filter(p => osData.executores_ids.includes(p.id));
-        setExecutores(execList);
-      }
+        setOs(osData);
+        
+        // Carregar dados relacionados em batch (uma única vez)
+        await loadRelatedData();
+        
+        if (!isMounted) return;
 
-      if (osData.instalacao_origem_id) {
-        const instOrigem = await base44.entities.Instalacao.filter({ id: osData.instalacao_origem_id });
-        setInstalacaoOrigem(Array.isArray(instOrigem) && instOrigem.length > 0 ? instOrigem[0] : null);
+        // Resolver dados relacionados do cache
+        const newRelatedData = {
+          categoria: osData.categoria_id ? dataCache.categorias.get(osData.categoria_id) : null,
+          regional: osData.regional_id ? dataCache.regionais.get(osData.regional_id) : null,
+          lider: osData.lider_id ? dataCache.pessoas.get(osData.lider_id) : null,
+          executores: osData.executores_ids?.length > 0 
+            ? osData.executores_ids.map(id => dataCache.pessoas.get(id)).filter(Boolean)
+            : [],
+          instalacaoOrigem: osData.instalacao_origem_id ? dataCache.instalacoes.get(osData.instalacao_origem_id) : null,
+          instalacaoDestino: osData.instalacao_destino_id ? dataCache.instalacoes.get(osData.instalacao_destino_id) : null
+        };
+        
+        setRelatedData(newRelatedData);
+      } catch (error) {
+        console.error('Erro ao carregar OS:', error);
+      } finally {
+        if (isMounted) setLoading(false);
       }
-
-      if (osData.instalacao_destino_id) {
-        const instDestino = await base44.entities.Instalacao.filter({ id: osData.instalacao_destino_id });
-        setInstalacaoDestino(Array.isArray(instDestino) && instDestino.length > 0 ? instDestino[0] : null);
-      }
-    } catch (error) {
-      console.error('Erro ao carregar OS:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    
+    loadOS();
+    
+    return () => { isMounted = false; };
+  }, [osId]);
 
   if (loading) {
     return (
       <Card className={`p-3 ${isMinha ? 'bg-blue-50/50' : 'bg-slate-50/50'}`}>
         <div className="flex items-center gap-2">
-          <ClipboardList className="w-4 h-4 text-slate-400" />
+          <ClipboardList className="w-4 h-4 text-slate-400 animate-pulse" />
           <span className="text-xs text-slate-500">Carregando...</span>
         </div>
       </Card>
@@ -109,6 +190,8 @@ export default function OSCard({ osId, isMinha }) {
       </Card>
     );
   }
+
+  const { categoria, regional, lider, executores, instalacaoOrigem, instalacaoDestino } = relatedData;
 
   return (
     <Card className={`p-3 ${isMinha ? 'bg-blue-50 border-blue-100' : 'bg-slate-50 border-slate-100'}`}>
@@ -140,7 +223,6 @@ export default function OSCard({ osId, isMinha }) {
         )}
 
         <div className="space-y-1.5">
-          {/* Líder e Executores */}
           {lider && (
             <div className="flex items-center gap-1 text-xs text-slate-600">
               <User className="w-3 h-3" />
@@ -153,11 +235,10 @@ export default function OSCard({ osId, isMinha }) {
             <div className="flex items-center gap-1 text-xs text-slate-600">
               <Users className="w-3 h-3" />
               <span className="font-medium">Executores:</span>
-              <span>{((executores || []).filter(e => e && e.nome)).map(e => e.nome).join(', ')}</span>
+              <span>{executores.map(e => e.nome).join(', ')}</span>
             </div>
           )}
 
-          {/* Progresso */}
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1 text-xs text-slate-600">
               <TrendingUp className="w-3 h-3" />
@@ -171,7 +252,6 @@ export default function OSCard({ osId, isMinha }) {
             </div>
           </div>
 
-          {/* Campos de Expedição */}
           {categoria?.nome?.toLowerCase().includes('expedição') && (
             <>
               {os.num_reserva && (
@@ -198,7 +278,6 @@ export default function OSCard({ osId, isMinha }) {
             </>
           )}
 
-          {/* Info adicional */}
           <div className="flex flex-wrap gap-2 text-xs">
             {regional && (
               <div className="flex items-center gap-1 text-slate-500">
@@ -222,4 +301,6 @@ export default function OSCard({ osId, isMinha }) {
       </div>
     </Card>
   );
-}
+});
+
+export default OSCard;
