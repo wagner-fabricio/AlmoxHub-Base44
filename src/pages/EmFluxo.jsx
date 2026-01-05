@@ -24,6 +24,7 @@ import ChatMobileSimple from '@/components/mensagens/ChatMobileSimple';
 import NovaConversaModal from '@/components/mensagens/NovaConversaModal';
 import ProjetoMobileDetail from '@/components/projetos/ProjetoMobileDetail';
 import OSFormModal from '@/components/os/OSFormModal';
+import EmFluxoInsights from '@/components/emfluxo/EmFluxoInsights';
 
 const statusConfig = {
   elaboracao: { icon: Clock, color: 'bg-slate-500', label: 'Em Elaboração' },
@@ -295,8 +296,11 @@ export default function EmFluxo() {
             <p className="text-slate-600 dark:text-slate-400">Olá, {currentPessoa?.nome?.split(' ')[0] || 'Usuário'}</p>
           </div>
 
+          {/* Observações Section */}
+          <EmFluxoInsights minhasOS={ordens} currentUserId={currentPessoa?.id} />
+
           {/* Módulos Grid */}
-          <div className="space-y-4">
+          <div className="space-y-4 mt-8">
             {(modules || []).map((module) => {
               const Icon = module.icon;
               return (

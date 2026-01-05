@@ -424,6 +424,9 @@ export default function Dashboard() {
         </Card>
       </div>
 
+      {/* Observações Section */}
+      <DashboardInsights ordens={filteredOrdens} pessoas={[]} categorias={categorias} />
+
       {/* Secondary KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card className="bg-white dark:bg-slate-800">
