@@ -58,6 +58,13 @@ export default function Layout({ children, currentPageName }) {
   const [almoxarifados, setAlmoxarifados] = useState([]);
 
   useEffect(() => {
+    // Detectar mobile e redirecionar para EmFluxo
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    if (isMobile && currentPageName !== 'EmFluxo' && currentPageName !== 'NewUserSetup' && currentPageName !== 'PendingApproval' && currentPageName !== 'UserApproval' && currentPageName !== 'ThankYou') {
+      window.location.href = createPageUrl('EmFluxo');
+      return;
+    }
+
     const loadUser = async () => {
       let redirected = false;
       try {
