@@ -28,11 +28,11 @@ export default function MensagensPage() {
   }, []);
 
   useEffect(() => {
-    if (conversaSelecionada) {
-      loadMensagens(conversaSelecionada.id);
-      marcarComoLida(conversaSelecionada.id);
+    if (conversaSelecionada?.conversa) {
+      loadMensagens(conversaSelecionada.conversa.id);
+      marcarComoLida(conversaSelecionada.conversa.id);
       // Polling mais espaçado para mensagens - 8s é suficiente para chat
-      const interval = setInterval(() => loadMensagens(conversaSelecionada.id), 8000);
+      const interval = setInterval(() => loadMensagens(conversaSelecionada.conversa.id), 8000);
       return () => clearInterval(interval);
     }
   }, [conversaSelecionada]);
@@ -180,7 +180,8 @@ export default function MensagensPage() {
         for (const conv of conversasExistentes) {
           const participantesConv = Array.isArray(conv?.participantes) ? conv.participantes.map(p => p?.pessoa_id).filter(Boolean) : [];
           if (participantesConv.includes(participantesIds?.[0]) && participantesConv.includes(currentPessoa?.id)) {
-            setConversaSelecionada(conv.conversa);
+            setConversaSelecionada(conv);
+            setShowNovaConversa(false);
             return;
           }
         }
@@ -204,7 +205,13 @@ export default function MensagensPage() {
       ));
 
       await loadConversas();
-      setConversaSelecionada(novaConversa);
+      // Aguardar um momento para garantir que conversas foi atualizado
+      setTimeout(() => {
+        const novaConversaCompleta = conversas.find(c => c?.conversa?.id === novaConversa.id);
+        if (novaConversaCompleta) {
+          setConversaSelecionada(novaConversaCompleta);
+        }
+      }, 100);
       showSuccess('Conversa criada', tipo === 'grupo' ? `Grupo "${nomeGrupo}" criado com sucesso` : 'Conversa iniciada');
       } catch (error) {
       console.error('Erro ao criar conversa:', error);
@@ -261,7 +268,7 @@ export default function MensagensPage() {
   };
 
   const handleEnviarMensagem = async (conteudo, mensagemRespondendo, mencoesIds = [], conteudoFormatado = null) => {
-    if (!conversaSelecionada || !currentPessoa) return;
+    if (!conversaSelecionada?.conversa || !currentPessoa) return;
 
     try {
       // Converter códigos de OS usando cache
@@ -270,7 +277,7 @@ export default function MensagensPage() {
       }
 
       const novaMensagem = await base44.entities.MensagemChat.create({
-        conversa_id: conversaSelecionada.id,
+        conversa_id: conversaSelecionada.conversa.id,
         autor_id: currentPessoa.id,
         autor_nome: currentPessoa.nome,
         conteudo,
@@ -282,15 +289,14 @@ export default function MensagensPage() {
       });
 
       // Atualizar conversa com última mensagem
-      await base44.entities.Conversa.update(conversaSelecionada.id, {
+      await base44.entities.Conversa.update(conversaSelecionada.conversa.id, {
         ultima_mensagem: conteudo.substring(0, 50),
         ultima_mensagem_data: new Date().toISOString(),
         ultima_mensagem_autor: currentPessoa?.nome || ''
       });
 
       // Incrementar contador de não lidas para outros participantes
-      const conversaAtual = Array.isArray(conversas) ? conversas.find(c => c && c.conversa && c.conversa.id === conversaSelecionada.id) : null;
-      const participantes = conversaAtual && Array.isArray(conversaAtual.participantes) ? conversaAtual.participantes : [];
+      const participantes = Array.isArray(conversaSelecionada.participantes) ? conversaSelecionada.participantes : [];
       await Promise.all(
         participantes
           .filter(p => p && p.pessoa_id !== currentPessoa.id)
@@ -314,15 +320,15 @@ export default function MensagensPage() {
               referencia_tipo: 'mensagem',
               mensagem: `${currentPessoa.nome} mencionou você em uma mensagem`,
               contexto_adicional: {
-                conversa_id: conversaSelecionada.id,
-                conversa_nome: conversaSelecionada.tipo === 'grupo' ? conversaSelecionada.nome_grupo : null
+                conversa_id: conversaSelecionada.conversa.id,
+                conversa_nome: conversaSelecionada.conversa.tipo === 'grupo' ? conversaSelecionada.conversa.nome_grupo : null
               }
             })
           )
         );
       }
 
-      await loadMensagens(conversaSelecionada.id);
+      await loadMensagens(conversaSelecionada.conversa.id);
       await loadConversas();
       showSuccess('Mensagem enviada');
       } catch (error) {
@@ -344,7 +350,7 @@ export default function MensagensPage() {
         status: 'editada',
         editada_em: new Date().toISOString()
       });
-      await loadMensagens(conversaSelecionada.id);
+      await loadMensagens(conversaSelecionada.conversa.id);
       showSuccess('Mensagem editada');
       } catch (error) {
       console.error('Erro ao editar mensagem:', error);
@@ -358,7 +364,7 @@ export default function MensagensPage() {
         status: 'excluida',
         conteudo: 'Mensagem excluída'
       });
-      await loadMensagens(conversaSelecionada.id);
+      await loadMensagens(conversaSelecionada.conversa.id);
       showSuccess('Mensagem excluída');
       } catch (error) {
       console.error('Erro ao excluir mensagem:', error);
@@ -385,7 +391,7 @@ export default function MensagensPage() {
   }
 
   const handleSelectConversa = (conv) => {
-    setConversaSelecionada(conv.conversa);
+    setConversaSelecionada(conv);
     // Só oculta lista em mobile
     if (window.innerWidth < 1024) {
       setMostrarLista(false);
@@ -498,9 +504,9 @@ export default function MensagensPage() {
           flex-1 min-w-0
         `}>
           <ChatArea
-            conversa={conversaSelecionada}
+            conversa={conversaSelecionada?.conversa}
             mensagens={mensagens}
-            participantes={Array.isArray(conversas) ? (conversas.find(c => c?.conversa?.id === conversaSelecionada?.id)?.participantes || []) : []}
+            participantes={conversaSelecionada?.participantes || []}
             pessoas={pessoas}
             currentPessoaId={currentPessoa.id}
             onEnviarMensagem={handleEnviarMensagem}
