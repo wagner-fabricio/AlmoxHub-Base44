@@ -137,12 +137,12 @@ export default function ChatArea({
       .filter(Boolean);
   };
 
-  const handleKeyPress = (e) => {
+  const handleKeyPress = useCallback((e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleEnviar();
     }
-  };
+  }, [handleEnviar]);
 
   const formatarDataSeparador = (data) => {
     const date = new Date(data);
