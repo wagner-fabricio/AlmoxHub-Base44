@@ -18,6 +18,7 @@ import RichTextEditor from '@/components/mensagens/RichTextEditor';
 import MessageContent from '@/components/mensagens/MessageContent';
 import OSCard from '@/components/mensagens/OSCard';
 import OSDetailModal from '@/components/os/OSDetailModal';
+import MessageBubble from '@/components/mensagens/MessageBubble';
 
 export default function ChatArea({ 
   conversa, 
