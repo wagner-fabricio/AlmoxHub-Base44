@@ -13,8 +13,20 @@ export default function AlertasButton() {
     setResult(null);
     
     try {
-      const response = await base44.functions.enviarAlertas();
-      setResult({ success: true, data: response });
+      // Chamar a função de backend via HTTP
+      const response = await fetch('/api/functions/enviarAlertas', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erro ao chamar função de backend');
+      }
+      
+      const data = await response.json();
+      setResult({ success: true, data });
       
       setTimeout(() => setResult(null), 5000);
     } catch (error) {
