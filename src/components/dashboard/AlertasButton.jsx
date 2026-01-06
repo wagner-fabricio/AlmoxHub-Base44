@@ -13,14 +13,23 @@ export default function AlertasButton() {
     setResult(null);
     
     try {
+      // Verificar se funções de backend estão habilitadas
+      if (!base44.functions || typeof base44.functions.call !== 'function') {
+        throw new Error('Funções de backend não estão habilitadas. Habilite nas configurações do app.');
+      }
+      
       const response = await base44.functions.call('enviarAlertas');
       setResult({ success: true, data: response });
       
-      setTimeout(() => setResult(null), 5000);
+      setTimeout(() => setResult(null), 8000);
     } catch (error) {
-      setResult({ success: false, error: error.message });
+      console.error('Erro ao enviar alertas:', error);
+      setResult({ 
+        success: false, 
+        error: error.message || 'Erro desconhecido ao enviar alertas'
+      });
       
-      setTimeout(() => setResult(null), 5000);
+      setTimeout(() => setResult(null), 10000);
     } finally {
       setLoading(false);
     }
