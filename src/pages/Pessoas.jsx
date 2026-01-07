@@ -142,15 +142,39 @@ export default function Pessoas() {
   const handleSave = async () => {
     setSaving(true);
     try {
+      // Padronizar email para minúsculas
+      const emailPadronizado = formData.email.toLowerCase().trim();
+
+      // Se está criando novo ou editando o email, verificar duplicidade
+      if (!selectedItem || selectedItem.email !== emailPadronizado) {
+        const pessoasExistentes = await base44.entities.Pessoa.filter({ 
+          email: emailPadronizado 
+        });
+
+        // Verificar se existe cadastro com este email (excluindo o próprio registro se for edição)
+        const duplicados = pessoasExistentes.filter(p => 
+          !selectedItem || p.id !== selectedItem.id
+        );
+
+        if (duplicados && duplicados.length > 0) {
+          alert('Já existe um cadastro com este e-mail. Por favor, use um e-mail diferente.');
+          setSaving(false);
+          return;
+        }
+      }
+
+      const dadosAtualizados = { ...formData, email: emailPadronizado };
+
       if (selectedItem) {
-        await base44.entities.Pessoa.update(selectedItem.id, formData);
+        await base44.entities.Pessoa.update(selectedItem.id, dadosAtualizados);
       } else {
-        await base44.entities.Pessoa.create(formData);
+        await base44.entities.Pessoa.create(dadosAtualizados);
       }
       loadData();
       setShowModal(false);
     } catch (error) {
       console.error('Error saving:', error);
+      alert('Erro ao salvar. Tente novamente.');
     } finally {
       setSaving(false);
     }
