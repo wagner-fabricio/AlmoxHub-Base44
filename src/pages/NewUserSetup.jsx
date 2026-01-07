@@ -130,11 +130,25 @@ export default function NewUserSetup() {
     setError(null);
 
     try {
+      // Padronizar email para minúsculas
+      const emailPadronizado = currentUser.email.toLowerCase().trim();
+
+      // Verificar se já existe cadastro com este email
+      const pessoasExistentes = await base44.entities.Pessoa.filter({ 
+        email: emailPadronizado 
+      });
+
+      if (pessoasExistentes && pessoasExistentes.length > 0) {
+        setError('Já existe um cadastro com este e-mail. Se você acredita que isso é um erro, entre em contato com o suporte.');
+        setSaving(false);
+        return;
+      }
+
       // Criar registro de Pessoa
       await base44.entities.Pessoa.create({
         matricula: formData.matricula,
         nome: formData.nome,
-        email: currentUser.email,
+        email: emailPadronizado,
         funcao: formData.funcao,
         funcoes: formData.funcoes,
         regional_id: formData.regional_id,
