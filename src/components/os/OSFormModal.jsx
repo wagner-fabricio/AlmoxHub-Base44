@@ -398,7 +398,16 @@ export default function OSFormModal({
                     <Label>Almoxarifado *</Label>
                     <Select
                       value={formData.almoxarifado_id}
-                      onValueChange={(v) => setFormData({ ...formData, almoxarifado_id: v, executores_ids: [], atendente_nome: '' })}
+                      onValueChange={(v) => {
+                        const selectedAlmox = (filteredAlmoxarifados || []).find(a => a.id === v);
+                        setFormData({ 
+                          ...formData, 
+                          almoxarifado_id: v, 
+                          executores_ids: [], 
+                          atendente_nome: '',
+                          instalacao_origem_id: selectedAlmox?.instalacao_id || ''
+                        });
+                      }}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione..." />
