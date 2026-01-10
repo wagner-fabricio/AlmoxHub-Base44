@@ -1,3 +1,4 @@
+
 /**
  * Configurações centralizadas para o sistema de alertas
  */
@@ -13,9 +14,7 @@ export const ALERT_CONFIG = {
   // Tipos de alerta
   ALERT_TYPES: {
     ATRASO: 'atraso',
-    INATIVIDADE: 'inatividade',
-    SEGURO: 'seguro',
-    TRANSPORTE: 'transporte'
+    INATIVIDADE: 'inatividade'
   },
   
   // Status de OS
@@ -51,23 +50,5 @@ export const ALERT_STYLES = {
     corSecundaria: '#d97706',
     corFundo: '#fffbeb',
     corBorda: '#f59e0b'
-  },
-  seguro: {
-    emoji: '🛡️',
-    titulo: 'Alerta de Seguro',
-    subtitulo: 'Expedição sem Cobertura',
-    corPrimaria: '#3b82f6',
-    corSecundaria: '#1d4ed8',
-    corFundo: '#eff6ff',
-    corBorda: '#3b82f6'
-  },
-  transporte: {
-    emoji: '🚚',
-    titulo: 'Alerta de Transporte',
-    subtitulo: 'Expedição sem Transporte',
-    corPrimaria: '#6366f1',
-    corSecundaria: '#4f46e5',
-    corFundo: '#eef2ff',
-    corBorda: '#6366f1'
   }
 };

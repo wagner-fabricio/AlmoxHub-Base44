@@ -4,9 +4,7 @@ import { ALERT_CONFIG } from './alertConfig.js';
 import { logEstruturado, logAgregado } from './utils/logging.js';
 import {
   processarOrdensAtrasadas,
-  processarOrdensParadas,
-  processarExpedicoesSemSeguro,
-  processarExpedicoesSemTransporte
+  processarOrdensParadas
 } from './alertStrategies.js';
 
 /**
@@ -94,36 +92,26 @@ export default async function enviarAlertas(req) {
     // Processar cada tipo de alerta
     const [
       resultadosAtraso,
-      resultadosInatividade,
-      resultadosSeguro,
-      resultadosTransporte
+      resultadosInatividade
     ] = await Promise.all([
       processarOrdensAtrasadas(base44.asServiceRole, ordens, pessoasMap),
-      processarOrdensParadas(base44.asServiceRole, ordens, pessoasMap),
-      processarExpedicoesSemSeguro(base44.asServiceRole, ordens, pessoasMap, categoriaExpedicao),
-      processarExpedicoesSemTransporte(base44.asServiceRole, ordens, pessoasMap, categoriaExpedicao)
+      processarOrdensParadas(base44.asServiceRole, ordens, pessoasMap)
     ]);
     
     // Consolidar erros
     const todosErros = [
       ...resultadosAtraso.erros,
-      ...resultadosInatividade.erros,
-      ...resultadosSeguro.erros,
-      ...resultadosTransporte.erros
+      ...resultadosInatividade.erros
     ];
     
     // Calcular totais
     const totalAlertasEnviados = 
       resultadosAtraso.processadas +
-      resultadosInatividade.processadas +
-      resultadosSeguro.processadas +
-      resultadosTransporte.processadas;
+      resultadosInatividade.processadas;
     
     const totalAlertas = 
       resultadosAtraso.total +
-      resultadosInatividade.total +
-      resultadosSeguro.total +
-      resultadosTransporte.total;
+      resultadosInatividade.total;
     
     const totalFalhas = todosErros.length;
     
@@ -136,8 +124,6 @@ export default async function enviarAlertas(req) {
       details: JSON.stringify({
         ordensAtrasadas: resultadosAtraso.total,
         ordensParadas: resultadosInatividade.total,
-        expedicoesSemSeguro: resultadosSeguro.total,
-        expedicoesSemTransporte: resultadosTransporte.total,
         totalEnviados: totalAlertasEnviados,
         totalFalhas,
         tempoExecucao: Date.now() - inicioExecucao
@@ -148,9 +134,7 @@ export default async function enviarAlertas(req) {
     // Log agregado final
     logAgregado('enviarAlertas', [
       { tipo: 'atraso', success: true, total: resultadosAtraso.total, enviados: resultadosAtraso.processadas },
-      { tipo: 'inatividade', success: true, total: resultadosInatividade.total, enviados: resultadosInatividade.processadas },
-      { tipo: 'seguro', success: true, total: resultadosSeguro.total, enviados: resultadosSeguro.processadas },
-      { tipo: 'transporte', success: true, total: resultadosTransporte.total, enviados: resultadosTransporte.processadas }
+      { tipo: 'inatividade', success: true, total: resultadosInatividade.total, enviados: resultadosInatividade.processadas }
     ]);
     
     // Retorno detalhado
@@ -166,16 +150,6 @@ export default async function enviarAlertas(req) {
           total: resultadosInatividade.total,
           notificadas: resultadosInatividade.processadas,
           falhadas: resultadosInatividade.erros.length
-        },
-        expedicoesSemSeguro: {
-          total: resultadosSeguro.total,
-          notificadas: resultadosSeguro.processadas,
-          falhadas: resultadosSeguro.erros.length
-        },
-        expedicoesSemTransporte: {
-          total: resultadosTransporte.total,
-          notificadas: resultadosTransporte.processadas,
-          falhadas: resultadosTransporte.erros.length
         },
         totalAlertasEnviados,
         totalFalhas
