@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { base44 } from '@/api/base44Client';
 import { X, Send, Loader2 } from 'lucide-react';
 import { format, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import MentionInput from '@/components/notifications/MentionInput';
 
 export default function ChatMobileSimple({
   conversa,
@@ -16,6 +16,7 @@ export default function ChatMobileSimple({
 }) {
   const [mensagens, setMensagens] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const [mencoesIds, setMencoesIds] = useState([]);
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
   const [participantes, setParticipantes] = useState([]);
@@ -99,13 +100,37 @@ export default function ChatMobileSimple({
     try {
       const currentPessoa = (pessoas || []).find(p => p.id === currentPessoaId);
       
-      await base44.entities.MensagemChat.create({
+      const mensagemCriada = await base44.entities.MensagemChat.create({
         conversa_id: conversa.id,
         autor_id: currentPessoaId,
         autor_nome: currentPessoa?.nome || 'Usuário',
         conteudo: newMessage,
+        mencoes_ids: mencoesIds,
         status: 'enviada'
       });
+
+      // Criar notificações para mencionados
+      if (mencoesIds && mencoesIds.length > 0) {
+        try {
+          const notificacoes = mencoesIds
+            .filter(id => id !== currentPessoaId)
+            .map(destinatarioId => ({
+              destinatario_id: destinatarioId,
+              remetente_id: currentPessoaId,
+              tipo: 'mencao',
+              referencia_id: conversa.id,
+              referencia_tipo: 'conversa',
+              mensagem: `Você foi mencionado(a) na conversa "${conversa.nome_grupo || 'privada'}"`,
+              lida: false
+            }));
+          
+          if (notificacoes.length > 0) {
+            await base44.entities.Notificacao.bulkCreate(notificacoes);
+          }
+        } catch (notifError) {
+          console.error('Erro ao criar notificações de menção:', notifError);
+        }
+      }
 
       await base44.entities.Conversa.update(conversa.id, {
         ultima_mensagem: newMessage.substring(0, 50),
@@ -125,6 +150,7 @@ export default function ChatMobileSimple({
       );
 
       setNewMessage('');
+      setMencoesIds([]);
       await loadMensagens();
       onRefresh?.();
     } catch (error) {
@@ -314,7 +340,7 @@ export default function ChatMobileSimple({
       {/* Input */}
       <div className="p-4 bg-white border-t border-slate-200">
         <div className="flex gap-2">
-          <Input
+          <MentionInput
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={(e) => {
@@ -323,8 +349,10 @@ export default function ChatMobileSimple({
                 handleSendMessage();
               }
             }}
-            placeholder="Digite uma mensagem..."
+            placeholder="Digite uma mensagem... (@ para mencionar)"
             className="flex-1 rounded-full bg-slate-50"
+            pessoas={pessoas}
+            onMentionsChange={setMencoesIds}
           />
           <Button
             onClick={handleSendMessage}
