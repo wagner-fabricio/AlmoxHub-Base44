@@ -61,7 +61,7 @@ export default function Layout({ children, currentPageName }) {
   useEffect(() => {
     // Detectar mobile e redirecionar para EmFluxo
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
-    if (isMobile && currentPageName !== 'EmFluxo' && currentPageName !== 'NewUserSetup' && currentPageName !== 'PendingApproval' && currentPageName !== 'UserApproval' && currentPageName !== 'ThankYou') {
+    if (isMobile && currentPageName !== 'EmFluxo' && currentPageName !== 'MeuPerfilMobile' && currentPageName !== 'NewUserSetup' && currentPageName !== 'PendingApproval' && currentPageName !== 'UserApproval' && currentPageName !== 'ThankYou') {
       window.location.href = createPageUrl('EmFluxo');
       return;
     }
@@ -145,7 +145,7 @@ export default function Layout({ children, currentPageName }) {
   };
 
   // Páginas que não devem exibir o layout (sidebar e header)
-  const pagesWithoutLayout = ['NewUserSetup', 'PendingApproval', 'UserApproval', 'ThankYou'];
+  const pagesWithoutLayout = ['NewUserSetup', 'PendingApproval', 'UserApproval', 'ThankYou', 'MeuPerfilMobile'];
   const shouldHideLayout = pagesWithoutLayout.includes(currentPageName);
 
   // Se a página não deve ter layout, renderizar apenas o children

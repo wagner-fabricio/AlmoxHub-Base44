@@ -15,7 +15,8 @@ import {
   User,
   MapPin,
   Plus,
-  Filter
+  Filter,
+  UserCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -292,8 +293,20 @@ export default function EmFluxo() {
         <div className="max-w-md mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">AlmoxHub - Atividades em Fluxo</h1>
-            <p className="text-slate-600 dark:text-slate-400">Olá, {currentPessoa?.nome?.split(' ')[0] || 'Usuário'}</p>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex-1" />
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-white">AlmoxHub</h1>
+              <div className="flex-1 flex justify-end">
+                <button
+                  onClick={() => window.location.href = '/MeuPerfilMobile'}
+                  className="w-10 h-10 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: '#0000FF' }}
+                >
+                  <UserCircle className="w-6 h-6 text-white" />
+                </button>
+              </div>
+            </div>
+            <p className="text-xl text-slate-600 dark:text-slate-400">Olá, {currentPessoa?.nome?.split(' ')[0] || 'Usuário'}</p>
           </div>
 
           {/* Observações Section */}
