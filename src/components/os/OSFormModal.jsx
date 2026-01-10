@@ -141,6 +141,51 @@ export default function OSFormModal({
         savedOS = await base44.entities.OrdemServico.update(os.id, dataToSave);
       } else {
         savedOS = await base44.entities.OrdemServico.create(dataToSave);
+        
+        // Criar notificações para pessoas atribuídas na nova OS
+        const osId = savedOS.id;
+        const pessoasParaNotificar = new Set();
+        
+        // Adicionar líder
+        if (formData.lider_id) {
+          pessoasParaNotificar.add(formData.lider_id);
+        }
+        
+        // Adicionar executores
+        if (formData.executores_ids?.length > 0) {
+          formData.executores_ids.forEach(id => pessoasParaNotificar.add(id));
+        }
+        
+        // Adicionar atendente (buscar por nome)
+        if (formData.atendente_nome) {
+          const atendente = pessoas.find(p => p.nome === formData.atendente_nome);
+          if (atendente) {
+            pessoasParaNotificar.add(atendente.id);
+          }
+        }
+        
+        // Remover o próprio usuário criador
+        const currentPessoa = pessoas.find(p => p.user_id === currentUser?.id);
+        if (currentPessoa) {
+          pessoasParaNotificar.delete(currentPessoa.id);
+        }
+        
+        // Criar notificações
+        for (const pessoaId of pessoasParaNotificar) {
+          try {
+            await base44.entities.Notificacao.create({
+              destinatario_id: pessoaId,
+              remetente_id: currentPessoa?.id,
+              tipo: 'atribuicao',
+              referencia_id: osId,
+              referencia_tipo: 'tarefa',
+              mensagem: `Você foi atribuído(a) à nova OS ${codigo}`,
+              lida: false
+            });
+          } catch (notifError) {
+            console.error('Erro ao criar notificação:', notifError);
+          }
+        }
       }
 
       onSave?.(isNew, { ...dataToSave, id: savedOS.id || os?.id });
