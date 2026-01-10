@@ -393,7 +393,7 @@ export default function OSFormModal({
                     <Label>Almoxarifado *</Label>
                     <Select
                       value={formData.almoxarifado_id}
-                      onValueChange={(v) => setFormData({ ...formData, almoxarifado_id: v, executores_ids: [] })}
+                      onValueChange={(v) => setFormData({ ...formData, almoxarifado_id: v, executores_ids: [], atendente_nome: '' })}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione..." />
@@ -434,9 +434,17 @@ export default function OSFormModal({
                       placeholder="Digite ou selecione..."
                     />
                     <datalist id="pessoas-list">
-                      {(pessoas || []).map(p => (
-                        <option key={p.id} value={p.nome} />
-                      ))}
+                      {formData.almoxarifado_id ? (
+                        (pessoas || [])
+                          .filter(p => p && p.almoxarifados_ids?.includes(formData.almoxarifado_id))
+                          .map(p => (
+                            <option key={p.id} value={p.nome} />
+                          ))
+                      ) : (
+                        (pessoas || []).map(p => (
+                          <option key={p.id} value={p.nome} />
+                        ))
+                      )}
                     </datalist>
                   </div>
                 </div>
