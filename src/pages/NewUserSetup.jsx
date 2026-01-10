@@ -64,7 +64,7 @@ export default function NewUserSetup() {
       setFormData(prev => ({ ...prev, nome: user.full_name || '' }));
     } catch (err) {
       setError('Erro ao carregar dados. Tente novamente.');
-      console.error(err);
+      console.error('Erro ao carregar dados iniciais');
     } finally {
       setLoading(false);
     }
@@ -113,7 +113,7 @@ export default function NewUserSetup() {
       setPhotoPreview(file_url);
     } catch (err) {
       setError('Erro ao fazer upload da foto. Tente novamente.');
-      console.error(err);
+      console.error('Erro no upload de foto');
     } finally {
       setUploadingPhoto(false);
     }
@@ -164,7 +164,7 @@ export default function NewUserSetup() {
       setCompleted(true);
     } catch (err) {
       setError('Erro ao salvar cadastro. Tente novamente.');
-      console.error(err);
+      console.error('Erro ao salvar cadastro');
     } finally {
       setSaving(false);
     }

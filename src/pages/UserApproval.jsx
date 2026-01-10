@@ -96,7 +96,7 @@ export default function UserApproval() {
       });
     } catch (err) {
       setError('Erro ao carregar dados. Tente novamente.');
-      console.error(err);
+      console.error('Erro ao carregar dados de aprovação');
     } finally {
       setLoading(false);
     }
@@ -160,7 +160,7 @@ Equipe AlmoxHub
       }, 3000);
     } catch (err) {
       setError('Erro ao aprovar usuário. Tente novamente.');
-      console.error(err);
+      console.error('Erro ao aprovar usuário');
     } finally {
       setSaving(false);
     }
@@ -201,7 +201,7 @@ Equipe AlmoxHub
       }, 3000);
     } catch (err) {
       setError('Erro ao rejeitar usuário. Tente novamente.');
-      console.error(err);
+      console.error('Erro ao rejeitar usuário');
     } finally {
       setSaving(false);
     }

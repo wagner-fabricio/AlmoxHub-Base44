@@ -80,7 +80,8 @@ export default function Pessoas() {
       setRegionais(regionaisData);
       setAlmoxarifados(almoxData);
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error('Erro ao carregar dados');
+      // Não expor detalhes do erro ao usuário
     } finally {
       setLoading(false);
     }
@@ -133,7 +134,8 @@ export default function Pessoas() {
       await base44.entities.Pessoa.delete(selectedItem.id);
       loadData();
     } catch (error) {
-      console.error('Error deleting:', error);
+      console.error('Erro ao deletar');
+      alert('Erro ao deletar pessoa. Tente novamente.');
     } finally {
       setShowDeleteDialog(false);
     }
@@ -228,7 +230,8 @@ export default function Pessoas() {
       await loadData();
       setShowFuncoesModal(false);
     } catch (error) {
-      console.error('Error updating funcoes:', error);
+      console.error('Erro ao atualizar funções');
+      alert('Erro ao atualizar funções. Tente novamente.');
     } finally {
       setSaving(false);
     }
@@ -248,7 +251,8 @@ export default function Pessoas() {
       await base44.entities.Pessoa.update(pessoa.id, updateData);
       await loadData();
     } catch (error) {
-      console.error('Error updating status:', error);
+      console.error('Erro ao atualizar status');
+      alert('Erro ao atualizar status. Tente novamente.');
     }
   };
 
@@ -271,6 +275,17 @@ export default function Pessoas() {
           const labels = { gestor: 'Gestor', lider: 'Líder', almoxarife: 'Almoxarife' };
           return labels[f];
         }).join(', ');
+
+        // Função de sanitização para prevenir XSS em emails
+        const sanitizeHTML = (str) => {
+          if (!str) return '';
+          return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+        };
 
         let assunto = '';
         let corpo = '';
@@ -353,7 +368,7 @@ export default function Pessoas() {
                   <p style="font-size: 18px; margin: 10px 0 0 0;">Atualização sobre sua Solicitação</p>
                 </div>
                 <div class="content">
-                  <p>Prezado(a) <strong>${pessoa.nome}</strong>,</p>
+                  <p>Prezado(a) <strong>${sanitizeHTML(pessoa.nome)}</strong>,</p>
                   
                   <p>Lamentamos informar que, após análise, sua solicitação de acesso ao sistema <strong>AlmoxHub</strong> não pôde ser aprovada no momento.</p>
                   
@@ -393,7 +408,8 @@ export default function Pessoas() {
 
       await loadData();
     } catch (error) {
-      console.error('Error updating approval status:', error);
+      console.error('Erro ao atualizar status de aprovação');
+      alert('Erro ao atualizar status de aprovação. Tente novamente.');
     }
   };
 
@@ -406,7 +422,8 @@ export default function Pessoas() {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       setFormData({ ...formData, foto_perfil: file_url });
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error('Erro ao fazer upload');
+      alert('Erro ao fazer upload da imagem. Tente novamente.');
     } finally {
       setUploadingImage(false);
     }
@@ -419,10 +436,13 @@ export default function Pessoas() {
   const getRegional = (id) => regionais.find(r => r.id === id);
   const filteredAlmoxarifados = almoxarifados.filter(a => a.regional_id === formData.regional_id);
 
+  // Sanitizar busca para prevenir injection
+  const sanitizedSearch = search.trim().replace(/[^\w\s\-@.]/g, '').substring(0, 100);
+  
   const filteredItems = pessoas.filter(p => {
     if (filterRegional !== 'all' && p.regional_id !== filterRegional) return false;
-    if (search && !p.nome?.toLowerCase().includes(search.toLowerCase()) && 
-        !p.matricula?.toLowerCase().includes(search.toLowerCase())) return false;
+    if (sanitizedSearch && !p.nome?.toLowerCase().includes(sanitizedSearch.toLowerCase()) && 
+        !p.matricula?.toLowerCase().includes(sanitizedSearch.toLowerCase())) return false;
     return true;
   });
 

@@ -21,7 +21,8 @@ import {
   Loader2,
   UserCircle,
   MessageSquare,
-  Truck
+  Truck,
+  Shield
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -226,6 +227,7 @@ export default function Layout({ children, currentPageName }) {
           --input: 217 33% 20%;
         }
       `}</style>
+      <meta httpEquiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https: blob:; font-src 'self' data: https:; connect-src 'self' https:; frame-src 'self' https:;" />
       
       <div className="flex h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden">
         {/* Sidebar Mobile Overlay */}
@@ -390,13 +392,19 @@ export default function Layout({ children, currentPageName }) {
                         <UserCircle className="w-4 h-4 mr-2" />
                         Ver perfil completo
                       </DropdownMenuItem>
+                      {user?.role === 'admin' && (
+                        <DropdownMenuItem onClick={() => window.location.href = createPageUrl('AuditLogs')}>
+                          <Shield className="w-4 h-4 mr-2" />
+                          Logs de Auditoria
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem onClick={handleLogout}>
                         <LogOut className="w-4 h-4 mr-2" />
                         Sair
                       </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+                      </DropdownMenuContent>
+                      </DropdownMenu>
+                      </div>
               ) : (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -456,12 +464,18 @@ export default function Layout({ children, currentPageName }) {
                       <LogOut className="w-4 h-4 mr-2" />
                       Sair
                     </DropdownMenuItem>
+                  {user?.role === 'admin' && (
+                    <DropdownMenuItem onClick={() => window.location.href = createPageUrl('AuditLogs')}>
+                      <Shield className="w-4 h-4 mr-2" />
+                      Logs de Auditoria
+                    </DropdownMenuItem>
+                  )}
                   </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-            </div>
-          </div>
-        </aside>
+                  </DropdownMenu>
+                  )}
+                  </div>
+                  </div>
+                  </aside>
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col min-w-0">

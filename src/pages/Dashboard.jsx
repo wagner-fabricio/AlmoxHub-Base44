@@ -55,7 +55,7 @@ export default function Dashboard() {
         }
       });
     } catch (e) {
-      console.error('Error saving filters:', e);
+      console.error('Erro ao salvar filtros');
     }
   };
 
@@ -87,7 +87,7 @@ export default function Dashboard() {
         setFilters(user.filtros_preferidos.Dashboard);
       }
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error('Erro ao carregar dados do dashboard');
     } finally {
       setLoading(false);
     }

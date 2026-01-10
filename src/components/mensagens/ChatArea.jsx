@@ -92,13 +92,16 @@ export default function ChatArea({
   const parseMessageContent = (text) => {
     if (!text) return { text: '', entities: [] };
     
+    // Sanitizar texto para prevenir XSS
+    const sanitizedText = text.trim().substring(0, 10000);
+    
     const entities = [];
     
     try {
       // Detectar links de OS em URLs (ex: ?os_id=xxx ou ?id=xxx)
       const urlRegex = /(?:os_id|id)=([a-f0-9]{24})/gi;
       let match;
-      while ((match = urlRegex.exec(text)) !== null) {
+      while ((match = urlRegex.exec(sanitizedText)) !== null) {
         entities.push({
           type: 'ordem_servico',
           offset: match.index,
@@ -109,7 +112,7 @@ export default function ChatArea({
 
       // Detectar códigos de OS no texto (ex: ALMHUB-20250101-0001)
       const osCodigoRegex = /(ALMHUB-\d{8}-\d{4})/gi;
-      while ((match = osCodigoRegex.exec(text)) !== null) {
+      while ((match = osCodigoRegex.exec(sanitizedText)) !== null) {
         entities.push({
           type: 'ordem_servico',
           offset: match.index,
@@ -118,11 +121,11 @@ export default function ChatArea({
         });
       }
     } catch (error) {
-      console.error('Erro ao fazer parse do conteúdo:', error);
+      console.error('Erro ao fazer parse do conteúdo');
     }
 
     return {
-      text: text,
+      text: sanitizedText,
       entities: entities
     };
   };
