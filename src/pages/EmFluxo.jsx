@@ -299,10 +299,19 @@ export default function EmFluxo() {
               <div className="flex-1 flex justify-end">
                 <button
                   onClick={() => window.location.href = '/MeuPerfilMobile'}
-                  className="w-10 h-10 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: '#0000FF' }}
+                  className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-lg"
                 >
-                  <UserCircle className="w-6 h-6 text-white" />
+                  {currentPessoa?.foto_perfil ? (
+                    <img
+                      src={currentPessoa.foto_perfil}
+                      alt="Perfil"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#0000FF' }}>
+                      <UserCircle className="w-6 h-6 text-white" />
+                    </div>
+                  )}
                 </button>
               </div>
             </div>
