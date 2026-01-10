@@ -36,7 +36,9 @@ export default function NotificationBell() {
   };
 
   const handleClick = () => {
-    window.location.href = createPageUrl('Notifications');
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    const targetPage = isMobile ? 'NotificationsMobile' : 'Notifications';
+    window.location.href = createPageUrl(targetPage);
   };
 
   return (
