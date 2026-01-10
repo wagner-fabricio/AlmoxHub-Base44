@@ -130,8 +130,10 @@ export default function NewUserSetup() {
     setError(null);
 
     try {
-      // Padronizar email para minúsculas
+      // Sanitizar e padronizar dados
       const emailPadronizado = currentUser.email.toLowerCase().trim();
+      const nomeSanitizado = formData.nome.trim().substring(0, 200);
+      const matriculaSanitizada = formData.matricula.trim().substring(0, 50);
 
       // Verificar se já existe cadastro com este email
       const pessoasExistentes = await base44.entities.Pessoa.filter({ 
@@ -146,10 +148,10 @@ export default function NewUserSetup() {
 
       // Criar registro de Pessoa
       await base44.entities.Pessoa.create({
-        matricula: formData.matricula,
-        nome: formData.nome,
+        matricula: matriculaSanitizada,
+        nome: nomeSanitizado,
         email: emailPadronizado,
-        funcao: formData.funcao,
+        funcao: formData.funcao?.trim().substring(0, 100) || '',
         funcoes: formData.funcoes,
         regional_id: formData.regional_id,
         almoxarifados_ids: formData.almoxarifados_ids,

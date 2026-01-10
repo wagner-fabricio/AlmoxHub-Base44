@@ -19,7 +19,7 @@ export default function AlertasButton() {
       }
       
       const response = await base44.functions.call('enviarAlertas');
-      setResult({ success: true, data: response });
+      setResult({ success: true, data: response.data });
       
       setTimeout(() => setResult(null), 8000);
     } catch (error) {

@@ -142,8 +142,10 @@ export default function Pessoas() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Padronizar email para minúsculas
+      // Sanitizar e padronizar dados
       const emailPadronizado = formData.email.toLowerCase().trim();
+      const nomeSanitizado = formData.nome.trim().substring(0, 200);
+      const matriculaSanitizada = formData.matricula.trim().substring(0, 50);
 
       // Se está criando novo ou editando o email, verificar duplicidade
       if (!selectedItem || selectedItem.email !== emailPadronizado) {
@@ -163,7 +165,13 @@ export default function Pessoas() {
         }
       }
 
-      const dadosAtualizados = { ...formData, email: emailPadronizado };
+      const dadosAtualizados = { 
+        ...formData, 
+        email: emailPadronizado,
+        nome: nomeSanitizado,
+        matricula: matriculaSanitizada,
+        funcao: formData.funcao?.trim().substring(0, 100) || ''
+      };
 
       if (selectedItem) {
         await base44.entities.Pessoa.update(selectedItem.id, dadosAtualizados);
@@ -300,13 +308,13 @@ export default function Pessoas() {
                   
                   <div class="dados">
                     <h3 style="margin-top: 0; color: #0000FF;">Dados do seu Cadastro</h3>
-                    <div class="dados-item"><span class="label">Nome:</span> ${pessoa.nome}</div>
-                    <div class="dados-item"><span class="label">Matrícula:</span> ${pessoa.matricula}</div>
-                    <div class="dados-item"><span class="label">E-mail:</span> ${pessoa.email}</div>
-                    <div class="dados-item"><span class="label">Função/Cargo:</span> ${pessoa.funcao || '-'}</div>
-                    <div class="dados-item"><span class="label">Perfis:</span> ${funcoesTexto}</div>
-                    <div class="dados-item"><span class="label">Regional:</span> ${regional?.sigla || '-'}</div>
-                    ${almoxs.length > 0 ? `<div class="dados-item"><span class="label">Almoxarifados:</span> ${almoxs.map(a => a.nome).join(', ')}</div>` : ''}
+                    <div class="dados-item"><span class="label">Nome:</span> ${sanitizeHTML(pessoa.nome)}</div>
+                    <div class="dados-item"><span class="label">Matrícula:</span> ${sanitizeHTML(pessoa.matricula)}</div>
+                    <div class="dados-item"><span class="label">E-mail:</span> ${sanitizeHTML(pessoa.email)}</div>
+                    <div class="dados-item"><span class="label">Função/Cargo:</span> ${sanitizeHTML(pessoa.funcao) || '-'}</div>
+                    <div class="dados-item"><span class="label">Perfis:</span> ${sanitizeHTML(funcoesTexto)}</div>
+                    <div class="dados-item"><span class="label">Regional:</span> ${sanitizeHTML(regional?.sigla) || '-'}</div>
+                    ${almoxs.length > 0 ? `<div class="dados-item"><span class="label">Almoxarifados:</span> ${almoxs.map(a => sanitizeHTML(a.nome)).join(', ')}</div>` : ''}
                   </div>
                   
                   <p>Estamos à disposição para auxiliá-lo em qualquer dúvida ou necessidade.</p>
@@ -353,12 +361,12 @@ export default function Pessoas() {
                   
                   <div class="dados">
                     <h3 style="margin-top: 0; color: #0000FF;">Dados da sua Solicitação</h3>
-                    <div class="dados-item"><span class="label">Nome:</span> ${pessoa.nome}</div>
-                    <div class="dados-item"><span class="label">Matrícula:</span> ${pessoa.matricula}</div>
-                    <div class="dados-item"><span class="label">E-mail:</span> ${pessoa.email}</div>
-                    <div class="dados-item"><span class="label">Função/Cargo:</span> ${pessoa.funcao || '-'}</div>
-                    <div class="dados-item"><span class="label">Perfis Solicitados:</span> ${funcoesTexto}</div>
-                    <div class="dados-item"><span class="label">Regional:</span> ${regional?.sigla || '-'}</div>
+                    <div class="dados-item"><span class="label">Nome:</span> ${sanitizeHTML(pessoa.nome)}</div>
+                    <div class="dados-item"><span class="label">Matrícula:</span> ${sanitizeHTML(pessoa.matricula)}</div>
+                    <div class="dados-item"><span class="label">E-mail:</span> ${sanitizeHTML(pessoa.email)}</div>
+                    <div class="dados-item"><span class="label">Função/Cargo:</span> ${sanitizeHTML(pessoa.funcao) || '-'}</div>
+                    <div class="dados-item"><span class="label">Perfis Solicitados:</span> ${sanitizeHTML(funcoesTexto)}</div>
+                    <div class="dados-item"><span class="label">Regional:</span> ${sanitizeHTML(regional?.sigla) || '-'}</div>
                   </div>
                   
                   <p>Agradecemos seu interesse no AlmoxHub.</p>

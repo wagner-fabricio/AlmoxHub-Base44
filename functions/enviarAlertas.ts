@@ -1,10 +1,27 @@
-import { base44 } from '@base44/sdk';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { requireAuth, checkRateLimit } from './middleware/auth.js';
 
 /**
  * Função para enviar alertas automáticos sobre OSs críticas
  * Executa diariamente para identificar e notificar sobre problemas
+ * REQUER: Autenticação e perfil de gestor ou admin
  */
-export default async function enviarAlertas() {
+export default async function enviarAlertas(req) {
+  // Verificar autenticação e autorização
+  const auth = await requireAuth(req, { requiredRole: 'gestor' });
+  
+  if (auth.error) {
+    return auth.response;
+  }
+  
+  const { user, pessoa, base44 } = auth;
+  
+  // Rate limiting: máximo 5 requisições por hora
+  const rateLimit = checkRateLimit(user.id, 5, 3600000);
+  if (!rateLimit.allowed) {
+    return rateLimit.response;
+  }
+  
   try {
     // Buscar todas as OSs ativas
     const ordens = await base44.asServiceRole.entities.OrdemServico.list();
@@ -281,7 +298,22 @@ export default async function enviarAlertas() {
       }
     }
     
-    return {
+    // Registrar auditoria
+    await base44.asServiceRole.entities.AuditLog.create({
+      action: 'enviar_alertas',
+      entity_type: 'OrdemServico',
+      entity_id: null,
+      user_id: user.id,
+      details: JSON.stringify({
+        ordensAtrasadas: ordensAtrasadas.length,
+        ordensParadas: ordensParadas.length,
+        expedicoesSemSeguro: expedicoesSemSeguro.length,
+        expedicoesSemTransporte: expedicoesSemTransporte.length
+      }),
+      timestamp: new Date().toISOString()
+    });
+    
+    return Response.json({
       success: true,
       summary: {
         ordensAtrasadas: ordensAtrasadas.length,
@@ -291,10 +323,10 @@ export default async function enviarAlertas() {
         totalAlertasEnviados: ordensAtrasadas.length + ordensParadas.length + 
                               expedicoesSemSeguro.length + expedicoesSemTransporte.length
       }
-    };
+    });
     
   } catch (error) {
     console.error('Erro ao enviar alertas:', error);
-    return { success: false, error: error.message };
+    return Response.json({ success: false, error: 'Erro ao processar alertas' }, { status: 500 });
   }
 }
