@@ -106,6 +106,7 @@ export default function OSFormModal({
 
   const filteredSubcategorias = Array.isArray(subcategorias) ? subcategorias.filter(s => s?.categoria_id === formData.categoria_id) : [];
   const filteredAlmoxarifados = Array.isArray(almoxarifados) ? almoxarifados.filter(a => a?.regional_id === formData.regional_id) : [];
+  const filteredInstalacoes = Array.isArray(instalacoes) ? instalacoes.filter(i => i?.regional_id === formData.regional_id) : [];
   
   const selectedCategoria = Array.isArray(categorias) ? categorias.find(c => c?.id === formData.categoria_id) : null;
   const selectedSubcategorias = Array.isArray(subcategorias) ? subcategorias.filter(s => formData.subcategorias_ids?.includes(s?.id)) : [];
@@ -699,7 +700,7 @@ export default function OSFormModal({
                             className="w-full justify-between"
                           >
                             {formData.instalacao_origem_id
-                              ? (almoxarifados || []).find(a => a.id === formData.instalacao_origem_id)?.nome
+                              ? (filteredInstalacoes || []).find(i => i.id === formData.instalacao_origem_id)?.nome
                               : "Selecione..."}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
@@ -710,22 +711,22 @@ export default function OSFormModal({
                             <CommandList>
                               <CommandEmpty>Nenhuma instalação encontrada.</CommandEmpty>
                               <CommandGroup>
-                                {(almoxarifados || []).map((a) => (
+                                {(filteredInstalacoes || []).map((i) => (
                                   <CommandItem
-                                    key={a.id}
-                                    value={a.nome}
+                                    key={i.id}
+                                    value={i.nome}
                                     onSelect={() => {
-                                      setFormData({ ...formData, instalacao_origem_id: a.id });
+                                      setFormData({ ...formData, instalacao_origem_id: i.id });
                                       setOpenOrigemCombo(false);
                                     }}
                                   >
                                     <Check
                                       className={cn(
                                         "mr-2 h-4 w-4",
-                                        formData.instalacao_origem_id === a.id ? "opacity-100" : "opacity-0"
+                                        formData.instalacao_origem_id === i.id ? "opacity-100" : "opacity-0"
                                       )}
                                     />
-                                    {a.nome}
+                                    {i.nome}
                                   </CommandItem>
                                 ))}
                               </CommandGroup>
@@ -745,7 +746,7 @@ export default function OSFormModal({
                             className="w-full justify-between"
                           >
                             {formData.instalacao_destino_id
-                              ? (instalacoes || []).find(i => i.id === formData.instalacao_destino_id)?.nome
+                              ? (filteredInstalacoes || []).find(i => i.id === formData.instalacao_destino_id)?.nome
                               : "Selecione..."}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
@@ -756,7 +757,7 @@ export default function OSFormModal({
                             <CommandList>
                               <CommandEmpty>Nenhuma instalação encontrada.</CommandEmpty>
                               <CommandGroup>
-                                {(instalacoes || []).map((i) => (
+                                {(filteredInstalacoes || []).map((i) => (
                                   <CommandItem
                                     key={i.id}
                                     value={i.nome}
