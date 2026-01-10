@@ -1,4 +1,5 @@
 import Almoxarifados from './pages/Almoxarifados';
+import AuditLogs from './pages/AuditLogs';
 import Categorias from './pages/Categorias';
 import Dashboard from './pages/Dashboard';
 import EmFluxo from './pages/EmFluxo';
@@ -16,12 +17,12 @@ import ThankYou from './pages/ThankYou';
 import Transportadoras from './pages/Transportadoras';
 import UserApproval from './pages/UserApproval';
 import VeiculosAxia from './pages/VeiculosAxia';
-import AuditLogs from './pages/AuditLogs';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Almoxarifados": Almoxarifados,
+    "AuditLogs": AuditLogs,
     "Categorias": Categorias,
     "Dashboard": Dashboard,
     "EmFluxo": EmFluxo,
@@ -39,7 +40,6 @@ export const PAGES = {
     "Transportadoras": Transportadoras,
     "UserApproval": UserApproval,
     "VeiculosAxia": VeiculosAxia,
-    "AuditLogs": AuditLogs,
 }
 
 export const pagesConfig = {
