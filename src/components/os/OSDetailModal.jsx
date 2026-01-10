@@ -137,29 +137,7 @@ export default function OSDetailModal({
     return [...new Set(mentions)];
   };
 
-  const createNotifications = async (comentarioId, mencoesIds) => {
-    if (!mencoesIds || mencoesIds.length === 0) return;
-    
-    try {
-      const notificacoes = mencoesIds.map(destinatarioId => ({
-        destinatario_id: destinatarioId,
-        remetente_id: currentUserPessoa?.id,
-        tipo: 'mencao',
-        referencia_id: os.id,
-        referencia_tipo: 'tarefa',
-        mensagem: `${currentUser?.full_name} mencionou você em um comentário`,
-        lida: false,
-        contexto_adicional: {
-          comentario_id: comentarioId,
-          os_codigo: os.codigo
-        }
-      }));
-      
-      await base44.entities.Notificacao.bulkCreate(notificacoes);
-    } catch (e) {
-      console.error('Error creating notifications:', e);
-    }
-  };
+
 
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
@@ -179,7 +157,30 @@ export default function OSDetailModal({
       });
       
       // Criar notificações para mencionados
-      await createNotifications(comentario.id, mencoesIds);
+      if (mencoesIds && mencoesIds.length > 0) {
+        try {
+          const notificacoes = mencoesIds
+            .filter(id => id !== currentUserPessoa?.id) // Não notificar a si mesmo
+            .map(destinatarioId => ({
+              destinatario_id: destinatarioId,
+              remetente_id: currentUserPessoa?.id,
+              tipo: 'mencao',
+              referencia_id: os.id,
+              referencia_tipo: 'tarefa',
+              mensagem: `Você foi mencionado(a) em um comentário da OS ${os.codigo}`,
+              lida: false,
+              contexto_adicional: {
+                comentario_id: comentario.id
+              }
+            }));
+          
+          if (notificacoes.length > 0) {
+            await base44.entities.Notificacao.bulkCreate(notificacoes);
+          }
+        } catch (notifError) {
+          console.error('Erro ao criar notificações de menção:', notifError);
+        }
+      }
       
       setNewComment('');
       if (textareaRef.current) {
@@ -218,7 +219,30 @@ export default function OSDetailModal({
       });
       
       // Criar notificações para novas menções
-      await createNotifications(commentId, mencoesIds);
+      if (mencoesIds && mencoesIds.length > 0) {
+        try {
+          const notificacoes = mencoesIds
+            .filter(id => id !== currentUserPessoa?.id) // Não notificar a si mesmo
+            .map(destinatarioId => ({
+              destinatario_id: destinatarioId,
+              remetente_id: currentUserPessoa?.id,
+              tipo: 'mencao',
+              referencia_id: os.id,
+              referencia_tipo: 'tarefa',
+              mensagem: `Você foi mencionado(a) em um comentário da OS ${os.codigo}`,
+              lida: false,
+              contexto_adicional: {
+                comentario_id: commentId
+              }
+            }));
+          
+          if (notificacoes.length > 0) {
+            await base44.entities.Notificacao.bulkCreate(notificacoes);
+          }
+        } catch (notifError) {
+          console.error('Erro ao criar notificações de menção:', notifError);
+        }
+      }
       
       setEditingCommentId(null);
       setEditingContent('');

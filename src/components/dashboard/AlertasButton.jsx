@@ -63,10 +63,8 @@ export default function AlertasButton() {
               <div className="text-sm">
                 <p className="font-semibold mb-1">Alertas enviados com sucesso!</p>
                 <ul className="text-xs space-y-1">
-                  <li>• {result.data.summary.ordensAtrasadas} alerta(s) de ordens atrasadas</li>
-                  <li>• {result.data.summary.ordensParadas} alerta(s) de ordens paradas</li>
-                  <li>• {result.data.summary.expedicoesSemSeguro} alerta(s) de expedições sem seguro</li>
-                  <li>• {result.data.summary.expedicoesSemTransporte} alerta(s) de expedições sem transporte</li>
+                  <li>• {result.data.summary.ordensAtrasadas?.notificadas || 0} alerta(s) de ordens atrasadas</li>
+                  <li>• {result.data.summary.ordensParadas?.notificadas || 0} alerta(s) de ordens paradas</li>
                 </ul>
                 <p className="mt-2 font-medium">Total: {result.data.summary.totalAlertasEnviados} alerta(s)</p>
               </div>

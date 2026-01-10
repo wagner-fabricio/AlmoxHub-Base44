@@ -72,7 +72,7 @@ export default function ChatArea({
     return () => scrollContainer.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleEnviar = useCallback(() => {
+  const handleEnviar = useCallback(async () => {
     if (!novaMensagem.trim()) return;
 
     // Extrair entidades (OSs) do texto
@@ -84,10 +84,29 @@ export default function ChatArea({
     } else {
       onEnviarMensagem(novaMensagem, mensagemRespondendo, mencoesIds, conteudoFormatado);
       setMensagemRespondendo(null);
+      
+      // Criar notificações para pessoas mencionadas
+      if (mencoesIds && mencoesIds.length > 0) {
+        try {
+          const notificacoes = mencoesIds.map(destinatarioId => ({
+            destinatario_id: destinatarioId,
+            remetente_id: currentPessoaId,
+            tipo: 'mencao',
+            referencia_id: conversa.id,
+            referencia_tipo: 'conversa',
+            mensagem: `Você foi mencionado(a) na conversa "${conversa.nome_grupo || 'privada'}"`,
+            lida: false
+          }));
+          
+          await base44.entities.Notificacao.bulkCreate(notificacoes);
+        } catch (notifError) {
+          console.error('Erro ao criar notificações de menção:', notifError);
+        }
+      }
     }
     setNovaMensagem('');
     setMencoesIds([]);
-  }, [novaMensagem, mensagemEditando, mensagemRespondendo, mencoesIds, onEditarMensagem, onEnviarMensagem]);
+  }, [novaMensagem, mensagemEditando, mensagemRespondendo, mencoesIds, onEditarMensagem, onEnviarMensagem, currentPessoaId, conversa]);
 
   const parseMessageContent = (text) => {
     if (!text) return { text: '', entities: [] };
