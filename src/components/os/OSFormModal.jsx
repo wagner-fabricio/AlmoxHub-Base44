@@ -8,9 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from '@/components/ui/command';
 import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
-import { Save, Plus, Trash2, Upload, X, Loader2, Paperclip } from 'lucide-react';
+import { Save, Plus, Trash2, Upload, X, Loader2, Paperclip, Check, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import OSItensDocumento from './OSItensDocumento';
 import OSVolumes from './OSVolumes';
 import OSDetalhamentoExpedicao from './OSDetalhamentoExpedicao';
@@ -32,6 +35,8 @@ export default function OSFormModal({
   const [loading, setSaving] = useState(false);
   const [importingPDF, setImportingPDF] = useState(false);
   const [zmmtsePDF, setZmmtsePDF] = useState(null);
+  const [openOrigemCombo, setOpenOrigemCombo] = useState(false);
+  const [openDestinoCombo, setOpenDestinoCombo] = useState(false);
   const [formData, setFormData] = useState({
     categoria_id: '',
     subcategorias_ids: [],
@@ -676,35 +681,95 @@ export default function OSFormModal({
                     </div>
                     <div className="space-y-2">
                       <Label>Instalação Origem</Label>
-                      <Select
-                        value={formData.instalacao_origem_id}
-                        onValueChange={(v) => setFormData({ ...formData, instalacao_origem_id: v })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {(almoxarifados || []).map(a => (
-                            <SelectItem key={a.id} value={a.id}>{a.nome}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Popover open={openOrigemCombo} onOpenChange={setOpenOrigemCombo}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={openOrigemCombo}
+                            className="w-full justify-between"
+                          >
+                            {formData.instalacao_origem_id
+                              ? (almoxarifados || []).find(a => a.id === formData.instalacao_origem_id)?.nome
+                              : "Selecione..."}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[400px] p-0">
+                          <Command>
+                            <CommandInput placeholder="Buscar instalação..." />
+                            <CommandList>
+                              <CommandEmpty>Nenhuma instalação encontrada.</CommandEmpty>
+                              <CommandGroup>
+                                {(almoxarifados || []).map((a) => (
+                                  <CommandItem
+                                    key={a.id}
+                                    value={a.nome}
+                                    onSelect={() => {
+                                      setFormData({ ...formData, instalacao_origem_id: a.id });
+                                      setOpenOrigemCombo(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        formData.instalacao_origem_id === a.id ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                    {a.nome}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                     </div>
                     <div className="space-y-2">
                       <Label>Instalação Destino</Label>
-                      <Select
-                        value={formData.instalacao_destino_id}
-                        onValueChange={(v) => setFormData({ ...formData, instalacao_destino_id: v })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {(instalacoes || []).map(i => (
-                            <SelectItem key={i.id} value={i.id}>{i.nome}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Popover open={openDestinoCombo} onOpenChange={setOpenDestinoCombo}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={openDestinoCombo}
+                            className="w-full justify-between"
+                          >
+                            {formData.instalacao_destino_id
+                              ? (instalacoes || []).find(i => i.id === formData.instalacao_destino_id)?.nome
+                              : "Selecione..."}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[400px] p-0">
+                          <Command>
+                            <CommandInput placeholder="Buscar instalação..." />
+                            <CommandList>
+                              <CommandEmpty>Nenhuma instalação encontrada.</CommandEmpty>
+                              <CommandGroup>
+                                {(instalacoes || []).map((i) => (
+                                  <CommandItem
+                                    key={i.id}
+                                    value={i.nome}
+                                    onSelect={() => {
+                                      setFormData({ ...formData, instalacao_destino_id: i.id });
+                                      setOpenDestinoCombo(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        formData.instalacao_destino_id === i.id ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                    {i.nome}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                     </div>
                   </div>
                 </TabsContent>
