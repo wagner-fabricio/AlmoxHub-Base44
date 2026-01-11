@@ -12,6 +12,8 @@ export default function ChatMobileSimple({
   onClose,
   pessoas,
   currentPessoaId,
+  currentUserId,
+  currentUserName,
   onRefresh
 }) {
   const [mensagens, setMensagens] = useState([]);
@@ -71,22 +73,25 @@ export default function ChatMobileSimple({
   };
 
   const marcarComoLida = async () => {
-    try {
-      const participanteResult = await base44.entities.ParticipanteConversa.filter({
-        conversa_id: conversa.id,
-        pessoa_id: currentPessoaId
-      });
-      const participante = Array.isArray(participanteResult) && participanteResult.length > 0 ? participanteResult[0] : null;
+   try {
+     const userId = currentPessoaId || currentUserId;
+     if (!userId) return;
 
-      if (participante && participante.mensagens_nao_lidas > 0) {
-        await base44.entities.ParticipanteConversa.update(participante.id, {
-          mensagens_nao_lidas: 0,
-          ultima_leitura: new Date().toISOString()
-        });
-      }
-    } catch (error) {
-      console.error('Error marking as read:', error);
-    }
+     const participanteResult = await base44.entities.ParticipanteConversa.filter({
+       conversa_id: conversa.id,
+       pessoa_id: userId
+     });
+     const participante = Array.isArray(participanteResult) && participanteResult.length > 0 ? participanteResult[0] : null;
+
+     if (participante && participante.mensagens_nao_lidas > 0) {
+       await base44.entities.ParticipanteConversa.update(participante.id, {
+         mensagens_nao_lidas: 0,
+         ultima_leitura: new Date().toISOString()
+       });
+     }
+   } catch (error) {
+     console.error('Error marking as read:', error);
+   }
   };
 
   const scrollToBottom = () => {
@@ -95,15 +100,18 @@ export default function ChatMobileSimple({
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || sending) return;
+    
+    const autorId = currentPessoaId || currentUserId;
+    const autorNome = currentUserName || (pessoas || []).find(p => p.id === currentPessoaId)?.nome || 'Usuário';
+    
+    if (!autorId) return;
 
     setSending(true);
     try {
-      const currentPessoa = (pessoas || []).find(p => p.id === currentPessoaId);
-      
       const mensagemCriada = await base44.entities.MensagemChat.create({
         conversa_id: conversa.id,
-        autor_id: currentPessoaId,
-        autor_nome: currentPessoa?.nome || 'Usuário',
+        autor_id: autorId,
+        autor_nome: autorNome,
         conteudo: newMessage,
         mencoes_ids: mencoesIds,
         status: 'enviada'
@@ -135,13 +143,13 @@ export default function ChatMobileSimple({
       await base44.entities.Conversa.update(conversa.id, {
         ultima_mensagem: newMessage.substring(0, 50),
         ultima_mensagem_data: new Date().toISOString(),
-        ultima_mensagem_autor: currentPessoa?.nome || ''
+        ultima_mensagem_autor: autorNome
       });
 
       // Incrementar contador para outros participantes
       await Promise.all(
         ((participantes || [])
-          .filter(p => p && p.pessoa_id !== currentPessoaId) || [])
+          .filter(p => p && p.pessoa_id !== (currentPessoaId || currentUserId)) || [])
           .map(p => 
             base44.entities.ParticipanteConversa.update(p.id, {
               mensagens_nao_lidas: (p.mensagens_nao_lidas || 0) + 1
@@ -161,37 +169,39 @@ export default function ChatMobileSimple({
   };
 
   const getNomeConversa = () => {
-    if (conversa.tipo === 'grupo') {
-      return conversa.nome_grupo;
-    }
-    
-    const outroPessoa = (participantes || []).find(p => p.pessoa_id !== currentPessoaId);
-    if (outroPessoa) {
-      const pessoa = (pessoas || []).find(p => p.id === outroPessoa.pessoa_id);
-      return pessoa?.nome || 'Conversa';
-    }
-    return 'Conversa';
+   if (conversa.tipo === 'grupo') {
+     return conversa.nome_grupo;
+   }
+
+   const userId = currentPessoaId || currentUserId;
+   const outroPessoa = (participantes || []).find(p => p.pessoa_id !== userId);
+   if (outroPessoa) {
+     const pessoa = (pessoas || []).find(p => p.id === outroPessoa.pessoa_id);
+     return pessoa?.nome || 'Conversa';
+   }
+   return 'Conversa';
   };
 
   const getAvatarInfo = () => {
-    if (conversa.tipo === 'grupo') {
-      return {
-        initials: conversa.nome_grupo?.substring(0, 2).toUpperCase() || 'G',
-        url: conversa.avatar_grupo,
-        isGroup: true
-      };
-    }
-    
-    const outroPessoa = (participantes || []).find(p => p.pessoa_id !== currentPessoaId);
-    if (outroPessoa) {
-      const pessoa = (pessoas || []).find(p => p.id === outroPessoa.pessoa_id);
-      return {
-        initials: pessoa?.nome?.charAt(0) || 'U',
-        url: pessoa?.foto_perfil,
-        isGroup: false
-      };
-    }
-    return { initials: 'U', url: null, isGroup: false };
+   if (conversa.tipo === 'grupo') {
+     return {
+       initials: conversa.nome_grupo?.substring(0, 2).toUpperCase() || 'G',
+       url: conversa.avatar_grupo,
+       isGroup: true
+     };
+   }
+
+   const userId = currentPessoaId || currentUserId;
+   const outroPessoa = (participantes || []).find(p => p.pessoa_id !== userId);
+   if (outroPessoa) {
+     const pessoa = (pessoas || []).find(p => p.id === outroPessoa.pessoa_id);
+     return {
+       initials: pessoa?.nome?.charAt(0) || 'U',
+       url: pessoa?.foto_perfil,
+       isGroup: false
+     };
+   }
+   return { initials: 'U', url: null, isGroup: false };
   };
 
   const getDateSeparator = (date) => {
@@ -285,7 +295,7 @@ export default function ChatMobileSimple({
             }
 
             const message = item.data;
-            const isOwnMessage = message.autor_id === currentPessoaId;
+            const isOwnMessage = message.autor_id === (currentPessoaId || currentUserId);
             const autor = (pessoas || []).find(p => p.id === message.autor_id);
 
             return (
@@ -353,10 +363,11 @@ export default function ChatMobileSimple({
             className="flex-1 rounded-full bg-slate-50"
             pessoas={pessoas}
             onMentionsChange={setMencoesIds}
+            disabled={!currentPessoaId && !currentUserId}
           />
           <Button
             onClick={handleSendMessage}
-            disabled={!newMessage.trim() || sending}
+            disabled={!newMessage.trim() || sending || (!currentPessoaId && !currentUserId)}
             size="icon"
             className="rounded-full shrink-0"
             style={{ backgroundColor: '#0000FF' }}
