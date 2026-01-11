@@ -60,7 +60,6 @@ export default function OSVolumes({ volumes = [], onChange }) {
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50 dark:bg-slate-800">
-              <TableHead className="w-24">ID</TableHead>
               <TableHead className="w-24">Qtd</TableHead>
               <TableHead>Largura (cm)</TableHead>
               <TableHead>Altura (cm)</TableHead>
@@ -73,18 +72,13 @@ export default function OSVolumes({ volumes = [], onChange }) {
           <TableBody>
             {volumesWithQuantity.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8 text-slate-500">
+                <TableCell colSpan={7} className="text-center py-8 text-slate-500">
                   Nenhum volume adicionado. Clique em "Inserir Volume" para começar.
                 </TableCell>
               </TableRow>
             ) : (
               volumesWithQuantity.map((vol, index) => (
                 <TableRow key={index}>
-                  <TableCell>
-                    <span className="font-mono text-sm text-slate-600 dark:text-slate-400">
-                      {vol.id_volume}
-                    </span>
-                  </TableCell>
                   <TableCell>
                     <Input
                       type="number"
