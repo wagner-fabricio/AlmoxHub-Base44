@@ -824,6 +824,7 @@ export default function OSFormModal({
                   <OSDetalhamentoExpedicao
                     detalhamento={formData.detalhamento_expedicao}
                     onChange={(d) => setFormData(prev => ({ ...prev, detalhamento_expedicao: d }))}
+                    os={os}
                   />
 
                   <div className="border-t pt-6">

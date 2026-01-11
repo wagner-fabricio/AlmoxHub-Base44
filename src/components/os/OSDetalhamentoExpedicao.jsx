@@ -5,8 +5,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronRight, FileText } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import OrdemSaidaModal from './OrdemSaidaModal';
+import OrdemSaidaPDF from './OrdemSaidaPDF';
 
 const estadosBrasil = [
   "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", 
@@ -14,10 +16,13 @@ const estadosBrasil = [
   "RS", "RO", "RR", "SC", "SP", "SE", "TO"
 ];
 
-export default function OSDetalhamentoExpedicao({ detalhamento, onChange }) {
+export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) {
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [transportadoras, setTransportadoras] = useState([]);
   const [veiculosAxia, setVeiculosAxia] = useState([]);
+  const [ordemSaidaModalOpen, setOrdemSaidaModalOpen] = useState(false);
+  const [selectedExpedicaoIndex, setSelectedExpedicaoIndex] = useState(null);
+  const [ordensGeradas, setOrdensGeradas] = useState([]);
 
   // Carregar transportadoras e veículos
   React.useEffect(() => {
@@ -32,6 +37,12 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange }) {
       ]);
       setTransportadoras(Array.isArray(transp) ? transp : []);
       setVeiculosAxia(Array.isArray(veic) ? veic : []);
+      
+      // Carregar ordens de saída já geradas
+      if (os?.id) {
+        const ordens = await base44.entities.OrdemSaida.filter({ os_id: os.id });
+        setOrdensGeradas(ordens);
+      }
     } catch (e) {
       console.error('Error loading data:', e);
     }
@@ -203,6 +214,19 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange }) {
     setExpandedIndex(expandedIndex === index ? null : index);
   };
 
+  const handleGerarOrdem = (index) => {
+    setSelectedExpedicaoIndex(index);
+    setOrdemSaidaModalOpen(true);
+  };
+
+  const handleOrdemSaved = () => {
+    loadData(); // Recarregar ordens
+  };
+
+  const getOrdemForExpedicao = (index) => {
+    return ordensGeradas.find(o => o.detalhamento_expedicao_index === index);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -269,15 +293,52 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange }) {
                   </div>
                 </div>
 
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeExpedicao(index)}
-                  className="text-red-500 hover:text-red-700 shrink-0"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                <div className="flex gap-2">
+                  {(() => {
+                    const ordem = getOrdemForExpedicao(index);
+                    if (ordem) {
+                      return (
+                        <>
+                          <OrdemSaidaPDF ordem={ordem} />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedExpedicaoIndex(index);
+                              setOrdemSaidaModalOpen(true);
+                            }}
+                          >
+                            <FileText className="w-4 h-4 mr-2" />
+                            Editar Ordem
+                          </Button>
+                        </>
+                      );
+                    } else {
+                      return (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleGerarOrdem(index)}
+                        >
+                          <FileText className="w-4 h-4 mr-2" />
+                          Gerar Ordem de Saída
+                        </Button>
+                      );
+                    }
+                  })()}
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeExpedicao(index)}
+                    className="text-red-500 hover:text-red-700 shrink-0"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             </div>
 
@@ -704,6 +765,22 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange }) {
           </div>
         )}
       </div>
+
+      {/* Modal de Ordem de Saída */}
+      {ordemSaidaModalOpen && selectedExpedicaoIndex !== null && (
+        <OrdemSaidaModal
+          open={ordemSaidaModalOpen}
+          onClose={() => {
+            setOrdemSaidaModalOpen(false);
+            setSelectedExpedicaoIndex(null);
+          }}
+          os={os}
+          detalhamentoIndex={selectedExpedicaoIndex}
+          detalhamento={detalhamento[selectedExpedicaoIndex]}
+          existingOrdem={getOrdemForExpedicao(selectedExpedicaoIndex)}
+          onSaved={handleOrdemSaved}
+        />
+      )}
     </div>
   );
 }
