@@ -9,6 +9,7 @@ export default function OSVolumes({ volumes = [], onChange }) {
     const newId = `VOL-${String(volumes.length + 1).padStart(3, '0')}`;
     onChange([...volumes, {
       id_volume: newId,
+      quantidade: 1,
       largura: 0,
       altura: 0,
       comprimento: 0,
@@ -32,13 +33,19 @@ export default function OSVolumes({ volumes = [], onChange }) {
     onChange(newVolumes);
   };
 
+  // Garantir que volumes sem quantidade tenham quantidade = 1
+  const volumesWithQuantity = volumes.map(v => ({
+    ...v,
+    quantidade: v.quantidade || 1
+  }));
+
   const removeVolume = (index) => {
     onChange(volumes.filter((_, i) => i !== index));
   };
 
-  const totalVolumes = volumes.length;
-  const totalM3 = volumes.reduce((sum, v) => sum + (v.m3 || 0), 0);
-  const totalPeso = volumes.reduce((sum, v) => sum + (v.peso_bruto || 0), 0);
+  const totalVolumes = volumesWithQuantity.reduce((sum, v) => sum + (v.quantidade || 1), 0);
+  const totalM3 = volumesWithQuantity.reduce((sum, v) => sum + ((v.m3 || 0) * (v.quantidade || 1)), 0);
+  const totalPeso = volumesWithQuantity.reduce((sum, v) => sum + ((v.peso_bruto || 0) * (v.quantidade || 1)), 0);
 
   return (
     <div className="space-y-4">
@@ -54,28 +61,38 @@ export default function OSVolumes({ volumes = [], onChange }) {
           <TableHeader>
             <TableRow className="bg-slate-50 dark:bg-slate-800">
               <TableHead className="w-24">ID</TableHead>
+              <TableHead className="w-24">Qtd</TableHead>
               <TableHead>Largura (cm)</TableHead>
               <TableHead>Altura (cm)</TableHead>
-              <TableHead>Comprimento (cm)</TableHead>
-              <TableHead>Peso Bruto (kg)</TableHead>
+              <TableHead>Comp. (cm)</TableHead>
+              <TableHead>Peso (kg)</TableHead>
               <TableHead>M³</TableHead>
               <TableHead className="w-12"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {volumes.length === 0 ? (
+            {volumesWithQuantity.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-slate-500">
+                <TableCell colSpan={8} className="text-center py-8 text-slate-500">
                   Nenhum volume adicionado. Clique em "Inserir Volume" para começar.
                 </TableCell>
               </TableRow>
             ) : (
-              volumes.map((vol, index) => (
+              volumesWithQuantity.map((vol, index) => (
                 <TableRow key={index}>
                   <TableCell>
                     <span className="font-mono text-sm text-slate-600 dark:text-slate-400">
                       {vol.id_volume}
                     </span>
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      min="1"
+                      value={vol.quantidade || 1}
+                      onChange={(e) => updateVolume(index, 'quantidade', parseInt(e.target.value) || 1)}
+                      className="h-8 w-16"
+                    />
                   </TableCell>
                   <TableCell>
                     <Input
