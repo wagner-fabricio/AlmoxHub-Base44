@@ -121,7 +121,7 @@ export default function OSItensDocumento({ itens = [], onChange }) {
                   </TableCell>
                   <TableCell>
                     <Input
-                      value={item.deposito}
+                      value={item.deposito || ''}
                       onChange={(e) => updateItem(index, 'deposito', e.target.value)}
                       className="h-8"
                     />
