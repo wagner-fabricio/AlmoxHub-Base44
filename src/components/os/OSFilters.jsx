@@ -30,6 +30,7 @@ export default function OSFilters({
   const clearFilters = () => {
     setFilters({
       search: '',
+      migo: '',
       regional: 'all',
       almoxarifado: 'all',
       categorias: [],
@@ -44,6 +45,7 @@ export default function OSFilters({
 
   const hasActiveFilters = 
     filters.search || 
+    filters.migo ||
     filters.regional !== 'all' ||
     filters.almoxarifado !== 'all' || 
     filters.categorias?.length > 0 || 
@@ -59,13 +61,22 @@ export default function OSFilters({
     <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 mb-6">
       <div className="flex flex-col lg:flex-row gap-4">
         {/* Search */}
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <div className="flex gap-3 flex-1 lg:flex-none">
+          <div className="relative flex-1 lg:flex-initial lg:w-56">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input
+              placeholder="Buscar por código, descrição..."
+              value={filters.search}
+              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+              className="pl-10 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700"
+            />
+          </div>
           <Input
-            placeholder="Buscar por código, descrição..."
-            value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-            className="pl-10 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700"
+            placeholder="MIGO (números)"
+            value={filters.migo}
+            onChange={(e) => setFilters({ ...filters, migo: e.target.value.replace(/\D/g, '') })}
+            maxLength="20"
+            className="w-40 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700"
           />
         </div>
 
