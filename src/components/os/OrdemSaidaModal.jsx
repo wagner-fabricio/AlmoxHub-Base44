@@ -312,6 +312,42 @@ export default function OrdemSaidaModal({
               </div>
             </div>
 
+            {/* Documento de Referência */}
+            <div className="border-t pt-4 space-y-4">
+              <h4 className="font-semibold text-slate-900 dark:text-white">Documento de Referência</h4>
+              <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg border">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label>Tipo Doc</Label>
+                    <Input
+                      value={detalhamento?.tipo_doc || ''}
+                      disabled
+                      className="bg-slate-100 dark:bg-slate-700"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Nº Doc</Label>
+                    <Input
+                      value={detalhamento?.num_doc || ''}
+                      disabled
+                      className="bg-slate-100 dark:bg-slate-700"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Valor</Label>
+                    <Input
+                      value={detalhamento?.valor_total || '0.00'}
+                      disabled
+                      className="bg-slate-100 dark:bg-slate-700"
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-slate-500 mt-2">
+                  Dados provenientes do detalhamento da expedição
+                </p>
+              </div>
+            </div>
+
             {/* Responsáveis */}
             <div className="border-t pt-4 space-y-4">
               <h4 className="font-semibold text-slate-900 dark:text-white">Responsáveis</h4>
