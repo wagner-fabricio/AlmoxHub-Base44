@@ -121,83 +121,121 @@ export default function OrdemSaidaPDF({ ordem }) {
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center',
-          marginBottom: '6px',
-          paddingBottom: '6px',
-          borderBottom: '2px solid #000'
+          marginBottom: '8px',
+          paddingBottom: '8px',
+          borderBottom: '3px solid #0000FF'
         }}>
-          <div style={{ fontSize: '11px', fontWeight: 'bold' }}>
-            AXIA ENERGIA
-          </div>
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693889ed43a3c099705a3c51/a4c044743_LogoAxia.jpg"
+            alt="Axia Energia"
+            style={{ height: '28px', objectFit: 'contain' }}
+          />
           <div style={{ textAlign: 'center' }}>
             <div style={{ 
-              fontSize: '14px', 
+              fontSize: '16px', 
               fontWeight: 'bold', 
-              border: '2px solid #000',
-              padding: '3px 8px'
+              border: '3px solid #0000FF',
+              padding: '4px 10px',
+              backgroundColor: '#f0f0ff'
             }}>
               ORDEM DE SAÍDA
             </div>
-            <div style={{ display: 'flex', gap: '4px', marginTop: '3px', fontSize: '10px' }}>
-              <div style={{ border: '2px solid #000', padding: '2px 8px', fontWeight: 'bold' }}>
+            <div style={{ display: 'flex', gap: '6px', marginTop: '4px', fontSize: '11px' }}>
+              <div style={{ 
+                border: '2px solid #0000FF', 
+                padding: '3px 10px', 
+                fontWeight: 'bold',
+                backgroundColor: '#f0f0ff'
+              }}>
                 {ordem.numero}
               </div>
-              <div style={{ border: '2px solid #000', padding: '2px 8px', fontWeight: 'bold' }}>
+              <div style={{ 
+                border: '2px solid #0000FF', 
+                padding: '3px 10px', 
+                fontWeight: 'bold',
+                backgroundColor: '#f0f0ff'
+              }}>
                 {format(new Date(ordem.data_emissao), 'dd/MM/yyyy')}
               </div>
             </div>
           </div>
-          <div style={{ fontSize: '7px', color: '#666' }}>
-            Pág {pageIndex + 1}/{totalPages}
+          <div style={{ fontSize: '7px', color: '#666', textAlign: 'right' }}>
+            Página<br/>{pageIndex + 1}/{totalPages}
           </div>
         </div>
 
         {/* Dados do Portador e Veículo */}
-        <div style={{ marginBottom: '6px', fontSize: '8px' }}>
+        <div style={{ 
+          marginBottom: '8px', 
+          fontSize: '8px',
+          backgroundColor: '#f8f9fa',
+          padding: '6px',
+          border: '1px solid #dee2e6',
+          borderRadius: '3px'
+        }}>
+          <div style={{ marginBottom: '3px' }}>
+            <strong style={{ color: '#0000FF' }}>O PORTADOR:</strong> {ordem.portador_nome} {ordem.portador_cpf ? `- CPF ${ordem.portador_cpf}` : ''}
+          </div>
+          <div style={{ marginBottom: '3px' }}>
+            <strong style={{ color: '#0000FF' }}>TEM AUTORIZAÇÃO PARA TRANSPORTAR O VEÍCULO:</strong> {ordem.veiculo_placa}
+          </div>
           <div>
-            <strong>O PORTADOR:</strong> {ordem.portador_nome} {ordem.portador_cpf ? `- CPF ${ordem.portador_cpf}` : ''}
-          </div>
-          <div style={{ marginTop: '2px' }}>
-            <strong>TEM AUTORIZAÇÃO PARA TRANSPORTAR O VEÍCULO:</strong> {ordem.veiculo_placa}
-          </div>
-          <div style={{ marginTop: '2px' }}>
-            <strong>PARA:</strong> {ordem.destino}
+            <strong style={{ color: '#0000FF' }}>PARA:</strong> {ordem.destino}
           </div>
         </div>
 
         {/* Materiais */}
-        <div style={{ marginBottom: '6px' }}>
-          <div style={{ fontWeight: 'bold', marginBottom: '3px', fontSize: '8px' }}>COM OS SEGUINTES MATERIAIS:</div>
+        <div style={{ marginBottom: '8px' }}>
+          <div style={{ 
+            fontWeight: 'bold', 
+            marginBottom: '4px', 
+            fontSize: '8px',
+            color: '#0000FF',
+            borderBottom: '2px solid #0000FF',
+            paddingBottom: '2px'
+          }}>
+            COM OS SEGUINTES MATERIAIS:
+          </div>
           <table style={{ 
             width: '100%', 
             borderCollapse: 'collapse',
-            fontSize: '7px'
+            fontSize: '7px',
+            border: '2px solid #0000FF'
           }}>
             <thead>
-              <tr style={{ backgroundColor: '#e5e7eb', borderBottom: '1px solid #000' }}>
-                <th style={{ border: '1px solid #999', padding: '2px', textAlign: 'left' }}>CÓDIGO</th>
-                <th style={{ border: '1px solid #999', padding: '2px', textAlign: 'center', width: '40px' }}>QUANT</th>
-                <th style={{ border: '1px solid #999', padding: '2px', textAlign: 'left' }}>DESCRIÇÃO DOS MATERIAIS</th>
+              <tr style={{ backgroundColor: '#e3e9ff', borderBottom: '2px solid #0000FF' }}>
+                <th style={{ border: '1px solid #b8c5ff', padding: '3px', textAlign: 'left', fontWeight: 'bold' }}>CÓDIGO</th>
+                <th style={{ border: '1px solid #b8c5ff', padding: '3px', textAlign: 'center', width: '40px', fontWeight: 'bold' }}>QUANT</th>
+                <th style={{ border: '1px solid #b8c5ff', padding: '3px', textAlign: 'left', fontWeight: 'bold' }}>DESCRIÇÃO DOS MATERIAIS</th>
               </tr>
             </thead>
             <tbody>
               {materiaisDaPagina.map((material, idx) => (
-                <tr key={idx}>
-                  <td style={{ border: '1px solid #ddd', padding: '2px', fontSize: '7px' }}>{material.codigo}</td>
-                  <td style={{ border: '1px solid #ddd', padding: '2px', textAlign: 'center' }}>{material.quantidade}</td>
-                  <td style={{ border: '1px solid #ddd', padding: '2px', fontSize: '7px' }}>{material.descricao}</td>
+                <tr key={idx} style={{ backgroundColor: idx % 2 === 0 ? '#ffffff' : '#f8f9ff' }}>
+                  <td style={{ border: '1px solid #d0d7ff', padding: '3px', fontSize: '7px' }}>{material.codigo}</td>
+                  <td style={{ border: '1px solid #d0d7ff', padding: '3px', textAlign: 'center', fontWeight: 'bold' }}>{material.quantidade}</td>
+                  <td style={{ border: '1px solid #d0d7ff', padding: '3px', fontSize: '7px' }}>{material.descricao}</td>
                 </tr>
               ))}
               {/* Linhas vazias para manter layout */}
               {Array.from({ length: Math.max(0, 5 - materiaisDaPagina.length) }).map((_, idx) => (
-                <tr key={`empty-${idx}`}>
-                  <td style={{ border: '1px solid #ddd', padding: '2px', height: '14px' }}>&nbsp;</td>
-                  <td style={{ border: '1px solid #ddd', padding: '2px' }}>&nbsp;</td>
-                  <td style={{ border: '1px solid #ddd', padding: '2px' }}>&nbsp;</td>
+                <tr key={`empty-${idx}`} style={{ backgroundColor: (materiaisDaPagina.length + idx) % 2 === 0 ? '#ffffff' : '#f8f9ff' }}>
+                  <td style={{ border: '1px solid #d0d7ff', padding: '2px', height: '14px' }}>&nbsp;</td>
+                  <td style={{ border: '1px solid #d0d7ff', padding: '2px' }}>&nbsp;</td>
+                  <td style={{ border: '1px solid #d0d7ff', padding: '2px' }}>&nbsp;</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <div style={{ marginTop: '3px', fontWeight: 'bold', fontSize: '7px' }}>
+          <div style={{ 
+            marginTop: '4px', 
+            fontWeight: 'bold', 
+            fontSize: '8px',
+            backgroundColor: '#f0f0ff',
+            padding: '3px 6px',
+            border: '1px solid #0000FF',
+            borderRadius: '2px'
+          }}>
             Total-Quant: {ordem.materiais_selecionados?.reduce((sum, m) => sum + m.quantidade, 0) || 0}
             {' | '}
             Total-Itens: {ordem.materiais_selecionados?.length || 0}
@@ -215,33 +253,45 @@ export default function OrdemSaidaPDF({ ordem }) {
             }}>
               {/* Documentos */}
               <div>
-                <div style={{ fontWeight: 'bold', marginBottom: '3px', fontSize: '7px' }}>
+                <div style={{ 
+                  fontWeight: 'bold', 
+                  marginBottom: '3px', 
+                  fontSize: '7px',
+                  color: '#0000FF',
+                  borderBottom: '2px solid #0000FF',
+                  paddingBottom: '2px'
+                }}>
                   REFERENTES AOS SEGUINTES DOCUMENTOS:
                 </div>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '7px' }}>
+                <table style={{ 
+                  width: '100%', 
+                  borderCollapse: 'collapse', 
+                  fontSize: '7px',
+                  border: '2px solid #0000FF'
+                }}>
                   <thead>
-                    <tr style={{ backgroundColor: '#e5e7eb' }}>
-                      <th style={{ border: '1px solid #999', padding: '2px', fontSize: '6px' }}>TIPO</th>
-                      <th style={{ border: '1px solid #999', padding: '2px', fontSize: '6px' }}>NÚMERO</th>
-                      <th style={{ border: '1px solid #999', padding: '2px', fontSize: '6px' }}>Q. ITENS</th>
-                      <th style={{ border: '1px solid #999', padding: '2px', fontSize: '6px' }}>VALOR DOC</th>
+                    <tr style={{ backgroundColor: '#e3e9ff' }}>
+                      <th style={{ border: '1px solid #b8c5ff', padding: '2px', fontSize: '6px', fontWeight: 'bold' }}>TIPO</th>
+                      <th style={{ border: '1px solid #b8c5ff', padding: '2px', fontSize: '6px', fontWeight: 'bold' }}>NÚMERO</th>
+                      <th style={{ border: '1px solid #b8c5ff', padding: '2px', fontSize: '6px', fontWeight: 'bold' }}>Q. ITENS</th>
+                      <th style={{ border: '1px solid #b8c5ff', padding: '2px', fontSize: '6px', fontWeight: 'bold' }}>VALOR DOC</th>
                     </tr>
                   </thead>
                   <tbody>
                     {ordem.documentos_referencia?.map((doc, idx) => (
-                      <tr key={idx}>
-                        <td style={{ border: '1px solid #ddd', padding: '2px' }}>{doc.tipo}</td>
-                        <td style={{ border: '1px solid #ddd', padding: '2px' }}>{doc.numero}</td>
-                        <td style={{ border: '1px solid #ddd', padding: '2px', textAlign: 'center' }}>{doc.qtd_itens}</td>
-                        <td style={{ border: '1px solid #ddd', padding: '2px', textAlign: 'right' }}>{doc.valor_doc || '-'}</td>
+                      <tr key={idx} style={{ backgroundColor: idx % 2 === 0 ? '#ffffff' : '#f8f9ff' }}>
+                        <td style={{ border: '1px solid #d0d7ff', padding: '2px' }}>{doc.tipo}</td>
+                        <td style={{ border: '1px solid #d0d7ff', padding: '2px' }}>{doc.numero}</td>
+                        <td style={{ border: '1px solid #d0d7ff', padding: '2px', textAlign: 'center', fontWeight: 'bold' }}>{doc.qtd_itens}</td>
+                        <td style={{ border: '1px solid #d0d7ff', padding: '2px', textAlign: 'right' }}>{doc.valor_doc || '-'}</td>
                       </tr>
                     ))}
-                    <tr style={{ fontWeight: 'bold' }}>
-                      <td colSpan="2" style={{ border: '1px solid #999', padding: '2px', fontSize: '7px' }}>TOTAL</td>
-                      <td style={{ border: '1px solid #999', padding: '2px', textAlign: 'center' }}>
+                    <tr style={{ fontWeight: 'bold', backgroundColor: '#e3e9ff' }}>
+                      <td colSpan="2" style={{ border: '1px solid #0000FF', padding: '2px', fontSize: '7px' }}>TOTAL</td>
+                      <td style={{ border: '1px solid #0000FF', padding: '2px', textAlign: 'center' }}>
                         {ordem.documentos_referencia?.reduce((sum, d) => sum + (d.qtd_itens || 0), 0) || 0}
                       </td>
-                      <td style={{ border: '1px solid #999', padding: '2px', textAlign: 'right' }}>
+                      <td style={{ border: '1px solid #0000FF', padding: '2px', textAlign: 'right' }}>
                         {ordem.documentos_referencia?.reduce((sum, d) => sum + (d.valor_doc || 0), 0) || '-'}
                       </td>
                     </tr>
@@ -251,17 +301,19 @@ export default function OrdemSaidaPDF({ ordem }) {
 
               {/* Volumes */}
               <div style={{ 
-                border: '2px solid #000', 
-                padding: '4px',
+                border: '3px solid #0000FF', 
+                padding: '6px',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
-                alignItems: 'center'
+                alignItems: 'center',
+                backgroundColor: '#f0f0ff',
+                borderRadius: '3px'
               }}>
-                <div style={{ fontWeight: 'bold', fontSize: '8px', marginBottom: '4px' }}>
+                <div style={{ fontWeight: 'bold', fontSize: '8px', marginBottom: '4px', color: '#0000FF' }}>
                   PESO (KG) / VOLUMES
                 </div>
-                <div style={{ fontSize: '12px', fontWeight: 'bold' }}>
+                <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#0000FF' }}>
                   {pesoTotal.toFixed(2)} / {totalVolumes}
                 </div>
               </div>
@@ -270,43 +322,56 @@ export default function OrdemSaidaPDF({ ordem }) {
             {/* Assinaturas */}
             <div style={{ 
               marginTop: '8px',
-              borderTop: '1px solid #000',
+              borderTop: '3px solid #0000FF',
               paddingTop: '6px'
             }}>
-              <div style={{ fontWeight: 'bold', marginBottom: '4px', fontSize: '7px' }}>ASS:</div>
+              <div style={{ 
+                fontWeight: 'bold', 
+                marginBottom: '4px', 
+                fontSize: '8px',
+                color: '#0000FF'
+              }}>
+                ASSINATURAS:
+              </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                 <div style={{ 
-                  border: '1px solid #999', 
-                  borderRadius: '2px',
+                  border: '2px solid #0000FF', 
+                  borderRadius: '3px',
                   padding: '12px 6px',
                   textAlign: 'center',
                   minHeight: '40px',
                   display: 'flex',
                   alignItems: 'flex-end',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  backgroundColor: '#f8f9ff'
                 }}>
                   <div>
-                    <div style={{ fontSize: '7px' }}>_______________________</div>
-                    <div style={{ marginTop: '2px', fontSize: '6px' }}>
-                      {ordem.responsavel_emissao_nome || ''} 
+                    <div style={{ fontSize: '7px', borderBottom: '1px solid #333', paddingBottom: '2px' }}>
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </div>
+                    <div style={{ marginTop: '3px', fontSize: '6px', fontWeight: 'bold' }}>
+                      {ordem.responsavel_emissao_nome || 'EMISSOR'} 
                       {ordem.responsavel_emissao_matricula ? ` - MAT ${ordem.responsavel_emissao_matricula}` : ''}
                     </div>
                   </div>
                 </div>
                 <div style={{ 
-                  border: '1px solid #999', 
-                  borderRadius: '2px',
+                  border: '2px solid #0000FF', 
+                  borderRadius: '3px',
                   padding: '12px 6px',
                   textAlign: 'center',
                   minHeight: '40px',
                   display: 'flex',
                   alignItems: 'flex-end',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  backgroundColor: '#f8f9ff'
                 }}>
                   <div>
-                    <div style={{ fontSize: '7px' }}>_______________________</div>
-                    <div style={{ marginTop: '2px', fontSize: '6px' }}>
-                      {ordem.responsavel_autorizacao_nome || ''} 
+                    <div style={{ fontSize: '7px', borderBottom: '1px solid #333', paddingBottom: '2px' }}>
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </div>
+                    <div style={{ marginTop: '3px', fontSize: '6px', fontWeight: 'bold' }}>
+                      {ordem.responsavel_autorizacao_nome || 'AUTORIZADOR'} 
                       {ordem.responsavel_autorizacao_matricula ? ` - MAT ${ordem.responsavel_autorizacao_matricula}` : ''}
                     </div>
                   </div>
