@@ -107,10 +107,14 @@ export default function OSMobileDetail({
       await base44.entities.OrdemServico.update(os.id, {
         status: nextStatus
       });
-      onRefresh?.();
+      // Atualizar localmente sem fechar o modal
+      os.status = nextStatus;
+      // Forçar re-render
+      setChangingStatus(false);
+      setChangingStatus(true);
+      setTimeout(() => setChangingStatus(false), 100);
     } catch (error) {
       console.error('Error updating status:', error);
-    } finally {
       setChangingStatus(false);
     }
   };
