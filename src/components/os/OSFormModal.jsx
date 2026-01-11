@@ -112,9 +112,8 @@ export default function OSFormModal({
   const selectedSubcategorias = Array.isArray(subcategorias) ? subcategorias.filter(s => formData.subcategorias_ids?.includes(s?.id)) : [];
   
   // Check if we should show expedition fields
-  const isExpedicaoComReserva = 
-    selectedCategoria?.nome?.toLowerCase().includes('expedição') &&
-    selectedSubcategorias.some(s => s.nome?.toLowerCase().includes('reserva'));
+  const isExpedicaoCategory = 
+    selectedCategoria?.nome?.toLowerCase().includes('expedição');
 
   const handleSubmit = async () => {
     setSaving(true);
@@ -326,7 +325,7 @@ export default function OSFormModal({
             <Tabs defaultValue="geral" className="w-full">
               <TabsList className="mb-6 bg-slate-100 dark:bg-slate-800 p-1">
                 <TabsTrigger value="geral">Dados Gerais</TabsTrigger>
-                {isExpedicaoComReserva && (
+                {isExpedicaoCategory && (
                   <>
                     <TabsTrigger value="documento">Documento</TabsTrigger>
                     <TabsTrigger value="materiais">Materiais</TabsTrigger>
@@ -627,7 +626,7 @@ export default function OSFormModal({
               </TabsContent>
 
               {/* TAB: Documento (Expedição) */}
-              {isExpedicaoComReserva && (
+              {isExpedicaoCategory && (
                 <TabsContent value="documento" className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div className="space-y-2">
@@ -786,7 +785,7 @@ export default function OSFormModal({
               )}
 
               {/* TAB: Materiais */}
-              {isExpedicaoComReserva && (
+              {isExpedicaoCategory && (
                 <TabsContent value="materiais">
                   <OSItensDocumento
                     itens={formData.itens_documento}
@@ -796,7 +795,7 @@ export default function OSFormModal({
               )}
 
               {/* TAB: Volumes */}
-              {isExpedicaoComReserva && (
+              {isExpedicaoCategory && (
                 <TabsContent value="volumes">
                   <OSVolumes
                     volumes={formData.volumes}
@@ -808,7 +807,7 @@ export default function OSFormModal({
 
 
               {/* TAB: Expedição */}
-              {isExpedicaoComReserva && (
+              {isExpedicaoCategory && (
                 <TabsContent value="expedicao" className="space-y-6">
                   <OSDetalhamentoExpedicao
                     detalhamento={formData.detalhamento_expedicao}
@@ -873,7 +872,7 @@ export default function OSFormModal({
               {/* TAB: Anexos */}
               <TabsContent value="anexos" className="space-y-6">
                 {/* ZMMTSE Import Section */}
-                {isExpedicaoComReserva && (
+                {isExpedicaoCategory && (
                   <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-800">
                     <div className="flex items-center justify-between mb-3">
                       <div>
