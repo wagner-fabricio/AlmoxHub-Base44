@@ -169,15 +169,15 @@ export default function OSMobileDetail({
   };
 
   const handleAddComment = async () => {
-    if (!newComment.trim()) return;
+    if (!newComment.trim() || !currentUser) return;
     
     setLoadingComment(true);
     try {
       await base44.entities.Comentario.create({
         ordem_servico_id: os.id,
         conteudo: newComment,
-        autor_nome: currentUser?.full_name || 'Usuário',
-        autor_id: currentUserPessoa?.id,
+        autor_nome: currentUser.full_name || 'Usuário',
+        autor_id: currentUser.id,
         is_deleted: false,
         is_edited: false
       });
@@ -694,8 +694,8 @@ export default function OSMobileDetail({
                   }
 
                   const comment = item.data;
-                  const isOwnMessage = currentUserPessoa?.id === comment.autor_id;
-                  const commentAuthor = pessoas.find(p => p.id === comment.autor_id);
+                   const isOwnMessage = currentUser?.id === comment.autor_id;
+                   const commentAuthor = pessoas.find(p => p.id === comment.autor_id);
 
                   return (
                     <div 
@@ -750,24 +750,25 @@ export default function OSMobileDetail({
             <div className="border-t pt-3 mt-3 bg-white">
               <div className="flex gap-2">
                 <Input
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleAddComment();
-                    }
-                  }}
-                  placeholder="Digite uma mensagem..."
-                  className="flex-1 rounded-full bg-slate-50"
-                />
-                <Button
-                  onClick={handleAddComment}
-                  disabled={!newComment.trim() || loadingComment}
-                  size="icon"
-                  className="rounded-full shrink-0"
-                  style={{ backgroundColor: '#0000FF' }}
-                >
+                   value={newComment}
+                   onChange={(e) => setNewComment(e.target.value)}
+                   onKeyDown={(e) => {
+                     if (e.key === 'Enter' && !e.shiftKey) {
+                       e.preventDefault();
+                       handleAddComment();
+                     }
+                   }}
+                   placeholder="Digite uma mensagem..."
+                   className="flex-1 rounded-full bg-slate-50"
+                   disabled={!currentUser}
+                 />
+                 <Button
+                   onClick={handleAddComment}
+                   disabled={!newComment.trim() || loadingComment || !currentUser}
+                   size="icon"
+                   className="rounded-full shrink-0"
+                   style={{ backgroundColor: '#0000FF' }}
+                 >
                   {loadingComment ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
