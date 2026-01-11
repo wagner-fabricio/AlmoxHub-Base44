@@ -13,7 +13,8 @@ import { Search, Filter, X, LayoutGrid, List, Image, Users } from 'lucide-react'
 export default function OSFilters({ 
   filters, 
   setFilters, 
-  regionais, 
+  regionais,
+  almoxarifados,
   categorias,
   subcategorias,
   viewMode,
@@ -23,6 +24,7 @@ export default function OSFilters({
     setFilters({
       search: '',
       regional: 'all',
+      almoxarifado: 'all',
       categoria: 'all',
       subcategoria: 'all',
       status: 'all',
@@ -32,7 +34,8 @@ export default function OSFilters({
 
   const hasActiveFilters = 
     filters.search || 
-    filters.regional !== 'all' || 
+    filters.regional !== 'all' ||
+    filters.almoxarifado !== 'all' || 
     filters.categoria !== 'all' || 
     filters.subcategoria !== 'all' ||
     filters.status !== 'all';
@@ -73,7 +76,7 @@ export default function OSFilters({
 
           <Select
             value={filters.regional}
-            onValueChange={(value) => setFilters({ ...filters, regional: value })}
+            onValueChange={(value) => setFilters({ ...filters, regional: value, almoxarifado: 'all' })}
           >
             <SelectTrigger className="w-40 bg-slate-50 dark:bg-slate-900">
               <SelectValue placeholder="Regional" />
@@ -83,6 +86,23 @@ export default function OSFilters({
               {regionais.map((r) => (
                 <SelectItem key={r.id} value={r.id}>{r.sigla}</SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={filters.almoxarifado}
+            onValueChange={(value) => setFilters({ ...filters, almoxarifado: value })}
+          >
+            <SelectTrigger className="w-40 bg-slate-50 dark:bg-slate-900">
+              <SelectValue placeholder="Almoxarifado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos Almoxarifados</SelectItem>
+              {(almoxarifados || [])
+                .filter(a => filters.regional === 'all' || a.regional_id === filters.regional)
+                .map((a) => (
+                  <SelectItem key={a.id} value={a.id}>{a.nome}</SelectItem>
+                ))}
             </SelectContent>
           </Select>
 

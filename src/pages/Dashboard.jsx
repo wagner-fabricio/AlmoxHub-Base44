@@ -39,6 +39,7 @@ export default function Dashboard() {
   const [currentUser, setCurrentUser] = useState(null);
   const [filters, setFilters] = useState({
     regional: 'all',
+    almoxarifado: 'all',
     categoria: 'all',
     subcategoria: 'all',
     periodo: '30'
@@ -96,6 +97,7 @@ export default function Dashboard() {
   // Filter data
   const filteredOrdens = ordens.filter(os => {
     if (filters.regional !== 'all' && os.regional_id !== filters.regional) return false;
+    if (filters.almoxarifado !== 'all' && os.almoxarifado_id !== filters.almoxarifado) return false;
     if (filters.categoria !== 'all' && os.categoria_id !== filters.categoria) return false;
     if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
     if (filters.periodo !== 'all') {
@@ -262,8 +264,8 @@ export default function Dashboard() {
         </div>
         
         {/* Filtros - Mobile First */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <Select value={filters.regional} onValueChange={(v) => updateFilters({ ...filters, regional: v })}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <Select value={filters.regional} onValueChange={(v) => updateFilters({ ...filters, regional: v, almoxarifado: 'all' })}>
             <SelectTrigger className="w-full bg-white dark:bg-slate-800">
               <SelectValue placeholder="Regional" />
             </SelectTrigger>
@@ -272,6 +274,19 @@ export default function Dashboard() {
               {regionais.map(r => (
                 <SelectItem key={r.id} value={r.id}>{r.sigla}</SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+          <Select value={filters.almoxarifado} onValueChange={(v) => updateFilters({ ...filters, almoxarifado: v })}>
+            <SelectTrigger className="w-full bg-white dark:bg-slate-800">
+              <SelectValue placeholder="Almoxarifado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos Almoxarifados</SelectItem>
+              {almoxarifados
+                .filter(a => filters.regional === 'all' || a.regional_id === filters.regional)
+                .map(a => (
+                  <SelectItem key={a.id} value={a.id}>{a.nome}</SelectItem>
+                ))}
             </SelectContent>
           </Select>
           <Select value={filters.categoria} onValueChange={(v) => updateFilters({ ...filters, categoria: v, subcategoria: 'all' })}>

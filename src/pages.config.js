@@ -6,8 +6,10 @@ import EmFluxo from './pages/EmFluxo';
 import Home from './pages/Home';
 import Instalacoes from './pages/Instalacoes';
 import Mensagens from './pages/Mensagens';
+import MeuPerfilMobile from './pages/MeuPerfilMobile';
 import NewUserSetup from './pages/NewUserSetup';
 import Notifications from './pages/Notifications';
+import NotificationsMobile from './pages/NotificationsMobile';
 import OrdensServico from './pages/OrdensServico';
 import PendingApproval from './pages/PendingApproval';
 import Pessoas from './pages/Pessoas';
@@ -17,8 +19,6 @@ import ThankYou from './pages/ThankYou';
 import Transportadoras from './pages/Transportadoras';
 import UserApproval from './pages/UserApproval';
 import VeiculosAxia from './pages/VeiculosAxia';
-import MeuPerfilMobile from './pages/MeuPerfilMobile';
-import NotificationsMobile from './pages/NotificationsMobile';
 import __Layout from './Layout.jsx';
 
 
@@ -31,8 +31,10 @@ export const PAGES = {
     "Home": Home,
     "Instalacoes": Instalacoes,
     "Mensagens": Mensagens,
+    "MeuPerfilMobile": MeuPerfilMobile,
     "NewUserSetup": NewUserSetup,
     "Notifications": Notifications,
+    "NotificationsMobile": NotificationsMobile,
     "OrdensServico": OrdensServico,
     "PendingApproval": PendingApproval,
     "Pessoas": Pessoas,
@@ -42,8 +44,6 @@ export const PAGES = {
     "Transportadoras": Transportadoras,
     "UserApproval": UserApproval,
     "VeiculosAxia": VeiculosAxia,
-    "MeuPerfilMobile": MeuPerfilMobile,
-    "NotificationsMobile": NotificationsMobile,
 }
 
 export const pagesConfig = {

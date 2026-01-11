@@ -28,6 +28,7 @@ export default function OrdensServico() {
   const [filters, setFilters] = useState({
     search: '',
     regional: 'all',
+    almoxarifado: 'all',
     categoria: 'all',
     subcategoria: 'all',
     status: 'all',
@@ -123,6 +124,9 @@ export default function OrdensServico() {
     
     // Regional filter
     if (filters.regional !== 'all' && os.regional_id !== filters.regional) return false;
+    
+    // Almoxarifado filter
+    if (filters.almoxarifado !== 'all' && os.almoxarifado_id !== filters.almoxarifado) return false;
     
     // Categoria filter
     if (filters.categoria !== 'all' && os.categoria_id !== filters.categoria) return false;
@@ -325,6 +329,7 @@ export default function OrdensServico() {
         filters={filters}
         setFilters={updateFilters}
         regionais={regionais}
+        almoxarifados={almoxarifados}
         categorias={categorias}
         subcategorias={subcategorias}
         viewMode={viewMode}
