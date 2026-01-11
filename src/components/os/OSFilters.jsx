@@ -58,35 +58,35 @@ export default function OSFilters({
     : subcategorias.filter(s => filters.categorias.includes(s.categoria_id));
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 mb-6">
-      <div className="flex flex-col lg:flex-row gap-4">
-        {/* Search */}
-        <div className="flex gap-3 flex-1 lg:flex-none">
-          <div className="relative flex-1 lg:flex-initial lg:w-56">
+    <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 md:p-6 shadow-sm border border-slate-200 dark:border-slate-700 mb-6">
+      <div className="space-y-4">
+        {/* Search Row */}
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input
               placeholder="Buscar por código, descrição..."
               value={filters.search}
               onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-              className="pl-10 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700"
+              className="pl-10 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 w-full"
             />
           </div>
           <Input
-            placeholder="MIGO (números)"
+            placeholder="MIGO"
             value={filters.migo}
             onChange={(e) => setFilters({ ...filters, migo: e.target.value.replace(/\D/g, '') })}
             maxLength="20"
-            className="w-40 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700"
+            className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 w-full sm:w-32 md:w-40"
           />
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-3">
+        {/* Filters Row */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
           <Select
             value={filters.visao}
             onValueChange={(value) => setFilters({ ...filters, visao: value })}
           >
-            <SelectTrigger className="w-40 bg-slate-50 dark:bg-slate-900">
+            <SelectTrigger className="bg-slate-50 dark:bg-slate-900 text-sm">
               <SelectValue placeholder="Visão" />
             </SelectTrigger>
             <SelectContent>
@@ -100,7 +100,7 @@ export default function OSFilters({
             value={filters.regional}
             onValueChange={(value) => setFilters({ ...filters, regional: value, almoxarifado: 'all' })}
           >
-            <SelectTrigger className="w-40 bg-slate-50 dark:bg-slate-900">
+            <SelectTrigger className="bg-slate-50 dark:bg-slate-900 text-sm">
               <SelectValue placeholder="Regional" />
             </SelectTrigger>
             <SelectContent>
@@ -115,7 +115,7 @@ export default function OSFilters({
             value={filters.almoxarifado}
             onValueChange={(value) => setFilters({ ...filters, almoxarifado: value })}
           >
-            <SelectTrigger className="w-40 bg-slate-50 dark:bg-slate-900">
+            <SelectTrigger className="bg-slate-50 dark:bg-slate-900 text-sm col-span-2 sm:col-span-1">
               <SelectValue placeholder="Almoxarifado" />
             </SelectTrigger>
             <SelectContent>
@@ -132,14 +132,14 @@ export default function OSFilters({
             <PopoverTrigger asChild>
               <Button 
                 variant="outline"
-                className="w-40 justify-between bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300"
+                className="col-span-2 sm:col-span-1 justify-between bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-sm h-9"
               >
-                <span className="truncate">
+                <span className="truncate text-xs sm:text-sm">
                   {filters.categorias?.length === 0 ? 'Categorias' : 
-                   filters.categorias?.length === 1 ? (categorias.find(c => c.id === filters.categorias[0])?.nome || 'Categoria') :
-                   `${filters.categorias?.length} selecionadas`}
+                   filters.categorias?.length === 1 ? (categorias.find(c => c.id === filters.categorias[0])?.nome || 'Cat.') :
+                   `${filters.categorias?.length} cat.`}
                 </span>
-                <ChevronDown className="w-4 h-4 shrink-0" />
+                <ChevronDown className="w-4 h-4 shrink-0 ml-1" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-56 p-3">
@@ -150,7 +150,7 @@ export default function OSFilters({
                 >
                   Limpar seleção
                 </button>
-                <div className="border-t border-slate-200 dark:border-slate-700 pt-2">
+                <div className="border-t border-slate-200 dark:border-slate-700 pt-2 max-h-48 overflow-y-auto">
                   {categorias.map((c) => (
                     <label key={c.id} className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer">
                       <Checkbox
@@ -184,7 +184,7 @@ export default function OSFilters({
             onValueChange={(value) => setFilters({ ...filters, subcategoria: value })}
             disabled={filters.categorias?.length === 0}
           >
-            <SelectTrigger className="w-40 bg-slate-50 dark:bg-slate-900">
+            <SelectTrigger className="bg-slate-50 dark:bg-slate-900 text-sm col-span-2 sm:col-span-1">
               <SelectValue placeholder="Subcategoria" />
             </SelectTrigger>
             <SelectContent>
@@ -199,7 +199,7 @@ export default function OSFilters({
             value={filters.periodo}
             onValueChange={(value) => setFilters({ ...filters, periodo: value })}
           >
-            <SelectTrigger className="w-40 bg-slate-50 dark:bg-slate-900">
+            <SelectTrigger className="bg-slate-50 dark:bg-slate-900 text-sm col-span-2 sm:col-span-1">
               <SelectValue placeholder="Período" />
             </SelectTrigger>
             <SelectContent>
@@ -217,7 +217,7 @@ export default function OSFilters({
               variant="ghost" 
               size="icon"
               onClick={clearFilters}
-              className="text-slate-500 hover:text-red-500"
+              className="text-slate-500 hover:text-red-500 h-9"
             >
               <X className="w-4 h-4" />
             </Button>
@@ -225,35 +225,36 @@ export default function OSFilters({
         </div>
 
         {filters.periodo === 'customizado' && (
-          <div className="flex gap-3 mt-3">
-            <div className="flex-1">
-              <label className="text-xs text-slate-600 dark:text-slate-400 mb-1 block">Data Início</label>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs text-slate-600 dark:text-slate-400 mb-2 block font-medium">Data Início</label>
               <Input
                 type="date"
                 value={filters.dataInicio}
                 onChange={(e) => setFilters({ ...filters, dataInicio: e.target.value })}
-                className="bg-slate-50 dark:bg-slate-900"
+                className="bg-slate-50 dark:bg-slate-900 text-sm"
               />
             </div>
-            <div className="flex-1">
-              <label className="text-xs text-slate-600 dark:text-slate-400 mb-1 block">Data Fim</label>
+            <div>
+              <label className="text-xs text-slate-600 dark:text-slate-400 mb-2 block font-medium">Data Fim</label>
               <Input
                 type="date"
                 value={filters.dataFim}
                 onChange={(e) => setFilters({ ...filters, dataFim: e.target.value })}
-                className="bg-slate-50 dark:bg-slate-900"
+                className="bg-slate-50 dark:bg-slate-900 text-sm"
               />
             </div>
           </div>
         )}
 
         {/* View Mode Toggle */}
-        <div className="flex border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+        <div className="flex border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden w-fit">
           <Button
             variant={viewMode === 'kanban' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('kanban')}
-            className="rounded-none"
+            className="rounded-none h-9"
+            title="Kanban"
           >
             <LayoutGrid className="w-4 h-4" />
           </Button>
@@ -261,7 +262,8 @@ export default function OSFilters({
             variant={viewMode === 'list' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('list')}
-            className="rounded-none border-x border-slate-200 dark:border-slate-700"
+            className="rounded-none border-x border-slate-200 dark:border-slate-700 h-9"
+            title="Lista"
           >
             <List className="w-4 h-4" />
           </Button>
@@ -269,7 +271,8 @@ export default function OSFilters({
             variant={viewMode === 'gallery' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('gallery')}
-            className="rounded-none border-x border-slate-200 dark:border-slate-700"
+            className="rounded-none border-x border-slate-200 dark:border-slate-700 h-9"
+            title="Galeria"
           >
             <Image className="w-4 h-4" />
           </Button>
@@ -277,7 +280,8 @@ export default function OSFilters({
             variant={viewMode === 'responsavel' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('responsavel')}
-            className="rounded-none"
+            className="rounded-none h-9"
+            title="Por Responsável"
           >
             <Users className="w-4 h-4" />
           </Button>
