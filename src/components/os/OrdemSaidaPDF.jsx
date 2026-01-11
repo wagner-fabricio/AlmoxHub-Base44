@@ -85,25 +85,12 @@ export default function OrdemSaidaPDF({ ordem }) {
             {/* Coluna Esquerda */}
             {renderColumn(materiaisDaPagina, pageIndex, totalPages, totalVolumes, pesoTotal)}
             
-            {/* Linha de corte no meio */}
+            {/* Linha de separação */}
             <div style={{
-              width: '2px',
-              backgroundColor: '#000',
-              margin: '0 2mm',
-              borderLeft: '1px dashed #666',
-              position: 'relative'
-            }}>
-              <div style={{
-                position: 'absolute',
-                top: '50%',
-                left: '-15px',
-                transform: 'rotate(-90deg)',
-                fontSize: '8px',
-                color: '#666'
-              }}>
-                ✂ CORTAR AQUI
-              </div>
-            </div>
+              width: '1px',
+              backgroundColor: '#ccc',
+              margin: '0 3mm'
+            }}></div>
             
             {/* Coluna Direita (espelhada) */}
             {renderColumn(materiaisDaPagina, pageIndex, totalPages, totalVolumes, pesoTotal)}
@@ -141,7 +128,7 @@ export default function OrdemSaidaPDF({ ordem }) {
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693889ed43a3c099705a3c51/6df844129_AF_ELETROBRAS_PRIMARIA_LOGO_AXIA_ENERGIA_VERTICAL_NEGATIVO_RBG.png"
               alt="Axia Energia"
-              style={{ height: '9mm', objectFit: 'contain' }}
+              style={{ height: '11mm', objectFit: 'contain' }}
             />
             <div style={{ 
               fontSize: '11pt', 
@@ -221,23 +208,26 @@ export default function OrdemSaidaPDF({ ordem }) {
                 <tr style={{ backgroundColor: '#e8e8e8' }}>
                   <th style={{ 
                     border: '1px solid #ccc', 
-                    padding: '1mm', 
+                    padding: '1.2mm 1mm', 
                     textAlign: 'left', 
                     fontWeight: 'bold',
-                    width: '22%'
+                    width: '22%',
+                    verticalAlign: 'middle'
                   }}>CÓDIGO</th>
                   <th style={{ 
                     border: '1px solid #ccc', 
-                    padding: '1mm', 
+                    padding: '1.2mm 1mm', 
                     textAlign: 'center', 
                     fontWeight: 'bold',
-                    width: '10%'
+                    width: '10%',
+                    verticalAlign: 'middle'
                   }}>QUANT</th>
                   <th style={{ 
                     border: '1px solid #ccc', 
-                    padding: '1mm', 
+                    padding: '1.2mm 1mm', 
                     textAlign: 'left', 
-                    fontWeight: 'bold'
+                    fontWeight: 'bold',
+                    verticalAlign: 'middle'
                   }}>DESCRIÇÃO DOS MATERIAIS</th>
                 </tr>
               </thead>
@@ -248,22 +238,25 @@ export default function OrdemSaidaPDF({ ordem }) {
                   }}>
                     <td style={{ 
                       border: '1px solid #ddd', 
-                      padding: '1.2mm',
+                      padding: '1.5mm 1.2mm',
                       fontFamily: 'Courier, monospace',
                       fontWeight: 'bold',
-                      fontSize: '5.5pt'
+                      fontSize: '5.5pt',
+                      verticalAlign: 'middle'
                     }}>{material.codigo}</td>
                     <td style={{ 
                       border: '1px solid #ddd', 
-                      padding: '1.2mm', 
+                      padding: '1.5mm 1.2mm', 
                       textAlign: 'center', 
                       fontWeight: 'bold',
-                      fontSize: '6pt'
+                      fontSize: '6pt',
+                      verticalAlign: 'middle'
                     }}>{material.quantidade}</td>
                     <td style={{ 
                       border: '1px solid #ddd', 
-                      padding: '1.2mm',
-                      fontSize: '5.5pt'
+                      padding: '1.5mm 1.2mm',
+                      fontSize: '5.5pt',
+                      verticalAlign: 'middle'
                     }}>{material.descricao}</td>
                   </tr>
                 ))}
@@ -272,9 +265,9 @@ export default function OrdemSaidaPDF({ ordem }) {
                   <tr key={`empty-${idx}`} style={{ 
                     backgroundColor: (materiaisDaPagina.length + idx) % 2 === 0 ? '#ffffff' : '#f8f8f8'
                   }}>
-                    <td style={{ border: '1px solid #ddd', padding: '1.2mm', height: '4.5mm' }}>&nbsp;</td>
-                    <td style={{ border: '1px solid #ddd', padding: '1.2mm' }}>&nbsp;</td>
-                    <td style={{ border: '1px solid #ddd', padding: '1.2mm' }}>&nbsp;</td>
+                    <td style={{ border: '1px solid #ddd', padding: '1.5mm 1.2mm', height: '4.5mm', verticalAlign: 'middle' }}>&nbsp;</td>
+                    <td style={{ border: '1px solid #ddd', padding: '1.5mm 1.2mm', verticalAlign: 'middle' }}>&nbsp;</td>
+                    <td style={{ border: '1px solid #ddd', padding: '1.5mm 1.2mm', verticalAlign: 'middle' }}>&nbsp;</td>
                   </tr>
                 ))}
               </tbody>
@@ -304,13 +297,20 @@ export default function OrdemSaidaPDF({ ordem }) {
               marginBottom: '2mm'
             }}>
               {/* Documentos - Dados da expedição */}
-              <div>
+              <div style={{ 
+                border: '2px solid #333',
+                display: 'flex',
+                flexDirection: 'column'
+              }}>
                 <div style={{ 
                   backgroundColor: '#d9d9d9',
-                  padding: '0.8mm 1.5mm',
+                  padding: '1mm 1.5mm',
                   fontSize: '5.5pt',
                   fontWeight: 'bold',
-                  border: '1px solid #666'
+                  border: '1px solid #666',
+                  display: 'flex',
+                  alignItems: 'center',
+                  minHeight: '5mm'
                 }}>
                   DOCUMENTOS DE REFERÊNCIA
                 </div>
@@ -318,32 +318,73 @@ export default function OrdemSaidaPDF({ ordem }) {
                   width: '100%', 
                   borderCollapse: 'collapse', 
                   fontSize: '5.5pt',
-                  border: '1px solid #999',
-                  borderTop: 'none'
+                  flex: 1
                 }}>
                   <thead>
                     <tr style={{ backgroundColor: '#e8e8e8' }}>
-                      <th style={{ border: '1px solid #ccc', padding: '1mm', fontWeight: 'bold', width: '25%' }}>TIPO DOC</th>
-                      <th style={{ border: '1px solid #ccc', padding: '1mm', fontWeight: 'bold' }}>Nº DOC</th>
-                      <th style={{ border: '1px solid #ccc', padding: '1mm', fontWeight: 'bold', textAlign: 'right', width: '25%' }}>VALOR</th>
+                      <th style={{ 
+                        border: '1px solid #ccc', 
+                        padding: '1.2mm 1mm', 
+                        fontWeight: 'bold', 
+                        width: '25%',
+                        verticalAlign: 'middle'
+                      }}>TIPO DOC</th>
+                      <th style={{ 
+                        border: '1px solid #ccc', 
+                        padding: '1.2mm 1mm', 
+                        fontWeight: 'bold',
+                        verticalAlign: 'middle'
+                      }}>Nº DOC</th>
+                      <th style={{ 
+                        border: '1px solid #ccc', 
+                        padding: '1.2mm 1mm', 
+                        fontWeight: 'bold', 
+                        textAlign: 'right', 
+                        width: '25%',
+                        verticalAlign: 'middle'
+                      }}>VALOR</th>
                     </tr>
                   </thead>
                   <tbody>
                     {ordem.tipo_doc || ordem.num_doc ? (
                       <tr>
-                        <td style={{ border: '1px solid #ddd', padding: '1mm', backgroundColor: '#fff' }}>
+                        <td style={{ 
+                          border: '1px solid #ddd', 
+                          padding: '1.5mm 1mm', 
+                          backgroundColor: '#fff',
+                          verticalAlign: 'middle'
+                        }}>
                           {ordem.tipo_doc || '-'}
                         </td>
-                        <td style={{ border: '1px solid #ddd', padding: '1mm', backgroundColor: '#fff' }}>
+                        <td style={{ 
+                          border: '1px solid #ddd', 
+                          padding: '1.5mm 1mm', 
+                          backgroundColor: '#fff',
+                          verticalAlign: 'middle'
+                        }}>
                           {ordem.num_doc || '-'}
                         </td>
-                        <td style={{ border: '1px solid #ddd', padding: '1mm', textAlign: 'right', fontWeight: 'bold', backgroundColor: '#fff' }}>
+                        <td style={{ 
+                          border: '1px solid #ddd', 
+                          padding: '1.5mm 1mm', 
+                          textAlign: 'right', 
+                          fontWeight: 'bold', 
+                          backgroundColor: '#fff',
+                          verticalAlign: 'middle'
+                        }}>
                           {ordem.valor_total ? ordem.valor_total.toFixed(2) : '-'}
                         </td>
                       </tr>
                     ) : (
                       <tr>
-                        <td colSpan="3" style={{ border: '1px solid #ddd', padding: '2mm', textAlign: 'center', color: '#999', fontSize: '5pt' }}>
+                        <td colSpan="3" style={{ 
+                          border: '1px solid #ddd', 
+                          padding: '2mm', 
+                          textAlign: 'center', 
+                          color: '#999', 
+                          fontSize: '5pt',
+                          verticalAlign: 'middle'
+                        }}>
                           -
                         </td>
                       </tr>
@@ -361,10 +402,14 @@ export default function OrdemSaidaPDF({ ordem }) {
                 <div style={{
                   backgroundColor: '#4a4a4a',
                   color: 'white',
-                  padding: '0.8mm',
+                  padding: '1mm',
                   fontSize: '5.5pt',
                   fontWeight: 'bold',
-                  textAlign: 'center'
+                  textAlign: 'center',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minHeight: '5mm'
                 }}>
                   RESUMO DE CARGA
                 </div>
