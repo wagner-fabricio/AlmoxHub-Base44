@@ -51,7 +51,7 @@ export default function OSFilters({
     filters.status !== 'all' ||
     filters.periodo !== 'all';
 
-  const filteredSubcategorias = filters.categorias?.length === 0
+  const filteredSubcategorias = !filters.categorias || filters.categorias.length === 0
     ? subcategorias 
     : subcategorias.filter(s => filters.categorias.includes(s.categoria_id));
 

@@ -89,6 +89,10 @@ export default function OrdensServico() {
           savedFilters.categorias = [savedFilters.categoria];
           delete savedFilters.categoria;
         }
+        // Garantir que categorias é sempre um array
+        if (!savedFilters.categorias) {
+          savedFilters.categorias = [];
+        }
         setFilters(savedFilters);
       }
       
@@ -138,7 +142,8 @@ export default function OrdensServico() {
     if (filters.almoxarifado !== 'all' && os.almoxarifado_id !== filters.almoxarifado) return false;
     
     // Categoria filter (múltiplas)
-    if (filters.categorias?.length > 0 && !filters.categorias.includes(os.categoria_id)) return false;
+    const categorias = filters.categorias || [];
+    if (categorias.length > 0 && !categorias.includes(os.categoria_id)) return false;
     
     // Subcategoria filter
     if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
