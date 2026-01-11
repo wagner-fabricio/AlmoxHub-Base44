@@ -1,6 +1,8 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -8,7 +10,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search, Filter, X, LayoutGrid, List, Image, Users, Calendar } from 'lucide-react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Search, Filter, X, LayoutGrid, List, Image, Users, Calendar, ChevronDown } from 'lucide-react';
 
 export default function OSFilters({ 
   filters, 
@@ -25,7 +32,7 @@ export default function OSFilters({
       search: '',
       regional: 'all',
       almoxarifado: 'all',
-      categoria: 'all',
+      categorias: [],
       subcategoria: 'all',
       status: 'all',
       visao: 'todos',
@@ -39,14 +46,14 @@ export default function OSFilters({
     filters.search || 
     filters.regional !== 'all' ||
     filters.almoxarifado !== 'all' || 
-    filters.categoria !== 'all' || 
+    filters.categorias?.length > 0 || 
     filters.subcategoria !== 'all' ||
     filters.status !== 'all' ||
     filters.periodo !== 'all';
 
-  const filteredSubcategorias = filters.categoria === 'all' 
+  const filteredSubcategorias = filters.categorias?.length === 0
     ? subcategorias 
-    : subcategorias.filter(s => s.categoria_id === filters.categoria);
+    : subcategorias.filter(s => filters.categorias.includes(s.categoria_id));
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 mb-6">
@@ -110,25 +117,61 @@ export default function OSFilters({
             </SelectContent>
           </Select>
 
-          <Select
-            value={filters.categoria}
-            onValueChange={(value) => setFilters({ ...filters, categoria: value, subcategoria: 'all' })}
-          >
-            <SelectTrigger className="w-40 bg-slate-50 dark:bg-slate-900">
-              <SelectValue placeholder="Categoria" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas Categorias</SelectItem>
-              {categorias.map((c) => (
-                <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="outline"
+                className="w-40 justify-between bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300"
+              >
+                <span className="truncate">
+                  {filters.categorias?.length === 0 ? 'Categorias' : 
+                   filters.categorias?.length === 1 ? (categorias.find(c => c.id === filters.categorias[0])?.nome || 'Categoria') :
+                   `${filters.categorias?.length} selecionadas`}
+                </span>
+                <ChevronDown className="w-4 h-4 shrink-0" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-56 p-3">
+              <div className="space-y-2">
+                <button
+                  onClick={() => setFilters({ ...filters, categorias: [], subcategoria: 'all' })}
+                  className="w-full text-left px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
+                  Limpar seleção
+                </button>
+                <div className="border-t border-slate-200 dark:border-slate-700 pt-2">
+                  {categorias.map((c) => (
+                    <label key={c.id} className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer">
+                      <Checkbox
+                        checked={filters.categorias?.includes(c.id) || false}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setFilters({ 
+                              ...filters, 
+                              categorias: [...(filters.categorias || []), c.id],
+                              subcategoria: 'all'
+                            });
+                          } else {
+                            setFilters({ 
+                              ...filters, 
+                              categorias: (filters.categorias || []).filter(id => id !== c.id),
+                              subcategoria: 'all'
+                            });
+                          }
+                        }}
+                      />
+                      <span className="text-sm text-slate-700 dark:text-slate-300">{c.nome}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
 
           <Select
             value={filters.subcategoria}
             onValueChange={(value) => setFilters({ ...filters, subcategoria: value })}
-            disabled={filters.categoria === 'all'}
+            disabled={filters.categorias?.length === 0}
           >
             <SelectTrigger className="w-40 bg-slate-50 dark:bg-slate-900">
               <SelectValue placeholder="Subcategoria" />
