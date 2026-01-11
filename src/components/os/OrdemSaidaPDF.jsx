@@ -101,7 +101,7 @@ export default function OrdemSaidaPDF({ ordem }) {
   );
 
   function renderColumn(materiaisDaPagina, pageIndex, totalPages, totalVolumes, pesoTotal) {
-    const minLinhasTabela = 10; // Garantir pelo menos 10 linhas para preencher bem a página
+    const minLinhasTabela = 15; // Garantir pelo menos 15 linhas para preencher bem a página
     
     // Calcular valor total dos materiais
     const valorTotalMateriais = ordem.materiais_selecionados?.reduce((sum, m) => {
@@ -291,8 +291,7 @@ export default function OrdemSaidaPDF({ ordem }) {
         {pageIndex === 0 && (
           <div style={{ marginTop: 'auto' }}>
             <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: '52% 48%', 
+              display: 'flex',
               gap: '2mm',
               marginBottom: '2mm'
             }}>
@@ -300,7 +299,8 @@ export default function OrdemSaidaPDF({ ordem }) {
               <div style={{ 
                 border: '2px solid #333',
                 display: 'flex',
-                flexDirection: 'column'
+                flexDirection: 'column',
+                flex: 1
               }}>
                 <div style={{ 
                   backgroundColor: '#d9d9d9',
@@ -397,7 +397,8 @@ export default function OrdemSaidaPDF({ ordem }) {
               <div style={{ 
                 border: '2px solid #333', 
                 display: 'flex',
-                flexDirection: 'column'
+                flexDirection: 'column',
+                flex: 1
               }}>
                 <div style={{
                   backgroundColor: '#4a4a4a',
