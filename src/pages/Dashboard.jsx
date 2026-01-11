@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend, AreaChart, Area } from 'recharts';
 import { ClipboardList, CheckCircle, Clock, AlertTriangle, TrendingUp, Building2, MapPin, Loader2, Zap, Warehouse, Grid } from 'lucide-react';
 import { format, subDays, differenceInDays } from 'date-fns';
@@ -42,7 +43,9 @@ export default function Dashboard() {
     almoxarifado: 'all',
     categoria: 'all',
     subcategoria: 'all',
-    periodo: '30'
+    periodo: '30',
+    dataInicio: '',
+    dataFim: ''
   });
 
   const updateFilters = async (newFilters) => {
@@ -100,7 +103,25 @@ export default function Dashboard() {
     if (filters.almoxarifado !== 'all' && os.almoxarifado_id !== filters.almoxarifado) return false;
     if (filters.categoria !== 'all' && os.categoria_id !== filters.categoria) return false;
     if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
-    if (filters.periodo !== 'all') {
+    
+    // Period filter
+    if (filters.periodo === 'mes_atual') {
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      const osDate = new Date(os.created_date);
+      if (osDate < startOfMonth || osDate > endOfMonth) return false;
+    } else if (filters.periodo === 'customizado') {
+      if (filters.dataInicio) {
+        const startDate = new Date(filters.dataInicio);
+        if (new Date(os.created_date) < startDate) return false;
+      }
+      if (filters.dataFim) {
+        const endDate = new Date(filters.dataFim);
+        endDate.setHours(23, 59, 59, 999);
+        if (new Date(os.created_date) > endDate) return false;
+      }
+    } else if (filters.periodo !== 'all') {
       const days = parseInt(filters.periodo);
       const cutoff = subDays(new Date(), days);
       if (new Date(os.created_date) < cutoff) return false;
@@ -323,10 +344,35 @@ export default function Dashboard() {
               <SelectItem value="7">Últimos 7 dias</SelectItem>
               <SelectItem value="30">Últimos 30 dias</SelectItem>
               <SelectItem value="90">Últimos 90 dias</SelectItem>
+              <SelectItem value="mes_atual">Mês atual</SelectItem>
+              <SelectItem value="customizado">Período customizado</SelectItem>
               <SelectItem value="all">Todo período</SelectItem>
             </SelectContent>
           </Select>
         </div>
+        
+        {filters.periodo === 'customizado' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm text-slate-600 dark:text-slate-400 mb-1 block">Data Início</label>
+              <Input
+                type="date"
+                value={filters.dataInicio}
+                onChange={(e) => updateFilters({ ...filters, dataInicio: e.target.value })}
+                className="bg-white dark:bg-slate-800"
+              />
+            </div>
+            <div>
+              <label className="text-sm text-slate-600 dark:text-slate-400 mb-1 block">Data Fim</label>
+              <Input
+                type="date"
+                value={filters.dataFim}
+                onChange={(e) => updateFilters({ ...filters, dataFim: e.target.value })}
+                className="bg-white dark:bg-slate-800"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* KPI Cards - Cores Axia */}

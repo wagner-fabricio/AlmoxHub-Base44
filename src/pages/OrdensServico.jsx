@@ -32,7 +32,10 @@ export default function OrdensServico() {
     categoria: 'all',
     subcategoria: 'all',
     status: 'all',
-    visao: 'todos'
+    visao: 'todos',
+    periodo: 'all',
+    dataInicio: '',
+    dataFim: ''
   });
 
   const updateFilters = async (newFilters) => {
@@ -136,6 +139,30 @@ export default function OrdensServico() {
     
     // Status filter
     if (filters.status !== 'all' && os.status !== filters.status) return false;
+    
+    // Period filter
+    if (filters.periodo === 'mes_atual') {
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      const osDate = new Date(os.created_date);
+      if (osDate < startOfMonth || osDate > endOfMonth) return false;
+    } else if (filters.periodo === 'customizado') {
+      if (filters.dataInicio) {
+        const startDate = new Date(filters.dataInicio);
+        if (new Date(os.created_date) < startDate) return false;
+      }
+      if (filters.dataFim) {
+        const endDate = new Date(filters.dataFim);
+        endDate.setHours(23, 59, 59, 999);
+        if (new Date(os.created_date) > endDate) return false;
+      }
+    } else if (filters.periodo !== 'all') {
+      const days = parseInt(filters.periodo);
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - days);
+      if (new Date(os.created_date) < cutoff) return false;
+    }
     
     // Visão filter (permission based)
     if (filters.visao === 'regional' && currentPessoa) {

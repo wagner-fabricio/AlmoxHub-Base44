@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search, Filter, X, LayoutGrid, List, Image, Users } from 'lucide-react';
+import { Search, Filter, X, LayoutGrid, List, Image, Users, Calendar } from 'lucide-react';
 
 export default function OSFilters({ 
   filters, 
@@ -28,7 +28,10 @@ export default function OSFilters({
       categoria: 'all',
       subcategoria: 'all',
       status: 'all',
-      visao: 'todos'
+      visao: 'todos',
+      periodo: 'all',
+      dataInicio: '',
+      dataFim: ''
     });
   };
 
@@ -38,7 +41,8 @@ export default function OSFilters({
     filters.almoxarifado !== 'all' || 
     filters.categoria !== 'all' || 
     filters.subcategoria !== 'all' ||
-    filters.status !== 'all';
+    filters.status !== 'all' ||
+    filters.periodo !== 'all';
 
   const filteredSubcategorias = filters.categoria === 'all' 
     ? subcategorias 
@@ -137,6 +141,23 @@ export default function OSFilters({
             </SelectContent>
           </Select>
 
+          <Select
+            value={filters.periodo}
+            onValueChange={(value) => setFilters({ ...filters, periodo: value })}
+          >
+            <SelectTrigger className="w-40 bg-slate-50 dark:bg-slate-900">
+              <SelectValue placeholder="Período" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todo período</SelectItem>
+              <SelectItem value="7">Últimos 7 dias</SelectItem>
+              <SelectItem value="30">Últimos 30 dias</SelectItem>
+              <SelectItem value="90">Últimos 90 dias</SelectItem>
+              <SelectItem value="mes_atual">Mês atual</SelectItem>
+              <SelectItem value="customizado">Customizado</SelectItem>
+            </SelectContent>
+          </Select>
+
           {hasActiveFilters && (
             <Button 
               variant="ghost" 
@@ -148,6 +169,29 @@ export default function OSFilters({
             </Button>
           )}
         </div>
+
+        {filters.periodo === 'customizado' && (
+          <div className="flex gap-3 mt-3">
+            <div className="flex-1">
+              <label className="text-xs text-slate-600 dark:text-slate-400 mb-1 block">Data Início</label>
+              <Input
+                type="date"
+                value={filters.dataInicio}
+                onChange={(e) => setFilters({ ...filters, dataInicio: e.target.value })}
+                className="bg-slate-50 dark:bg-slate-900"
+              />
+            </div>
+            <div className="flex-1">
+              <label className="text-xs text-slate-600 dark:text-slate-400 mb-1 block">Data Fim</label>
+              <Input
+                type="date"
+                value={filters.dataFim}
+                onChange={(e) => setFilters({ ...filters, dataFim: e.target.value })}
+                className="bg-slate-50 dark:bg-slate-900"
+              />
+            </div>
+          </div>
+        )}
 
         {/* View Mode Toggle */}
         <div className="flex border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
