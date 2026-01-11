@@ -56,6 +56,7 @@ export default function OSFormModal({
     num_reserva: '',
     data_reserva: '',
     usuario_reserva: '',
+    usuario_reserva_email: '',
     orgao: '',
     data_migo: '',
     num_migo: '',
@@ -648,10 +649,18 @@ export default function OSFormModal({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Usuário *</Label>
+                      <Label>Nome Usuário *</Label>
                       <Input
                         value={formData.usuario_reserva}
                         onChange={(e) => setFormData({ ...formData, usuario_reserva: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Email Usuário</Label>
+                      <Input
+                        type="email"
+                        value={formData.usuario_reserva_email}
+                        onChange={(e) => setFormData({ ...formData, usuario_reserva_email: e.target.value })}
                       />
                     </div>
                     <div className="space-y-2">
