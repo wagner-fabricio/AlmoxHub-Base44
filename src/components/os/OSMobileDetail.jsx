@@ -5,6 +5,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { base44 } from '@/api/base44Client';
 import {
   X,
@@ -23,7 +29,8 @@ import {
   Send,
   Camera,
   Image as ImageIcon,
-  Upload
+  Upload,
+  ChevronDown
 } from 'lucide-react';
 import { format, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -68,6 +75,7 @@ export default function OSMobileDetail({
   const [selectedImages, setSelectedImages] = useState([]);
   const [selectedAnexos, setSelectedAnexos] = useState([]);
   const [deleting, setDeleting] = useState(false);
+  const [changingStatus, setChangingStatus] = useState(false);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
@@ -80,6 +88,33 @@ export default function OSMobileDetail({
   
   const isExpedicao = categoria?.nome?.toLowerCase().includes('expedição');
   const StatusIcon = statusConfig[os.status]?.icon || Clock;
+
+  // Verificar se o usuário atual está associado à OS
+  const isUserAssociated = () => {
+    if (!currentUserPessoa) return false;
+    const userId = currentUserPessoa.id;
+    return (
+      os.lider_id === userId ||
+      os.executores_ids?.includes(userId) ||
+      os.outros_envolvidos_ids?.includes(userId)
+    );
+  };
+
+  const handleStatusChange = async (newStatus) => {
+    if (!isUserAssociated()) return;
+    
+    setChangingStatus(true);
+    try {
+      await base44.entities.OrdemServico.update(os.id, {
+        status: newStatus
+      });
+      onRefresh?.();
+    } catch (error) {
+      console.error('Error updating status:', error);
+    } finally {
+      setChangingStatus(false);
+    }
+  };
 
   useEffect(() => {
     // Carregar itens já marcados
@@ -403,10 +438,46 @@ export default function OSMobileDetail({
           <div className="space-y-3">
             {/* Status Badge */}
             <div className="bg-white rounded-2xl p-4 shadow-sm">
-              <Badge className={`${statusConfig[os.status]?.color} text-white text-sm py-2 px-4 w-full justify-center`}>
-                <StatusIcon className="w-4 h-4 mr-2" />
-                {statusConfig[os.status]?.label}
-              </Badge>
+              {isUserAssociated() ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      disabled={changingStatus}
+                      className={`${statusConfig[os.status]?.color} text-white text-sm py-2 px-4 w-full rounded-md flex items-center justify-center gap-2 disabled:opacity-50`}
+                    >
+                      {changingStatus ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          <StatusIcon className="w-4 h-4" />
+                          {statusConfig[os.status]?.label}
+                          <ChevronDown className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56">
+                    {Object.entries(statusConfig).map(([key, config]) => {
+                      const Icon = config.icon;
+                      return (
+                        <DropdownMenuItem
+                          key={key}
+                          onClick={() => handleStatusChange(key)}
+                          disabled={os.status === key}
+                        >
+                          <Icon className="w-4 h-4 mr-2" />
+                          {config.label}
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Badge className={`${statusConfig[os.status]?.color} text-white text-sm py-2 px-4 w-full justify-center`}>
+                  <StatusIcon className="w-4 h-4 mr-2" />
+                  {statusConfig[os.status]?.label}
+                </Badge>
+              )}
             </div>
 
             {/* Info Cards */}
