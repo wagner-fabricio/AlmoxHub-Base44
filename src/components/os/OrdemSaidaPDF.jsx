@@ -128,49 +128,34 @@ export default function OrdemSaidaPDF({ ordem }) {
         {/* Cabeçalho Compacto */}
         <div style={{ 
           border: '2px solid #000',
-          marginBottom: '3mm'
+          marginBottom: '2mm'
         }}>
           <div style={{ 
             backgroundColor: '#000',
-            padding: '2mm 3mm',
+            padding: '1.5mm 2mm',
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center'
+            alignItems: 'center',
+            height: '12mm'
           }}>
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693889ed43a3c099705a3c51/6df844129_AF_ELETROBRAS_PRIMARIA_LOGO_AXIA_ENERGIA_VERTICAL_NEGATIVO_RBG.png"
               alt="Axia Energia"
-              style={{ height: '10mm', objectFit: 'contain' }}
+              style={{ height: '9mm', objectFit: 'contain' }}
             />
             <div style={{ 
-              fontSize: '12pt', 
+              fontSize: '11pt', 
               fontWeight: 'bold',
               color: 'white',
               letterSpacing: '0.5px'
             }}>
               ORDEM DE SAÍDA
             </div>
-            <div style={{ color: 'white', fontSize: '6pt', textAlign: 'right' }}>
-              <div>Página</div>
-              <div style={{ fontWeight: 'bold', fontSize: '8pt' }}>{pageIndex + 1}/{totalPages}</div>
-            </div>
-          </div>
-          <div style={{ 
-            backgroundColor: '#f5f5f5',
-            padding: '2mm',
-            display: 'flex',
-            justifyContent: 'space-around',
-            borderTop: '1px solid #000'
-          }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '5pt', color: '#666', marginBottom: '0.5mm' }}>NÚMERO</div>
-              <div style={{ fontSize: '9pt', fontWeight: 'bold' }}>
+              <div style={{ fontSize: '8pt', fontWeight: 'bold', color: 'white' }}>
                 {ordem.numero}
               </div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '5pt', color: '#666', marginBottom: '0.5mm' }}>DATA EMISSÃO</div>
-              <div style={{ fontSize: '9pt', fontWeight: 'bold' }}>
+              <div style={{ fontSize: '6pt', color: '#ccc' }}>
                 {format(new Date(ordem.data_emissao), 'dd/MM/yyyy')}
               </div>
             </div>
@@ -178,10 +163,10 @@ export default function OrdemSaidaPDF({ ordem }) {
         </div>
 
         {/* Informações Gerais */}
-        <div style={{ marginBottom: '2.5mm' }}>
+        <div style={{ marginBottom: '2mm' }}>
           <div style={{ 
             backgroundColor: '#d9d9d9',
-            padding: '1mm 2mm',
+            padding: '0.8mm 1.5mm',
             fontSize: '6pt',
             fontWeight: 'bold',
             border: '1px solid #666'
@@ -191,15 +176,15 @@ export default function OrdemSaidaPDF({ ordem }) {
           <div style={{ 
             border: '1px solid #999',
             borderTop: 'none',
-            padding: '1.5mm',
-            fontSize: '6pt',
+            padding: '1.2mm',
+            fontSize: '5.5pt',
             backgroundColor: '#fafafa'
           }}>
-            <div style={{ marginBottom: '1mm' }}>
+            <div style={{ marginBottom: '0.8mm' }}>
               <span style={{ fontWeight: 'bold' }}>Portador:</span> {ordem.portador_nome || '____________________'}
               {ordem.portador_cpf && <span> - CPF: {ordem.portador_cpf}</span>}
             </div>
-            <div style={{ marginBottom: '1mm' }}>
+            <div style={{ marginBottom: '0.8mm' }}>
               <span style={{ fontWeight: 'bold' }}>Veículo:</span> {ordem.veiculo_placa || '____________________'}
             </div>
             <div>
@@ -209,19 +194,19 @@ export default function OrdemSaidaPDF({ ordem }) {
         </div>
 
         {/* Materiais - Seção Principal */}
-        <div style={{ marginBottom: '2.5mm', flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ marginBottom: '2mm', flex: 1, display: 'flex', flexDirection: 'column' }}>
           <div style={{ 
-            backgroundColor: '#4a4a4a',
+            backgroundColor: '#333',
             color: 'white',
-            padding: '1.5mm',
-            fontSize: '7pt',
+            padding: '1mm',
+            fontSize: '6pt',
             fontWeight: 'bold',
-            border: '2px solid #333'
+            border: '1px solid #333'
           }}>
-            📦 MATERIAIS TRANSPORTADOS
+            MATERIAIS TRANSPORTADOS
           </div>
           <div style={{ 
-            border: '2px solid #333',
+            border: '1px solid #666',
             borderTop: 'none',
             flex: 1,
             display: 'flex',
@@ -230,26 +215,26 @@ export default function OrdemSaidaPDF({ ordem }) {
             <table style={{ 
               width: '100%', 
               borderCollapse: 'collapse',
-              fontSize: '6pt'
+              fontSize: '5.5pt'
             }}>
               <thead>
-                <tr style={{ backgroundColor: '#d9d9d9' }}>
+                <tr style={{ backgroundColor: '#e8e8e8' }}>
                   <th style={{ 
-                    border: '1px solid #999', 
+                    border: '1px solid #ccc', 
                     padding: '1mm', 
                     textAlign: 'left', 
                     fontWeight: 'bold',
                     width: '22%'
                   }}>CÓDIGO</th>
                   <th style={{ 
-                    border: '1px solid #999', 
+                    border: '1px solid #ccc', 
                     padding: '1mm', 
                     textAlign: 'center', 
                     fontWeight: 'bold',
                     width: '10%'
                   }}>QUANT</th>
                   <th style={{ 
-                    border: '1px solid #999', 
+                    border: '1px solid #ccc', 
                     padding: '1mm', 
                     textAlign: 'left', 
                     fontWeight: 'bold'
@@ -259,37 +244,37 @@ export default function OrdemSaidaPDF({ ordem }) {
               <tbody>
                 {materiaisDaPagina.map((material, idx) => (
                   <tr key={idx} style={{ 
-                    backgroundColor: idx % 2 === 0 ? '#ffffff' : '#f5f5f5'
+                    backgroundColor: idx % 2 === 0 ? '#ffffff' : '#f8f8f8'
                   }}>
                     <td style={{ 
-                      border: '1px solid #ccc', 
-                      padding: '1.5mm',
+                      border: '1px solid #ddd', 
+                      padding: '1.2mm',
                       fontFamily: 'Courier, monospace',
                       fontWeight: 'bold',
-                      fontSize: '6pt'
+                      fontSize: '5.5pt'
                     }}>{material.codigo}</td>
                     <td style={{ 
-                      border: '1px solid #ccc', 
-                      padding: '1.5mm', 
+                      border: '1px solid #ddd', 
+                      padding: '1.2mm', 
                       textAlign: 'center', 
                       fontWeight: 'bold',
-                      fontSize: '7pt'
+                      fontSize: '6pt'
                     }}>{material.quantidade}</td>
                     <td style={{ 
-                      border: '1px solid #ccc', 
-                      padding: '1.5mm',
-                      fontSize: '6pt'
+                      border: '1px solid #ddd', 
+                      padding: '1.2mm',
+                      fontSize: '5.5pt'
                     }}>{material.descricao}</td>
                   </tr>
                 ))}
                 {/* Linhas vazias para preencher a página */}
                 {Array.from({ length: Math.max(0, minLinhasTabela - materiaisDaPagina.length) }).map((_, idx) => (
                   <tr key={`empty-${idx}`} style={{ 
-                    backgroundColor: (materiaisDaPagina.length + idx) % 2 === 0 ? '#ffffff' : '#f5f5f5'
+                    backgroundColor: (materiaisDaPagina.length + idx) % 2 === 0 ? '#ffffff' : '#f8f8f8'
                   }}>
-                    <td style={{ border: '1px solid #ccc', padding: '1.5mm', height: '5mm' }}>&nbsp;</td>
-                    <td style={{ border: '1px solid #ccc', padding: '1.5mm' }}>&nbsp;</td>
-                    <td style={{ border: '1px solid #ccc', padding: '1.5mm' }}>&nbsp;</td>
+                    <td style={{ border: '1px solid #ddd', padding: '1.2mm', height: '4.5mm' }}>&nbsp;</td>
+                    <td style={{ border: '1px solid #ddd', padding: '1.2mm' }}>&nbsp;</td>
+                    <td style={{ border: '1px solid #ddd', padding: '1.2mm' }}>&nbsp;</td>
                   </tr>
                 ))}
               </tbody>
@@ -297,10 +282,10 @@ export default function OrdemSaidaPDF({ ordem }) {
           </div>
           <div style={{ 
             backgroundColor: '#e8e8e8',
-            padding: '1.5mm',
-            border: '2px solid #333',
+            padding: '1mm',
+            border: '1px solid #666',
             borderTop: 'none',
-            fontSize: '6pt',
+            fontSize: '5.5pt',
             fontWeight: 'bold',
             textAlign: 'center'
           }}>
@@ -314,61 +299,52 @@ export default function OrdemSaidaPDF({ ordem }) {
           <div style={{ marginTop: 'auto' }}>
             <div style={{ 
               display: 'grid', 
-              gridTemplateColumns: '55% 45%', 
-              gap: '3mm',
-              marginBottom: '3mm'
+              gridTemplateColumns: '52% 48%', 
+              gap: '2mm',
+              marginBottom: '2mm'
             }}>
-              {/* Documentos */}
+              {/* Documentos - Dados da expedição */}
               <div>
                 <div style={{ 
-                  backgroundColor: '#e8e8e8',
-                  padding: '1.5mm 2mm',
-                  fontSize: '7pt',
+                  backgroundColor: '#d9d9d9',
+                  padding: '0.8mm 1.5mm',
+                  fontSize: '5.5pt',
                   fontWeight: 'bold',
-                  border: '1px solid #999'
+                  border: '1px solid #666'
                 }}>
                   DOCUMENTOS DE REFERÊNCIA
                 </div>
                 <table style={{ 
                   width: '100%', 
                   borderCollapse: 'collapse', 
-                  fontSize: '6pt',
-                  border: '1px solid #ccc',
+                  fontSize: '5.5pt',
+                  border: '1px solid #999',
                   borderTop: 'none'
                 }}>
                   <thead>
-                    <tr style={{ backgroundColor: '#f5f5f5' }}>
-                      <th style={{ border: '1px solid #ddd', padding: '1.5mm', fontWeight: 'bold' }}>TIPO</th>
-                      <th style={{ border: '1px solid #ddd', padding: '1.5mm', fontWeight: 'bold' }}>NÚMERO</th>
-                      <th style={{ border: '1px solid #ddd', padding: '1.5mm', fontWeight: 'bold', textAlign: 'center' }}>ITENS</th>
-                      <th style={{ border: '1px solid #ddd', padding: '1.5mm', fontWeight: 'bold', textAlign: 'right' }}>VALOR</th>
+                    <tr style={{ backgroundColor: '#e8e8e8' }}>
+                      <th style={{ border: '1px solid #ccc', padding: '1mm', fontWeight: 'bold', width: '25%' }}>TIPO DOC</th>
+                      <th style={{ border: '1px solid #ccc', padding: '1mm', fontWeight: 'bold' }}>Nº DOC</th>
+                      <th style={{ border: '1px solid #ccc', padding: '1mm', fontWeight: 'bold', textAlign: 'right', width: '25%' }}>VALOR</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {ordem.documentos_referencia && ordem.documentos_referencia.length > 0 ? (
-                      <>
-                        {ordem.documentos_referencia.map((doc, idx) => (
-                          <tr key={idx}>
-                            <td style={{ border: '1px solid #ddd', padding: '1.5mm' }}>{doc.tipo}</td>
-                            <td style={{ border: '1px solid #ddd', padding: '1.5mm' }}>{doc.numero}</td>
-                            <td style={{ border: '1px solid #ddd', padding: '1.5mm', textAlign: 'center', fontWeight: 'bold' }}>{doc.qtd_itens}</td>
-                            <td style={{ border: '1px solid #ddd', padding: '1.5mm', textAlign: 'right' }}>{doc.valor_doc || '-'}</td>
-                          </tr>
-                        ))}
-                        <tr style={{ fontWeight: 'bold', backgroundColor: '#f0f0f0' }}>
-                          <td colSpan="2" style={{ border: '1px solid #999', padding: '1.5mm' }}>TOTAL</td>
-                          <td style={{ border: '1px solid #999', padding: '1.5mm', textAlign: 'center' }}>
-                            {ordem.documentos_referencia.reduce((sum, d) => sum + (d.qtd_itens || 0), 0)}
-                          </td>
-                          <td style={{ border: '1px solid #999', padding: '1.5mm', textAlign: 'right' }}>
-                            {ordem.documentos_referencia.reduce((sum, d) => sum + (d.valor_doc || 0), 0) || '-'}
-                          </td>
-                        </tr>
-                      </>
+                    {ordem.tipo_doc || ordem.num_doc ? (
+                      <tr>
+                        <td style={{ border: '1px solid #ddd', padding: '1mm', backgroundColor: '#fff' }}>
+                          {ordem.tipo_doc || '-'}
+                        </td>
+                        <td style={{ border: '1px solid #ddd', padding: '1mm', backgroundColor: '#fff' }}>
+                          {ordem.num_doc || '-'}
+                        </td>
+                        <td style={{ border: '1px solid #ddd', padding: '1mm', textAlign: 'right', fontWeight: 'bold', backgroundColor: '#fff' }}>
+                          {ordem.valor_total ? ordem.valor_total.toFixed(2) : '-'}
+                        </td>
+                      </tr>
                     ) : (
                       <tr>
-                        <td colSpan="4" style={{ border: '1px solid #ddd', padding: '3mm', textAlign: 'center', color: '#999' }}>
-                          Nenhum documento referenciado
+                        <td colSpan="3" style={{ border: '1px solid #ddd', padding: '2mm', textAlign: 'center', color: '#999', fontSize: '5pt' }}>
+                          -
                         </td>
                       </tr>
                     )}
@@ -378,15 +354,15 @@ export default function OrdemSaidaPDF({ ordem }) {
 
               {/* Volumes */}
               <div style={{ 
-                border: '2px solid #0066cc', 
+                border: '2px solid #333', 
                 display: 'flex',
                 flexDirection: 'column'
               }}>
                 <div style={{
-                  backgroundColor: '#0066cc',
+                  backgroundColor: '#4a4a4a',
                   color: 'white',
-                  padding: '1.5mm',
-                  fontSize: '7pt',
+                  padding: '0.8mm',
+                  fontSize: '5.5pt',
                   fontWeight: 'bold',
                   textAlign: 'center'
                 }}>
@@ -398,13 +374,13 @@ export default function OrdemSaidaPDF({ ordem }) {
                   flexDirection: 'column',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  backgroundColor: '#f0f8ff',
-                  padding: '3mm'
+                  backgroundColor: '#fafafa',
+                  padding: '2mm'
                 }}>
-                  <div style={{ fontSize: '6pt', color: '#666', marginBottom: '2mm' }}>
+                  <div style={{ fontSize: '5pt', color: '#666', marginBottom: '1mm' }}>
                     PESO TOTAL (KG) / VOLUMES
                   </div>
-                  <div style={{ fontSize: '16pt', fontWeight: 'bold', color: '#0066cc' }}>
+                  <div style={{ fontSize: '11pt', fontWeight: 'bold', color: '#000' }}>
                     {pesoTotal.toFixed(2)} / {totalVolumes}
                   </div>
                 </div>
@@ -417,47 +393,47 @@ export default function OrdemSaidaPDF({ ordem }) {
             }}>
               <div style={{
                 backgroundColor: '#d9d9d9',
-                padding: '1mm 2mm',
-                fontSize: '6pt',
+                padding: '0.7mm 1.5mm',
+                fontSize: '5.5pt',
                 fontWeight: 'bold',
                 borderBottom: '1px solid #666'
               }}>
                 ASSINATURAS
               </div>
-              <div style={{ padding: '1.5mm' }}>
+              <div style={{ padding: '1mm', backgroundColor: '#fafafa' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2mm' }}>
                   <div>
-                    <div style={{ fontSize: '5pt', fontWeight: 'bold', marginBottom: '0.5mm' }}>
+                    <div style={{ fontSize: '5pt', fontWeight: 'bold', marginBottom: '0.3mm' }}>
                       Emissão
                     </div>
-                    <div style={{ fontSize: '5pt', color: '#666', marginBottom: '1mm' }}>
-                      {ordem.responsavel_emissao_nome || '____________________'}
-                      {ordem.responsavel_emissao_matricula && ` - MAT ${ordem.responsavel_emissao_matricula}`}
+                    <div style={{ fontSize: '4.5pt', color: '#666', marginBottom: '0.5mm' }}>
+                      {ordem.responsavel_emissao_nome || '________________'}
+                      {ordem.responsavel_emissao_matricula && ` MAT ${ordem.responsavel_emissao_matricula}`}
                     </div>
                     <div style={{ 
-                      borderBottom: '1px solid #333', 
-                      marginTop: '2mm',
-                      marginBottom: '0.5mm'
+                      borderBottom: '1px solid #666', 
+                      marginTop: '1.5mm',
+                      marginBottom: '0.3mm'
                     }}></div>
-                    <div style={{ fontSize: '4pt', textAlign: 'center', color: '#999' }}>
+                    <div style={{ fontSize: '3.5pt', textAlign: 'center', color: '#999' }}>
                       Assinatura
                     </div>
                   </div>
                   
                   <div>
-                    <div style={{ fontSize: '5pt', fontWeight: 'bold', marginBottom: '0.5mm' }}>
+                    <div style={{ fontSize: '5pt', fontWeight: 'bold', marginBottom: '0.3mm' }}>
                       Autorização
                     </div>
-                    <div style={{ fontSize: '5pt', color: '#666', marginBottom: '1mm' }}>
-                      {ordem.responsavel_autorizacao_nome || '____________________'}
-                      {ordem.responsavel_autorizacao_matricula && ` - MAT ${ordem.responsavel_autorizacao_matricula}`}
+                    <div style={{ fontSize: '4.5pt', color: '#666', marginBottom: '0.5mm' }}>
+                      {ordem.responsavel_autorizacao_nome || '________________'}
+                      {ordem.responsavel_autorizacao_matricula && ` MAT ${ordem.responsavel_autorizacao_matricula}`}
                     </div>
                     <div style={{ 
-                      borderBottom: '1px solid #333', 
-                      marginTop: '2mm',
-                      marginBottom: '0.5mm'
+                      borderBottom: '1px solid #666', 
+                      marginTop: '1.5mm',
+                      marginBottom: '0.3mm'
                     }}></div>
-                    <div style={{ fontSize: '4pt', textAlign: 'center', color: '#999' }}>
+                    <div style={{ fontSize: '3.5pt', textAlign: 'center', color: '#999' }}>
                       Assinatura
                     </div>
                   </div>
