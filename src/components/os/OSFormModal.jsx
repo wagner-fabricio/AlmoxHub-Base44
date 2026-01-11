@@ -789,7 +789,7 @@ export default function OSFormModal({
                 <TabsContent value="materiais">
                   <OSItensDocumento
                     itens={formData.itens_documento}
-                    onChange={(itens) => setFormData({ ...formData, itens_documento: itens })}
+                    onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))}
                   />
                 </TabsContent>
               )}
@@ -799,7 +799,7 @@ export default function OSFormModal({
                 <TabsContent value="volumes">
                   <OSVolumes
                     volumes={formData.volumes}
-                    onChange={(volumes) => setFormData({ ...formData, volumes: volumes })}
+                    onChange={(volumes) => setFormData(prev => ({ ...prev, volumes: volumes }))}
                   />
                 </TabsContent>
               )}
@@ -811,7 +811,7 @@ export default function OSFormModal({
                 <TabsContent value="expedicao" className="space-y-6">
                   <OSDetalhamentoExpedicao
                     detalhamento={formData.detalhamento_expedicao}
-                    onChange={(d) => setFormData({ ...formData, detalhamento_expedicao: d })}
+                    onChange={(d) => setFormData(prev => ({ ...prev, detalhamento_expedicao: d }))}
                   />
 
                   <div className="border-t pt-6">
