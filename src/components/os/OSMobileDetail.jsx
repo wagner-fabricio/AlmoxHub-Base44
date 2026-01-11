@@ -5,12 +5,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { base44 } from '@/api/base44Client';
 import {
   X,
@@ -29,8 +23,7 @@ import {
   Send,
   Camera,
   Image as ImageIcon,
-  Upload,
-  ChevronDown
+  Upload
 } from 'lucide-react';
 import { format, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -100,13 +93,19 @@ export default function OSMobileDetail({
     );
   };
 
-  const handleStatusChange = async (newStatus) => {
-    if (!isUserAssociated()) return;
+  const handleStatusClick = async () => {
+    if (!isUserAssociated() || changingStatus) return;
+    
+    // Sequência de status
+    const statusSequence = ['elaboracao', 'execucao', 'concluido', 'cancelado'];
+    const currentIndex = statusSequence.indexOf(os.status);
+    const nextIndex = (currentIndex + 1) % statusSequence.length;
+    const nextStatus = statusSequence[nextIndex];
     
     setChangingStatus(true);
     try {
       await base44.entities.OrdemServico.update(os.id, {
-        status: newStatus
+        status: nextStatus
       });
       onRefresh?.();
     } catch (error) {
@@ -440,46 +439,20 @@ export default function OSMobileDetail({
           <div className="space-y-3">
             {/* Status Badge */}
             <div className="bg-white rounded-2xl p-4 shadow-sm">
-              {isUserAssociated() ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      disabled={changingStatus}
-                      className={`${statusConfig[os.status]?.color} text-white text-sm py-2 px-4 w-full rounded-md flex items-center justify-center gap-2 disabled:opacity-50`}
-                    >
-                      {changingStatus ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <>
-                          <StatusIcon className="w-4 h-4" />
-                          {statusConfig[os.status]?.label}
-                          <ChevronDown className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56">
-                    {Object.entries(statusConfig).map(([key, config]) => {
-                      const Icon = config.icon;
-                      return (
-                        <DropdownMenuItem
-                          key={key}
-                          onClick={() => handleStatusChange(key)}
-                          disabled={os.status === key}
-                        >
-                          <Icon className="w-4 h-4 mr-2" />
-                          {config.label}
-                        </DropdownMenuItem>
-                      );
-                    })}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Badge className={`${statusConfig[os.status]?.color} text-white text-sm py-2 px-4 w-full justify-center`}>
-                  <StatusIcon className="w-4 h-4 mr-2" />
-                  {statusConfig[os.status]?.label}
-                </Badge>
-              )}
+              <button
+                onClick={handleStatusClick}
+                disabled={!isUserAssociated() || changingStatus}
+                className={`${statusConfig[os.status]?.color} text-white text-sm py-2 px-4 w-full rounded-md flex items-center justify-center gap-2 disabled:opacity-50 transition-all ${isUserAssociated() && !changingStatus ? 'active:scale-95' : ''}`}
+              >
+                {changingStatus ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <StatusIcon className="w-4 h-4" />
+                    {statusConfig[os.status]?.label}
+                  </>
+                )}
+              </button>
             </div>
 
             {/* Info Cards */}
