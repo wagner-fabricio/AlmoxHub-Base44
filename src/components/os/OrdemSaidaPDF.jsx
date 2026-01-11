@@ -114,84 +114,92 @@ export default function OrdemSaidaPDF({ ordem }) {
   );
 
   function renderColumn(materiaisDaPagina, pageIndex, totalPages, totalVolumes, pesoTotal) {
-    const minLinhasTabela = 8; // Garantir pelo menos 8 linhas
+    const minLinhasTabela = 10; // Garantir pelo menos 10 linhas para preencher bem a página
+    
+    // Calcular valor total dos materiais
+    const valorTotalMateriais = ordem.materiais_selecionados?.reduce((sum, m) => {
+      // Aqui você precisaria ter o valor unitário dos materiais
+      // Por enquanto vamos deixar como opcional
+      return sum + (m.r_total || 0);
+    }, 0) || 0;
+    
     return (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '190mm' }}>
-        {/* Cabeçalho com Destaque */}
+        {/* Cabeçalho Compacto */}
         <div style={{ 
-          border: '3px solid #0000FF',
-          marginBottom: '5mm'
+          border: '2px solid #000',
+          marginBottom: '3mm'
         }}>
           <div style={{ 
-            backgroundColor: '#0000FF',
-            padding: '4mm',
-            textAlign: 'center'
+            backgroundColor: '#000',
+            padding: '2mm 3mm',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
           }}>
             <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693889ed43a3c099705a3c51/a4c044743_LogoAxia.jpg"
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693889ed43a3c099705a3c51/6df844129_AF_ELETROBRAS_PRIMARIA_LOGO_AXIA_ENERGIA_VERTICAL_NEGATIVO_RBG.png"
               alt="Axia Energia"
-              style={{ height: '8mm', objectFit: 'contain', marginBottom: '2mm' }}
+              style={{ height: '10mm', objectFit: 'contain' }}
             />
             <div style={{ 
-              fontSize: '14pt', 
+              fontSize: '12pt', 
               fontWeight: 'bold',
               color: 'white',
-              letterSpacing: '1px'
+              letterSpacing: '0.5px'
             }}>
               ORDEM DE SAÍDA
             </div>
+            <div style={{ color: 'white', fontSize: '6pt', textAlign: 'right' }}>
+              <div>Página</div>
+              <div style={{ fontWeight: 'bold', fontSize: '8pt' }}>{pageIndex + 1}/{totalPages}</div>
+            </div>
           </div>
           <div style={{ 
-            backgroundColor: '#f0f4ff',
-            padding: '3mm',
+            backgroundColor: '#f5f5f5',
+            padding: '2mm',
             display: 'flex',
             justifyContent: 'space-around',
-            borderTop: '2px solid #0000FF'
+            borderTop: '1px solid #000'
           }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '6pt', color: '#666', marginBottom: '1mm' }}>NÚMERO</div>
-              <div style={{ fontSize: '11pt', fontWeight: 'bold', color: '#0000FF' }}>
+              <div style={{ fontSize: '5pt', color: '#666', marginBottom: '0.5mm' }}>NÚMERO</div>
+              <div style={{ fontSize: '9pt', fontWeight: 'bold' }}>
                 {ordem.numero}
               </div>
             </div>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '6pt', color: '#666', marginBottom: '1mm' }}>DATA EMISSÃO</div>
-              <div style={{ fontSize: '11pt', fontWeight: 'bold', color: '#0000FF' }}>
+              <div style={{ fontSize: '5pt', color: '#666', marginBottom: '0.5mm' }}>DATA EMISSÃO</div>
+              <div style={{ fontSize: '9pt', fontWeight: 'bold' }}>
                 {format(new Date(ordem.data_emissao), 'dd/MM/yyyy')}
-              </div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '6pt', color: '#666', marginBottom: '1mm' }}>PÁGINA</div>
-              <div style={{ fontSize: '11pt', fontWeight: 'bold', color: '#0000FF' }}>
-                {pageIndex + 1}/{totalPages}
               </div>
             </div>
           </div>
         </div>
 
         {/* Informações Gerais */}
-        <div style={{ marginBottom: '4mm' }}>
+        <div style={{ marginBottom: '2.5mm' }}>
           <div style={{ 
-            backgroundColor: '#e8e8e8',
-            padding: '1.5mm 2mm',
-            fontSize: '7pt',
+            backgroundColor: '#d9d9d9',
+            padding: '1mm 2mm',
+            fontSize: '6pt',
             fontWeight: 'bold',
-            border: '1px solid #999'
+            border: '1px solid #666'
           }}>
             DADOS DA AUTORIZAÇÃO
           </div>
           <div style={{ 
-            border: '1px solid #ccc',
+            border: '1px solid #999',
             borderTop: 'none',
-            padding: '2mm',
-            fontSize: '7pt',
+            padding: '1.5mm',
+            fontSize: '6pt',
             backgroundColor: '#fafafa'
           }}>
-            <div style={{ marginBottom: '1.5mm' }}>
+            <div style={{ marginBottom: '1mm' }}>
               <span style={{ fontWeight: 'bold' }}>Portador:</span> {ordem.portador_nome || '____________________'}
               {ordem.portador_cpf && <span> - CPF: {ordem.portador_cpf}</span>}
             </div>
-            <div style={{ marginBottom: '1.5mm' }}>
+            <div style={{ marginBottom: '1mm' }}>
               <span style={{ fontWeight: 'bold' }}>Veículo:</span> {ordem.veiculo_placa || '____________________'}
             </div>
             <div>
@@ -201,19 +209,19 @@ export default function OrdemSaidaPDF({ ordem }) {
         </div>
 
         {/* Materiais - Seção Principal */}
-        <div style={{ marginBottom: '4mm', flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ marginBottom: '2.5mm', flex: 1, display: 'flex', flexDirection: 'column' }}>
           <div style={{ 
-            backgroundColor: '#0066cc',
+            backgroundColor: '#4a4a4a',
             color: 'white',
-            padding: '2mm',
-            fontSize: '8pt',
+            padding: '1.5mm',
+            fontSize: '7pt',
             fontWeight: 'bold',
-            border: '2px solid #0066cc'
+            border: '2px solid #333'
           }}>
             📦 MATERIAIS TRANSPORTADOS
           </div>
           <div style={{ 
-            border: '2px solid #0066cc',
+            border: '2px solid #333',
             borderTop: 'none',
             flex: 1,
             display: 'flex',
@@ -222,28 +230,27 @@ export default function OrdemSaidaPDF({ ordem }) {
             <table style={{ 
               width: '100%', 
               borderCollapse: 'collapse',
-              fontSize: '6.5pt',
-              flex: 1
+              fontSize: '6pt'
             }}>
               <thead>
-                <tr style={{ backgroundColor: '#e6f2ff' }}>
+                <tr style={{ backgroundColor: '#d9d9d9' }}>
                   <th style={{ 
-                    border: '1px solid #ccc', 
-                    padding: '1.5mm', 
+                    border: '1px solid #999', 
+                    padding: '1mm', 
                     textAlign: 'left', 
                     fontWeight: 'bold',
-                    width: '25%'
+                    width: '22%'
                   }}>CÓDIGO</th>
                   <th style={{ 
-                    border: '1px solid #ccc', 
-                    padding: '1.5mm', 
+                    border: '1px solid #999', 
+                    padding: '1mm', 
                     textAlign: 'center', 
                     fontWeight: 'bold',
-                    width: '12%'
+                    width: '10%'
                   }}>QUANT</th>
                   <th style={{ 
-                    border: '1px solid #ccc', 
-                    padding: '1.5mm', 
+                    border: '1px solid #999', 
+                    padding: '1mm', 
                     textAlign: 'left', 
                     fontWeight: 'bold'
                   }}>DESCRIÇÃO DOS MATERIAIS</th>
@@ -252,48 +259,48 @@ export default function OrdemSaidaPDF({ ordem }) {
               <tbody>
                 {materiaisDaPagina.map((material, idx) => (
                   <tr key={idx} style={{ 
-                    backgroundColor: idx % 2 === 0 ? '#ffffff' : '#f9fbff',
-                    borderBottom: '1px solid #e0e0e0'
+                    backgroundColor: idx % 2 === 0 ? '#ffffff' : '#f5f5f5'
                   }}>
                     <td style={{ 
-                      border: '1px solid #ddd', 
-                      padding: '2mm',
-                      fontFamily: 'monospace',
-                      fontWeight: 'bold'
+                      border: '1px solid #ccc', 
+                      padding: '1.5mm',
+                      fontFamily: 'Courier, monospace',
+                      fontWeight: 'bold',
+                      fontSize: '6pt'
                     }}>{material.codigo}</td>
                     <td style={{ 
-                      border: '1px solid #ddd', 
-                      padding: '2mm', 
+                      border: '1px solid #ccc', 
+                      padding: '1.5mm', 
                       textAlign: 'center', 
                       fontWeight: 'bold',
                       fontSize: '7pt'
                     }}>{material.quantidade}</td>
                     <td style={{ 
-                      border: '1px solid #ddd', 
-                      padding: '2mm'
+                      border: '1px solid #ccc', 
+                      padding: '1.5mm',
+                      fontSize: '6pt'
                     }}>{material.descricao}</td>
                   </tr>
                 ))}
                 {/* Linhas vazias para preencher a página */}
                 {Array.from({ length: Math.max(0, minLinhasTabela - materiaisDaPagina.length) }).map((_, idx) => (
                   <tr key={`empty-${idx}`} style={{ 
-                    backgroundColor: (materiaisDaPagina.length + idx) % 2 === 0 ? '#ffffff' : '#f9fbff',
-                    borderBottom: '1px solid #e0e0e0'
+                    backgroundColor: (materiaisDaPagina.length + idx) % 2 === 0 ? '#ffffff' : '#f5f5f5'
                   }}>
-                    <td style={{ border: '1px solid #ddd', padding: '2mm', height: '6mm' }}>&nbsp;</td>
-                    <td style={{ border: '1px solid #ddd', padding: '2mm' }}>&nbsp;</td>
-                    <td style={{ border: '1px solid #ddd', padding: '2mm' }}>&nbsp;</td>
+                    <td style={{ border: '1px solid #ccc', padding: '1.5mm', height: '5mm' }}>&nbsp;</td>
+                    <td style={{ border: '1px solid #ccc', padding: '1.5mm' }}>&nbsp;</td>
+                    <td style={{ border: '1px solid #ccc', padding: '1.5mm' }}>&nbsp;</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
           <div style={{ 
-            backgroundColor: '#e6f2ff',
-            padding: '2mm',
-            border: '2px solid #0066cc',
+            backgroundColor: '#e8e8e8',
+            padding: '1.5mm',
+            border: '2px solid #333',
             borderTop: 'none',
-            fontSize: '7pt',
+            fontSize: '6pt',
             fontWeight: 'bold',
             textAlign: 'center'
           }}>
@@ -404,54 +411,54 @@ export default function OrdemSaidaPDF({ ordem }) {
               </div>
             </div>
 
-            {/* Controle e Assinaturas */}
+            {/* Assinaturas - Compacto */}
             <div style={{ 
-              border: '2px solid #666'
+              border: '1px solid #666'
             }}>
               <div style={{
-                backgroundColor: '#e8e8e8',
-                padding: '1.5mm 2mm',
-                fontSize: '7pt',
+                backgroundColor: '#d9d9d9',
+                padding: '1mm 2mm',
+                fontSize: '6pt',
                 fontWeight: 'bold',
-                borderBottom: '2px solid #666'
+                borderBottom: '1px solid #666'
               }}>
-                ✍️ CONTROLE E RESPONSABILIDADES
+                ASSINATURAS
               </div>
-              <div style={{ padding: '2mm' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3mm' }}>
+              <div style={{ padding: '1.5mm' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2mm' }}>
                   <div>
-                    <div style={{ fontSize: '6pt', fontWeight: 'bold', marginBottom: '1mm' }}>
-                      Responsável pela Emissão
+                    <div style={{ fontSize: '5pt', fontWeight: 'bold', marginBottom: '0.5mm' }}>
+                      Emissão
                     </div>
-                    <div style={{ fontSize: '6pt', color: '#666', marginBottom: '2mm' }}>
-                      Nome: {ordem.responsavel_emissao_nome || '______________________'}
+                    <div style={{ fontSize: '5pt', color: '#666', marginBottom: '1mm' }}>
+                      {ordem.responsavel_emissao_nome || '____________________'}
                       {ordem.responsavel_emissao_matricula && ` - MAT ${ordem.responsavel_emissao_matricula}`}
                     </div>
                     <div style={{ 
-                      borderBottom: '1.5px solid #333', 
-                      marginTop: '4mm',
-                      marginBottom: '1mm'
+                      borderBottom: '1px solid #333', 
+                      marginTop: '2mm',
+                      marginBottom: '0.5mm'
                     }}></div>
-                    <div style={{ fontSize: '5pt', textAlign: 'center', color: '#666' }}>
-                      Assinatura e Data
+                    <div style={{ fontSize: '4pt', textAlign: 'center', color: '#999' }}>
+                      Assinatura
                     </div>
                   </div>
                   
                   <div>
-                    <div style={{ fontSize: '6pt', fontWeight: 'bold', marginBottom: '1mm' }}>
-                      Responsável pela Autorização
+                    <div style={{ fontSize: '5pt', fontWeight: 'bold', marginBottom: '0.5mm' }}>
+                      Autorização
                     </div>
-                    <div style={{ fontSize: '6pt', color: '#666', marginBottom: '2mm' }}>
-                      Nome: {ordem.responsavel_autorizacao_nome || '______________________'}
+                    <div style={{ fontSize: '5pt', color: '#666', marginBottom: '1mm' }}>
+                      {ordem.responsavel_autorizacao_nome || '____________________'}
                       {ordem.responsavel_autorizacao_matricula && ` - MAT ${ordem.responsavel_autorizacao_matricula}`}
                     </div>
                     <div style={{ 
-                      borderBottom: '1.5px solid #333', 
-                      marginTop: '4mm',
-                      marginBottom: '1mm'
+                      borderBottom: '1px solid #333', 
+                      marginTop: '2mm',
+                      marginBottom: '0.5mm'
                     }}></div>
-                    <div style={{ fontSize: '5pt', textAlign: 'center', color: '#666' }}>
-                      Assinatura e Data
+                    <div style={{ fontSize: '4pt', textAlign: 'center', color: '#999' }}>
+                      Assinatura
                     </div>
                   </div>
                 </div>
