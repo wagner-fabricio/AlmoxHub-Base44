@@ -141,6 +141,9 @@ export default function OSFormModal({
         codigo,
       };
 
+      console.log('Dados a serem salvos:', dataToSave);
+      console.log('Itens documento:', dataToSave.itens_documento);
+
       let savedOS;
       if (os) {
         savedOS = await base44.entities.OrdemServico.update(os.id, dataToSave);
