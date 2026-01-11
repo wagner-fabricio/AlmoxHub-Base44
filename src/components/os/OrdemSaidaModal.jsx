@@ -25,6 +25,9 @@ export default function OrdemSaidaModal({
     portador_nome: '',
     portador_cpf: '',
     destino: '',
+    tipo_doc: '',
+    num_doc: '',
+    valor_total: 0,
     responsavel_emissao_nome: '',
     responsavel_emissao_matricula: '',
     responsavel_autorizacao_nome: '',
@@ -46,6 +49,9 @@ export default function OrdemSaidaModal({
           portador_nome: detalhamento.motorista?.nome || '',
           portador_cpf: detalhamento.motorista?.cpf || '',
           destino: '', // Será preenchido pelo usuário
+          tipo_doc: detalhamento.tipo_doc || '',
+          num_doc: detalhamento.num_doc || '',
+          valor_total: detalhamento.valor_total || 0,
         }));
       }
 
@@ -57,6 +63,9 @@ export default function OrdemSaidaModal({
           portador_nome: existingOrdem.portador_nome || '',
           portador_cpf: existingOrdem.portador_cpf || '',
           destino: existingOrdem.destino || '',
+          tipo_doc: existingOrdem.tipo_doc || '',
+          num_doc: existingOrdem.num_doc || '',
+          valor_total: existingOrdem.valor_total || 0,
           responsavel_emissao_nome: existingOrdem.responsavel_emissao_nome || '',
           responsavel_emissao_matricula: existingOrdem.responsavel_emissao_matricula || '',
           responsavel_autorizacao_nome: existingOrdem.responsavel_autorizacao_nome || '',
@@ -145,9 +154,9 @@ export default function OrdemSaidaModal({
         destino: formData.destino,
         materiais_selecionados: materiais,
         volumes_selecionados: volumes,
-        tipo_doc: detalhamento?.tipo_doc || '',
-        num_doc: detalhamento?.num_doc || '',
-        valor_total: detalhamento?.valor_total || 0,
+        tipo_doc: formData.tipo_doc,
+        num_doc: formData.num_doc,
+        valor_total: formData.valor_total,
         documentos_referencia: formData.documentos_referencia,
         responsavel_emissao_nome: formData.responsavel_emissao_nome,
         responsavel_emissao_matricula: formData.responsavel_emissao_matricula,
@@ -320,7 +329,7 @@ export default function OrdemSaidaModal({
                   <div className="space-y-2">
                     <Label>Tipo Doc</Label>
                     <Input
-                      value={detalhamento?.tipo_doc || ''}
+                      value={formData.tipo_doc}
                       disabled
                       className="bg-slate-100 dark:bg-slate-700"
                     />
@@ -328,7 +337,7 @@ export default function OrdemSaidaModal({
                   <div className="space-y-2">
                     <Label>Nº Doc</Label>
                     <Input
-                      value={detalhamento?.num_doc || ''}
+                      value={formData.num_doc}
                       disabled
                       className="bg-slate-100 dark:bg-slate-700"
                     />
@@ -336,7 +345,7 @@ export default function OrdemSaidaModal({
                   <div className="space-y-2">
                     <Label>Valor</Label>
                     <Input
-                      value={detalhamento?.valor_total || '0.00'}
+                      value={formData.valor_total ? formData.valor_total.toFixed(2) : '0.00'}
                       disabled
                       className="bg-slate-100 dark:bg-slate-700"
                     />
