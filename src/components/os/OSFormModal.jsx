@@ -78,12 +78,12 @@ export default function OSFormModal({
       setFormData({
         ...formData,
         ...os,
-        prazo: os.prazo ? format(new Date(os.prazo), 'yyyy-MM-dd') : '',
-        data_inicial: os.data_inicial ? format(new Date(os.data_inicial), 'yyyy-MM-dd') : '',
-        data_reserva: os.data_reserva ? format(new Date(os.data_reserva), 'yyyy-MM-dd') : '',
-        data_migo: os.data_migo ? format(new Date(os.data_migo), 'yyyy-MM-dd') : '',
-        data_separacao: os.data_separacao ? format(new Date(os.data_separacao), 'yyyy-MM-dd') : '',
-        data_entrega: os.data_entrega ? format(new Date(os.data_entrega), 'yyyy-MM-dd') : '',
+        prazo: os.prazo ? os.prazo.split('T')[0] : '',
+        data_inicial: os.data_inicial ? os.data_inicial.split('T')[0] : '',
+        data_reserva: os.data_reserva ? os.data_reserva.split('T')[0] : '',
+        data_migo: os.data_migo ? os.data_migo.split('T')[0] : '',
+        data_separacao: os.data_separacao ? os.data_separacao.split('T')[0] : '',
+        data_entrega: os.data_entrega ? os.data_entrega.split('T')[0] : '',
       });
     } else {
       // Defaults for new OS
