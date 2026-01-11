@@ -125,12 +125,14 @@ export default function OSMobileDetail({
       }
     });
     setCheckedItems(initialChecked);
+    
+    // Carregar usuário ao abrir o modal
+    loadUser();
   }, [os.id]);
 
   useEffect(() => {
     if (activeTab === 'comentarios') {
       loadComentarios();
-      loadUser();
       const interval = setInterval(() => loadComentarios(), 5000);
       return () => clearInterval(interval);
     }
