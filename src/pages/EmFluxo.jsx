@@ -61,6 +61,7 @@ export default function EmFluxo() {
   const [selectedProjeto, setSelectedProjeto] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [showOSForm, setShowOSForm] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -70,6 +71,7 @@ export default function EmFluxo() {
     setLoading(true);
     try {
       const user = await base44.auth.me();
+      setCurrentUser(user);
       const [
         pessoasData,
         ordensData,
@@ -378,6 +380,8 @@ export default function EmFluxo() {
         onClose={handleCloseConversa}
         pessoas={pessoas}
         currentPessoaId={currentPessoa?.id}
+        currentUserId={currentUser?.id}
+        currentUserName={currentUser?.full_name}
         onRefresh={loadData}
       />
     );
