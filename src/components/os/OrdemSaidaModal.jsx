@@ -76,6 +76,26 @@ export default function OrdemSaidaModal({
     }
   }, [open, os, detalhamento, existingOrdem]);
 
+  // Calcular valor_total automaticamente quando materiais são selecionados
+  useEffect(() => {
+    if (os?.itens_documento && materiaisSelecionados.length > 0) {
+      const valorCalculado = materiaisSelecionados.reduce((total, itemIndex) => {
+        const material = os.itens_documento[itemIndex];
+        return total + (material?.r_total || 0);
+      }, 0);
+      
+      setFormData(prev => ({
+        ...prev,
+        valor_total: valorCalculado
+      }));
+    } else if (materiaisSelecionados.length === 0) {
+      setFormData(prev => ({
+        ...prev,
+        valor_total: 0
+      }));
+    }
+  }, [materiaisSelecionados, os]);
+
   const loadOrdensExistentes = async () => {
     try {
       const ordens = await base44.entities.OrdemSaida.filter({ os_id: os.id });

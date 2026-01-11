@@ -262,7 +262,7 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) 
                     Nº {exp.num_expedicao}
                   </div>
                   
-                  <div className="flex-1 grid grid-cols-1 md:grid-cols-6 gap-3">
+                  <div className="flex-1 grid grid-cols-1 md:grid-cols-5 gap-3">
                     <Input
                       placeholder="Tipo Doc"
                       value={exp.tipo_doc || ''}
@@ -284,13 +284,6 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) 
                       placeholder="Peso (kg)"
                       value={exp.peso || ''}
                       onChange={(e) => updateExpedicao(index, 'peso', parseFloat(e.target.value) || 0)}
-                    />
-                    <Input
-                      type="number"
-                      placeholder="Valor Total (R$)"
-                      value={exp.valor_total || ''}
-                      onChange={(e) => updateExpedicao(index, 'valor_total', parseFloat(e.target.value) || 0)}
-                      step="0.01"
                     />
                     <Input
                       type="date"
