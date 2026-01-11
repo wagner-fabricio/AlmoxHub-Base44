@@ -346,49 +346,34 @@ export default function OrdemSaidaPDF({ ordem }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {ordem.tipo_doc || ordem.num_doc ? (
-                      <tr>
-                        <td style={{ 
-                          border: '1px solid #ddd', 
-                          padding: '1.5mm 1mm', 
-                          backgroundColor: '#fff',
-                          verticalAlign: 'middle'
-                        }}>
-                          {ordem.tipo_doc || '-'}
-                        </td>
-                        <td style={{ 
-                          border: '1px solid #ddd', 
-                          padding: '1.5mm 1mm', 
-                          backgroundColor: '#fff',
-                          verticalAlign: 'middle'
-                        }}>
-                          {ordem.num_doc || '-'}
-                        </td>
-                        <td style={{ 
-                          border: '1px solid #ddd', 
-                          padding: '1.5mm 1mm', 
-                          textAlign: 'right', 
-                          fontWeight: 'bold', 
-                          backgroundColor: '#fff',
-                          verticalAlign: 'middle'
-                        }}>
-                          {ordem.valor_total ? ordem.valor_total.toFixed(2) : '-'}
-                        </td>
-                      </tr>
-                    ) : (
-                      <tr>
-                        <td colSpan="3" style={{ 
-                          border: '1px solid #ddd', 
-                          padding: '2mm', 
-                          textAlign: 'center', 
-                          color: '#999', 
-                          fontSize: '5pt',
-                          verticalAlign: 'middle'
-                        }}>
-                          -
-                        </td>
-                      </tr>
-                    )}
+                    <tr>
+                      <td style={{ 
+                        border: '1px solid #ddd', 
+                        padding: '1.5mm 1mm', 
+                        backgroundColor: '#fff',
+                        verticalAlign: 'middle'
+                      }}>
+                        {ordem.tipo_doc || '-'}
+                      </td>
+                      <td style={{ 
+                        border: '1px solid #ddd', 
+                        padding: '1.5mm 1mm', 
+                        backgroundColor: '#fff',
+                        verticalAlign: 'middle'
+                      }}>
+                        {ordem.num_doc || '-'}
+                      </td>
+                      <td style={{ 
+                        border: '1px solid #ddd', 
+                        padding: '1.5mm 1mm', 
+                        textAlign: 'right', 
+                        fontWeight: 'bold', 
+                        backgroundColor: '#fff',
+                        verticalAlign: 'middle'
+                      }}>
+                        {ordem.valor_total != null && ordem.valor_total !== 0 ? ordem.valor_total.toFixed(2) : '-'}
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
