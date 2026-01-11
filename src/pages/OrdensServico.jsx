@@ -27,6 +27,7 @@ export default function OrdensServico() {
   const [viewMode, setViewMode] = useState('kanban');
   const [filters, setFilters] = useState({
     search: '',
+    migo: '',
     regional: 'all',
     almoxarifado: 'all',
     categorias: [],
@@ -134,6 +135,9 @@ export default function OrdensServico() {
         os.descricao_resumida?.toLowerCase().includes(search);
       if (!matchesSearch) return false;
     }
+
+    // MIGO filter
+    if (filters.migo && !os.num_migo?.toString().includes(filters.migo)) return false;
     
     // Regional filter
     if (filters.regional !== 'all' && os.regional_id !== filters.regional) return false;
