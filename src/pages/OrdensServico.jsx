@@ -29,7 +29,7 @@ export default function OrdensServico() {
     search: '',
     regional: 'all',
     almoxarifado: 'all',
-    categoria: 'all',
+    categorias: [],
     subcategoria: 'all',
     status: 'all',
     visao: 'todos',
@@ -83,7 +83,13 @@ export default function OrdensServico() {
       setCurrentPessoa(pessoa);
 
       if (user.filtros_preferidos?.OrdensServico) {
-        setFilters(user.filtros_preferidos.OrdensServico);
+        const savedFilters = user.filtros_preferidos.OrdensServico;
+        // Migrar filtro antigo 'categoria' para novo 'categorias'
+        if (savedFilters.categoria && savedFilters.categoria !== 'all' && !savedFilters.categorias) {
+          savedFilters.categorias = [savedFilters.categoria];
+          delete savedFilters.categoria;
+        }
+        setFilters(savedFilters);
       }
       
       setOrdens(ordensData);
@@ -131,8 +137,8 @@ export default function OrdensServico() {
     // Almoxarifado filter
     if (filters.almoxarifado !== 'all' && os.almoxarifado_id !== filters.almoxarifado) return false;
     
-    // Categoria filter
-    if (filters.categoria !== 'all' && os.categoria_id !== filters.categoria) return false;
+    // Categoria filter (múltiplas)
+    if (filters.categorias?.length > 0 && !filters.categorias.includes(os.categoria_id)) return false;
     
     // Subcategoria filter
     if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
