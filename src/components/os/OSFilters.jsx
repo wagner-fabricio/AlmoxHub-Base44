@@ -15,7 +15,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Search, Filter, X, LayoutGrid, List, Image, Users, Calendar, ChevronDown } from 'lucide-react';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Search, Filter, X, LayoutGrid, List, Image, Users, Calendar, ChevronDown, ChevronRight } from 'lucide-react';
 
 export default function OSFilters({ 
   filters, 
@@ -27,6 +32,8 @@ export default function OSFilters({
   viewMode,
   setViewMode 
 }) {
+  const [isCollapsed, setIsCollapsed] = React.useState(false);
+
   const clearFilters = () => {
     setFilters({
       search: '',
@@ -58,8 +65,22 @@ export default function OSFilters({
     : subcategorias.filter(s => filters.categorias.includes(s.categoria_id));
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 md:p-6 shadow-sm border border-slate-200 dark:border-slate-700 mb-6">
-      <div className="space-y-4">
+    <Collapsible
+      open={!isCollapsed}
+      onOpenChange={setIsCollapsed}
+      className="bg-white dark:bg-slate-800 rounded-2xl p-4 md:p-6 shadow-sm border border-slate-200 dark:border-slate-700 mb-6"
+    >
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Filtros</h2>
+        <CollapsibleTrigger asChild>
+          <Button variant="ghost" size="sm" className="hover:bg-slate-100 dark:hover:bg-slate-700">
+            {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            <span className="sr-only">Toggle filters</span>
+          </Button>
+        </CollapsibleTrigger>
+      </div>
+
+      <CollapsibleContent className="space-y-4">
         {/* Search Row */}
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <div className="relative flex-1">
@@ -286,7 +307,7 @@ export default function OSFilters({
             <Users className="w-4 h-4" />
           </Button>
         </div>
-      </div>
-    </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
