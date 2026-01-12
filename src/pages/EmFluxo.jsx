@@ -67,6 +67,16 @@ export default function EmFluxo() {
     loadData();
   }, []);
 
+  useEffect(() => {
+    // Atualizar OS selecionada com dados mais recentes após recarregar
+    if (selectedOS) {
+      const osAtualizada = ordens.find(os => os.id === selectedOS.id);
+      if (osAtualizada) {
+        setSelectedOS(osAtualizada);
+      }
+    }
+  }, [ordens]);
+
   const loadData = async () => {
     setLoading(true);
     try {
