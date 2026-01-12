@@ -93,8 +93,10 @@ export default function NotificationsMobile() {
       await markAsRead(notification.id);
     }
 
-    if (notification.contexto_adicional?.os_id) {
-      window.location.href = createPageUrl('EmFluxo');
+    if (notification.referencia_tipo === 'tarefa' && notification.referencia_id) {
+      window.location.href = createPageUrl('EmFluxo') + '?os_id=' + notification.referencia_id;
+    } else if (notification.contexto_adicional?.os_id) {
+      window.location.href = createPageUrl('EmFluxo') + '?os_id=' + notification.contexto_adicional.os_id;
     } else if (notification.referencia_tipo === 'conversa') {
       window.location.href = createPageUrl('EmFluxo');
     }
