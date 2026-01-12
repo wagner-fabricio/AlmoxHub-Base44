@@ -360,10 +360,8 @@ export default function OSMobileDetail({
         itens_documento: updatedItems
       });
       
-      // Aguardar refresh para sincronizar lista
-      if (onRefresh) {
-        await onRefresh();
-      }
+      // Atualizar objeto local diretamente
+      os.itens_documento = updatedItems;
     } catch (error) {
       console.error('Error saving picking:', error);
     } finally {
