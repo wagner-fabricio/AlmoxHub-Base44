@@ -122,6 +122,16 @@ export default function EmFluxo() {
       setRegionais(regionaisData || []);
       setAlmoxarifados(almoxarifadosData || []);
       setInstalacoes(instalacoesData || []);
+
+      // Verificar se há um os_id na URL para abrir automaticamente
+      const urlParams = new URLSearchParams(window.location.search);
+      const osIdParam = urlParams.get('os_id');
+      if (osIdParam) {
+        const osToOpen = minhasOrdens.find(os => os.id === osIdParam);
+        if (osToOpen) {
+          setSelectedOS(osToOpen);
+        }
+      }
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
