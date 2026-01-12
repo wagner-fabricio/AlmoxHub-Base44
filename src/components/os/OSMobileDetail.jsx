@@ -128,7 +128,7 @@ export default function OSMobileDetail({
       }
     });
     setCheckedItems(initialChecked);
-  }, [os.itens_documento]);
+  }, [os]);
 
   useEffect(() => {
     // Carregar usuário ao abrir o modal
@@ -359,9 +359,6 @@ export default function OSMobileDetail({
       await base44.entities.OrdemServico.update(os.id, {
         itens_documento: updatedItems
       });
-
-      // Atualizar localmente sem fechar
-      os.itens_documento = updatedItems;
       
       // Aguardar refresh para sincronizar lista
       if (onRefresh) {
