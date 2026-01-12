@@ -5,6 +5,7 @@ import { Plus, Loader2 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import OSFilters from '@/components/os/OSFilters.jsx';
 import OSKanban from '@/components/os/OSKanban.jsx';
+import OSKanbanExpedicao from '@/components/os/OSKanbanExpedicao.jsx';
 import OSList from '@/components/os/OSList.jsx';
 import OSGallery from '@/components/os/OSGallery.jsx';
 import OSByResponsavel from '@/components/os/OSByResponsavel.jsx';
@@ -198,8 +199,15 @@ export default function OrdensServico() {
   const handleStatusChange = async (osId, newStatus) => {
     try {
       const os = Array.isArray(ordens) ? ordens.find(o => o?.id === osId) : null;
-      await base44.entities.OrdemServico.update(osId, { status: newStatus });
-      setOrdens(ordens.map(o => o.id === osId ? { ...o, status: newStatus } : o));
+      
+      // Determinar se é mudança de status normal ou status_separacao
+      const isExpedicaoView = viewMode === 'kanban_expedicao';
+      const updateData = isExpedicaoView 
+        ? { status_separacao: newStatus }
+        : { status: newStatus };
+      
+      await base44.entities.OrdemServico.update(osId, updateData);
+      setOrdens(ordens.map(o => o.id === osId ? { ...o, ...updateData } : o));
       
       // Criar notificações para líder e executores
       if (os && currentPessoa) {
@@ -376,6 +384,7 @@ export default function OrdensServico() {
         subcategorias={subcategorias}
         viewMode={viewMode}
         setViewMode={setViewMode}
+        isExpedicaoView={viewMode === 'kanban_expedicao'}
       />
 
       {/* Content */}
@@ -399,6 +408,17 @@ export default function OrdensServico() {
         <>
           {viewMode === 'kanban' && (
             <OSKanban
+              ordens={filteredOrdens}
+              pessoas={pessoas}
+              categorias={categorias}
+              regionais={regionais}
+              instalacoes={instalacoes}
+              onOSClick={handleOSClick}
+              onStatusChange={handleStatusChange}
+            />
+          )}
+          {viewMode === 'kanban_expedicao' && (
+            <OSKanbanExpedicao
               ordens={filteredOrdens}
               pessoas={pessoas}
               categorias={categorias}

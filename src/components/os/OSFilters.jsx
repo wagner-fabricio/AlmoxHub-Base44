@@ -30,7 +30,8 @@ export default function OSFilters({
   categorias,
   subcategorias,
   viewMode,
-  setViewMode 
+  setViewMode,
+  isExpedicaoView = false
 }) {
   const [isOpen, setIsOpen] = React.useState(true);
 
@@ -154,13 +155,16 @@ export default function OSFilters({
               <Button 
                 variant="outline"
                 className="col-span-2 sm:col-span-1 justify-between bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-sm h-9"
+                disabled={isExpedicaoView}
               >
                 <span className="truncate text-xs sm:text-sm">
-                  {filters.categorias?.length === 0 ? 'Categorias' : 
-                   filters.categorias?.length === 1 ? (categorias.find(c => c.id === filters.categorias[0])?.nome || 'Cat.') :
-                   `${filters.categorias?.length} cat.`}
+                  {isExpedicaoView 
+                    ? 'Expedição'
+                    : filters.categorias?.length === 0 ? 'Categorias' : 
+                      filters.categorias?.length === 1 ? (categorias.find(c => c.id === filters.categorias[0])?.nome || 'Cat.') :
+                      `${filters.categorias?.length} cat.`}
                 </span>
-                <ChevronDown className="w-4 h-4 shrink-0 ml-1" />
+                {!isExpedicaoView && <ChevronDown className="w-4 h-4 shrink-0 ml-1" />}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-56 p-3">
@@ -269,42 +273,60 @@ export default function OSFilters({
         )}
 
         {/* View Mode Toggle */}
-        <div className="flex border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden w-fit">
+        <div className="flex gap-2">
+          <div className="flex border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden w-fit">
+            <Button
+              variant={viewMode === 'kanban' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('kanban')}
+              className="rounded-none h-9"
+              title="Kanban"
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('list')}
+              className="rounded-none border-x border-slate-200 dark:border-slate-700 h-9"
+              title="Lista"
+            >
+              <List className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'gallery' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('gallery')}
+              className="rounded-none border-x border-slate-200 dark:border-slate-700 h-9"
+              title="Galeria"
+            >
+              <Image className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'responsavel' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('responsavel')}
+              className="rounded-none h-9"
+              title="Por Responsável"
+            >
+              <Users className="w-4 h-4" />
+            </Button>
+          </div>
           <Button
-            variant={viewMode === 'kanban' ? 'default' : 'ghost'}
+            variant={viewMode === 'kanban_expedicao' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setViewMode('kanban')}
-            className="rounded-none h-9"
-            title="Kanban"
+            onClick={() => {
+              const expedicaoCategoria = categorias.find(c => c.nome === 'Expedição');
+              if (expedicaoCategoria) {
+                setFilters({ ...filters, categorias: [expedicaoCategoria.id] });
+              }
+              setViewMode('kanban_expedicao');
+            }}
+            className="h-9 gap-2"
+            title="Kanban Expedição"
           >
             <LayoutGrid className="w-4 h-4" />
-          </Button>
-          <Button
-            variant={viewMode === 'list' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setViewMode('list')}
-            className="rounded-none border-x border-slate-200 dark:border-slate-700 h-9"
-            title="Lista"
-          >
-            <List className="w-4 h-4" />
-          </Button>
-          <Button
-            variant={viewMode === 'gallery' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setViewMode('gallery')}
-            className="rounded-none border-x border-slate-200 dark:border-slate-700 h-9"
-            title="Galeria"
-          >
-            <Image className="w-4 h-4" />
-          </Button>
-          <Button
-            variant={viewMode === 'responsavel' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setViewMode('responsavel')}
-            className="rounded-none h-9"
-            title="Por Responsável"
-          >
-            <Users className="w-4 h-4" />
+            <span className="text-xs">Expedição</span>
           </Button>
         </div>
       </CollapsibleContent>
