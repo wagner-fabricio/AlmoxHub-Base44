@@ -358,7 +358,11 @@ export default function OSMobileDetail({
         itens_documento: updatedItems
       });
 
-      onRefresh?.();
+      // Aguardar refresh completar antes de fechar
+      if (onRefresh) {
+        await onRefresh();
+      }
+      
       onClose();
     } catch (error) {
       console.error('Error saving picking:', error);
