@@ -36,12 +36,17 @@ export default function OSFilters({
   const [isOpen, setIsOpen] = React.useState(true);
 
   const clearFilters = () => {
+    // Se estiver na visão de expedição, manter a categoria Expedição
+    const expedicaoCategoria = isExpedicaoView 
+      ? categorias.find(c => c.nome === 'Expedição')
+      : null;
+    
     setFilters({
       search: '',
       migo: '',
       regional: 'all',
       almoxarifado: 'all',
-      categorias: [],
+      categorias: expedicaoCategoria ? [expedicaoCategoria.id] : [],
       subcategoria: 'all',
       status: 'all',
       visao: 'todos',
@@ -243,6 +248,7 @@ export default function OSFilters({
               size="icon"
               onClick={clearFilters}
               className="text-slate-500 hover:text-red-500 h-9"
+              title={isExpedicaoView ? "Limpar filtros (mantém categoria Expedição)" : "Limpar filtros"}
             >
               <X className="w-4 h-4" />
             </Button>
