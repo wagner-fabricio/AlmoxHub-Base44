@@ -314,28 +314,35 @@ export default function OSMobileDetail({
     const totalItems = os.itens_documento?.length || 0;
     const checkedCount = Object.values(newCheckedItems).filter(Boolean).length;
     
+    // Atualizar status_separacao localmente no objeto OS sem recarregar
+    let needsStatusUpdate = false;
+    let newStatus = os.status_separacao;
+    
     // Se marcar o primeiro item e não estiver em separação, mudar para 'em_separacao'
     if (checkedCount >= 1 && checkedCount < totalItems && os.status_separacao !== 'em_separacao') {
-      await base44.entities.OrdemServico.update(os.id, {
-        status_separacao: 'em_separacao'
-      });
-      onRefresh?.();
+      newStatus = 'em_separacao';
+      needsStatusUpdate = true;
     }
     
     // Se todos os itens estiverem marcados, mudar para 'separado'
     if (checkedCount === totalItems && totalItems > 0 && os.status_separacao !== 'separado') {
-      await base44.entities.OrdemServico.update(os.id, {
-        status_separacao: 'separado'
-      });
-      onRefresh?.();
+      newStatus = 'separado';
+      needsStatusUpdate = true;
     }
     
     // Se desmarcar todos, voltar para 'pendente'
     if (checkedCount === 0 && os.status_separacao !== 'pendente') {
+      newStatus = 'pendente';
+      needsStatusUpdate = true;
+    }
+    
+    // Atualizar status se necessário, mas não recarregar
+    if (needsStatusUpdate) {
       await base44.entities.OrdemServico.update(os.id, {
-        status_separacao: 'pendente'
+        status_separacao: newStatus
       });
-      onRefresh?.();
+      // Atualizar apenas o status local sem refresh
+      os.status_separacao = newStatus;
     }
   };
 
