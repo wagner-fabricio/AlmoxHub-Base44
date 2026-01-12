@@ -120,7 +120,7 @@ export default function OSMobileDetail({
   };
 
   useEffect(() => {
-    // Carregar itens já marcados
+    // Carregar itens já marcados sempre que os dados da OS mudarem
     const initialChecked = {};
     (os.itens_documento || []).forEach((item, index) => {
       if (item.separado) {
@@ -128,7 +128,9 @@ export default function OSMobileDetail({
       }
     });
     setCheckedItems(initialChecked);
-    
+  }, [os.itens_documento]);
+
+  useEffect(() => {
     // Carregar usuário ao abrir o modal
     loadUser();
   }, [os.id]);
@@ -358,12 +360,13 @@ export default function OSMobileDetail({
         itens_documento: updatedItems
       });
 
-      // Aguardar refresh completar antes de fechar
+      // Atualizar localmente sem fechar
+      os.itens_documento = updatedItems;
+      
+      // Aguardar refresh para sincronizar lista
       if (onRefresh) {
         await onRefresh();
       }
-      
-      onClose();
     } catch (error) {
       console.error('Error saving picking:', error);
     } finally {
