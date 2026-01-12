@@ -32,7 +32,7 @@ export default function OSFilters({
   viewMode,
   setViewMode 
 }) {
-  const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const [isOpen, setIsOpen] = React.useState(true);
 
   const clearFilters = () => {
     setFilters({
@@ -66,15 +66,15 @@ export default function OSFilters({
 
   return (
     <Collapsible
-      open={!isCollapsed}
-      onOpenChange={setIsCollapsed}
+      open={isOpen}
+      onOpenChange={setIsOpen}
       className="bg-white dark:bg-slate-800 rounded-2xl p-4 md:p-6 shadow-sm border border-slate-200 dark:border-slate-700 mb-6"
     >
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Filtros</h2>
         <CollapsibleTrigger asChild>
           <Button variant="ghost" size="sm" className="hover:bg-slate-100 dark:hover:bg-slate-700">
-            {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
             <span className="sr-only">Toggle filters</span>
           </Button>
         </CollapsibleTrigger>
