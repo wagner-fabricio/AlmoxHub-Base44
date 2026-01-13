@@ -595,18 +595,26 @@ export default function OSMobileDetail({
                 <p>Nenhum material cadastrado</p>
               </div>
             ) : (
-              ((os.itens_documento || []).filter(item => item)).map((item, index) => (
+              ((os.itens_documento || [])
+                .map((item, index) => ({ item, originalIndex: index }))
+                .filter(({ item }) => item)
+                .sort((a, b) => {
+                  const localA = a.item.endereco || '';
+                  const localB = b.item.endereco || '';
+                  return localA.localeCompare(localB);
+                })
+              ).map(({ item, originalIndex }) => (
                 <label
-                  key={index}
+                  key={originalIndex}
                   className={`block bg-white rounded-2xl p-4 shadow-sm transition-all ${
-                    checkedItems[index] ? 'ring-2 ring-green-500 bg-green-50' : ''
+                    checkedItems[originalIndex] ? 'ring-2 ring-green-500 bg-green-50' : ''
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <div className="mt-1">
                       <Checkbox
-                        checked={checkedItems[index] || item.separado || false}
-                        onCheckedChange={() => handleToggleItem(index)}
+                        checked={checkedItems[originalIndex] || item.separado || false}
+                        onCheckedChange={() => handleToggleItem(originalIndex)}
                         className="w-6 h-6 rounded-lg"
                       />
                     </div>
@@ -616,7 +624,7 @@ export default function OSMobileDetail({
                         <p className="text-lg font-bold font-mono text-slate-900">
                           {item.codigo}
                         </p>
-                        {(checkedItems[index] || item.separado) && (
+                        {(checkedItems[originalIndex] || item.separado) && (
                           <div className="bg-green-500 rounded-full p-1">
                             <Check className="w-4 h-4 text-white" />
                           </div>
@@ -624,7 +632,7 @@ export default function OSMobileDetail({
                       </div>
                       
                       {/* Linha 2: Descrição */}
-                      <p className={`text-sm font-medium mb-2 ${checkedItems[index] ? 'text-green-700 line-through' : 'text-slate-900'}`}>
+                      <p className={`text-sm font-medium mb-2 ${checkedItems[originalIndex] ? 'text-green-700 line-through' : 'text-slate-900'}`}>
                         {item.descricao}
                       </p>
                       
@@ -632,7 +640,7 @@ export default function OSMobileDetail({
                       <div className="flex items-center gap-4 text-xs flex-wrap">
                         <div className="flex items-center gap-1">
                           <span className="text-slate-500">Qtd:</span>
-                          <span className={`font-bold ${checkedItems[index] ? 'text-green-700' : 'text-blue-600'}`}>
+                          <span className={`font-bold ${checkedItems[originalIndex] ? 'text-green-700' : 'text-blue-600'}`}>
                             {item.quantidade} {item.unidade}
                           </span>
                         </div>
