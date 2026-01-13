@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { base44 } from '@/api/base44Client';
+import MentionInput from '@/components/notifications/MentionInput';
 import {
   X,
   Clock,
@@ -69,9 +70,11 @@ export default function OSMobileDetail({
   const [selectedAnexos, setSelectedAnexos] = useState([]);
   const [deleting, setDeleting] = useState(false);
   const [changingStatus, setChangingStatus] = useState(false);
+  const [mentionedIds, setMentionedIds] = useState([]);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
+  const commentInputRef = useRef(null);
 
   const categoria = categorias.find(c => c.id === os.categoria_id);
   const regional = regionais.find(r => r.id === os.regional_id);
@@ -180,11 +183,13 @@ export default function OSMobileDetail({
         conteudo: newComment,
         autor_nome: currentUser.full_name || 'Usuário',
         autor_id: currentUser.id,
+        mencoes_ids: mentionedIds,
         is_deleted: false,
         is_edited: false
       });
       
       setNewComment('');
+      setMentionedIds([]);
       loadComentarios();
     } catch (e) {
       console.error('Error adding comment:', e);
@@ -192,6 +197,13 @@ export default function OSMobileDetail({
       setLoadingComment(false);
     }
   };
+
+  // Filtrar pessoas associadas à OS
+  const pessoasAssociadas = pessoas.filter(p => 
+    p.id === os.lider_id || 
+    os.executores_ids?.includes(p.id) || 
+    os.outros_envolvidos_ids?.includes(p.id)
+  );
 
   const getDateSeparator = (date) => {
     if (isToday(new Date(date))) return 'Hoje';
@@ -766,26 +778,28 @@ export default function OSMobileDetail({
             {/* Fixed Input at Bottom */}
             <div className="border-t pt-3 mt-3 bg-white">
               <div className="flex gap-2">
-                <Input
-                   value={newComment}
-                   onChange={(e) => setNewComment(e.target.value)}
-                   onKeyDown={(e) => {
-                     if (e.key === 'Enter' && !e.shiftKey) {
-                       e.preventDefault();
-                       handleAddComment();
-                     }
-                   }}
-                   placeholder="Digite uma mensagem..."
-                   className="flex-1 rounded-full bg-slate-50"
-                   disabled={!currentUser}
-                 />
-                 <Button
-                   onClick={handleAddComment}
-                   disabled={!newComment.trim() || loadingComment || !currentUser}
-                   size="icon"
-                   className="rounded-full shrink-0"
-                   style={{ backgroundColor: '#0000FF' }}
-                 >
+                <MentionInput
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleAddComment();
+                    }
+                  }}
+                  placeholder="Digite uma mensagem... (use @ para mencionar)"
+                  pessoas={pessoasAssociadas}
+                  textareaRef={commentInputRef}
+                  onMentionsChange={setMentionedIds}
+                  className="rounded-full bg-slate-50 border-slate-200 resize-none"
+                />
+                <Button
+                  onClick={handleAddComment}
+                  disabled={!newComment.trim() || loadingComment || !currentUser}
+                  size="icon"
+                  className="rounded-full shrink-0"
+                  style={{ backgroundColor: '#0000FF' }}
+                >
                   {loadingComment ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
