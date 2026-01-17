@@ -7,6 +7,7 @@ import { Slider } from '@/components/ui/slider';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { base44 } from '@/api/base44Client';
 import MentionInput from '@/components/notifications/MentionInput';
+import PickingWMS from './PickingWMS';
 import {
   X,
   Clock,
@@ -71,6 +72,7 @@ export default function OSMobileDetail({
   const [deleting, setDeleting] = useState(false);
   const [changingStatus, setChangingStatus] = useState(false);
   const [mentionedIds, setMentionedIds] = useState([]);
+  const [wmsMode, setWmsMode] = useState(false);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
@@ -381,6 +383,38 @@ export default function OSMobileDetail({
     }
   };
 
+  const handlePickingComplete = async (itemsStatus, sortedItems) => {
+    try {
+      // Atualizar itens com as quantidades separadas
+      const updatedItems = [...(os.itens_documento || [])];
+      
+      sortedItems.forEach((sortedItem, sortedIndex) => {
+        const originalIndex = sortedItem.originalIndex;
+        const status = itemsStatus[sortedIndex];
+        
+        updatedItems[originalIndex] = {
+          ...updatedItems[originalIndex],
+          separado: true,
+          quantidade_separada: status.quantidadeSeparada,
+          status_separacao: status.status
+        };
+      });
+
+      // Atualizar OS com status "separado"
+      await base44.entities.OrdemServico.update(os.id, {
+        itens_documento: updatedItems,
+        status_separacao: 'separado'
+      });
+
+      setWmsMode(false);
+      onRefresh?.();
+      onClose();
+    } catch (error) {
+      console.error('Error completing picking:', error);
+      alert('Erro ao finalizar separação');
+    }
+  };
+
   const tabs = [
     { id: 'detalhes', label: 'Detalhes', icon: Clock },
     ...(isExpedicao && os.itens_documento?.length > 0 ? [{ id: 'materiais', label: 'Materiais', icon: Package }] : []),
@@ -594,11 +628,21 @@ export default function OSMobileDetail({
           </div>
         )}
 
-        {activeTab === 'materiais' && (
+        {activeTab === 'materiais' && !wmsMode && (
           <div className="space-y-3">
             <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-4 shadow-lg mb-4">
-              <h3 className="text-white font-bold text-lg mb-1">Lista de Separação</h3>
-              <p className="text-white/80 text-sm">Marque os itens conforme separa</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-white font-bold text-lg mb-1">Lista de Separação</h3>
+                  <p className="text-white/80 text-sm">Marque os itens conforme separa</p>
+                </div>
+                <Button
+                  onClick={() => setWmsMode(true)}
+                  className="bg-white hover:bg-white/90 text-blue-600 font-bold px-4 py-2 rounded-xl"
+                >
+                  Modo WMS
+                </Button>
+              </div>
             </div>
 
             {(!os.itens_documento || os.itens_documento?.length === 0) ? (
@@ -696,6 +740,13 @@ export default function OSMobileDetail({
               </div>
             )}
           </div>
+        )}
+
+        {activeTab === 'materiais' && wmsMode && (
+          <PickingWMS 
+            os={os} 
+            onComplete={handlePickingComplete}
+          />
         )}
 
         {activeTab === 'comentarios' && (
