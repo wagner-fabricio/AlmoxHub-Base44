@@ -221,7 +221,7 @@ export default function PickingWMS({ os, onComplete }) {
               <MapPin className="w-5 h-5 text-orange-500" />
               <span className="text-slate-600 dark:text-slate-400 text-sm">Vá para o endereço</span>
             </div>
-            <div className="text-6xl font-bold text-orange-500 tracking-wider">
+            <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-orange-500 tracking-wider break-all px-2">
               {currentItem.endereco || 'N/A'}
             </div>
             {currentItem.deposito && (
@@ -237,19 +237,19 @@ export default function PickingWMS({ os, onComplete }) {
               <Package className="w-5 h-5" style={{ color: '#0000FF' }} />
               <span className="text-slate-600 dark:text-slate-400 text-xs">Produto</span>
             </div>
-            <div className="text-slate-900 dark:text-white text-2xl font-bold font-mono mb-1">
-              SKU - {currentItem.codigo}
+            <div className="text-slate-900 dark:text-white text-xl sm:text-2xl font-bold font-mono mb-1 break-all">
+              {currentItem.codigo}
             </div>
-            <div className="text-slate-700 dark:text-slate-300 text-sm">
+            <div className="text-slate-700 dark:text-slate-300 text-sm break-words">
               {currentItem.descricao}
             </div>
           </div>
 
           {/* Quantidade a Separar */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             <div className="bg-slate-100 dark:bg-slate-700 rounded-2xl p-4">
               <span className="text-slate-600 dark:text-slate-400 text-xs block mb-1">Quantidade a Separar</span>
-              <div className="text-4xl font-bold" style={{ color: '#0000FF' }}>
+              <div className="text-3xl sm:text-4xl font-bold" style={{ color: '#0000FF' }}>
                 {currentItem.quantidade}
               </div>
               <span className="text-slate-600 dark:text-slate-400 text-sm">{currentItem.unidade || 'UN'}</span>
@@ -258,7 +258,7 @@ export default function PickingWMS({ os, onComplete }) {
             {saldoAposSeparacao !== null && (
               <div className="bg-slate-100 dark:bg-slate-700 rounded-2xl p-4">
                 <span className="text-slate-600 dark:text-slate-400 text-xs block mb-1">Saldo após retirada</span>
-                <div className="text-4xl font-bold text-slate-700 dark:text-slate-300">
+                <div className="text-3xl sm:text-4xl font-bold text-slate-700 dark:text-slate-300">
                   {saldoAposSeparacao}
                 </div>
                 <span className="text-slate-600 dark:text-slate-400 text-sm">{currentItem.unidade || 'UN'}</span>
@@ -284,27 +284,27 @@ export default function PickingWMS({ os, onComplete }) {
               <p className="text-center text-slate-600 dark:text-slate-400 text-sm mb-3">
                 {itemsStatus[currentItemIndex]?.status === 'pending' ? 'Confirmar quantidade separada' : 'Alterar confirmação'}
               </p>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 <Button
                   onClick={() => handleConfirmQuantity('menor')}
-                  className="py-6 rounded-xl bg-red-500 hover:bg-red-600 text-white flex flex-col gap-1"
+                  className="py-4 sm:py-6 rounded-xl bg-red-500 hover:bg-red-600 text-white flex flex-col gap-1"
                 >
-                  <AlertCircle className="w-5 h-5" />
+                  <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span className="text-xs">Menor</span>
                 </Button>
                 <Button
                   onClick={() => handleConfirmQuantity('igual')}
-                  className="py-6 rounded-xl text-white flex flex-col gap-1"
+                  className="py-4 sm:py-6 rounded-xl text-white flex flex-col gap-1"
                   style={{ backgroundColor: '#0000FF' }}
                 >
-                  <Check className="w-5 h-5" />
+                  <Check className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span className="text-xs">Igual</span>
                 </Button>
                 <Button
                   onClick={() => handleConfirmQuantity('maior')}
-                  className="py-6 rounded-xl bg-blue-500 hover:bg-blue-600 text-white flex flex-col gap-1"
+                  className="py-4 sm:py-6 rounded-xl bg-blue-500 hover:bg-blue-600 text-white flex flex-col gap-1"
                 >
-                  <AlertCircle className="w-5 h-5" />
+                  <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span className="text-xs">Maior</span>
                 </Button>
               </div>
@@ -380,12 +380,12 @@ export default function PickingWMS({ os, onComplete }) {
                       }`}
                     >
                       <td className="p-3">
-                        <div className="font-mono font-semibold text-slate-900 dark:text-white">
+                        <div className="font-mono font-semibold text-slate-900 dark:text-white text-xs sm:text-sm break-all">
                           {item.codigo}
                         </div>
                       </td>
                       <td className="p-3">
-                        <div className="text-slate-700 dark:text-slate-300 max-w-[200px] truncate">
+                        <div className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm max-w-[150px] sm:max-w-[200px] truncate">
                           {item.descricao}
                         </div>
                       </td>
