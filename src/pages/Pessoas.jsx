@@ -503,9 +503,11 @@ export default function Pessoas() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
-              {almoxarifados.map(a => (
-                <SelectItem key={a.id} value={a.id}>{a.nome}</SelectItem>
-              ))}
+              {almoxarifados
+                .filter(a => filterRegional === 'all' || a.regional_id === filterRegional)
+                .map(a => (
+                  <SelectItem key={a.id} value={a.id}>{a.nome}</SelectItem>
+                ))}
             </SelectContent>
           </Select>
           <Select value={filterFuncao} onValueChange={setFilterFuncao}>
