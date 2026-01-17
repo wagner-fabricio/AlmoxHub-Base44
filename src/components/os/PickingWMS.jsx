@@ -358,7 +358,7 @@ export default function PickingWMS({ os, onComplete }) {
                 <tr>
                   <th className="text-left p-3 text-slate-600 dark:text-slate-400 font-semibold">Código</th>
                   <th className="text-left p-3 text-slate-600 dark:text-slate-400 font-semibold">Descrição</th>
-                  <th className="text-center p-3 text-slate-600 dark:text-slate-400 font-semibold">Esperado</th>
+                  <th className="text-center p-3 text-slate-600 dark:text-slate-400 font-semibold">Qtd Solicitada</th>
                   <th className="text-center p-3 text-slate-600 dark:text-slate-400 font-semibold">Qtd Separada</th>
                   <th className="text-center p-3 text-slate-600 dark:text-slate-400 font-semibold">Status</th>
                 </tr>
