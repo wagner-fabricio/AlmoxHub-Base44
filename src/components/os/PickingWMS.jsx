@@ -54,7 +54,7 @@ export default function PickingWMS({ os, onComplete }) {
 
   const handleQuantitySubmit = () => {
     const qtd = parseFloat(quantidadeSeparada);
-    if (isNaN(qtd) || qtd <= 0) return;
+    if (isNaN(qtd) || qtd < 0) return;
 
     const newStatus = [...itemsStatus];
     
