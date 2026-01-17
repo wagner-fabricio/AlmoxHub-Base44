@@ -413,7 +413,7 @@ export default function EmFluxo() {
   const activeModuleData = (modules || []).find(m => m.id === activeModule);
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#FAF5F0' }}>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       {/* Header */}
       <div className="p-4 sticky top-0 z-10 shadow-lg" style={{ backgroundColor: activeModuleData?.color }}>
         <div className="flex items-center justify-between">
@@ -477,7 +477,7 @@ export default function EmFluxo() {
             </div>
 
             {(ordens || []).filter(os => os && (statusFilter === 'all' || os.status === statusFilter)).length === 0 ? (
-              <div className="text-center py-12 text-slate-500">
+              <div className="text-center py-12 text-slate-500 dark:text-slate-400">
                 <ClipboardList className="w-16 h-16 mx-auto mb-4 opacity-50" />
                 <p>Nenhuma ordem de serviço</p>
               </div>
@@ -491,13 +491,13 @@ export default function EmFluxo() {
                   <button
                     key={os.id}
                     onClick={() => handleOpenOS(os)}
-                    className="w-full bg-white rounded-2xl p-4 shadow-md border-l-4 text-left transition-all active:scale-95"
+                    className="w-full bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-md border-l-4 text-left transition-all active:scale-95"
                     style={{ borderLeftColor: categoria?.cor || '#3b82f6' }}
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <p className="text-xs font-mono text-slate-500">{os.codigo}</p>
-                        <h3 className="text-lg font-bold text-slate-900">{categoria?.nome || 'OS'}</h3>
+                        <p className="text-xs font-mono text-slate-500 dark:text-slate-400">{os.codigo}</p>
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">{categoria?.nome || 'OS'}</h3>
                       </div>
                       <div className={`w-10 h-10 ${prioridadeConfig[os.prioridade]?.color} rounded-xl flex items-center justify-center`}>
                         <span className="text-white text-xs font-bold">
@@ -520,21 +520,21 @@ export default function EmFluxo() {
                     </div>
 
                     {os.descricao_resumida && (
-                      <p className="text-sm text-slate-600 line-clamp-2">{os.descricao_resumida}</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-300 line-clamp-2">{os.descricao_resumida}</p>
                     )}
 
                     <div className="mt-3 flex items-center justify-between">
-                      <div className="text-xs text-slate-500">
+                      <div className="text-xs text-slate-500 dark:text-slate-400">
                         Prazo: {os.prazo ? format(new Date(os.prazo), 'dd/MM/yyyy') : '-'}
                       </div>
                       <div className="flex items-center gap-1 text-xs">
-                        <div className="w-full bg-slate-200 rounded-full h-2 w-16">
+                        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 w-16">
                           <div 
                             className="bg-blue-500 h-2 rounded-full"
                             style={{ width: `${os.progresso || 0}%` }}
                           />
                         </div>
-                        <span className="text-slate-600 font-medium">{os.progresso || 0}%</span>
+                        <span className="text-slate-600 dark:text-slate-300 font-medium">{os.progresso || 0}%</span>
                       </div>
                     </div>
                   </button>
@@ -547,7 +547,7 @@ export default function EmFluxo() {
         {activeModule === 'projetos' && (
           <div className="space-y-3">
             {(projetos || []).length === 0 ? (
-              <div className="text-center py-12 text-slate-500">
+              <div className="text-center py-12 text-slate-500 dark:text-slate-400">
                 <FolderKanban className="w-16 h-16 mx-auto mb-4 opacity-50" />
                 <p>Nenhum projeto</p>
               </div>
@@ -559,15 +559,15 @@ export default function EmFluxo() {
                   <button
                     key={projeto.id}
                     onClick={() => setSelectedProjeto(projeto)}
-                    className="w-full bg-white rounded-2xl p-4 shadow-md border-l-4 text-left transition-all active:scale-95"
+                    className="w-full bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-md border-l-4 text-left transition-all active:scale-95"
                     style={{ borderLeftColor: projeto.cor || '#8b5cf6' }}
                   >
-                    <h3 className="text-lg font-bold text-slate-900 mb-1">{projeto.nome}</h3>
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{projeto.nome}</h3>
                     {projeto.descricao && (
-                      <p className="text-sm text-slate-600 mb-2 line-clamp-2">{projeto.descricao}</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-300 mb-2 line-clamp-2">{projeto.descricao}</p>
                     )}
                     {lider && (
-                      <div className="flex items-center gap-2 text-xs text-slate-500">
+                      <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                         <User className="w-3 h-3" />
                         <span>Líder: {lider.nome}</span>
                       </div>
@@ -591,7 +591,7 @@ export default function EmFluxo() {
             </Button>
 
             {(conversas || []).length === 0 ? (
-              <div className="text-center py-12 text-slate-500">
+              <div className="text-center py-12 text-slate-500 dark:text-slate-400">
                 <MessageSquare className="w-16 h-16 mx-auto mb-4 opacity-50" />
                 <p>Nenhuma conversa</p>
               </div>
@@ -607,7 +607,7 @@ export default function EmFluxo() {
                   <button
                     key={conversa.id}
                     onClick={() => handleOpenConversa(conversa)}
-                    className="w-full bg-white rounded-2xl p-4 shadow-md text-left transition-all active:scale-95"
+                    className="w-full bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-md text-left transition-all active:scale-95"
                   >
                     <div className="flex items-start gap-3">
                       {/* Avatar */}
@@ -630,18 +630,18 @@ export default function EmFluxo() {
                       {/* Content */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2 mb-1">
-                          <h3 className="text-base font-bold text-slate-900 truncate">
+                          <h3 className="text-base font-bold text-slate-900 dark:text-white truncate">
                             {getNomeConversa(conversa)}
                           </h3>
                           {conversa.ultima_mensagem_data && (
-                            <span className="text-xs text-slate-500 shrink-0">
+                            <span className="text-xs text-slate-500 dark:text-slate-400 shrink-0">
                               {formatarData(conversa.ultima_mensagem_data)}
                             </span>
                           )}
                         </div>
 
                         <div className="flex items-center justify-between gap-2">
-                          <p className="text-sm text-slate-600 line-clamp-1 flex-1">
+                          <p className="text-sm text-slate-600 dark:text-slate-300 line-clamp-1 flex-1">
                             {conversa.ultima_mensagem_autor && conversa.tipo === 'grupo' && (
                               <span className="font-medium">{conversa.ultima_mensagem_autor}: </span>
                             )}
