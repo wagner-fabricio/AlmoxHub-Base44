@@ -497,8 +497,8 @@ export default function OSMobileDetail({
       </div>
 
       {/* Tabs */}
-      <div className={`bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm transition-transform duration-300 ${
-        headerVisible ? 'translate-y-0' : '-translate-y-full'
+      <div className={`bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm sticky z-10 transition-all duration-300 ${
+        headerVisible ? 'top-[140px]' : 'top-0'
       }`}>
         <div className="flex overflow-x-auto">
           {tabs.map((tab) => {
