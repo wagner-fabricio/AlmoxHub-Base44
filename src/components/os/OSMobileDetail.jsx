@@ -423,7 +423,7 @@ export default function OSMobileDetail({
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
       {/* Header com gradiente */}
       <div 
         className="p-4 shadow-lg"
@@ -470,7 +470,7 @@ export default function OSMobileDetail({
       </div>
 
       {/* Tabs */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 shadow-sm">
         <div className="flex overflow-x-auto">
           {tabs.map((tab) => {
             const TabIcon = tab.icon;
@@ -481,7 +481,7 @@ export default function OSMobileDetail({
                 className={`flex-1 min-w-[80px] py-3 px-2 text-sm font-medium transition-colors ${
                   activeTab === tab.id
                     ? 'text-blue-600 border-b-2 border-blue-600'
-                    : 'text-slate-600'
+                    : 'text-slate-600 dark:text-slate-400'
                 }`}
               >
                 <TabIcon className="w-5 h-5 mx-auto mb-1" />
@@ -497,7 +497,7 @@ export default function OSMobileDetail({
         {activeTab === 'detalhes' && (
           <div className="space-y-3">
             {/* Status Badge */}
-            <div className="bg-white rounded-2xl p-4 shadow-sm">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
               <button
                 onClick={handleStatusClick}
                 disabled={!isUserAssociated() || changingStatus}
@@ -517,69 +517,69 @@ export default function OSMobileDetail({
             {/* Info Cards */}
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-white rounded-2xl p-4 shadow-sm">
+                <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
                   <div className="flex items-center gap-2 text-blue-600 mb-2">
                     <MapPin className="w-5 h-5" />
                     <span className="text-xs font-medium">Regional</span>
                   </div>
-                  <p className="text-sm font-bold text-slate-900">{regional?.sigla}</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">{regional?.sigla}</p>
                 </div>
 
-                <div className="bg-white rounded-2xl p-4 shadow-sm">
+                <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
                   <div className="flex items-center gap-2 text-amber-600 mb-2">
                     <Building2 className="w-5 h-5" />
                     <span className="text-xs font-medium">Almoxarifado</span>
                   </div>
-                  <p className="text-sm font-bold text-slate-900 truncate">{almoxarifado?.nome || '-'}</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{almoxarifado?.nome || '-'}</p>
                 </div>
               </div>
 
               {instalacaoDestino && (
-                <div className="bg-white rounded-2xl p-4 shadow-sm">
+                <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
                   <div className="flex items-center gap-2 text-rose-600 mb-2">
                     <Building2 className="w-5 h-5" />
                     <span className="text-xs font-medium">Destino</span>
                   </div>
-                  <p className="text-sm font-bold text-slate-900">{instalacaoDestino.nome}</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">{instalacaoDestino.nome}</p>
                 </div>
               )}
 
-              <div className="bg-white rounded-2xl p-4 shadow-sm">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center gap-2 text-green-600 mb-2">
                   <User className="w-5 h-5" />
                   <span className="text-xs font-medium">Líder</span>
                 </div>
-                <p className="text-sm font-bold text-slate-900 truncate">{lider?.nome || '-'}</p>
+                <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{lider?.nome || '-'}</p>
               </div>
 
-              <div className="bg-white rounded-2xl p-4 shadow-sm">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center gap-2 text-purple-600 mb-2">
                   <Calendar className="w-5 h-5" />
                   <span className="text-xs font-medium">Prazo</span>
                 </div>
-                <p className="text-sm font-bold text-slate-900">
+                <p className="text-sm font-bold text-slate-900 dark:text-white">
                   {os.prazo ? format(new Date(os.prazo), 'dd/MM/yy') : '-'}
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 {os.num_reserva && (
-                  <div className="bg-white rounded-2xl p-4 shadow-sm">
+                  <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
                     <div className="flex items-center gap-2 text-cyan-600 mb-2">
                       <Package className="w-5 h-5" />
                       <span className="text-xs font-medium">Reserva</span>
                     </div>
-                    <p className="text-sm font-bold text-slate-900">{os.num_reserva}</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">{os.num_reserva}</p>
                   </div>
                 )}
 
                 {os.usuario_reserva && (
-                  <div className="bg-white rounded-2xl p-4 shadow-sm">
+                  <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
                     <div className="flex items-center gap-2 text-indigo-600 mb-2">
                       <User className="w-5 h-5" />
                       <span className="text-xs font-medium">Usuário</span>
                     </div>
-                    <p className="text-sm font-bold text-slate-900">{os.usuario_reserva}</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">{os.usuario_reserva}</p>
                   </div>
                 )}
               </div>
@@ -589,7 +589,7 @@ export default function OSMobileDetail({
 
             {/* Executores */}
             {os.executores_ids?.length > 0 && (
-              <div className="bg-white rounded-2xl p-4 shadow-sm">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center gap-2 text-teal-600 mb-3">
                   <User className="w-5 h-5" />
                   <span className="text-xs font-medium">Executores</span>
@@ -598,11 +598,11 @@ export default function OSMobileDetail({
                   {((os.executores_ids || []).filter(id => id)).map(execId => {
                     const executor = (pessoas || []).find(p => p && p.id === execId);
                     return executor ? (
-                      <div key={execId} className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
-                        <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 font-bold text-sm">
+                      <div key={execId} className="flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                        <div className="w-8 h-8 rounded-full bg-teal-100 dark:bg-teal-900 flex items-center justify-center text-teal-600 dark:text-teal-400 font-bold text-sm">
                           {executor.nome.charAt(0)}
                         </div>
-                        <span className="text-sm text-slate-900">{executor.nome}</span>
+                        <span className="text-sm text-slate-900 dark:text-white">{executor.nome}</span>
                       </div>
                     ) : null;
                   })}
@@ -612,17 +612,17 @@ export default function OSMobileDetail({
 
             {/* Descrição */}
             {os.descricao_resumida && (
-              <div className="bg-white rounded-2xl p-4 shadow-sm">
-                <h4 className="text-xs font-medium text-slate-600 mb-2">Descrição</h4>
-                <p className="text-sm text-slate-900 whitespace-pre-wrap">{os.descricao_resumida}</p>
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
+                <h4 className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">Descrição</h4>
+                <p className="text-sm text-slate-900 dark:text-white whitespace-pre-wrap">{os.descricao_resumida}</p>
               </div>
             )}
 
             {/* Anotações */}
             {os.anotacoes && (
-              <div className="bg-white rounded-2xl p-4 shadow-sm">
-                <h4 className="text-xs font-medium text-slate-600 mb-2">Anotações</h4>
-                <p className="text-sm text-slate-900 whitespace-pre-wrap">{os.anotacoes}</p>
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
+                <h4 className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">Anotações</h4>
+                <p className="text-sm text-slate-900 dark:text-white whitespace-pre-wrap">{os.anotacoes}</p>
               </div>
             )}
           </div>
@@ -646,7 +646,7 @@ export default function OSMobileDetail({
             </div>
 
             {(!os.itens_documento || os.itens_documento?.length === 0) ? (
-              <div className="text-center py-12 text-slate-500">
+              <div className="text-center py-12 text-slate-500 dark:text-slate-400">
                 <Package className="w-16 h-16 mx-auto mb-4 opacity-50" />
                 <p>Nenhum material cadastrado</p>
               </div>
@@ -662,8 +662,8 @@ export default function OSMobileDetail({
               ).map(({ item, originalIndex }) => (
                 <label
                   key={originalIndex}
-                  className={`block bg-white rounded-2xl p-4 shadow-sm transition-all ${
-                    checkedItems[originalIndex] ? 'ring-2 ring-green-500 bg-green-50' : ''
+                  className={`block bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm transition-all ${
+                    checkedItems[originalIndex] ? 'ring-2 ring-green-500 bg-green-50 dark:bg-green-900/20' : ''
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -677,7 +677,7 @@ export default function OSMobileDetail({
                     <div className="flex-1 min-w-0">
                       {/* Linha 1: Código e Check */}
                       <div className="flex items-center justify-between gap-2 mb-2">
-                        <p className="text-lg font-bold font-mono text-slate-900">
+                        <p className="text-lg font-bold font-mono text-slate-900 dark:text-white">
                           {item.codigo}
                         </p>
                         {(checkedItems[originalIndex] || item.separado) && (
@@ -688,22 +688,22 @@ export default function OSMobileDetail({
                       </div>
                       
                       {/* Linha 2: Descrição */}
-                      <p className={`text-sm font-medium mb-2 ${checkedItems[originalIndex] ? 'text-green-700 line-through' : 'text-slate-900'}`}>
+                      <p className={`text-sm font-medium mb-2 ${checkedItems[originalIndex] ? 'text-green-700 dark:text-green-400 line-through' : 'text-slate-900 dark:text-white'}`}>
                         {item.descricao}
                       </p>
                       
                       {/* Info adicional */}
                       <div className="flex items-center gap-4 text-xs flex-wrap">
                         <div className="flex items-center gap-1">
-                          <span className="text-slate-500">Qtd:</span>
-                          <span className={`font-bold ${checkedItems[originalIndex] ? 'text-green-700' : 'text-blue-600'}`}>
+                          <span className="text-slate-500 dark:text-slate-400">Qtd:</span>
+                          <span className={`font-bold ${checkedItems[originalIndex] ? 'text-green-700 dark:text-green-400' : 'text-blue-600'}`}>
                             {item.quantidade} {item.unidade}
                           </span>
                         </div>
                         {item.endereco && (
                           <div className="flex items-center gap-1">
-                            <span className="text-slate-500">Local:</span>
-                            <span className="font-medium text-slate-700">{item.endereco}</span>
+                            <span className="text-slate-500 dark:text-slate-400">Local:</span>
+                            <span className="font-medium text-slate-700 dark:text-slate-300">{item.endereco}</span>
                           </div>
                         )}
                         {item.deposito && (
@@ -754,7 +754,7 @@ export default function OSMobileDetail({
             {/* Messages Container */}
             <div className="flex-1 overflow-y-auto space-y-1">
               {comentarios.length === 0 ? (
-                <div className="text-center py-12 text-slate-500">
+                <div className="text-center py-12 text-slate-500 dark:text-slate-400">
                   <MessageSquare className="w-16 h-16 mx-auto mb-4 opacity-50" />
                   <p>Nenhuma mensagem ainda</p>
                   <p className="text-sm mt-1">Seja o primeiro a comentar</p>
@@ -764,11 +764,11 @@ export default function OSMobileDetail({
                   if (item.type === 'separator') {
                     return (
                       <div key={`sep-${idx}`} className="flex items-center gap-3 my-4">
-                        <div className="flex-1 h-px bg-slate-200" />
-                        <span className="text-xs font-medium text-slate-500 px-2">
+                        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400 px-2">
                           {getDateSeparator(item.date)}
                         </span>
-                        <div className="flex-1 h-px bg-slate-200" />
+                        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
                       </div>
                     );
                   }
@@ -802,7 +802,7 @@ export default function OSMobileDetail({
                           className={`rounded-2xl px-4 py-2 ${
                             isOwnMessage 
                               ? 'text-white rounded-tr-sm' 
-                              : 'bg-white text-slate-900 rounded-tl-sm shadow-sm'
+                              : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-tl-sm shadow-sm'
                           }`}
                           style={isOwnMessage ? { backgroundColor: '#0000FF' } : {}}
                         >
@@ -815,7 +815,7 @@ export default function OSMobileDetail({
                           )}
                         </div>
                         
-                        <span className="text-xs text-slate-500 mt-1 px-1">
+                        <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 px-1">
                           {format(new Date(comment.created_date), 'HH:mm')}
                         </span>
                       </div>
@@ -827,7 +827,7 @@ export default function OSMobileDetail({
             </div>
 
             {/* Fixed Input at Bottom */}
-            <div className="border-t pt-3 mt-3 bg-white">
+            <div className="border-t border-slate-200 dark:border-slate-700 pt-3 mt-3 bg-white dark:bg-slate-900">
               <div className="flex gap-2">
                 <MentionInput
                   value={newComment}
@@ -955,7 +955,7 @@ export default function OSMobileDetail({
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <ImageIcon className="w-5 h-5 text-blue-600" />
-                  <h4 className="text-sm font-medium text-slate-700">Imagens ({os.imagens.length})</h4>
+                  <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300">Imagens ({os.imagens.length})</h4>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   {(os.imagens || []).map((url, i) => (
@@ -1001,7 +1001,7 @@ export default function OSMobileDetail({
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Paperclip className="w-5 h-5 text-purple-600" />
-                  <h4 className="text-sm font-medium text-slate-700">Documentos ({os.anexos.length})</h4>
+                  <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300">Documentos ({os.anexos.length})</h4>
                 </div>
                 <div className="space-y-2">
                   {(os.anexos || []).map((url, i) => {
@@ -1018,24 +1018,24 @@ export default function OSMobileDetail({
                             toggleAnexoSelection(url);
                           }
                         }}
-                        className={`flex items-center gap-3 p-4 bg-white rounded-2xl shadow-md hover:shadow-lg transition-all ${
+                        className={`flex items-center gap-3 p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-md hover:shadow-lg transition-all ${
                           !selectionMode ? 'active:scale-95' : ''
                         } ${isSelected ? 'ring-2 ring-blue-500' : ''}`}
                       >
                         {selectionMode && (
                           <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                            isSelected ? 'bg-blue-500 border-blue-500' : 'border-slate-300'
+                            isSelected ? 'bg-blue-500 border-blue-500' : 'border-slate-300 dark:border-slate-600'
                           }`}>
                             {isSelected && <Check className="w-4 h-4 text-white" />}
                           </div>
                         )}
                         
-                        <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
+                        <div className="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
                           <Paperclip className="w-6 h-6 text-purple-600" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-slate-900 truncate">{fileName}</p>
-                          <p className="text-xs text-slate-500">{fileExtension}</p>
+                          <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{fileName}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">{fileExtension}</p>
                         </div>
                         
                         {!selectionMode && (
@@ -1056,7 +1056,7 @@ export default function OSMobileDetail({
             )}
 
             {(!os.imagens?.length && !os.anexos?.length) && (
-              <div className="text-center py-8 text-slate-500">
+              <div className="text-center py-8 text-slate-500 dark:text-slate-400">
                 <Upload className="w-12 h-12 mx-auto mb-3 opacity-50" />
                 <p className="text-sm">Use os botões acima para adicionar fotos</p>
               </div>
