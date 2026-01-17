@@ -127,14 +127,20 @@ export default function OSFormModal({
         const regional = Array.isArray(regionais) ? regionais.find(r => r?.id === formData.regional_id) : null;
         const regionalSigla = regional?.sigla || 'XX';
         const today = format(new Date(), 'yyyyMMdd');
-        const currentYear = format(new Date(), 'yyyy');
         
-        // Get count for current year only
+        // Get all existing codes to ensure uniqueness
         const allOrdens = await base44.entities.OrdemServico.list();
-        const ordensThisYear = Array.isArray(allOrdens) ? allOrdens.filter(o => o?.codigo?.includes(currentYear)) : [];
-        const seq = String(ordensThisYear.length + 1).padStart(4, '0');
+        const existingCodes = new Set((allOrdens || []).map(o => o?.codigo).filter(Boolean));
         
-        codigo = `${regionalSigla}-${today}-${seq}`;
+        // Try sequential numbers until we find an unused one
+        let seq = 1;
+        let codigo_tentativa = '';
+        do {
+          codigo_tentativa = `${regionalSigla}-${today}-${String(seq).padStart(4, '0')}`;
+          seq++;
+        } while (existingCodes.has(codigo_tentativa));
+        
+        codigo = codigo_tentativa;
       }
 
       const dataToSave = {
