@@ -500,24 +500,25 @@ export default function OSMobileDetail({
 
         {/* Tabs */}
         <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm">
-        <div className="flex overflow-x-auto">
-          {tabs.map((tab) => {
-            const TabIcon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 min-w-[80px] py-3 px-2 text-sm font-medium transition-colors ${
-                  activeTab === tab.id
-                    ? 'text-blue-600 border-b-2 border-blue-600'
-                    : 'text-slate-600 dark:text-slate-400'
-                }`}
-              >
-                <TabIcon className="w-5 h-5 mx-auto mb-1" />
-                {tab.label}
-              </button>
-            );
-          })}
+          <div className="flex overflow-x-auto">
+            {tabs.map((tab) => {
+              const TabIcon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex-1 min-w-[80px] py-3 px-2 text-sm font-medium transition-colors ${
+                    activeTab === tab.id
+                      ? 'text-blue-600 border-b-2 border-blue-600'
+                      : 'text-slate-600 dark:text-slate-400'
+                  }`}
+                >
+                  <TabIcon className="w-5 h-5 mx-auto mb-1" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
