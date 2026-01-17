@@ -268,9 +268,9 @@ export default function PickingWMS({ os, onComplete }) {
 
           {/* Confirmação de Quantidade */}
           {!showQuantityInput ? (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {itemsStatus[currentItemIndex]?.status !== 'pending' && (
-                <div className="bg-slate-100 dark:bg-slate-700 rounded-xl p-3 mb-3 text-center">
+                <div className="bg-slate-100 dark:bg-slate-700 rounded-xl p-2 mb-2 text-center">
                   <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${getStatusColor(itemsStatus[currentItemIndex]?.status)} text-white text-sm`}>
                     {getStatusIcon(itemsStatus[currentItemIndex]?.status)}
                     <span className="font-medium">
