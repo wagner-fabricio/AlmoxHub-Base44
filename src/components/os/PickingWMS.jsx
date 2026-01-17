@@ -216,37 +216,37 @@ export default function PickingWMS({ os, onComplete }) {
           </div>
 
           {/* Endereço em Destaque */}
-          <div className="mb-6 text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <MapPin className="w-5 h-5 text-orange-500" />
-              <span className="text-slate-600 dark:text-slate-400 text-sm">Vá para o endereço</span>
+          <div className="mb-4 text-center">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <MapPin className="w-4 h-4 text-orange-500" />
+              <span className="text-slate-600 dark:text-slate-400 text-xs">Vá para o endereço</span>
             </div>
-            <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-orange-500 tracking-wider break-all px-2">
+            <div className="text-3xl sm:text-4xl font-bold text-orange-500 tracking-wider break-all px-2">
               {currentItem.endereco || 'N/A'}
             </div>
             {currentItem.deposito && (
-              <div className="mt-2 text-slate-600 dark:text-slate-400 text-sm">
+              <div className="mt-1 text-slate-600 dark:text-slate-400 text-xs">
                 Depósito: {currentItem.deposito}
               </div>
             )}
           </div>
 
           {/* Produto */}
-          <div className="bg-slate-100 dark:bg-slate-700 rounded-2xl p-4 mb-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Package className="w-5 h-5" style={{ color: '#0000FF' }} />
+          <div className="bg-slate-100 dark:bg-slate-700 rounded-xl p-3 mb-3">
+            <div className="flex items-center gap-2 mb-1">
+              <Package className="w-4 h-4" style={{ color: '#0000FF' }} />
               <span className="text-slate-600 dark:text-slate-400 text-xs">Produto</span>
             </div>
-            <div className="text-slate-900 dark:text-white text-xl sm:text-2xl font-bold font-mono mb-1 break-all">
+            <div className="text-slate-900 dark:text-white text-lg sm:text-xl font-bold font-mono mb-1 break-all">
               {currentItem.codigo}
             </div>
-            <div className="text-slate-700 dark:text-slate-300 text-sm break-words">
+            <div className="text-slate-700 dark:text-slate-300 text-xs break-words">
               {currentItem.descricao}
             </div>
           </div>
 
           {/* Quantidade a Separar */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
             <div className="bg-slate-100 dark:bg-slate-700 rounded-2xl p-4">
               <span className="text-slate-600 dark:text-slate-400 text-xs block mb-1">Quantidade a Separar</span>
               <div className="text-3xl sm:text-4xl font-bold" style={{ color: '#0000FF' }}>
