@@ -55,14 +55,14 @@ export default function ProjetoMobileDetail({ projeto, onClose, pessoas, onRefre
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#FAF5F0' }}>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#0000FF' }} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#FAF5F0' }}>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
       {/* Header */}
       <div 
         className="p-4 shadow-lg sticky top-0 z-10"
@@ -93,30 +93,30 @@ export default function ProjetoMobileDetail({ projeto, onClose, pessoas, onRefre
         <div className="p-4 space-y-4">
           {/* Stats */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white rounded-xl p-4 shadow-sm">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm">
               <div className="text-3xl font-bold text-blue-600 mb-1">{osStats.total}</div>
-              <div className="text-sm text-slate-600">Total de OS</div>
+              <div className="text-sm text-slate-600 dark:text-slate-400">Total de OS</div>
             </div>
-            <div className="bg-white rounded-xl p-4 shadow-sm">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm">
               <div className="text-3xl font-bold text-green-600 mb-1">{osStats.concluidas}</div>
-              <div className="text-sm text-slate-600">Concluídas</div>
+              <div className="text-sm text-slate-600 dark:text-slate-400">Concluídas</div>
             </div>
-            <div className="bg-white rounded-xl p-4 shadow-sm">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm">
               <div className="text-3xl font-bold text-amber-600 mb-1">{osStats.emAndamento}</div>
-              <div className="text-sm text-slate-600">Em Andamento</div>
+              <div className="text-sm text-slate-600 dark:text-slate-400">Em Andamento</div>
             </div>
-            <div className="bg-white rounded-xl p-4 shadow-sm">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm">
               <div className="text-3xl font-bold text-slate-600 mb-1">{osStats.pendentes}</div>
-              <div className="text-sm text-slate-600">Pendentes</div>
+              <div className="text-sm text-slate-600 dark:text-slate-400">Pendentes</div>
             </div>
           </div>
 
           {/* Líder */}
           {lider && (
-            <div className="bg-white rounded-xl p-4 shadow-sm">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
                 <User className="w-5 h-5 text-blue-600" />
-                <h3 className="font-semibold text-slate-900">Líder do Projeto</h3>
+                <h3 className="font-semibold text-slate-900 dark:text-white">Líder do Projeto</h3>
               </div>
               <div className="flex items-center gap-3">
                 <Avatar className="w-12 h-12">
@@ -126,9 +126,9 @@ export default function ProjetoMobileDetail({ projeto, onClose, pessoas, onRefre
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-slate-900">{lider.nome}</div>
+                  <div className="font-medium text-slate-900 dark:text-white">{lider.nome}</div>
                   {lider.funcao && (
-                    <div className="text-sm text-slate-500">{lider.funcao}</div>
+                    <div className="text-sm text-slate-500 dark:text-slate-400">{lider.funcao}</div>
                   )}
                 </div>
               </div>
@@ -137,10 +137,10 @@ export default function ProjetoMobileDetail({ projeto, onClose, pessoas, onRefre
 
           {/* Outros Envolvidos */}
           {outrosEnvolvidos.length > 0 && (
-            <div className="bg-white rounded-xl p-4 shadow-sm">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
                 <Users className="w-5 h-5 text-green-600" />
-                <h3 className="font-semibold text-slate-900">Outros Envolvidos ({outrosEnvolvidos.length})</h3>
+                <h3 className="font-semibold text-slate-900 dark:text-white">Outros Envolvidos ({outrosEnvolvidos.length})</h3>
               </div>
               <div className="space-y-3">
                 {((outrosEnvolvidos || []).filter(p => p)).map((pessoa) => (
@@ -152,9 +152,9 @@ export default function ProjetoMobileDetail({ projeto, onClose, pessoas, onRefre
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-slate-900 text-sm">{pessoa.nome}</div>
+                      <div className="font-medium text-slate-900 dark:text-white text-sm">{pessoa.nome}</div>
                       {pessoa.funcao && (
-                        <div className="text-xs text-slate-500">{pessoa.funcao}</div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400">{pessoa.funcao}</div>
                       )}
                     </div>
                   </div>
@@ -164,14 +164,14 @@ export default function ProjetoMobileDetail({ projeto, onClose, pessoas, onRefre
           )}
 
           {/* Ordens de Serviço */}
-          <div className="bg-white rounded-xl p-4 shadow-sm">
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
               <FileText className="w-5 h-5 text-purple-600" />
-              <h3 className="font-semibold text-slate-900">Ordens de Serviço ({(ordensServico || []).length})</h3>
+              <h3 className="font-semibold text-slate-900 dark:text-white">Ordens de Serviço ({(ordensServico || []).length})</h3>
             </div>
             
             {(ordensServico || []).length === 0 ? (
-              <div className="text-center py-8 text-slate-500">
+              <div className="text-center py-8 text-slate-500 dark:text-slate-400">
                 <p className="text-sm">Nenhuma OS vinculada a este projeto</p>
               </div>
             ) : (
@@ -183,12 +183,12 @@ export default function ProjetoMobileDetail({ projeto, onClose, pessoas, onRefre
                   const StatusIcon = statusConfig[os.status]?.icon || Clock;
 
                   return (
-                    <div key={os.id} className="border border-slate-200 rounded-lg p-3 space-y-2">
+                    <div key={os.id} className="border border-slate-200 dark:border-slate-700 rounded-lg p-3 space-y-2 bg-white dark:bg-slate-800">
                       {/* Código e Status */}
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
-                          <div className="font-mono text-sm text-slate-500">{os.codigo}</div>
-                          <div className="font-medium text-slate-900">{categoria?.nome || 'OS'}</div>
+                          <div className="font-mono text-sm text-slate-500 dark:text-slate-400">{os.codigo}</div>
+                          <div className="font-medium text-slate-900 dark:text-white">{categoria?.nome || 'OS'}</div>
                         </div>
                         <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${statusConfig[os.status]?.color}`}>
                           <StatusIcon className="w-3 h-3" />
@@ -197,7 +197,7 @@ export default function ProjetoMobileDetail({ projeto, onClose, pessoas, onRefre
                       </div>
 
                       {/* Detalhes */}
-                      <div className="space-y-1 text-xs text-slate-600">
+                      <div className="space-y-1 text-xs text-slate-600 dark:text-slate-400">
                         {regional && (
                           <div className="flex items-center gap-1">
                             <span className="font-medium">Regional:</span>
@@ -222,10 +222,10 @@ export default function ProjetoMobileDetail({ projeto, onClose, pessoas, onRefre
                       {/* Progress Bar */}
                       <div className="space-y-1">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-slate-600">Progresso</span>
+                          <span className="text-slate-600 dark:text-slate-400">Progresso</span>
                           <span className="font-semibold text-blue-600">{os.progresso || 0}%</span>
                         </div>
-                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                           <div 
                             className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all"
                             style={{ width: `${os.progresso || 0}%` }}

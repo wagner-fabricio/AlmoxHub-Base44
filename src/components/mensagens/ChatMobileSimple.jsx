@@ -230,14 +230,14 @@ export default function ChatMobileSimple({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
       {/* Header */}
       <div className="p-4 shadow-lg sticky top-0 z-10" style={{ backgroundColor: '#0000FF' }}>
         <div className="flex items-center gap-3">
@@ -276,7 +276,7 @@ export default function ChatMobileSimple({
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-1">
         {mensagens.length === 0 ? (
-          <div className="text-center py-12 text-slate-500">
+          <div className="text-center py-12 text-slate-500 dark:text-slate-400">
             <p>Nenhuma mensagem ainda</p>
             <p className="text-sm mt-1">Comece a conversa</p>
           </div>
@@ -285,11 +285,11 @@ export default function ChatMobileSimple({
             if (item.type === 'separator') {
               return (
                 <div key={`sep-${idx}`} className="flex items-center gap-3 my-4">
-                  <div className="flex-1 h-px bg-slate-200" />
-                  <span className="text-xs font-medium text-slate-500 px-2">
+                  <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400 px-2">
                     {getDateSeparator(item.date)}
                   </span>
-                  <div className="flex-1 h-px bg-slate-200" />
+                  <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
                 </div>
               );
             }
@@ -323,7 +323,7 @@ export default function ChatMobileSimple({
                     className={`rounded-2xl px-4 py-2 ${
                       isOwnMessage 
                         ? 'text-white rounded-tr-sm' 
-                        : 'bg-white text-slate-900 rounded-tl-sm shadow-sm'
+                        : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-tl-sm shadow-sm'
                     }`}
                     style={isOwnMessage ? { backgroundColor: '#0000FF' } : {}}
                   >
@@ -336,7 +336,7 @@ export default function ChatMobileSimple({
                     )}
                   </div>
                   
-                  <span className="text-xs text-slate-500 mt-1 px-1">
+                  <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 px-1">
                     {format(new Date(message.created_date), 'HH:mm')}
                   </span>
                 </div>
@@ -348,7 +348,7 @@ export default function ChatMobileSimple({
       </div>
 
       {/* Input */}
-      <div className="p-4 bg-white border-t border-slate-200">
+      <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700">
         <div className="flex gap-2">
           <MentionInput
             value={newMessage}
