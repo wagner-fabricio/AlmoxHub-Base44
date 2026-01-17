@@ -28,6 +28,8 @@ export default function Pessoas() {
   const [currentPessoa, setCurrentPessoa] = useState(null);
   const [search, setSearch] = useState('');
   const [filterRegional, setFilterRegional] = useState('all');
+  const [filterAlmoxarifado, setFilterAlmoxarifado] = useState('all');
+  const [filterFuncao, setFilterFuncao] = useState('all');
   const [showModal, setShowModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showFuncoesModal, setShowFuncoesModal] = useState(false);
@@ -441,6 +443,8 @@ export default function Pessoas() {
   
   const filteredItems = pessoas.filter(p => {
     if (filterRegional !== 'all' && p.regional_id !== filterRegional) return false;
+    if (filterAlmoxarifado !== 'all' && !p.almoxarifados_ids?.includes(filterAlmoxarifado)) return false;
+    if (filterFuncao !== 'all' && !p.funcoes?.includes(filterFuncao)) return false;
     if (sanitizedSearch && !p.nome?.toLowerCase().includes(sanitizedSearch.toLowerCase()) && 
         !p.matricula?.toLowerCase().includes(sanitizedSearch.toLowerCase())) return false;
     return true;
@@ -493,6 +497,28 @@ export default function Pessoas() {
               ))}
             </SelectContent>
           </Select>
+          <Select value={filterAlmoxarifado} onValueChange={setFilterAlmoxarifado}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Almoxarifado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              {almoxarifados.map(a => (
+                <SelectItem key={a.id} value={a.id}>{a.nome}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={filterFuncao} onValueChange={setFilterFuncao}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Função" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas Funções</SelectItem>
+              <SelectItem value="gestor">Gestor</SelectItem>
+              <SelectItem value="lider">Líder</SelectItem>
+              <SelectItem value="almoxarife">Almoxarife</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </Card>
 
@@ -505,6 +531,7 @@ export default function Pessoas() {
               <TableHead className="font-semibold">Matrícula</TableHead>
               <TableHead className="font-semibold">Função</TableHead>
               <TableHead className="font-semibold">Regional</TableHead>
+              <TableHead className="font-semibold">Almoxarifados</TableHead>
               <TableHead className="font-semibold">Perfil</TableHead>
               <TableHead className="font-semibold">Status</TableHead>
               <TableHead className="font-semibold">Acesso</TableHead>
@@ -514,7 +541,7 @@ export default function Pessoas() {
           <TableBody>
             {filteredItems.length === 0 ? (
               <TableRow>
-              <TableCell colSpan={8} className="text-center py-12 text-slate-500">
+              <TableCell colSpan={9} className="text-center py-12 text-slate-500">
                 <User className="w-12 h-12 mx-auto mb-3 text-slate-300" />
                 <p>Nenhuma pessoa cadastrada</p>
               </TableCell>
@@ -546,6 +573,27 @@ export default function Pessoas() {
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{regional?.sigla || '-'}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        {item.almoxarifados_ids?.length > 0 ? (
+                          almoxarifados
+                            .filter(a => item.almoxarifados_ids.includes(a.id))
+                            .slice(0, 2)
+                            .map(a => (
+                              <span key={a.id} className="text-xs text-slate-600 dark:text-slate-400">
+                                {a.nome}
+                              </span>
+                            ))
+                        ) : (
+                          <span className="text-xs text-slate-400">-</span>
+                        )}
+                        {item.almoxarifados_ids?.length > 2 && (
+                          <span className="text-xs text-slate-500">
+                            +{item.almoxarifados_ids.length - 2} mais
+                          </span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <div 
