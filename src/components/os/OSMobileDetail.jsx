@@ -73,10 +73,13 @@ export default function OSMobileDetail({
   const [changingStatus, setChangingStatus] = useState(false);
   const [mentionedIds, setMentionedIds] = useState([]);
   const [wmsMode, setWmsMode] = useState(false);
+  const [headerVisible, setHeaderVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
   const commentInputRef = useRef(null);
+  const scrollContainerRef = useRef(null);
 
   const categoria = categorias.find(c => c.id === os.categoria_id);
   const regional = regionais.find(r => r.id === os.regional_id);
@@ -147,6 +150,28 @@ export default function OSMobileDetail({
       return () => clearInterval(interval);
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!scrollContainerRef.current) return;
+      
+      const currentScrollY = scrollContainerRef.current.scrollTop;
+      
+      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        setHeaderVisible(false);
+      } else if (currentScrollY < lastScrollY) {
+        setHeaderVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    const scrollElement = scrollContainerRef.current;
+    if (scrollElement) {
+      scrollElement.addEventListener('scroll', handleScroll);
+      return () => scrollElement.removeEventListener('scroll', handleScroll);
+    }
+  }, [lastScrollY]);
 
   const loadUser = async () => {
     try {
@@ -426,7 +451,9 @@ export default function OSMobileDetail({
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
       {/* Header com gradiente */}
       <div 
-        className="p-4 shadow-lg"
+        className={`p-4 shadow-lg sticky top-0 z-20 transition-transform duration-300 ${
+          headerVisible ? 'translate-y-0' : '-translate-y-full'
+        }`}
         style={{ 
           background: `linear-gradient(135deg, ${categoria?.cor || '#3b82f6'} 0%, ${categoria?.cor || '#3b82f6'}dd 100%)`
         }}
@@ -493,7 +520,7 @@ export default function OSMobileDetail({
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4 pb-24">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4 pb-24">
         {activeTab === 'detalhes' && (
           <div className="space-y-3">
             {/* Status Badge */}
