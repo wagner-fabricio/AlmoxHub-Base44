@@ -449,57 +449,57 @@ export default function OSMobileDetail({
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
-      {/* Header com gradiente */}
-      <div 
-        className={`p-4 shadow-lg sticky top-0 z-20 transition-transform duration-300 ${
-          headerVisible ? 'translate-y-0' : '-translate-y-full'
-        }`}
-        style={{ 
-          background: `linear-gradient(135deg, ${categoria?.cor || '#3b82f6'} 0%, ${categoria?.cor || '#3b82f6'}dd 100%)`
-        }}
-      >
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onClose}
-                className="text-white hover:bg-white/20 rounded-full shrink-0"
-              >
-                <X className="w-6 h-6" />
-              </Button>
-              <p className="text-white/90 text-sm font-mono">{os.codigo}</p>
-            </div>
-            <h2 className="text-2xl font-bold text-white mb-1 px-2">{categoria?.nome || 'Ordem de Serviço'}</h2>
-          </div>
-          <div className={`${prioridadeConfig[os.prioridade]?.color} rounded-xl px-3 py-1 shrink-0`}>
-            <span className="text-white text-xs font-bold">{prioridadeConfig[os.prioridade]?.label}</span>
-          </div>
-        </div>
-
-        {/* Progress Slider */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-white/90 text-sm font-medium">Progresso</span>
-            <span className="text-white text-lg font-bold">{localProgress}%</span>
-          </div>
-          <Slider
-            value={[localProgress]}
-            onValueChange={handleProgressChange}
-            onValueCommit={handleProgressCommit}
-            max={100}
-            step={5}
-            className="cursor-pointer"
-            disabled={savingProgress}
-          />
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className={`bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm sticky z-10 transition-all duration-300 ${
-        headerVisible ? 'top-[140px]' : 'top-0'
+      {/* Header + Tabs Container */}
+      <div className={`sticky top-0 z-20 transition-transform duration-300 ${
+        headerVisible ? 'translate-y-0' : '-translate-y-full'
       }`}>
+        {/* Header com gradiente */}
+        <div 
+          className="p-4 shadow-lg"
+          style={{ 
+            background: `linear-gradient(135deg, ${categoria?.cor || '#3b82f6'} 0%, ${categoria?.cor || '#3b82f6'}dd 100%)`
+          }}
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onClose}
+                  className="text-white hover:bg-white/20 rounded-full shrink-0"
+                >
+                  <X className="w-6 h-6" />
+                </Button>
+                <p className="text-white/90 text-sm font-mono">{os.codigo}</p>
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-1 px-2">{categoria?.nome || 'Ordem de Serviço'}</h2>
+            </div>
+            <div className={`${prioridadeConfig[os.prioridade]?.color} rounded-xl px-3 py-1 shrink-0`}>
+              <span className="text-white text-xs font-bold">{prioridadeConfig[os.prioridade]?.label}</span>
+            </div>
+          </div>
+
+          {/* Progress Slider */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-white/90 text-sm font-medium">Progresso</span>
+              <span className="text-white text-lg font-bold">{localProgress}%</span>
+            </div>
+            <Slider
+              value={[localProgress]}
+              onValueChange={handleProgressChange}
+              onValueCommit={handleProgressCommit}
+              max={100}
+              step={5}
+              className="cursor-pointer"
+              disabled={savingProgress}
+            />
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm">
         <div className="flex overflow-x-auto">
           {tabs.map((tab) => {
             const TabIcon = tab.icon;
