@@ -348,7 +348,7 @@ export default function PickingWMS({ os, onComplete }) {
           <div className="p-4 border-b border-slate-200 dark:border-slate-700">
             <h3 className="text-slate-900 dark:text-white font-semibold flex items-center gap-2">
               <Package className="w-5 h-5" />
-              Lista de Picking
+              Lista de Separação
             </h3>
           </div>
           
