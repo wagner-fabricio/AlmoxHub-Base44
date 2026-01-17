@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { ChevronLeft, ChevronRight, MapPin, Package, Check, X, AlertCircle } from 'lucide-react';
 
 export default function PickingWMS({ os, onComplete }) {
@@ -9,6 +11,9 @@ export default function PickingWMS({ os, onComplete }) {
   const [itemsStatus, setItemsStatus] = useState([]);
   const [quantidadeSeparada, setQuantidadeSeparada] = useState('');
   const [showQuantityInput, setShowQuantityInput] = useState(false);
+  const [showExcessAlert, setShowExcessAlert] = useState(false);
+  const [excessJustification, setExcessJustification] = useState('');
+  const [pendingExcessQuantity, setPendingExcessQuantity] = useState(null);
 
   // Ordenar itens por endereço
   const sortedItems = (os.itens_documento || [])
@@ -56,19 +61,62 @@ export default function PickingWMS({ os, onComplete }) {
     const qtd = parseFloat(quantidadeSeparada);
     if (isNaN(qtd) || qtd < 0) return;
 
+    // Se quantidade for maior que a esperada, mostrar alerta
+    if (qtd > currentItem.quantidade) {
+      setPendingExcessQuantity(qtd);
+      setShowExcessAlert(true);
+      return;
+    }
+
     const newStatus = [...itemsStatus];
     
     if (qtd === currentItem.quantidade) {
       newStatus[currentItemIndex] = { status: 'completed', quantidadeSeparada: qtd };
     } else if (qtd < currentItem.quantidade) {
       newStatus[currentItemIndex] = { status: 'partial', quantidadeSeparada: qtd };
-    } else {
-      newStatus[currentItemIndex] = { status: 'excess', quantidadeSeparada: qtd };
     }
     
     setItemsStatus(newStatus);
     setShowQuantityInput(false);
     setQuantidadeSeparada('');
+    
+    // Avançar para próximo item pendente
+    const nextPendingIndex = newStatus.findIndex((s, i) => i > currentItemIndex && s.status === 'pending');
+    if (nextPendingIndex !== -1) {
+      setCurrentItemIndex(nextPendingIndex);
+    } else if (currentItemIndex < totalItems - 1) {
+      setCurrentItemIndex(currentItemIndex + 1);
+    }
+  };
+
+  const handleExcessCorrect = () => {
+    setShowExcessAlert(false);
+    setPendingExcessQuantity(null);
+    setExcessJustification('');
+    // Mantém o input aberto para o usuário corrigir
+  };
+
+  const handleExcessContinue = () => {
+    if (!excessJustification.trim()) {
+      alert('Por favor, insira uma justificativa para continuar.');
+      return;
+    }
+
+    const qtd = pendingExcessQuantity;
+    const newStatus = [...itemsStatus];
+    
+    newStatus[currentItemIndex] = { 
+      status: 'excess', 
+      quantidadeSeparada: qtd,
+      justificativa: excessJustification
+    };
+    
+    setItemsStatus(newStatus);
+    setShowQuantityInput(false);
+    setQuantidadeSeparada('');
+    setShowExcessAlert(false);
+    setPendingExcessQuantity(null);
+    setExcessJustification('');
     
     // Avançar para próximo item pendente
     const nextPendingIndex = newStatus.findIndex((s, i) => i > currentItemIndex && s.status === 'pending');
@@ -295,47 +343,91 @@ export default function PickingWMS({ os, onComplete }) {
           ) : null}
         </div>
 
-        {/* Lista de Picking - Lateral */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-xl border border-slate-200 dark:border-slate-700">
-          <h3 className="text-slate-900 dark:text-white font-semibold mb-3 flex items-center gap-2">
-            <Package className="w-5 h-5" />
-            Lista de Picking
-          </h3>
-          <div className="space-y-2 max-h-64 overflow-y-auto">
-            {sortedItems.map((item, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentItemIndex(index)}
-                className={`w-full text-left p-3 rounded-xl transition-all ${
-                  currentItemIndex === index 
-                    ? 'bg-slate-100 dark:bg-slate-700 ring-2 ring-blue-500' 
-                    : 'bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${getStatusColor(itemsStatus[index]?.status || 'pending')}`}>
-                    {itemsStatus[index]?.status === 'pending' ? (
-                      <span className="text-white text-sm font-bold">{index + 1}</span>
-                    ) : (
-                      getStatusIcon(itemsStatus[index]?.status)
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-slate-900 dark:text-white text-sm font-medium font-mono truncate">
-                      SKU-{item.codigo}
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-                      <span>{item.endereco || 'N/A'}</span>
-                      <span>•</span>
-                      <span>{itemsStatus[index]?.quantidadeSeparada || item.quantidade}/{item.quantidade}</span>
-                    </div>
-                  </div>
-                </div>
-              </button>
-            ))}
+        {/* Lista de Picking - Tabela */}
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+            <h3 className="text-slate-900 dark:text-white font-semibold flex items-center gap-2">
+              <Package className="w-5 h-5" />
+              Lista de Picking
+            </h3>
           </div>
           
-          <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
+                <tr>
+                  <th className="text-left p-3 text-slate-600 dark:text-slate-400 font-semibold">SKU</th>
+                  <th className="text-left p-3 text-slate-600 dark:text-slate-400 font-semibold">Descrição</th>
+                  <th className="text-center p-3 text-slate-600 dark:text-slate-400 font-semibold">Esperado</th>
+                  <th className="text-center p-3 text-slate-600 dark:text-slate-400 font-semibold">Recebido</th>
+                  <th className="text-center p-3 text-slate-600 dark:text-slate-400 font-semibold">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedItems.map((item, index) => {
+                  const status = itemsStatus[index];
+                  const qtdRecebida = status?.quantidadeSeparada ?? 0;
+                  const qtdEsperada = item.quantidade;
+                  
+                  return (
+                    <tr 
+                      key={index}
+                      onClick={() => setCurrentItemIndex(index)}
+                      className={`border-b border-slate-100 dark:border-slate-700 cursor-pointer transition-colors ${
+                        currentItemIndex === index 
+                          ? 'bg-blue-50 dark:bg-blue-900/20' 
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                      }`}
+                    >
+                      <td className="p-3">
+                        <div className="font-mono font-semibold text-slate-900 dark:text-white">
+                          SKU-{item.codigo}
+                        </div>
+                      </td>
+                      <td className="p-3">
+                        <div className="text-slate-700 dark:text-slate-300 max-w-[200px] truncate">
+                          {item.descricao}
+                        </div>
+                      </td>
+                      <td className="p-3 text-center">
+                        <div className="font-semibold text-slate-900 dark:text-white">
+                          {qtdEsperada}
+                        </div>
+                      </td>
+                      <td className="p-3 text-center">
+                        <div className={`font-bold ${
+                          status?.status === 'completed' ? 'text-green-600' :
+                          status?.status === 'partial' ? 'text-orange-500' :
+                          status?.status === 'excess' ? 'text-red-600' :
+                          'text-slate-400'
+                        }`}>
+                          {status?.status === 'pending' || !status ? '-' : qtdRecebida}
+                        </div>
+                      </td>
+                      <td className="p-3 text-center">
+                        <div className="flex items-center justify-center">
+                          {status?.status === 'completed' && (
+                            <Badge className="bg-green-500 text-white">Completo</Badge>
+                          )}
+                          {status?.status === 'partial' && (
+                            <Badge className="bg-orange-500 text-white">Parcial</Badge>
+                          )}
+                          {status?.status === 'excess' && (
+                            <Badge className="bg-red-500 text-white">Excedente</Badge>
+                          )}
+                          {(status?.status === 'pending' || !status) && (
+                            <Badge className="bg-slate-400 text-white">Pendente</Badge>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          
+          <div className="p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700">
             <div className="text-xs text-slate-600 dark:text-slate-400 text-center">
               Progresso: <span className="text-slate-900 dark:text-white font-bold">{completedCount} de {totalItems} itens</span>
             </div>
@@ -377,6 +469,55 @@ export default function PickingWMS({ os, onComplete }) {
           </Button>
         )}
       </div>
+
+      {/* Modal de Alerta para Quantidade Excedente */}
+      <Dialog open={showExcessAlert} onOpenChange={setShowExcessAlert}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-orange-600">
+              <AlertCircle className="w-6 h-6" />
+              Quantidade Diferente
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-slate-700 dark:text-slate-300">
+              A quantidade separada <span className="font-bold text-red-600">{pendingExcessQuantity}</span> é maior que a solicitada <span className="font-bold">{currentItem?.quantidade}</span>.
+            </p>
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              O que deseja fazer?
+            </p>
+            
+            {/* Campo de Justificativa (aparece quando não está vazio ou após clicar em continuar sem preencher) */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Justificativa (obrigatória para continuar):
+              </label>
+              <Textarea
+                value={excessJustification}
+                onChange={(e) => setExcessJustification(e.target.value)}
+                placeholder="Digite o motivo da divergência..."
+                className="min-h-[100px]"
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              onClick={handleExcessCorrect}
+              variant="outline"
+              className="flex-1"
+            >
+              Corrigir
+            </Button>
+            <Button
+              onClick={handleExcessContinue}
+              className="flex-1"
+              style={{ backgroundColor: '#0000FF' }}
+            >
+              Continuar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
