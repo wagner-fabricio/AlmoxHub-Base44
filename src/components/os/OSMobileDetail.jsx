@@ -497,7 +497,9 @@ export default function OSMobileDetail({
       </div>
 
       {/* Tabs */}
-      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 shadow-sm">
+      <div className={`bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 shadow-sm transition-transform duration-300 ${
+        headerVisible ? 'translate-y-0' : '-translate-y-full'
+      }`}>
         <div className="flex overflow-x-auto">
           {tabs.map((tab) => {
             const TabIcon = tab.icon;
