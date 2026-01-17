@@ -202,8 +202,8 @@ export default function PickingWMS({ os, onComplete }) {
       </div>
 
       {/* Tarefa Atual - Card Grande */}
-      <div className="flex-1 p-4 overflow-y-auto">
-        <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-2xl mb-4 border border-slate-200 dark:border-slate-700">
+      <div className="flex-1 p-3 overflow-y-auto">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-2xl mb-3 border border-slate-200 dark:border-slate-700">
           <div className="flex items-center justify-between mb-6">
             <Badge className="bg-blue-500 text-white px-3 py-1 text-sm">
               Tarefa {currentItemIndex + 1}/{totalItems}
