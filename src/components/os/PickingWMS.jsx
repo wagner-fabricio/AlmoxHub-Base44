@@ -219,9 +219,23 @@ export default function PickingWMS({ os, onComplete }) {
           </div>
 
           {/* Confirmação de Quantidade */}
-          {!showQuantityInput && itemsStatus[currentItemIndex]?.status === 'pending' ? (
+          {!showQuantityInput ? (
             <div className="space-y-3">
-              <p className="text-center text-slate-600 dark:text-slate-400 text-sm mb-3">Confirmar quantidade separada</p>
+              {itemsStatus[currentItemIndex]?.status !== 'pending' && (
+                <div className="bg-slate-100 dark:bg-slate-700 rounded-xl p-3 mb-3 text-center">
+                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${getStatusColor(itemsStatus[currentItemIndex]?.status)} text-white text-sm`}>
+                    {getStatusIcon(itemsStatus[currentItemIndex]?.status)}
+                    <span className="font-medium">
+                      {itemsStatus[currentItemIndex]?.status === 'completed' && 'Quantidade Confirmada'}
+                      {itemsStatus[currentItemIndex]?.status === 'partial' && `Separado: ${itemsStatus[currentItemIndex]?.quantidadeSeparada}`}
+                      {itemsStatus[currentItemIndex]?.status === 'excess' && `Separado: ${itemsStatus[currentItemIndex]?.quantidadeSeparada}`}
+                    </span>
+                  </div>
+                </div>
+              )}
+              <p className="text-center text-slate-600 dark:text-slate-400 text-sm mb-3">
+                {itemsStatus[currentItemIndex]?.status === 'pending' ? 'Confirmar quantidade separada' : 'Alterar confirmação'}
+              </p>
               <div className="grid grid-cols-3 gap-3">
                 <Button
                   onClick={() => handleConfirmQuantity('menor')}
@@ -278,18 +292,7 @@ export default function PickingWMS({ os, onComplete }) {
                 Cancelar
               </Button>
             </div>
-          ) : (
-            <div className="bg-slate-100 dark:bg-slate-700 rounded-xl p-4 text-center">
-              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${getStatusColor(itemsStatus[currentItemIndex]?.status)} text-white`}>
-                {getStatusIcon(itemsStatus[currentItemIndex]?.status)}
-                <span className="font-medium">
-                  {itemsStatus[currentItemIndex]?.status === 'completed' && 'Quantidade Confirmada'}
-                  {itemsStatus[currentItemIndex]?.status === 'partial' && `Separado: ${itemsStatus[currentItemIndex]?.quantidadeSeparada}`}
-                  {itemsStatus[currentItemIndex]?.status === 'excess' && `Separado: ${itemsStatus[currentItemIndex]?.quantidadeSeparada}`}
-                </span>
-              </div>
-            </div>
-          )}
+          ) : null}
         </div>
 
         {/* Lista de Picking - Lateral */}
