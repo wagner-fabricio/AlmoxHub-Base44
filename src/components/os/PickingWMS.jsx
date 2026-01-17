@@ -356,7 +356,7 @@ export default function PickingWMS({ os, onComplete }) {
             <table className="w-full text-sm">
               <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
                 <tr>
-                  <th className="text-left p-3 text-slate-600 dark:text-slate-400 font-semibold">SKU</th>
+                  <th className="text-left p-3 text-slate-600 dark:text-slate-400 font-semibold">Código</th>
                   <th className="text-left p-3 text-slate-600 dark:text-slate-400 font-semibold">Descrição</th>
                   <th className="text-center p-3 text-slate-600 dark:text-slate-400 font-semibold">Esperado</th>
                   <th className="text-center p-3 text-slate-600 dark:text-slate-400 font-semibold">Qtd Separada</th>
@@ -381,7 +381,7 @@ export default function PickingWMS({ os, onComplete }) {
                     >
                       <td className="p-3">
                         <div className="font-mono font-semibold text-slate-900 dark:text-white">
-                          SKU-{item.codigo}
+                          {item.codigo}
                         </div>
                       </td>
                       <td className="p-3">
