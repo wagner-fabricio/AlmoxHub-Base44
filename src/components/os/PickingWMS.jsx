@@ -281,31 +281,39 @@ export default function PickingWMS({ os, onComplete }) {
                   </div>
                 </div>
               )}
-              <p className="text-center text-slate-600 dark:text-slate-400 text-sm mb-3">
+              <p className="text-center text-slate-600 dark:text-slate-400 text-sm mb-4 font-medium">
                 {itemsStatus[currentItemIndex]?.status === 'pending' ? 'Confirmar quantidade separada' : 'Alterar confirmação'}
               </p>
-              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+              <div className="grid grid-cols-3 gap-3 sm:gap-4">
                 <Button
                   onClick={() => handleConfirmQuantity('menor')}
-                  className="py-4 sm:py-6 rounded-xl bg-red-500 hover:bg-red-600 text-white flex flex-col gap-1"
+                  className="py-6 sm:py-8 rounded-2xl text-white flex flex-col gap-2 shadow-lg hover:shadow-xl active:scale-95 transition-all duration-200"
+                  style={{ background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' }}
                 >
-                  <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span className="text-xs">Menor</span>
+                  <div className="bg-white/20 rounded-full p-2">
+                    <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+                  </div>
+                  <span className="text-xs sm:text-sm font-bold">Menor</span>
                 </Button>
                 <Button
                   onClick={() => handleConfirmQuantity('igual')}
-                  className="py-4 sm:py-6 rounded-xl text-white flex flex-col gap-1"
-                  style={{ backgroundColor: '#0000FF' }}
+                  className="py-6 sm:py-8 rounded-2xl text-white flex flex-col gap-2 shadow-lg hover:shadow-xl active:scale-95 transition-all duration-200"
+                  style={{ background: 'linear-gradient(135deg, #0000FF 0%, #0000CC 100%)' }}
                 >
-                  <Check className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span className="text-xs">Igual</span>
+                  <div className="bg-white/20 rounded-full p-2">
+                    <Check className="w-5 h-5 sm:w-6 sm:h-6" />
+                  </div>
+                  <span className="text-xs sm:text-sm font-bold">Igual</span>
                 </Button>
                 <Button
                   onClick={() => handleConfirmQuantity('maior')}
-                  className="py-4 sm:py-6 rounded-xl bg-blue-500 hover:bg-blue-600 text-white flex flex-col gap-1"
+                  className="py-6 sm:py-8 rounded-2xl text-white flex flex-col gap-2 shadow-lg hover:shadow-xl active:scale-95 transition-all duration-200"
+                  style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' }}
                 >
-                  <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span className="text-xs">Maior</span>
+                  <div className="bg-white/20 rounded-full p-2">
+                    <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+                  </div>
+                  <span className="text-xs sm:text-sm font-bold">Maior</span>
                 </Button>
               </div>
             </div>
