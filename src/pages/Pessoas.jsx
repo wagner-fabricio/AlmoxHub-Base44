@@ -652,6 +652,16 @@ export default function Pessoas() {
                 );
               })
             )}
+            {filteredItems.length > 0 && (
+              <TableRow className="bg-slate-50 dark:bg-slate-800 font-semibold border-t-2 border-slate-300 dark:border-slate-600">
+                <TableCell colSpan={8} className="text-slate-900 dark:text-white">
+                  Total de Pessoas
+                </TableCell>
+                <TableCell className="text-right text-slate-900 dark:text-white">
+                  {filteredItems.length}
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </Card>
