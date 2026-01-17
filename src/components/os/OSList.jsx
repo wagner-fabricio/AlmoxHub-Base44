@@ -7,7 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { AlertTriangle, CheckCircle, Clock, Loader2, Filter } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Clock, Loader2, Filter, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 
 const prioridadeConfig = {
   baixa: { color: 'bg-slate-100 text-slate-700', label: 'Baixa' },
@@ -32,6 +32,8 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
     prioridade: [],
     status: []
   });
+  
+  const [sortConfig, setSortConfig] = useState({ column: null, direction: null });
 
   const getLider = (liderId) => pessoas.find(p => p.id === liderId);
   const getCategoria = (catId) => categorias.find(c => c.id === catId);
@@ -76,8 +78,23 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
     setColumnFilters(prev => ({ ...prev, [column]: [] }));
   };
 
+  // Handle sorting
+  const handleSort = (column) => {
+    let direction = 'asc';
+    
+    if (sortConfig.column === column) {
+      if (sortConfig.direction === 'asc') {
+        direction = 'desc';
+      } else if (sortConfig.direction === 'desc') {
+        direction = null;
+      }
+    }
+    
+    setSortConfig({ column, direction });
+  };
+
   // Apply filters to orders
-  const filteredOrdens = ordens.filter(os => {
+  let filteredOrdens = ordens.filter(os => {
     if (columnFilters.codigo.length > 0 && !columnFilters.codigo.includes(os.codigo)) return false;
     
     const categoria = getCategoria(os.categoria_id);
@@ -95,6 +112,39 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
     return true;
   });
 
+  // Apply sorting
+  if (sortConfig.column && sortConfig.direction) {
+    filteredOrdens = [...filteredOrdens].sort((a, b) => {
+      let aValue, bValue;
+      
+      if (sortConfig.column === 'codigo') {
+        aValue = a.codigo || '';
+        bValue = b.codigo || '';
+      } else if (sortConfig.column === 'lider') {
+        aValue = getLider(a.lider_id)?.nome || '';
+        bValue = getLider(b.lider_id)?.nome || '';
+      } else if (sortConfig.column === 'prazo') {
+        aValue = a.prazo ? new Date(a.prazo).getTime() : 0;
+        bValue = b.prazo ? new Date(b.prazo).getTime() : 0;
+      } else if (sortConfig.column === 'prioridade') {
+        const prioridadeOrder = { baixa: 1, media: 2, alta: 3, urgente: 4 };
+        aValue = prioridadeOrder[a.prioridade] || 0;
+        bValue = prioridadeOrder[b.prioridade] || 0;
+      } else if (sortConfig.column === 'status') {
+        const statusOrder = { elaboracao: 1, execucao: 2, concluido: 3, cancelado: 4 };
+        aValue = statusOrder[a.status] || 0;
+        bValue = statusOrder[b.status] || 0;
+      } else if (sortConfig.column === 'progresso') {
+        aValue = a.progresso || 0;
+        bValue = b.progresso || 0;
+      }
+      
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
       <Table>
@@ -102,7 +152,21 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
           <TableRow className="bg-slate-50 dark:bg-slate-800/50">
             <TableHead className="font-semibold">
               <div className="flex items-center gap-2">
-                Código
+                <button
+                  onClick={() => handleSort('codigo')}
+                  className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+                >
+                  Código
+                  {sortConfig.column === 'codigo' ? (
+                    sortConfig.direction === 'asc' ? (
+                      <ArrowUp className="w-4 h-4" />
+                    ) : (
+                      <ArrowDown className="w-4 h-4" />
+                    )
+                  ) : (
+                    <ArrowUpDown className="w-4 h-4 opacity-30" />
+                  )}
+                </button>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-6 w-6">
@@ -207,7 +271,21 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
             </TableHead>
             <TableHead className="font-semibold">
               <div className="flex items-center gap-2">
-                Líder
+                <button
+                  onClick={() => handleSort('lider')}
+                  className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+                >
+                  Líder
+                  {sortConfig.column === 'lider' ? (
+                    sortConfig.direction === 'asc' ? (
+                      <ArrowUp className="w-4 h-4" />
+                    ) : (
+                      <ArrowDown className="w-4 h-4" />
+                    )
+                  ) : (
+                    <ArrowUpDown className="w-4 h-4 opacity-30" />
+                  )}
+                </button>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-6 w-6">
@@ -240,10 +318,40 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
                 </Popover>
               </div>
             </TableHead>
-            <TableHead className="font-semibold">Prazo</TableHead>
+            <TableHead className="font-semibold">
+              <button
+                onClick={() => handleSort('prazo')}
+                className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+              >
+                Prazo
+                {sortConfig.column === 'prazo' ? (
+                  sortConfig.direction === 'asc' ? (
+                    <ArrowUp className="w-4 h-4" />
+                  ) : (
+                    <ArrowDown className="w-4 h-4" />
+                  )
+                ) : (
+                  <ArrowUpDown className="w-4 h-4 opacity-30" />
+                )}
+              </button>
+            </TableHead>
             <TableHead className="font-semibold">
               <div className="flex items-center gap-2">
-                Prioridade
+                <button
+                  onClick={() => handleSort('prioridade')}
+                  className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+                >
+                  Prioridade
+                  {sortConfig.column === 'prioridade' ? (
+                    sortConfig.direction === 'asc' ? (
+                      <ArrowUp className="w-4 h-4" />
+                    ) : (
+                      <ArrowDown className="w-4 h-4" />
+                    )
+                  ) : (
+                    <ArrowUpDown className="w-4 h-4 opacity-30" />
+                  )}
+                </button>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-6 w-6">
@@ -280,7 +388,21 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
             </TableHead>
             <TableHead className="font-semibold">
               <div className="flex items-center gap-2">
-                Status
+                <button
+                  onClick={() => handleSort('status')}
+                  className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+                >
+                  Status
+                  {sortConfig.column === 'status' ? (
+                    sortConfig.direction === 'asc' ? (
+                      <ArrowUp className="w-4 h-4" />
+                    ) : (
+                      <ArrowDown className="w-4 h-4" />
+                    )
+                  ) : (
+                    <ArrowUpDown className="w-4 h-4 opacity-30" />
+                  )}
+                </button>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-6 w-6">
@@ -313,7 +435,23 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
                 </Popover>
               </div>
             </TableHead>
-            <TableHead className="font-semibold text-right">Progresso</TableHead>
+            <TableHead className="font-semibold text-right">
+              <button
+                onClick={() => handleSort('progresso')}
+                className="flex items-center gap-1 hover:text-blue-600 transition-colors ml-auto"
+              >
+                Progresso
+                {sortConfig.column === 'progresso' ? (
+                  sortConfig.direction === 'asc' ? (
+                    <ArrowUp className="w-4 h-4" />
+                  ) : (
+                    <ArrowDown className="w-4 h-4" />
+                  )
+                ) : (
+                  <ArrowUpDown className="w-4 h-4 opacity-30" />
+                )}
+              </button>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
