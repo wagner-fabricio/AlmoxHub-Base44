@@ -448,7 +448,7 @@ export default function OSMobileDetail({
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col overflow-hidden">
       {/* Header + Tabs Container */}
       <div className={`sticky top-0 z-20 transition-transform duration-300 ${
         headerVisible ? 'translate-y-0' : '-translate-y-full'
