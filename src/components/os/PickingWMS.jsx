@@ -281,13 +281,13 @@ export default function PickingWMS({ os, onComplete }) {
                   </div>
                 </div>
               )}
-              <p className="text-center text-slate-600 dark:text-slate-400 text-sm mb-4 font-medium">
+              <p className="text-center text-slate-600 dark:text-slate-400 text-xs mb-2 font-medium">
                 {itemsStatus[currentItemIndex]?.status === 'pending' ? 'Confirmar quantidade separada' : 'Alterar confirmação'}
               </p>
-              <div className="grid grid-cols-3 gap-2 sm:gap-4">
+              <div className="grid grid-cols-3 gap-2">
                 <Button
                   onClick={() => handleConfirmQuantity('menor')}
-                  className="py-5 sm:py-8 px-2 rounded-2xl text-white flex flex-col items-center justify-center gap-1.5 sm:gap-2 shadow-lg hover:shadow-xl active:scale-95 transition-all duration-200 min-h-[90px] sm:min-h-[110px]"
+                  className="py-4 sm:py-6 px-2 rounded-xl text-white flex flex-col items-center justify-center gap-1 sm:gap-1.5 shadow-lg hover:shadow-xl active:scale-95 transition-all duration-200 min-h-[75px] sm:min-h-[85px]"
                   style={{ background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' }}
                 >
                   <div className="bg-white/20 rounded-full p-1.5 sm:p-2">
