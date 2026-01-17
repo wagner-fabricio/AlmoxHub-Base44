@@ -136,12 +136,12 @@ export default function PickingWMS({ os, onComplete }) {
   const allCompleted = itemsStatus.every(s => s.status !== 'pending');
 
   return (
-    <div className="min-h-[calc(100vh-200px)] flex flex-col bg-slate-900">
+    <div className="min-h-[calc(100vh-200px)] flex flex-col bg-slate-50 dark:bg-slate-900">
       {/* Header - Progresso */}
-      <div className="p-4 border-b border-slate-700" style={{ backgroundColor: '#0A003C' }}>
+      <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-white text-sm font-medium">Ordem: {os.codigo}</span>
-          <span className="text-white text-sm font-bold">{completedCount} de {totalItems}</span>
+          <span className="text-slate-900 dark:text-white text-sm font-medium">Ordem: {os.codigo}</span>
+          <span className="text-slate-900 dark:text-white text-sm font-bold">{completedCount} de {totalItems}</span>
         </div>
         <div className="flex gap-1">
           {sortedItems.map((_, index) => (
@@ -155,7 +155,7 @@ export default function PickingWMS({ os, onComplete }) {
 
       {/* Tarefa Atual - Card Grande */}
       <div className="flex-1 p-4 overflow-y-auto">
-        <div className="bg-slate-800 rounded-3xl p-6 shadow-2xl mb-4">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-2xl mb-4 border border-slate-200 dark:border-slate-700">
           <div className="flex items-center justify-between mb-6">
             <Badge className="bg-blue-500 text-white px-3 py-1 text-sm">
               Tarefa {currentItemIndex + 1}/{totalItems}
@@ -170,50 +170,50 @@ export default function PickingWMS({ os, onComplete }) {
           {/* Endereço em Destaque */}
           <div className="mb-6 text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <MapPin className="w-5 h-5 text-orange-400" />
-              <span className="text-slate-400 text-sm">Vá para o endereço</span>
+              <MapPin className="w-5 h-5 text-orange-500" />
+              <span className="text-slate-600 dark:text-slate-400 text-sm">Vá para o endereço</span>
             </div>
-            <div className="text-6xl font-bold text-orange-400 tracking-wider">
+            <div className="text-6xl font-bold text-orange-500 tracking-wider">
               {currentItem.endereco || 'N/A'}
             </div>
             {currentItem.deposito && (
-              <div className="mt-2 text-slate-400 text-sm">
+              <div className="mt-2 text-slate-600 dark:text-slate-400 text-sm">
                 Depósito: {currentItem.deposito}
               </div>
             )}
           </div>
 
           {/* Produto */}
-          <div className="bg-slate-700 rounded-2xl p-4 mb-4">
+          <div className="bg-slate-100 dark:bg-slate-700 rounded-2xl p-4 mb-4">
             <div className="flex items-center gap-2 mb-2">
               <Package className="w-5 h-5" style={{ color: '#0000FF' }} />
-              <span className="text-slate-400 text-xs">Produto</span>
+              <span className="text-slate-600 dark:text-slate-400 text-xs">Produto</span>
             </div>
-            <div className="text-white text-2xl font-bold font-mono mb-1">
+            <div className="text-slate-900 dark:text-white text-2xl font-bold font-mono mb-1">
               SKU - {currentItem.codigo}
             </div>
-            <div className="text-slate-300 text-sm">
+            <div className="text-slate-700 dark:text-slate-300 text-sm">
               {currentItem.descricao}
             </div>
           </div>
 
           {/* Quantidade a Separar */}
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-slate-700 rounded-2xl p-4">
-              <span className="text-slate-400 text-xs block mb-1">Quantidade a Separar</span>
+            <div className="bg-slate-100 dark:bg-slate-700 rounded-2xl p-4">
+              <span className="text-slate-600 dark:text-slate-400 text-xs block mb-1">Quantidade a Separar</span>
               <div className="text-4xl font-bold" style={{ color: '#0000FF' }}>
                 {currentItem.quantidade}
               </div>
-              <span className="text-slate-400 text-sm">{currentItem.unidade || 'UN'}</span>
+              <span className="text-slate-600 dark:text-slate-400 text-sm">{currentItem.unidade || 'UN'}</span>
             </div>
 
             {saldoAposSeparacao !== null && (
-              <div className="bg-slate-700 rounded-2xl p-4">
-                <span className="text-slate-400 text-xs block mb-1">Saldo após retirada</span>
-                <div className="text-4xl font-bold text-slate-300">
+              <div className="bg-slate-100 dark:bg-slate-700 rounded-2xl p-4">
+                <span className="text-slate-600 dark:text-slate-400 text-xs block mb-1">Saldo após retirada</span>
+                <div className="text-4xl font-bold text-slate-700 dark:text-slate-300">
                   {saldoAposSeparacao}
                 </div>
-                <span className="text-slate-400 text-sm">{currentItem.unidade || 'UN'}</span>
+                <span className="text-slate-600 dark:text-slate-400 text-sm">{currentItem.unidade || 'UN'}</span>
               </div>
             )}
           </div>
@@ -221,7 +221,7 @@ export default function PickingWMS({ os, onComplete }) {
           {/* Confirmação de Quantidade */}
           {!showQuantityInput && itemsStatus[currentItemIndex]?.status === 'pending' ? (
             <div className="space-y-3">
-              <p className="text-center text-slate-400 text-sm mb-3">Confirmar quantidade separada</p>
+              <p className="text-center text-slate-600 dark:text-slate-400 text-sm mb-3">Confirmar quantidade separada</p>
               <div className="grid grid-cols-3 gap-3">
                 <Button
                   onClick={() => handleConfirmQuantity('menor')}
@@ -249,14 +249,14 @@ export default function PickingWMS({ os, onComplete }) {
             </div>
           ) : showQuantityInput ? (
             <div className="space-y-3">
-              <p className="text-center text-slate-400 text-sm">Digite a quantidade separada</p>
+              <p className="text-center text-slate-600 dark:text-slate-400 text-sm">Digite a quantidade separada</p>
               <div className="flex gap-2">
                 <Input
                   type="number"
                   value={quantidadeSeparada}
                   onChange={(e) => setQuantidadeSeparada(e.target.value)}
                   placeholder="Quantidade"
-                  className="text-center text-2xl font-bold py-6 bg-slate-700 border-slate-600 text-white"
+                  className="text-center text-2xl font-bold py-6 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white"
                   autoFocus
                 />
                 <Button
@@ -273,13 +273,13 @@ export default function PickingWMS({ os, onComplete }) {
                   setQuantidadeSeparada('');
                 }}
                 variant="outline"
-                className="w-full py-3 bg-slate-700 border-slate-600 text-white hover:bg-slate-600"
+                className="w-full py-3 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-600"
               >
                 Cancelar
               </Button>
             </div>
           ) : (
-            <div className="bg-slate-700 rounded-xl p-4 text-center">
+            <div className="bg-slate-100 dark:bg-slate-700 rounded-xl p-4 text-center">
               <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${getStatusColor(itemsStatus[currentItemIndex]?.status)} text-white`}>
                 {getStatusIcon(itemsStatus[currentItemIndex]?.status)}
                 <span className="font-medium">
@@ -293,8 +293,8 @@ export default function PickingWMS({ os, onComplete }) {
         </div>
 
         {/* Lista de Picking - Lateral */}
-        <div className="bg-slate-800 rounded-2xl p-4 shadow-xl">
-          <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-xl border border-slate-200 dark:border-slate-700">
+          <h3 className="text-slate-900 dark:text-white font-semibold mb-3 flex items-center gap-2">
             <Package className="w-5 h-5" />
             Lista de Picking
           </h3>
@@ -305,8 +305,8 @@ export default function PickingWMS({ os, onComplete }) {
                 onClick={() => setCurrentItemIndex(index)}
                 className={`w-full text-left p-3 rounded-xl transition-all ${
                   currentItemIndex === index 
-                    ? 'bg-slate-700 ring-2 ring-blue-500' 
-                    : 'bg-slate-700/50 hover:bg-slate-700'
+                    ? 'bg-slate-100 dark:bg-slate-700 ring-2 ring-blue-500' 
+                    : 'bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -318,10 +318,10 @@ export default function PickingWMS({ os, onComplete }) {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-white text-sm font-medium font-mono truncate">
+                    <div className="text-slate-900 dark:text-white text-sm font-medium font-mono truncate">
                       SKU-{item.codigo}
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                    <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
                       <span>{item.endereco || 'N/A'}</span>
                       <span>•</span>
                       <span>{itemsStatus[index]?.quantidadeSeparada || item.quantidade}/{item.quantidade}</span>
@@ -332,22 +332,22 @@ export default function PickingWMS({ os, onComplete }) {
             ))}
           </div>
           
-          <div className="mt-4 pt-4 border-t border-slate-700">
-            <div className="text-xs text-slate-400 text-center">
-              Progresso: <span className="text-white font-bold">{completedCount} de {totalItems} itens</span>
+          <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+            <div className="text-xs text-slate-600 dark:text-slate-400 text-center">
+              Progresso: <span className="text-slate-900 dark:text-white font-bold">{completedCount} de {totalItems} itens</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Footer - Navegação */}
-      <div className="p-4 border-t border-slate-700 bg-slate-800 space-y-3">
+      <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 space-y-3">
         <div className="flex gap-3">
           <Button
             onClick={handlePrevious}
             disabled={currentItemIndex === 0}
             variant="outline"
-            className="flex-1 py-6 bg-slate-700 border-slate-600 text-white hover:bg-slate-600 disabled:opacity-30"
+            className="flex-1 py-6 bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600 disabled:opacity-30"
           >
             <ChevronLeft className="w-5 h-5 mr-2" />
             Anterior
@@ -356,7 +356,7 @@ export default function PickingWMS({ os, onComplete }) {
             onClick={handleSkip}
             disabled={currentItemIndex === totalItems - 1}
             variant="outline"
-            className="flex-1 py-6 bg-slate-700 border-slate-600 text-white hover:bg-slate-600 disabled:opacity-30"
+            className="flex-1 py-6 bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600 disabled:opacity-30"
           >
             Pular
             <ChevronRight className="w-5 h-5 ml-2" />
