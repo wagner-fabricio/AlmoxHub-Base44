@@ -501,7 +501,7 @@ export default function OSDetailModal({
         </DialogHeader>
 
         <ScrollArea className="max-h-[calc(90vh-140px)]">
-          <div className="p-6">
+          <div className="px-6 pt-6 pb-2">
             <Tabs defaultValue="detalhes">
               <TabsList className="mb-6">
                 <TabsTrigger value="detalhes">Detalhes</TabsTrigger>
