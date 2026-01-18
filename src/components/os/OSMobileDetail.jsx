@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { base44 } from '@/api/base44Client';
 import MentionInput from '@/components/notifications/MentionInput';
 import PickingWMS from './PickingWMS';
+import ExpedicaoProgressTracker from './ExpedicaoProgressTracker';
 import {
   X,
   Clock,
@@ -399,6 +400,11 @@ export default function OSMobileDetail({
         itens_documento: updatedItems
       });
       
+      // Atualizar fluxo de expedição se aplicável
+      if (isExpedicao) {
+        await base44.functions.invoke('atualizarFluxoExpedicao', { os_id: os.id });
+      }
+      
       // Atualizar objeto local diretamente
       os.itens_documento = updatedItems;
     } catch (error) {
@@ -418,6 +424,11 @@ export default function OSMobileDetail({
         itens_documento: updatedItems,
         status_separacao: 'separado'
       });
+
+      // Atualizar fluxo de expedição
+      if (isExpedicao) {
+        await base44.functions.invoke('atualizarFluxoExpedicao', { os_id: os.id });
+      }
 
       setWmsMode(false);
       onRefresh?.();
@@ -516,6 +527,11 @@ export default function OSMobileDetail({
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4 pb-24">
         {activeTab === 'detalhes' && (
           <div className="space-y-3">
+            {/* Fluxo de Expedição */}
+            {isExpedicao && (
+              <ExpedicaoProgressTracker os={os} isMobile={true} />
+            )}
+
             {/* Status Badge */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
               <button

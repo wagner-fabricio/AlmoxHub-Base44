@@ -39,6 +39,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import RelatorioSeparacao from './RelatorioSeparacao';
+import ExpedicaoProgressTracker from './ExpedicaoProgressTracker';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
@@ -357,6 +358,12 @@ export default function OSDetailModal({
       await base44.entities.OrdemServico.update(os.id, {
         itens_documento: localOS.itens_documento
       });
+      
+      // Atualizar fluxo de expedição se aplicável
+      if (isExpedicao) {
+        await base44.functions.invoke('atualizarFluxoExpedicao', { os_id: os.id });
+      }
+      
       if (onRefresh) onRefresh();
     } catch (error) {
       console.error('Erro ao salvar separação:', error);
@@ -506,6 +513,11 @@ export default function OSDetailModal({
 
               {/* Detalhes Tab */}
               <TabsContent value="detalhes" className="space-y-6">
+                {/* Fluxo de Expedição */}
+                {isExpedicao && (
+                  <ExpedicaoProgressTracker os={localOS} />
+                )}
+
                 {/* Progress */}
                 <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-6">
                   <div className="flex items-center justify-between mb-3">
