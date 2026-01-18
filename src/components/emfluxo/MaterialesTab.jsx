@@ -186,9 +186,14 @@ export default function MaterialesTab({ os, onClose, isRecebimento = true }) {
                          )}
                         <div className="flex items-center gap-2 flex-wrap">
                           {isRecebimento && item.quantidade_esperada ? (
-                            <Badge variant="outline" className="text-xs">
-                              Qtd NF: {item.quantidade_esperada} {item.unidade || 'UN'}
-                            </Badge>
+                            <>
+                              <Badge variant="outline" className="text-xs">
+                                Qtd NF: {item.quantidade_esperada} {item.unidade || 'UN'}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs">
+                                Qtd Recebida: {itemsStatus[index]?.quantidadeSeparada || '-'} {item.unidade || 'UN'}
+                              </Badge>
+                            </>
                           ) : (
                             <Badge variant="outline" className="text-xs">
                               {itemsStatus[index]?.quantidadeSeparada || item.quantidade} {item.unidade || 'UN'}
