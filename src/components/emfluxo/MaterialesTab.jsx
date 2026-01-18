@@ -14,15 +14,18 @@ import {
   Zap
 } from 'lucide-react';
 
-export default function MaterialesTab({ os, onClose }) {
+export default function MaterialesTab({ os, onClose, isRecebimento = true }) {
   const [viewMode, setViewMode] = useState('list'); // 'list' ou 'wms'
   const [itemsStatus, setItemsStatus] = useState([]);
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [quantidadeSeparada, setQuantidadeSeparada] = useState('');
   const [showQuantityInput, setShowQuantityInput] = useState(false);
 
+  // Usar campo correto dependendo do tipo de OS
+  const itemsData = isRecebimento ? (os.nfe_itens_conferencia || []) : (os.itens_documento || []);
+
   // Ordenar itens por endereço para modo WMS
-  const sortedItems = (os.itens_documento || [])
+  const sortedItems = itemsData
     .map((item, index) => ({ ...item, originalIndex: index }))
     .filter(item => item.codigo)
     .sort((a, b) => (a.endereco || '').localeCompare(b.endereco || ''));

@@ -668,7 +668,7 @@ export default function OSMobileDetail({
         )}
 
         {activeTab === 'materiais' && isRecebimento && (
-          <MaterialesTab os={os} onClose={onClose} />
+          <MaterialesTab os={os} onClose={onClose} isRecebimento={true} />
         )}
 
         {activeTab === 'materiais' && isExpedicao && !wmsMode && (
