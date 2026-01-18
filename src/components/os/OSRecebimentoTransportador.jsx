@@ -93,9 +93,10 @@ export default function OSRecebimentoTransportador({ transportador, onChange }) 
             <Input
               type="number"
               value={transportador?.peso_bruto || 0}
-              onChange={(e) => handleChange('peso_bruto', parseFloat(e.target.value))}
-              className="bg-slate-50 dark:bg-slate-800"
+              disabled
+              className="bg-slate-100 dark:bg-slate-800 cursor-not-allowed opacity-75"
             />
+            <p className="text-xs text-slate-500 dark:text-slate-400">Preenchido automaticamente do XML</p>
           </div>
           <div className="space-y-2">
             <Label>Peso Líquido (kg)</Label>
