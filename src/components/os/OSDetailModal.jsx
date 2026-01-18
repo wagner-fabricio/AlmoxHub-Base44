@@ -708,37 +708,29 @@ export default function OSDetailModal({
                     <table className="w-full">
                       <thead className="bg-slate-50 dark:bg-slate-800">
                         <tr>
-                          <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">#</th>
+                          <th className="text-center p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">#</th>
                           <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Data</th>
                           <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Tipo Doc</th>
                           <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Nº Doc</th>
                           <th className="text-center p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Volumes</th>
                           <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Peso (kg)</th>
                           <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Modal</th>
-                          <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Transportadora</th>
-                          <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Veículo</th>
-                          <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Motorista</th>
                           <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Valor Total</th>
                         </tr>
                       </thead>
                       <tbody>
                         {os.detalhamento_expedicao.map((exp, i) => (
                           <tr key={i} className="border-t border-slate-100 dark:border-slate-700">
-                            <td className="p-3 font-medium">{exp.num_expedicao || i + 1}</td>
+                            <td className="p-3 text-center text-sm font-medium">{exp.num_expedicao || i + 1}</td>
                             <td className="p-3 text-sm">
                               {exp.data_expedicao ? format(new Date(exp.data_expedicao), 'dd/MM/yy') : '-'}
                             </td>
-                            <td className="p-3">{exp.tipo_doc || '-'}</td>
-                            <td className="p-3">{exp.num_doc || '-'}</td>
-                            <td className="p-3 text-center">{exp.num_vol || '-'}</td>
-                            <td className="p-3 text-right">{exp.peso || '-'}</td>
+                            <td className="p-3 text-sm">{exp.tipo_doc || '-'}</td>
+                            <td className="p-3 text-sm">{exp.num_doc || '-'}</td>
+                            <td className="p-3 text-center text-sm">{exp.num_vol || '-'}</td>
+                            <td className="p-3 text-right text-sm">{exp.peso || '-'}</td>
                             <td className="p-3 text-sm">{exp.modal_transporte || '-'}</td>
-                            <td className="p-3 text-sm">{exp.transportadora?.razao_social || '-'}</td>
-                            <td className="p-3 text-sm">
-                              {exp.veiculo?.placa ? `${exp.veiculo.placa} (${exp.veiculo.estado || ''})` : '-'}
-                            </td>
-                            <td className="p-3 text-sm">{exp.motorista?.nome || '-'}</td>
-                            <td className="p-3 text-right font-medium">
+                            <td className="p-3 text-right text-sm font-medium">
                               {exp.valor_total ? `R$ ${exp.valor_total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '-'}
                             </td>
                           </tr>
