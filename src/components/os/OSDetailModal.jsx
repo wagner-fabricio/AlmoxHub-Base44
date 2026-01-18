@@ -83,13 +83,29 @@ export default function OSDetailModal({
   const textareaRef = useRef(null);
   const [generatingPDF, setGeneratingPDF] = useState(false);
   const [showRelatorio, setShowRelatorio] = useState(false);
+  const [localOS, setLocalOS] = useState(os);
+  const [savingSeparacao, setSavingSeparacao] = useState(false);
 
   useEffect(() => {
     if (open && os) {
       loadComentarios();
       loadUser();
+      setLocalOS(os);
     }
   }, [open, os]);
+
+  useEffect(() => {
+    if (!open || !os?.id) return;
+
+    const unsubscribe = base44.entities.OrdemServico.subscribe((event) => {
+      if (event.id === os.id && event.type === 'update') {
+        setLocalOS(event.data);
+        if (onRefresh) onRefresh();
+      }
+    });
+
+    return unsubscribe;
+  }, [open, os?.id]);
 
   const loadUser = async () => {
     try {
@@ -326,6 +342,29 @@ export default function OSDetailModal({
     }
   };
 
+  const handleToggleSeparado = (itemIndex) => {
+    const updatedItens = [...(localOS.itens_documento || [])];
+    updatedItens[itemIndex] = {
+      ...updatedItens[itemIndex],
+      separado: !updatedItens[itemIndex].separado
+    };
+    setLocalOS({ ...localOS, itens_documento: updatedItens });
+  };
+
+  const handleSaveSeparacao = async () => {
+    setSavingSeparacao(true);
+    try {
+      await base44.entities.OrdemServico.update(os.id, {
+        itens_documento: localOS.itens_documento
+      });
+      if (onRefresh) onRefresh();
+    } catch (error) {
+      console.error('Erro ao salvar separação:', error);
+    } finally {
+      setSavingSeparacao(false);
+    }
+  };
+
   const handleShareOS = () => {
     const url = `${window.location.origin}${window.location.pathname}?os_id=${os.id}`;
     navigator.clipboard.writeText(url).then(() => {
@@ -366,12 +405,13 @@ export default function OSDetailModal({
 
   if (!os) return null;
 
-  const categoria = Array.isArray(categorias) ? categorias.find(c => c?.id === os.categoria_id) : null;
-  const regional = Array.isArray(regionais) ? regionais.find(r => r?.id === os.regional_id) : null;
-  const almoxarifado = Array.isArray(almoxarifados) ? almoxarifados.find(a => a?.id === os.almoxarifado_id) : null;
-  const lider = Array.isArray(pessoas) ? pessoas.find(p => p?.id === os.lider_id) : null;
-  const StatusIcon = statusConfig[os.status]?.icon || Clock;
+  const categoria = Array.isArray(categorias) ? categorias.find(c => c?.id === localOS.categoria_id) : null;
+  const regional = Array.isArray(regionais) ? regionais.find(r => r?.id === localOS.regional_id) : null;
+  const almoxarifado = Array.isArray(almoxarifados) ? almoxarifados.find(a => a?.id === localOS.almoxarifado_id) : null;
+  const lider = Array.isArray(pessoas) ? pessoas.find(p => p?.id === localOS.lider_id) : null;
+  const StatusIcon = statusConfig[localOS.status]?.icon || Clock;
   const isExpedicao = categoria?.nome?.toLowerCase().includes('expedição');
+  const hasChanges = JSON.stringify(localOS.itens_documento) !== JSON.stringify(os.itens_documento);
 
   return (
     <>
@@ -691,46 +731,105 @@ export default function OSDetailModal({
               </TabsContent>
 
               {/* Materiais Tab */}
-              <TabsContent value="materiais" className="space-y-6">
-                {os.itens_documento?.length > 0 ? (
-                  <div className="border rounded-xl overflow-hidden">
-                    <table className="w-full">
-                      <thead className="bg-slate-50 dark:bg-slate-800">
-                        <tr>
-                          <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Código</th>
-                          <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Descrição</th>
-                          <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Qtd</th>
-                          <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Depósito</th>
-                          <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Localização</th>
-                          <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">R$ Total</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {os.itens_documento.map((item, i) => (
-                          <tr key={i} className="border-t border-slate-100 dark:border-slate-700">
-                            <td className="p-3 font-mono text-sm">{item.codigo}</td>
-                            <td className="p-3">{item.descricao}</td>
-                            <td className="p-3 text-right">{item.quantidade} {item.unidade}</td>
-                            <td className="p-3 text-sm">{item.deposito || '-'}</td>
-                            <td className="p-3 text-sm">{item.endereco || '-'}</td>
-                            <td className="p-3 text-right font-medium">
-                              R$ {(item.r_total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              <TabsContent value="materiais" className="space-y-4">
+                {localOS.itens_documento?.length > 0 ? (
+                  <>
+                    <div className="border rounded-xl overflow-hidden">
+                      <table className="w-full">
+                        <thead className="bg-slate-50 dark:bg-slate-800">
+                          <tr>
+                            <th className="text-center p-3 text-sm font-semibold text-slate-600 dark:text-slate-300 w-12">
+                              <input
+                                type="checkbox"
+                                checked={(localOS.itens_documento || []).every(item => item.separado)}
+                                onChange={(e) => {
+                                  const allChecked = e.target.checked;
+                                  const updatedItens = (localOS.itens_documento || []).map(item => ({
+                                    ...item,
+                                    separado: allChecked
+                                  }));
+                                  setLocalOS({ ...localOS, itens_documento: updatedItens });
+                                }}
+                                className="w-4 h-4 cursor-pointer"
+                              />
+                            </th>
+                            <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Código</th>
+                            <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Descrição</th>
+                            <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Qtd</th>
+                            <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Depósito</th>
+                            <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Localização</th>
+                            <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">R$ Total</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(localOS.itens_documento || []).map((item, i) => (
+                            <tr 
+                              key={i} 
+                              className={`border-t border-slate-100 dark:border-slate-700 transition-colors ${
+                                item.separado ? 'bg-green-50 dark:bg-green-900/10' : ''
+                              }`}
+                            >
+                              <td className="p-3 text-center">
+                                <input
+                                  type="checkbox"
+                                  checked={item.separado || false}
+                                  onChange={() => handleToggleSeparado(i)}
+                                  className="w-4 h-4 cursor-pointer accent-green-600"
+                                />
+                              </td>
+                              <td className={`p-3 font-mono text-sm ${item.separado ? 'line-through text-green-600' : ''}`}>
+                                {item.codigo}
+                              </td>
+                              <td className={`p-3 ${item.separado ? 'line-through text-green-600' : ''}`}>
+                                {item.descricao}
+                              </td>
+                              <td className={`p-3 text-right ${item.separado ? 'line-through text-green-600' : ''}`}>
+                                {item.quantidade} {item.unidade}
+                              </td>
+                              <td className={`p-3 text-sm ${item.separado ? 'line-through text-green-600' : ''}`}>
+                                {item.deposito || '-'}
+                              </td>
+                              <td className={`p-3 text-sm ${item.separado ? 'line-through text-green-600' : ''}`}>
+                                {item.endereco || '-'}
+                              </td>
+                              <td className={`p-3 text-right font-medium ${item.separado ? 'line-through text-green-600' : ''}`}>
+                                R$ {(item.r_total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                        <tfoot className="bg-slate-50 dark:bg-slate-800 border-t-2 border-slate-200 dark:border-slate-700">
+                          <tr>
+                            <td colSpan="6" className="p-3 text-right font-semibold text-slate-900 dark:text-white">
+                              Valor Total:
+                            </td>
+                            <td className="p-3 text-right font-bold text-blue-600 text-lg">
+                              R$ {(localOS.itens_documento || []).reduce((sum, item) => sum + (item.r_total || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                             </td>
                           </tr>
-                        ))}
-                      </tbody>
-                      <tfoot className="bg-slate-50 dark:bg-slate-800 border-t-2 border-slate-200 dark:border-slate-700">
-                        <tr>
-                          <td colSpan="5" className="p-3 text-right font-semibold text-slate-900 dark:text-white">
-                            Valor Total:
-                          </td>
-                          <td className="p-3 text-right font-bold text-blue-600 text-lg">
-                            R$ {os.itens_documento.reduce((sum, item) => sum + (item.r_total || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                          </td>
-                        </tr>
-                      </tfoot>
-                    </table>
-                  </div>
+                        </tfoot>
+                      </table>
+                    </div>
+
+                    {hasChanges && (
+                      <div className="flex justify-end gap-2 pt-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => setLocalOS(os)}
+                          disabled={savingSeparacao}
+                        >
+                          Cancelar
+                        </Button>
+                        <Button
+                          onClick={handleSaveSeparacao}
+                          disabled={savingSeparacao}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          {savingSeparacao ? 'Salvando...' : 'Salvar Separação'}
+                        </Button>
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <div className="text-center py-12 text-slate-400">
                     Nenhum material cadastrado

@@ -149,8 +149,17 @@ export default function PickingWMS({ os, onComplete }) {
       return;
     }
 
+    // Marcar todos os itens como separados
+    const updatedItens = [...(os.itens_documento || [])];
+    sortedItems.forEach((item) => {
+      updatedItens[item.originalIndex] = {
+        ...updatedItens[item.originalIndex],
+        separado: true
+      };
+    });
+
     // Atualizar OS com status dos itens e mudar status de separação
-    await onComplete(itemsStatus, sortedItems);
+    await onComplete(itemsStatus, sortedItems, updatedItens);
   };
 
   const getStatusColor = (status) => {
