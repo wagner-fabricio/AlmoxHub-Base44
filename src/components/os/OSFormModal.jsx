@@ -149,6 +149,12 @@ export default function OSFormModal({
         nfe_dados_destinatario: os.nfe_dados_destinatario || {},
         nfe_dados_transportador: os.nfe_dados_transportador || {},
         nfe_itens_conferencia: os.nfe_itens_conferencia || [],
+        nfe_numero_receb: os.nfe_numero_receb || '',
+        nfe_data_receb: os.nfe_data_receb || '',
+        numero_migo_receb: os.numero_migo_receb || '',
+        data_migo_receb: os.data_migo_receb ? os.data_migo_receb.split('T')[0] : '',
+        numero_v360: os.numero_v360 || '',
+        doc_referencia: os.doc_referencia || '',
         fluxo_recebimento: os.fluxo_recebimento || {
           etapa_atual: 1,
           xml_importado: false,
