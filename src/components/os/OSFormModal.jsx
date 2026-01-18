@@ -1226,6 +1226,81 @@ export default function OSFormModal({
                 </TabsContent>
               )}
 
+              {/* TAB: Recebimento - Documento */}
+              {isRecebimentoCategory && (
+                <TabsContent value="receb-documento" className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Número da NF */}
+                    <div className="space-y-2">
+                      <Label>Número da NF</Label>
+                      <Input
+                        value={formData.nfe_numero_receb}
+                        onChange={(e) => setFormData({ ...formData, nfe_numero_receb: e.target.value })}
+                        placeholder="Preenchido automaticamente pelo XML"
+                        disabled
+                        className="bg-slate-100 dark:bg-slate-700"
+                      />
+                    </div>
+
+                    {/* Data da NF */}
+                    <div className="space-y-2">
+                      <Label>Data da NF</Label>
+                      <Input
+                        type="date"
+                        value={formData.nfe_data_receb}
+                        onChange={(e) => setFormData({ ...formData, nfe_data_receb: e.target.value })}
+                        disabled
+                        className="bg-slate-100 dark:bg-slate-700"
+                      />
+                    </div>
+
+                    {/* Número MIGO */}
+                    <div className="space-y-2">
+                      <Label>Número MIGO</Label>
+                      <Input
+                        type="text"
+                        inputMode="numeric"
+                        value={formData.numero_migo_receb}
+                        onChange={(e) => setFormData({ ...formData, numero_migo_receb: e.target.value.replace(/\D/g, '') })}
+                        placeholder="Somente números"
+                      />
+                    </div>
+
+                    {/* Data MIGO */}
+                    <div className="space-y-2">
+                      <Label>Data MIGO</Label>
+                      <Input
+                        type="date"
+                        value={formData.data_migo_receb}
+                        onChange={(e) => setFormData({ ...formData, data_migo_receb: e.target.value })}
+                      />
+                    </div>
+
+                    {/* Número ID V360 */}
+                    <div className="space-y-2">
+                      <Label>Número ID V360</Label>
+                      <Input
+                        type="number"
+                        value={formData.numero_v360}
+                        onChange={(e) => setFormData({ ...formData, numero_v360: e.target.value })}
+                        placeholder="Somente número"
+                      />
+                    </div>
+
+                    {/* Doc Referência */}
+                    <div className="space-y-2">
+                      <Label>Doc Referência</Label>
+                      <Input
+                        type="text"
+                        value={formData.doc_referencia}
+                        onChange={(e) => setFormData({ ...formData, doc_referencia: e.target.value })}
+                        placeholder="Texto livre"
+                      />
+                    </div>
+                  </div>
+                </TabsContent>
+              )}
+
               {/* TAB: Recebimento - Transportador */}
               {isRecebimentoCategory && (
                 <TabsContent value="receb-transp" className="space-y-6">
