@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import RelatorioSeparacao from './RelatorioSeparacao';
 import ExpedicaoProgressTracker from './ExpedicaoProgressTracker';
+import OSFluxoRecebimento from './OSFluxoRecebimento';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
@@ -494,6 +495,7 @@ export default function OSDetailModal({
   const lider = Array.isArray(pessoas) ? pessoas.find(p => p?.id === localOS?.lider_id) : null;
   const StatusIcon = statusConfig[localOS?.status]?.icon || Clock;
   const isExpedicao = categoria?.nome?.toLowerCase().includes('expedição');
+  const isRecebimento = categoria?.nome?.toLowerCase().includes('recebimento');
   const hasChanges = JSON.stringify(localOS?.itens_documento) !== JSON.stringify(os?.itens_documento);
 
   return (
@@ -595,6 +597,11 @@ export default function OSDetailModal({
                 {/* Fluxo de Expedição */}
                 {isExpedicao && (
                   <ExpedicaoProgressTracker os={localOS} />
+                )}
+
+                {/* Fluxo de Recebimento */}
+                {isRecebimento && (
+                  <OSFluxoRecebimento fluxo={localOS?.fluxo_recebimento} />
                 )}
 
                 {/* Progress */}
