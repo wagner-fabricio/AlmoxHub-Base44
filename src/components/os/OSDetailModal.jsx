@@ -371,35 +371,40 @@ export default function OSDetailModal({
   const handleSaveSeparacao = async () => {
     setSavingSeparacao(true);
     try {
+      // Primeiro atualizar a OS
       await base44.entities.OrdemServico.update(os.id, {
         itens_documento: localOS.itens_documento
       });
       
+      // Aguardar um pouco para garantir que a atualização foi processada
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       // Registrar no histórico
-      try {
-        const itensSeparados = (localOS.itens_documento || []).filter(item => item.separado).length;
-        const totalItens = (localOS.itens_documento || []).length;
-        
-        const auditResult = await base44.functions.invoke('registrarAuditLog', {
-          action: 'separacao_update',
-          entity_type: 'OrdemServico',
-          entity_id: os.id,
-          details: {
-            descricao: `Marcou ${itensSeparados} de ${totalItens} materiais como separados`
-          }
-        });
-        console.log('Audit log criado:', auditResult);
-      } catch (auditError) {
-        console.error('Erro ao registrar audit log:', auditError);
-      }
+      const itensSeparados = (localOS.itens_documento || []).filter(item => item.separado).length;
+      const totalItens = (localOS.itens_documento || []).length;
+      
+      const auditResult = await base44.functions.invoke('registrarAuditLog', {
+        action: 'separacao_update',
+        entity_type: 'OrdemServico',
+        entity_id: os.id,
+        details: {
+          descricao: `Marcou ${itensSeparados} de ${totalItens} materiais como separados`
+        }
+      });
+      console.log('Audit log result:', auditResult);
       
       // Atualizar fluxo de expedição se aplicável
       if (isExpedicao) {
         await base44.functions.invoke('atualizarFluxoExpedicao', { os_id: os.id });
       }
       
-      if (onRefresh) onRefresh();
+      // Recarregar os logs de auditoria
       await loadAuditLogs();
+      console.log('Logs recarregados');
+      
+      if (onRefresh) onRefresh();
+      
+      setIsEditing(false);
     } catch (error) {
       console.error('Erro ao salvar separação:', error);
     } finally {
