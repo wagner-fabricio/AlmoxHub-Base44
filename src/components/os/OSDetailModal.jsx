@@ -434,7 +434,7 @@ export default function OSDetailModal({
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
+      <DialogContent className="max-w-4xl h-[90vh] p-0 overflow-hidden flex flex-col">
         <DialogHeader className="px-4 lg:px-6 py-4 border-b bg-slate-50 dark:bg-slate-800">
           <div className="space-y-4">
             {/* Linha 1: Título e Status */}
@@ -500,8 +500,8 @@ export default function OSDetailModal({
           </div>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[calc(90vh-140px)]">
-          <div className="px-6 pt-6 pb-2">
+        <ScrollArea className="flex-1">
+          <div className="p-6">
             <Tabs defaultValue="detalhes">
               <TabsList className="mb-6">
                 <TabsTrigger value="detalhes">Detalhes</TabsTrigger>
