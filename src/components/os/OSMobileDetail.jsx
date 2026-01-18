@@ -9,6 +9,7 @@ import { base44 } from '@/api/base44Client';
 import MentionInput from '@/components/notifications/MentionInput';
 import PickingWMS from './PickingWMS';
 import ExpedicaoProgressTracker from './ExpedicaoProgressTracker';
+import MaterialesTab from '@/components/emfluxo/MaterialesTab';
 import {
   X,
   Clock,
@@ -89,6 +90,7 @@ export default function OSMobileDetail({
   const instalacaoDestino = instalacoes.find(i => i.id === os.instalacao_destino_id);
   
   const isExpedicao = categoria?.nome?.toLowerCase().includes('expedição');
+  const isRecebimento = categoria?.nome?.toLowerCase().includes('recebimento');
   const StatusIcon = statusConfig[os.status]?.icon || Clock;
 
   // Verificar se o usuário atual está associado à OS
@@ -441,7 +443,8 @@ export default function OSMobileDetail({
 
   const tabs = [
     { id: 'detalhes', label: 'Detalhes', icon: Clock },
-    ...(os.itens_documento?.length > 0 ? [{ id: 'materiais', label: 'Materiais', icon: Package }] : []),
+    ...(isExpedicao && os.itens_documento?.length > 0 ? [{ id: 'materiais', label: 'Materiais', icon: Package }] : []),
+    ...(isRecebimento && os.nfe_itens_conferencia?.length > 0 ? [{ id: 'materiais', label: 'Materiais', icon: Package }] : []),
     ...(os.volumes?.length > 0 ? [{ id: 'volumes', label: 'Volumes', icon: Package }] : []),
     ...(os.detalhamento_expedicao?.length > 0 ? [{ id: 'expedicao', label: 'Expedição', icon: Package }] : []),
     { id: 'comentarios', label: 'Chat', icon: MessageSquare },
@@ -664,7 +667,11 @@ export default function OSMobileDetail({
           </div>
         )}
 
-        {activeTab === 'materiais' && !wmsMode && (
+        {activeTab === 'materiais' && isRecebimento && (
+          <MaterialesTab os={os} onClose={onClose} />
+        )}
+
+        {activeTab === 'materiais' && isExpedicao && !wmsMode && (
           <div className="space-y-3">
             <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-4 shadow-lg mb-4">
               <div className="flex items-center justify-between">
@@ -778,7 +785,7 @@ export default function OSMobileDetail({
           </div>
         )}
 
-        {activeTab === 'materiais' && wmsMode && (
+        {activeTab === 'materiais' && isExpedicao && wmsMode && (
           <PickingWMS 
             os={os} 
             onComplete={handlePickingComplete}
