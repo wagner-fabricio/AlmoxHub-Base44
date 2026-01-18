@@ -137,11 +137,14 @@ export default function OSDetailModal({
 
   const loadAuditLogs = async () => {
     try {
+      console.log('Carregando audit logs para OS:', os.id);
       const logs = await base44.entities.AuditLog.filter({ 
         entity_type: 'OrdemServico',
         entity_id: os.id 
       });
+      console.log('Audit logs recebidos:', logs);
       const logsArray = Array.isArray(logs) ? logs : [];
+      console.log('Total de logs:', logsArray.length);
       setAuditLogs(logsArray.sort((a, b) => new Date(b.timestamp || b.created_date) - new Date(a.timestamp || a.created_date)));
     } catch (e) {
       console.error('Error loading audit logs:', e);
@@ -371,10 +374,13 @@ export default function OSDetailModal({
   const handleSaveSeparacao = async () => {
     setSavingSeparacao(true);
     try {
+      console.log('Iniciando salvamento de separação para OS:', os.id);
+      
       // Primeiro atualizar a OS
       await base44.entities.OrdemServico.update(os.id, {
         itens_documento: localOS.itens_documento
       });
+      console.log('OS atualizada com sucesso');
       
       // Aguardar um pouco para garantir que a atualização foi processada
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -383,6 +389,7 @@ export default function OSDetailModal({
       const itensSeparados = (localOS.itens_documento || []).filter(item => item.separado).length;
       const totalItens = (localOS.itens_documento || []).length;
       
+      console.log('Chamando registrarAuditLog...');
       const auditResult = await base44.functions.invoke('registrarAuditLog', {
         action: 'separacao_update',
         entity_type: 'OrdemServico',
@@ -391,7 +398,7 @@ export default function OSDetailModal({
           descricao: `Marcou ${itensSeparados} de ${totalItens} materiais como separados`
         }
       });
-      console.log('Audit log result:', auditResult);
+      console.log('Audit log result completo:', auditResult);
       
       // Atualizar fluxo de expedição se aplicável
       if (isExpedicao) {
@@ -399,14 +406,16 @@ export default function OSDetailModal({
       }
       
       // Recarregar os logs de auditoria
+      console.log('Recarregando audit logs...');
       await loadAuditLogs();
-      console.log('Logs recarregados');
+      console.log('Logs recarregados com sucesso');
       
       if (onRefresh) onRefresh();
       
       setIsEditing(false);
     } catch (error) {
       console.error('Erro ao salvar separação:', error);
+      console.error('Stack trace:', error.stack);
     } finally {
       setSavingSeparacao(false);
     }
