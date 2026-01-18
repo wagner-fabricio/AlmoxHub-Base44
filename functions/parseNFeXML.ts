@@ -47,17 +47,26 @@ function parseNFeXML(xmlContent) {
   };
 
   try {
-    // Extração usando regex para elementos XML
-    const getElementText = (tag) => {
+    // Extração usando regex para elementos XML com suporte a escopo
+    const getElementText = (tag, context = null) => {
+      const searchContent = context || xmlContent;
       const regex = new RegExp(`<${tag}>([^<]*)<\/${tag}>`, 'i');
-      const match = xmlContent.match(regex);
+      const match = searchContent.match(regex);
       return match ? match[1].trim() : '';
     };
 
-    const getElementTextNS = (ns, tag) => {
+    const getElementTextNS = (ns, tag, context = null) => {
+      const searchContent = context || xmlContent;
       const regex = new RegExp(`<${ns}:${tag}>([^<]*)<\/${ns}:${tag}>`, 'i');
-      const match = xmlContent.match(regex);
+      const match = searchContent.match(regex);
       return match ? match[1].trim() : '';
+    };
+
+    // Extrair seções específicas do XML
+    const extractSection = (sectionTag) => {
+      const regex = new RegExp(`<${sectionTag}[^>]*>([\\s\\S]*?)<\\/${sectionTag}>`, 'i');
+      const match = xmlContent.match(regex);
+      return match ? match[1] : '';
     };
 
     // Dados da Nota Fiscal (ideNFe - Identificação)
