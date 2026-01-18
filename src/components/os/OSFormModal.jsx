@@ -616,7 +616,6 @@ export default function OSFormModal({
                     <TabsTrigger value="receb-doc">Documento</TabsTrigger>
                     <TabsTrigger value="receb-transp">Transportador</TabsTrigger>
                     <TabsTrigger value="receb-mat">Materiais</TabsTrigger>
-                    <TabsTrigger value="receb-detalhes">Detalhes</TabsTrigger>
                   </>
                 )}
                 <TabsTrigger value="anexos">Anexos</TabsTrigger>
