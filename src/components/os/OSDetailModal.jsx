@@ -86,7 +86,7 @@ export default function OSDetailModal({
   const [showRelatorio, setShowRelatorio] = useState(false);
   const [localOS, setLocalOS] = useState(os);
   const [savingSeparacao, setSavingSeparacao] = useState(false);
-  const [editingMateriais, setEditingMateriais] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     if (open && os) {
@@ -365,7 +365,6 @@ export default function OSDetailModal({
         await base44.functions.invoke('atualizarFluxoExpedicao', { os_id: os.id });
       }
       
-      setEditingMateriais(false);
       if (onRefresh) onRefresh();
     } catch (error) {
       console.error('Erro ao salvar separação:', error);
@@ -374,9 +373,14 @@ export default function OSDetailModal({
     }
   };
 
-  const handleCancelEditMateriais = () => {
+  const handleEdit = () => {
+    setIsEditing(true);
+    onEdit();
+  };
+
+  const handleCancelEdit = () => {
     setLocalOS(os);
-    setEditingMateriais(false);
+    setIsEditing(false);
   };
 
   const handleShareOS = () => {
@@ -482,7 +486,7 @@ export default function OSDetailModal({
                   )}
                 </Button>
               )}
-              <Button onClick={onEdit} size="sm">
+              <Button onClick={handleEdit} size="sm">
                 <Edit className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Editar</span>
               </Button>
@@ -753,24 +757,11 @@ export default function OSDetailModal({
               <TabsContent value="materiais" className="space-y-4">
                 {localOS.itens_documento?.length > 0 ? (
                   <>
-                    {!editingMateriais && (
-                      <div className="flex justify-end">
-                        <Button
-                          onClick={() => setEditingMateriais(true)}
-                          variant="outline"
-                          size="sm"
-                        >
-                          <Edit className="w-4 h-4 mr-2" />
-                          Editar Separação
-                        </Button>
-                      </div>
-                    )}
-
                     <div className="border rounded-xl overflow-hidden">
                       <table className="w-full">
                         <thead className="bg-slate-50 dark:bg-slate-800">
                           <tr>
-                            {editingMateriais && (
+                            {isEditing && (
                               <th className="text-center p-3 text-sm font-semibold text-slate-600 dark:text-slate-300 w-12">
                                 <input
                                   type="checkbox"
@@ -803,7 +794,7 @@ export default function OSDetailModal({
                                 item.separado ? 'bg-green-50 dark:bg-green-900/10' : ''
                               }`}
                             >
-                              {editingMateriais && (
+                              {isEditing && (
                                 <td className="p-3 text-center">
                                   <input
                                     type="checkbox"
@@ -836,7 +827,7 @@ export default function OSDetailModal({
                         </tbody>
                         <tfoot className="bg-slate-50 dark:bg-slate-800 border-t-2 border-slate-200 dark:border-slate-700">
                           <tr>
-                            <td colSpan={editingMateriais ? "6" : "5"} className="p-3 text-right font-semibold text-slate-900 dark:text-white">
+                            <td colSpan={isEditing ? "6" : "5"} className="p-3 text-right font-semibold text-slate-900 dark:text-white">
                               Valor Total:
                             </td>
                             <td className="p-3 text-right font-bold text-blue-600 text-lg">
@@ -847,11 +838,11 @@ export default function OSDetailModal({
                       </table>
                     </div>
 
-                    {editingMateriais && hasChanges && (
+                    {isEditing && hasChanges && (
                       <div className="flex justify-end gap-2 pt-2">
                         <Button
                           variant="outline"
-                          onClick={handleCancelEditMateriais}
+                          onClick={handleCancelEdit}
                           disabled={savingSeparacao}
                         >
                           Cancelar
