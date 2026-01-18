@@ -226,6 +226,28 @@ export default function OSFormModal({
     selectedCategoria?.nome?.toLowerCase().includes('recebimento');
 
   const calculateProgress = (data) => {
+    const isRecebimento = selectedCategoria?.nome?.toLowerCase().includes('recebimento');
+    
+    if (isRecebimento) {
+      // Progresso baseado no fluxo de recebimento - cada etapa é 25%
+      let progress = 0;
+      
+      if (data.fluxo_recebimento?.xml_importado) {
+        progress = 25;
+      }
+      if (data.fluxo_recebimento?.conferencia_manual_completa) {
+        progress = 50;
+      }
+      if (data.fluxo_recebimento?.validacao_divergencias_completa) {
+        progress = 75;
+      }
+      if (data.fluxo_recebimento?.armazenagem_completa) {
+        progress = 100;
+      }
+      
+      return progress;
+    }
+    
     // Progresso baseado no fluxo de expedição - cada etapa é 20%
     let progress = 0;
 
