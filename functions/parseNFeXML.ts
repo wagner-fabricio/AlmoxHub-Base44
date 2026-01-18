@@ -70,13 +70,17 @@ function parseNFeXML(xmlContent) {
     };
 
     // Dados da Nota Fiscal (ideNFe - Identificação)
-    resultado.nfe_numero = getElementTextNS('ide', 'dNF') || getElementText('dNF') || '';
+    resultado.nfe_numero = getElementTextNS('ide', 'nNF') || getElementText('nNF') || '';
     resultado.nfe_serie = getElementTextNS('ide', 'serie') || getElementText('serie') || '';
-    
-    const dataEmissao = getElementTextNS('ide', 'dEmi') || getElementText('dEmi') || '';
+
+    const dataEmissao = getElementTextNS('ide', 'dhEmi') || getElementTextNS('ide', 'dEmi') || getElementText('dhEmi') || getElementText('dEmi') || '';
     if (dataEmissao) {
-      // Converter YYYYMMDD para YYYY-MM-DD
-      resultado.nfe_data_emissao = `${dataEmissao.substring(0, 4)}-${dataEmissao.substring(4, 6)}-${dataEmissao.substring(6, 8)}`;
+      // Converter YYYY-MM-DDTHH:MM:SS ou YYYYMMDD para YYYY-MM-DD
+      if (dataEmissao.includes('T')) {
+        resultado.nfe_data_emissao = dataEmissao.substring(0, 10);
+      } else {
+        resultado.nfe_data_emissao = `${dataEmissao.substring(0, 4)}-${dataEmissao.substring(4, 6)}-${dataEmissao.substring(6, 8)}`;
+      }
     }
     
     resultado.nfe_chave_acesso = getElementTextNS('ide', 'cUF') || getElementText('cUF') || '';
