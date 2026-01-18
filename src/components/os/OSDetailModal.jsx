@@ -399,6 +399,8 @@ export default function OSDetailModal({
         }
       });
       console.log('Audit log result completo:', auditResult);
+      console.log('Audit log data:', auditResult.data);
+      console.log('Audit log status:', auditResult.status);
       
       // Atualizar fluxo de expedição se aplicável
       if (isExpedicao) {
