@@ -76,6 +76,22 @@ export default function OSFormModal({
     data_entrega: '',
     anexos: [],
     imagens: [],
+    nfe_numero: '',
+    nfe_serie: '',
+    nfe_data_emissao: '',
+    nfe_chave_acesso: '',
+    nfe_natureza_operacao: '',
+    nfe_dados_emissor: {},
+    nfe_dados_destinatario: {},
+    nfe_dados_transportador: {},
+    nfe_itens_conferencia: [],
+    fluxo_recebimento: {
+      etapa_atual: 1,
+      xml_importado: false,
+      conferencia_manual_completa: false,
+      validacao_divergencias_completa: false,
+      armazenagem_completa: false
+    }
   });
 
   useEffect(() => {
