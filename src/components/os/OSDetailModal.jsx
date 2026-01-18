@@ -500,10 +500,10 @@ export default function OSDetailModal({
           </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-hidden">
-          <Tabs defaultValue="detalhes" className="h-full flex flex-col">
-            <div className="px-6 pt-6 pb-2">
-              <TabsList className="mb-4">
+        <ScrollArea className="flex-1">
+          <div className="p-6">
+            <Tabs defaultValue="detalhes">
+              <TabsList className="mb-6">
                 <TabsTrigger value="detalhes">Detalhes</TabsTrigger>
                 {isExpedicao && os.itens_documento?.length > 0 && (
                   <TabsTrigger value="materiais">Materiais</TabsTrigger>
@@ -521,12 +521,9 @@ export default function OSDetailModal({
                   Anexos ({(os.anexos?.length || 0) + (os.imagens?.length || 0)})
                 </TabsTrigger>
               </TabsList>
-            </div>
 
-            {/* Detalhes Tab */}
-            <TabsContent value="detalhes" className="flex-1 overflow-hidden">
-              <ScrollArea className="h-full px-6">
-                <div className="space-y-6 pb-6">
+              {/* Detalhes Tab */}
+              <TabsContent value="detalhes" className="space-y-6">
                 {/* Fluxo de Expedição */}
                 {isExpedicao && (
                   <ExpedicaoProgressTracker os={localOS} />
@@ -666,14 +663,10 @@ export default function OSDetailModal({
                     <p className="text-slate-600 dark:text-slate-400 whitespace-pre-wrap">{os.anotacoes}</p>
                   </div>
                 )}
-                </div>
-              </ScrollArea>
-            </TabsContent>
+              </TabsContent>
 
-            {/* Volumes Tab */}
-            <TabsContent value="volumes" className="flex-1 overflow-hidden">
-              <ScrollArea className="h-full px-6">
-                <div className="space-y-4 pb-6">
+              {/* Volumes Tab */}
+              <TabsContent value="volumes" className="space-y-4">
                 {os.volumes?.length > 0 ? (
                   <div className="border rounded-xl overflow-hidden">
                     <table className="w-full">
@@ -706,14 +699,10 @@ export default function OSDetailModal({
                     Nenhum volume cadastrado
                   </div>
                 )}
-                </div>
-              </ScrollArea>
-            </TabsContent>
+              </TabsContent>
 
-            {/* Expedição Tab */}
-            <TabsContent value="expedicao" className="flex-1 overflow-hidden">
-              <ScrollArea className="h-full px-6">
-                <div className="space-y-4 pb-6">
+              {/* Expedição Tab */}
+              <TabsContent value="expedicao" className="space-y-4">
                 {os.detalhamento_expedicao?.length > 0 ? (
                   <div className="border rounded-xl overflow-hidden">
                     <table className="w-full">
@@ -754,14 +743,10 @@ export default function OSDetailModal({
                     Nenhuma expedição cadastrada
                   </div>
                 )}
-                </div>
-              </ScrollArea>
-            </TabsContent>
+              </TabsContent>
 
-            {/* Materiais Tab */}
-            <TabsContent value="materiais" className="flex-1 overflow-hidden">
-              <ScrollArea className="h-full px-6">
-                <div className="space-y-4 pb-6">
+              {/* Materiais Tab */}
+              <TabsContent value="materiais" className="space-y-4">
                 {localOS.itens_documento?.length > 0 ? (
                   <>
                     <div className="border rounded-xl overflow-hidden">
@@ -869,12 +854,10 @@ export default function OSDetailModal({
                     Nenhum material cadastrado
                   </div>
                 )}
-                </div>
-              </ScrollArea>
-            </TabsContent>
+              </TabsContent>
 
-            {/* Comentários Tab - Chat Style */}
-            <TabsContent value="comentarios" className="flex-1 flex flex-col overflow-hidden px-6 pb-6">
+              {/* Comentários Tab - Chat Style */}
+              <TabsContent value="comentarios" className="flex flex-col min-h-[400px]">
                 {/* Messages Container */}
                 <ScrollArea className="flex-1 pr-4">
                   <div className="space-y-1">
@@ -1069,9 +1052,7 @@ export default function OSDetailModal({
               </TabsContent>
 
               {/* Anexos Tab */}
-              <TabsContent value="anexos" className="flex-1 overflow-hidden">
-                <ScrollArea className="h-full px-6">
-                  <div className="space-y-6 pb-6">
+              <TabsContent value="anexos" className="space-y-6">
                 {/* Images */}
                 {os.imagens?.length > 0 && (
                   <div>
@@ -1124,11 +1105,10 @@ export default function OSDetailModal({
                     Nenhum anexo
                   </div>
                 )}
-                  </div>
-                </ScrollArea>
               </TabsContent>
             </Tabs>
           </div>
+        </ScrollArea>
       </DialogContent>
       </Dialog>
 
