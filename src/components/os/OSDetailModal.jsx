@@ -86,6 +86,7 @@ export default function OSDetailModal({
   const [showRelatorio, setShowRelatorio] = useState(false);
   const [localOS, setLocalOS] = useState(os);
   const [savingSeparacao, setSavingSeparacao] = useState(false);
+  const [editingMateriais, setEditingMateriais] = useState(false);
 
   useEffect(() => {
     if (open && os) {
@@ -364,12 +365,18 @@ export default function OSDetailModal({
         await base44.functions.invoke('atualizarFluxoExpedicao', { os_id: os.id });
       }
       
+      setEditingMateriais(false);
       if (onRefresh) onRefresh();
     } catch (error) {
       console.error('Erro ao salvar separação:', error);
     } finally {
       setSavingSeparacao(false);
     }
+  };
+
+  const handleCancelEditMateriais = () => {
+    setLocalOS(os);
+    setEditingMateriais(false);
   };
 
   const handleShareOS = () => {
@@ -746,25 +753,40 @@ export default function OSDetailModal({
               <TabsContent value="materiais" className="space-y-4">
                 {localOS.itens_documento?.length > 0 ? (
                   <>
+                    {!editingMateriais && (
+                      <div className="flex justify-end">
+                        <Button
+                          onClick={() => setEditingMateriais(true)}
+                          variant="outline"
+                          size="sm"
+                        >
+                          <Edit className="w-4 h-4 mr-2" />
+                          Editar Separação
+                        </Button>
+                      </div>
+                    )}
+
                     <div className="border rounded-xl overflow-hidden">
                       <table className="w-full">
                         <thead className="bg-slate-50 dark:bg-slate-800">
                           <tr>
-                            <th className="text-center p-3 text-sm font-semibold text-slate-600 dark:text-slate-300 w-12">
-                              <input
-                                type="checkbox"
-                                checked={(localOS.itens_documento || []).every(item => item.separado)}
-                                onChange={(e) => {
-                                  const allChecked = e.target.checked;
-                                  const updatedItens = (localOS.itens_documento || []).map(item => ({
-                                    ...item,
-                                    separado: allChecked
-                                  }));
-                                  setLocalOS({ ...localOS, itens_documento: updatedItens });
-                                }}
-                                className="w-4 h-4 cursor-pointer"
-                              />
-                            </th>
+                            {editingMateriais && (
+                              <th className="text-center p-3 text-sm font-semibold text-slate-600 dark:text-slate-300 w-12">
+                                <input
+                                  type="checkbox"
+                                  checked={(localOS.itens_documento || []).every(item => item.separado)}
+                                  onChange={(e) => {
+                                    const allChecked = e.target.checked;
+                                    const updatedItens = (localOS.itens_documento || []).map(item => ({
+                                      ...item,
+                                      separado: allChecked
+                                    }));
+                                    setLocalOS({ ...localOS, itens_documento: updatedItens });
+                                  }}
+                                  className="w-4 h-4 cursor-pointer"
+                                />
+                              </th>
+                            )}
                             <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Código</th>
                             <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Descrição</th>
                             <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Qtd</th>
@@ -781,14 +803,16 @@ export default function OSDetailModal({
                                 item.separado ? 'bg-green-50 dark:bg-green-900/10' : ''
                               }`}
                             >
-                              <td className="p-3 text-center">
-                                <input
-                                  type="checkbox"
-                                  checked={item.separado || false}
-                                  onChange={() => handleToggleSeparado(i)}
-                                  className="w-4 h-4 cursor-pointer accent-green-600"
-                                />
-                              </td>
+                              {editingMateriais && (
+                                <td className="p-3 text-center">
+                                  <input
+                                    type="checkbox"
+                                    checked={item.separado || false}
+                                    onChange={() => handleToggleSeparado(i)}
+                                    className="w-4 h-4 cursor-pointer accent-green-600"
+                                  />
+                                </td>
+                              )}
                               <td className={`p-3 font-mono text-sm ${item.separado ? 'line-through text-green-600' : ''}`}>
                                 {item.codigo}
                               </td>
@@ -812,7 +836,7 @@ export default function OSDetailModal({
                         </tbody>
                         <tfoot className="bg-slate-50 dark:bg-slate-800 border-t-2 border-slate-200 dark:border-slate-700">
                           <tr>
-                            <td colSpan="6" className="p-3 text-right font-semibold text-slate-900 dark:text-white">
+                            <td colSpan={editingMateriais ? "6" : "5"} className="p-3 text-right font-semibold text-slate-900 dark:text-white">
                               Valor Total:
                             </td>
                             <td className="p-3 text-right font-bold text-blue-600 text-lg">
@@ -823,11 +847,11 @@ export default function OSDetailModal({
                       </table>
                     </div>
 
-                    {hasChanges && (
+                    {editingMateriais && hasChanges && (
                       <div className="flex justify-end gap-2 pt-2">
                         <Button
                           variant="outline"
-                          onClick={() => setLocalOS(os)}
+                          onClick={handleCancelEditMateriais}
                           disabled={savingSeparacao}
                         >
                           Cancelar
