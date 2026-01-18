@@ -12,7 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from '@/components/ui/command';
 import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
-import { Save, Plus, Trash2, Upload, X, Loader2, Paperclip, Check, ChevronsUpDown } from 'lucide-react';
+import { Save, Plus, Trash2, Upload, X, Loader2, Paperclip, Check, ChevronsUpDown, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import OSItensDocumento from './OSItensDocumento';
 import OSVolumes from './OSVolumes';
