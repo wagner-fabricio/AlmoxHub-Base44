@@ -1123,8 +1123,80 @@ export default function OSFormModal({
                 </TabsContent>
               )}
 
+              {/* TAB: Recebimento - Documento */}
+              {isRecebimentoCategory && (
+                <TabsContent value="receb-doc" className="space-y-6">
+                  <OSRecebimentoDocumento
+                    emissor={formData.nfe_dados_emissor}
+                    destinatario={formData.nfe_dados_destinatario}
+                    onChange={(data) => setFormData(prev => ({
+                      ...prev,
+                      nfe_dados_emissor: data.emissor || prev.nfe_dados_emissor,
+                      nfe_dados_destinatario: data.destinatario || prev.nfe_dados_destinatario
+                    }))}
+                  />
+                </TabsContent>
+              )}
+
+              {/* TAB: Recebimento - Transportador */}
+              {isRecebimentoCategory && (
+                <TabsContent value="receb-transp" className="space-y-6">
+                  <OSRecebimentoTransportador
+                    transportador={formData.nfe_dados_transportador}
+                    onChange={(data) => setFormData(prev => ({
+                      ...prev,
+                      nfe_dados_transportador: data
+                    }))}
+                  />
+                </TabsContent>
+              )}
+
+              {/* TAB: Recebimento - Materiais */}
+              {isRecebimentoCategory && (
+                <TabsContent value="receb-mat" className="space-y-6">
+                  <OSRecebimentoMateriais
+                    itens={formData.nfe_itens_conferencia}
+                    fluxo={formData.fluxo_recebimento}
+                    onChange={(data) => setFormData(prev => ({
+                      ...prev,
+                      nfe_itens_conferencia: data.itens || prev.nfe_itens_conferencia,
+                      fluxo_recebimento: data.fluxo || prev.fluxo_recebimento
+                    }))}
+                  />
+                </TabsContent>
+              )}
+
               {/* TAB: Anexos */}
               <TabsContent value="anexos" className="space-y-6">
+                {/* NFe XML Import Section */}
+                {isRecebimentoCategory && (
+                  <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border-2 border-amber-200 dark:border-amber-800">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <h4 className="font-semibold text-amber-900 dark:text-amber-100">NFe XML</h4>
+                        <p className="text-sm text-amber-700 dark:text-amber-300">Faça upload do XML para importar dados automaticamente</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="flex-1">
+                        <Input
+                          type="file"
+                          accept=".xml"
+                          onChange={handleNFeXMLUpload}
+                          className="cursor-pointer"
+                          disabled={importingXML}
+                        />
+                      </div>
+                    </div>
+                    {importingXML && (
+                      <div className="mt-2 flex items-center gap-2 text-sm text-amber-700 dark:text-amber-300">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Processando XML...
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* ZMMTSE Import Section */}
                 {isExpedicaoCategory && (
                   <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-800">
