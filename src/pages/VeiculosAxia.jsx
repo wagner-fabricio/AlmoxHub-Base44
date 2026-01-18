@@ -30,8 +30,7 @@ export default function VeiculosAxia() {
     estado: '',
     tara: 0,
     carroceria: '',
-    tipo: '',
-    ativo: true
+    tipo: ''
   });
 
   useEffect(() => {
@@ -66,7 +65,7 @@ export default function VeiculosAxia() {
   const handleDelete = async (id) => {
     if (confirm('Deseja realmente excluir este veículo?')) {
       try {
-        await base44.entities.VeiculoAxia.update(id, { ativo: false });
+        await base44.entities.VeiculoAxia.delete(id);
         loadVeiculos();
       } catch (e) {
         console.error('Error deleting veiculo:', e);
@@ -89,8 +88,7 @@ export default function VeiculosAxia() {
       estado: '',
       tara: 0,
       carroceria: '',
-      tipo: '',
-      ativo: true
+      tipo: ''
     });
     setModalOpen(true);
   };
@@ -163,7 +161,6 @@ export default function VeiculosAxia() {
               <TableHead>RENAVAM</TableHead>
               <TableHead>Proprietário</TableHead>
               <TableHead>Tara (kg)</TableHead>
-              <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -177,11 +174,6 @@ export default function VeiculosAxia() {
                 <TableCell className="font-mono text-sm">{veiculo.renavam}</TableCell>
                 <TableCell>{veiculo.proprietario}</TableCell>
                 <TableCell>{veiculo.tara?.toLocaleString('pt-BR')}</TableCell>
-                <TableCell>
-                  <Badge className={veiculo.ativo ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}>
-                    {veiculo.ativo ? 'Ativo' : 'Inativo'}
-                  </Badge>
-                </TableCell>
                 <TableCell>
                   <div className="flex items-center justify-end gap-1">
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(veiculo)}>
