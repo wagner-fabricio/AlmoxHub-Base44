@@ -176,9 +176,39 @@ export default function OSFormModal({
 
       let savedOS;
       if (os) {
+        // Atualizar OS existente
         savedOS = await base44.entities.OrdemServico.update(os.id, dataToSave);
+        
+        // Registrar no histórico
+        try {
+          await base44.functions.invoke('registrarAuditLog', {
+            action: 'update',
+            entity_type: 'OrdemServico',
+            entity_id: os.id,
+            details: {
+              descricao: `OS ${codigo} atualizada`
+            }
+          });
+        } catch (auditError) {
+          console.error('Erro ao registrar atualização no histórico:', auditError);
+        }
       } else {
+        // Criar nova OS
         savedOS = await base44.entities.OrdemServico.create(dataToSave);
+        
+        // Registrar criação no histórico
+        try {
+          await base44.functions.invoke('registrarAuditLog', {
+            action: 'create',
+            entity_type: 'OrdemServico',
+            entity_id: savedOS.id,
+            details: {
+              descricao: `OS ${codigo} criada`
+            }
+          });
+        } catch (auditError) {
+          console.error('Erro ao registrar criação no histórico:', auditError);
+        }
         
         // Criar notificações para pessoas atribuídas na nova OS
         const osId = savedOS.id;
