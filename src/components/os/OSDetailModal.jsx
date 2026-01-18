@@ -609,7 +609,6 @@ export default function OSDetailModal({
                     <table className="w-full">
                       <thead className="bg-slate-50 dark:bg-slate-800">
                         <tr>
-                          <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">ID Volume</th>
                           <th className="text-center p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Quantidade</th>
                           <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Largura (cm)</th>
                           <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Altura (cm)</th>
@@ -621,7 +620,6 @@ export default function OSDetailModal({
                       <tbody>
                         {os.volumes.map((volume, i) => (
                           <tr key={i} className="border-t border-slate-100 dark:border-slate-700">
-                            <td className="p-3 font-medium">{volume.id_volume || `VOL-${String(i + 1).padStart(3, '0')}`}</td>
                             <td className="p-3 text-center">{volume.quantidade || 1}</td>
                             <td className="p-3 text-right">{volume.largura || '-'}</td>
                             <td className="p-3 text-right">{volume.altura || '-'}</td>
