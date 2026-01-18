@@ -447,7 +447,15 @@ export default function OSDetailModal({
             <Tabs defaultValue="detalhes">
               <TabsList className="mb-6">
                 <TabsTrigger value="detalhes">Detalhes</TabsTrigger>
-                <TabsTrigger value="materiais">Materiais</TabsTrigger>
+                {isExpedicao && os.itens_documento?.length > 0 && (
+                  <TabsTrigger value="materiais">Materiais</TabsTrigger>
+                )}
+                {isExpedicao && os.volumes?.length > 0 && (
+                  <TabsTrigger value="volumes">Volumes</TabsTrigger>
+                )}
+                {isExpedicao && os.detalhamento_expedicao?.length > 0 && (
+                  <TabsTrigger value="expedicao">Expedição</TabsTrigger>
+                )}
                 <TabsTrigger value="comentarios">
                   Comentários ({comentarios.length})
                 </TabsTrigger>
