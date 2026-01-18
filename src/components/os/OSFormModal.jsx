@@ -178,17 +178,42 @@ export default function OSFormModal({
       if (os) {
         // Atualizar OS existente
         savedOS = await base44.entities.OrdemServico.update(os.id, dataToSave);
-        
-        // Registrar no histórico
+
+        // Registrar no histórico com campos alterados
         try {
-          await base44.functions.invoke('registrarAuditLog', {
-            action: 'update',
-            entity_type: 'OrdemServico',
-            entity_id: os.id,
-            details: {
-              descricao: `OS ${codigo} atualizada`
+          const camposAlterados = {};
+          const camposSignificativos = [
+            'status', 'prioridade', 'progresso', 'prazo', 'lider_id',
+            'almoxarifado_id', 'categoria_id', 'regional_id', 'data_inicial',
+            'data_conclusao', 'anotacoes', 'descricao_resumida', 'atendente_nome'
+          ];
+
+          camposSignificativos.forEach(campo => {
+            const valorAntigo = os[campo];
+            const valorNovo = dataToSave[campo];
+            if (JSON.stringify(valorAntigo) !== JSON.stringify(valorNovo)) {
+              camposAlterados[campo] = {
+                valor_anterior: valorAntigo,
+                valor_novo: valorNovo
+              };
             }
           });
+
+          // Se houve alterações, registrar cada uma
+          if (Object.keys(camposAlterados).length > 0) {
+            for (const [campo, valores] of Object.entries(camposAlterados)) {
+              await base44.functions.invoke('registrarAuditLog', {
+                action: 'update',
+                entity_type: 'OrdemServico',
+                entity_id: os.id,
+                details: {
+                  campo: campo,
+                  valor_anterior: valores.valor_anterior,
+                  valor_novo: valores.valor_novo
+                }
+              });
+            }
+          }
         } catch (auditError) {
           console.error('Erro ao registrar atualização no histórico:', auditError);
         }
