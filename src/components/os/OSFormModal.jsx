@@ -97,17 +97,63 @@ export default function OSFormModal({
   });
 
   useEffect(() => {
-    if (os) {
-      setFormData({
-        ...formData,
-        ...os,
+    if (os && os.id) {
+      // Spread os data first, then override dates
+      const newFormData = {
+        categoria_id: os.categoria_id || '',
+        subcategorias_ids: os.subcategorias_ids || [],
+        regional_id: os.regional_id || '',
+        almoxarifado_id: os.almoxarifado_id || '',
+        lider_id: os.lider_id || '',
+        atendente_nome: os.atendente_nome || '',
+        executores_ids: os.executores_ids || [],
+        outros_envolvidos_ids: os.outros_envolvidos_ids || [],
         prazo: os.prazo ? os.prazo.split('T')[0] : '',
         data_inicial: os.data_inicial ? os.data_inicial.split('T')[0] : '',
+        prioridade: os.prioridade || 'media',
+        status: os.status || 'elaboracao',
+        anotacoes: os.anotacoes || '',
+        projetos_ids: os.projetos_ids || [],
+        descricao_resumida: os.descricao_resumida || '',
+        num_reserva: os.num_reserva || '',
         data_reserva: os.data_reserva ? os.data_reserva.split('T')[0] : '',
+        usuario_reserva: os.usuario_reserva || '',
+        usuario_reserva_email: os.usuario_reserva_email || '',
+        orgao: os.orgao || '',
         data_migo: os.data_migo ? os.data_migo.split('T')[0] : '',
+        num_migo: os.num_migo || '',
+        vinculacao: os.vinculacao || '',
+        instalacao_origem_id: os.instalacao_origem_id || '',
+        instalacao_destino_id: os.instalacao_destino_id || '',
+        itens_documento: os.itens_documento || [],
+        volumes: os.volumes || [],
+        detalhamento_expedicao: os.detalhamento_expedicao || [],
+        status_separacao: os.status_separacao || 'pendente',
+        responsavel_separacao: os.responsavel_separacao || '',
         data_separacao: os.data_separacao ? os.data_separacao.split('T')[0] : '',
         data_entrega: os.data_entrega ? os.data_entrega.split('T')[0] : '',
-      });
+        anexos: os.anexos || [],
+        imagens: os.imagens || [],
+        nfe_numero: os.nfe_numero || '',
+        nfe_serie: os.nfe_serie || '',
+        nfe_data_emissao: os.nfe_data_emissao || '',
+        nfe_chave_acesso: os.nfe_chave_acesso || '',
+        nfe_natureza_operacao: os.nfe_natureza_operacao || '',
+        nfe_dados_emissor: os.nfe_dados_emissor || {},
+        nfe_dados_destinatario: os.nfe_dados_destinatario || {},
+        nfe_dados_transportador: os.nfe_dados_transportador || {},
+        nfe_itens_conferencia: os.nfe_itens_conferencia || [],
+        fluxo_recebimento: os.fluxo_recebimento || {
+          etapa_atual: 1,
+          xml_importado: false,
+          conferencia_manual_completa: false,
+          validacao_divergencias_completa: false,
+          armazenagem_completa: false
+        },
+        codigo: os.codigo || '',
+        progresso: os.progresso || 0
+      };
+      setFormData(newFormData);
     } else {
       // Reset to empty defaults for new OS
       setFormData({
