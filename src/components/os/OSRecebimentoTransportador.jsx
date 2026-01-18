@@ -36,6 +36,14 @@ export default function OSRecebimentoTransportador({ transportador, onChange }) 
               className="bg-slate-50 dark:bg-slate-800"
             />
           </div>
+          <div className="space-y-2">
+            <Label>Inscrição Estadual</Label>
+            <Input
+              value={transportador?.inscricao_estadual || ''}
+              onChange={(e) => handleChange('inscricao_estadual', e.target.value)}
+              className="bg-slate-50 dark:bg-slate-800"
+            />
+          </div>
           <div className="space-y-2 lg:col-span-2">
             <Label>Endereço</Label>
             <Input
