@@ -276,7 +276,7 @@ export default function MaterialesTab({ os, onClose, isRecebimento = true }) {
         </div>
 
         {/* Quantidade a Separar */}
-        <div className={`grid ${isRecebimento ? 'grid-cols-2' : 'grid-cols-2'} gap-3 mb-4`}>
+        <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="bg-slate-100 dark:bg-slate-700 rounded-xl p-3">
             <span className="text-xs text-slate-600 dark:text-slate-400 block mb-1">
               {isRecebimento ? 'Qtd NF' : 'Quantidade'}
@@ -289,16 +289,28 @@ export default function MaterialesTab({ os, onClose, isRecebimento = true }) {
             </span>
           </div>
 
-          {!isRecebimento && saldoAposSeparacao !== null && (
+          {isRecebimento ? (
             <div className="bg-slate-100 dark:bg-slate-700 rounded-xl p-3">
-              <span className="text-xs text-slate-600 dark:text-slate-400 block mb-1">Saldo</span>
+              <span className="text-xs text-slate-600 dark:text-slate-400 block mb-1">Qtd Recebida</span>
               <p className="text-2xl font-bold text-slate-700 dark:text-slate-300">
-                {saldoAposSeparacao}
+                {itemsStatus[currentItemIndex]?.quantidadeSeparada || '-'}
               </p>
               <span className="text-xs text-slate-600 dark:text-slate-400">
                 {currentItem?.unidade || 'UN'}
               </span>
             </div>
+          ) : (
+            saldoAposSeparacao !== null && (
+              <div className="bg-slate-100 dark:bg-slate-700 rounded-xl p-3">
+                <span className="text-xs text-slate-600 dark:text-slate-400 block mb-1">Saldo</span>
+                <p className="text-2xl font-bold text-slate-700 dark:text-slate-300">
+                  {saldoAposSeparacao}
+                </p>
+                <span className="text-xs text-slate-600 dark:text-slate-400">
+                  {currentItem?.unidade || 'UN'}
+                </span>
+              </div>
+            )
           )}
         </div>
 
