@@ -242,92 +242,102 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) 
           <div key={index} className="border rounded-lg overflow-hidden">
             {/* Linha principal */}
             <div className="bg-slate-50 dark:bg-slate-800 p-4">
-              <div className="flex items-center gap-4">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => toggleExpanded(index)}
-                  className="shrink-0"
-                >
-                  {expandedIndex === index ? (
-                    <ChevronDown className="w-4 h-4" />
-                  ) : (
-                    <ChevronRight className="w-4 h-4" />
-                  )}
-                </Button>
-
-                <div className="flex items-center gap-4 flex-1">
-                  <div className="font-semibold text-slate-700 dark:text-slate-300 w-24">
-                    Nº {exp.num_expedicao}
-                  </div>
-                  
-                  <div className="flex-1 grid grid-cols-1 md:grid-cols-5 gap-3">
-                    <Input
-                      placeholder="Tipo Doc"
-                      value={exp.tipo_doc || ''}
-                      onChange={(e) => updateExpedicao(index, 'tipo_doc', e.target.value)}
-                    />
-                    <Input
-                      placeholder="Nº Doc"
-                      value={exp.num_doc || ''}
-                      onChange={(e) => updateExpedicao(index, 'num_doc', e.target.value)}
-                    />
-                    <Input
-                      type="number"
-                      placeholder="Volumes"
-                      value={exp.num_vol || ''}
-                      onChange={(e) => updateExpedicao(index, 'num_vol', parseFloat(e.target.value) || 0)}
-                    />
-                    <Input
-                      type="number"
-                      placeholder="Peso (kg)"
-                      value={exp.peso || ''}
-                      onChange={(e) => updateExpedicao(index, 'peso', parseFloat(e.target.value) || 0)}
-                    />
-                    <Input
-                      type="date"
-                      value={exp.data_expedicao || ''}
-                      onChange={(e) => updateExpedicao(index, 'data_expedicao', e.target.value)}
-                    />
-                  </div>
+              <div className="grid grid-cols-12 gap-4 items-center">
+                {/* # */}
+                <div className="col-span-1 font-semibold text-slate-700 dark:text-slate-300 text-center">
+                  {exp.num_expedicao}
                 </div>
 
-                <div className="flex gap-2">
-                  {(() => {
-                    const ordem = getOrdemForExpedicao(index);
-                    if (ordem) {
-                      return (
-                        <>
-                          <OrdemSaidaPDF ordem={ordem} />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedExpedicaoIndex(index);
-                              setOrdemSaidaModalOpen(true);
-                            }}
-                          >
-                            <FileText className="w-4 h-4 mr-2" />
-                            Editar Ordem
-                          </Button>
-                        </>
-                      );
-                    } else {
-                      return (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleGerarOrdem(index)}
-                        >
-                          <FileText className="w-4 h-4 mr-2" />
-                          Gerar Ordem de Saída
-                        </Button>
-                      );
-                    }
-                  })()}
+                {/* Data */}
+                <div className="col-span-2">
+                  <Input
+                    type="date"
+                    value={exp.data_expedicao || ''}
+                    onChange={(e) => updateExpedicao(index, 'data_expedicao', e.target.value)}
+                    className="h-9"
+                  />
+                </div>
+
+                {/* Tipo Doc */}
+                <div className="col-span-2">
+                  <Input
+                    placeholder="Tipo Doc"
+                    value={exp.tipo_doc || ''}
+                    onChange={(e) => updateExpedicao(index, 'tipo_doc', e.target.value)}
+                    className="h-9"
+                  />
+                </div>
+
+                {/* Nº Doc */}
+                <div className="col-span-2">
+                  <Input
+                    placeholder="Nº Doc"
+                    value={exp.num_doc || ''}
+                    onChange={(e) => updateExpedicao(index, 'num_doc', e.target.value)}
+                    className="h-9"
+                  />
+                </div>
+
+                {/* Volumes */}
+                <div className="col-span-1">
+                  <Input
+                    type="number"
+                    placeholder="Vol"
+                    value={exp.num_vol || ''}
+                    onChange={(e) => updateExpedicao(index, 'num_vol', parseFloat(e.target.value) || 0)}
+                    className="h-9"
+                  />
+                </div>
+
+                {/* Peso */}
+                <div className="col-span-1">
+                  <Input
+                    type="number"
+                    placeholder="Peso"
+                    value={exp.peso || ''}
+                    onChange={(e) => updateExpedicao(index, 'peso', parseFloat(e.target.value) || 0)}
+                    className="h-9"
+                  />
+                </div>
+
+                {/* Modal */}
+                <div className="col-span-1">
+                  <Select
+                    value={exp.modal_transporte || ''}
+                    onValueChange={(v) => updateExpedicao(index, 'modal_transporte', v)}
+                  >
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Modal" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Terrestre">Terrestre</SelectItem>
+                      <SelectItem value="Aéreo">Aéreo</SelectItem>
+                      <SelectItem value="Marítimo">Marítimo</SelectItem>
+                      <SelectItem value="Misto">Misto</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Valor Total */}
+                <div className="col-span-1 text-right font-medium text-slate-900 dark:text-white">
+                  {exp.valor_total ? `R$ ${exp.valor_total.toLocaleString('pt-BR')}` : '-'}
+                </div>
+
+                {/* Ações */}
+                <div className="col-span-1 flex gap-1 justify-end">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => toggleExpanded(index)}
+                    className="shrink-0"
+                  >
+                    {expandedIndex === index ? (
+                      <ChevronDown className="w-4 h-4" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4" />
+                    )}
+                  </Button>
 
                   <Button
                     type="button"
@@ -345,30 +355,51 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) 
             {/* Seção expansível - Dados de Transporte */}
             {expandedIndex === index && (
               <div className="p-6 space-y-6 bg-white dark:bg-slate-900">
+                {/* Ordem de Saída */}
+                <div className="flex items-center justify-between pb-6 border-b">
+                  <h5 className="font-semibold text-lg">Ordem de Saída</h5>
+                  {(() => {
+                    const ordem = getOrdemForExpedicao(index);
+                    if (ordem) {
+                      return (
+                        <div className="flex gap-2">
+                          <OrdemSaidaPDF ordem={ordem} />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedExpedicaoIndex(index);
+                              setOrdemSaidaModalOpen(true);
+                            }}
+                          >
+                            <FileText className="w-4 h-4 mr-2" />
+                            Editar Ordem
+                          </Button>
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <Button
+                          type="button"
+                          variant="default"
+                          size="sm"
+                          onClick={() => handleGerarOrdem(index)}
+                        >
+                          <FileText className="w-4 h-4 mr-2" />
+                          Gerar Ordem de Saída
+                        </Button>
+                      );
+                    }
+                  })()}
+                </div>
+
                 {/* Dados Gerais de Transporte */}
                 <div>
-                  <h5 className="font-semibold mb-4 text-lg">Dados de Transporte</h5>
+                  <h5 className="font-semibold mb-4">Dados de Transporte</h5>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Modal de Transporte *</Label>
-                      <Select
-                        value={exp.modal_transporte || ''}
-                        onValueChange={(v) => updateExpedicao(index, 'modal_transporte', v)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Terrestre">Terrestre</SelectItem>
-                          <SelectItem value="Aéreo">Aéreo</SelectItem>
-                          <SelectItem value="Marítimo">Marítimo</SelectItem>
-                          <SelectItem value="Misto">Misto</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Responsável pelo Transporte *</Label>
+                      <Label>Responsável pelo Transporte</Label>
                       <Select
                         value={exp.responsavel_transporte || ''}
                         onValueChange={(v) => updateExpedicao(index, 'responsavel_transporte', v)}
@@ -386,6 +417,16 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) 
                           <SelectItem value="Correios">Correios</SelectItem>
                         </SelectContent>
                       </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Valor Total</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={exp.valor_total || ''}
+                        onChange={(e) => updateExpedicao(index, 'valor_total', parseFloat(e.target.value) || 0)}
+                      />
                     </div>
 
                     <div className="flex items-center space-x-2">
