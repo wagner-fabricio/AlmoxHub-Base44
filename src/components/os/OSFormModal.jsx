@@ -139,22 +139,60 @@ export default function OSFormModal({
   const isExpedicaoCategory = 
     selectedCategoria?.nome?.toLowerCase().includes('expedição');
 
+  const calculateProgress = (data) => {
+    // Calcular progresso baseado em quais seções foram preenchidas
+    let progress = 0;
+
+    // Seção 1: Dados Gerais (20%)
+    if (data.categoria_id && data.subcategorias_ids?.length > 0 && 
+        data.regional_id && data.almoxarifado_id && data.lider_id) {
+      progress += 20;
+    }
+
+    // Seção 2: Documento (20%) - apenas para expedição
+    const isExpedicao = Array.isArray(categorias) ? 
+      categorias.find(c => c?.id === data.categoria_id)?.nome?.toLowerCase().includes('expedição') : false;
+
+    if (isExpedicao) {
+      if (data.num_reserva && data.data_reserva && data.usuario_reserva && data.orgao) {
+        progress += 20;
+      }
+
+      // Seção 3: Materiais (20%)
+      if (data.itens_documento?.length > 0) {
+        progress += 20;
+      }
+
+      // Seção 4: Volumes (10%)
+      if (data.volumes?.length > 0) {
+        progress += 10;
+      }
+
+      // Seção 5: Expedição (10%)
+      if (data.detalhamento_expedicao?.length > 0) {
+        progress += 10;
+      }
+    }
+
+    return Math.min(progress, 100);
+  };
+
   const handleSubmit = async () => {
     setSaving(true);
     try {
       let codigo = formData.codigo;
       const isNew = !os;
-      
+
       if (isNew) {
         // Generate unique ID with regional prefix
         const regional = Array.isArray(regionais) ? regionais.find(r => r?.id === formData.regional_id) : null;
         const regionalSigla = regional?.sigla || 'XX';
         const today = format(new Date(), 'yyyyMMdd');
-        
+
         // Get all existing codes to ensure uniqueness
         const allOrdens = await base44.entities.OrdemServico.list();
         const existingCodes = new Set((allOrdens || []).map(o => o?.codigo).filter(Boolean));
-        
+
         // Try sequential numbers until we find an unused one
         let seq = 1;
         let codigo_tentativa = '';
@@ -162,13 +200,14 @@ export default function OSFormModal({
           codigo_tentativa = `${regionalSigla}-${today}-${String(seq).padStart(4, '0')}`;
           seq++;
         } while (existingCodes.has(codigo_tentativa));
-        
+
         codigo = codigo_tentativa;
       }
 
       const dataToSave = {
         ...formData,
         codigo,
+        progresso: calculateProgress(formData)
       };
 
       console.log('Dados a serem salvos:', dataToSave);
