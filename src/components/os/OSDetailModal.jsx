@@ -87,11 +87,13 @@ export default function OSDetailModal({
   const [localOS, setLocalOS] = useState(os);
   const [savingSeparacao, setSavingSeparacao] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [auditLogs, setAuditLogs] = useState([]);
 
   useEffect(() => {
     if (open && os) {
       loadComentarios();
       loadUser();
+      loadAuditLogs();
       setLocalOS(os);
     }
   }, [open, os]);
@@ -130,6 +132,19 @@ export default function OSDetailModal({
       setTimeout(() => scrollToBottom(), 100);
     } catch (e) {
       console.error('Error loading comments:', e);
+    }
+  };
+
+  const loadAuditLogs = async () => {
+    try {
+      const logs = await base44.entities.AuditLog.filter({ 
+        entity_type: 'OrdemServico',
+        entity_id: os.id 
+      });
+      const logsArray = Array.isArray(logs) ? logs : [];
+      setAuditLogs(logsArray.sort((a, b) => new Date(b.timestamp || b.created_date) - new Date(a.timestamp || a.created_date)));
+    } catch (e) {
+      console.error('Error loading audit logs:', e);
     }
   };
 
@@ -519,6 +534,9 @@ export default function OSDetailModal({
                 </TabsTrigger>
                 <TabsTrigger value="anexos">
                   Anexos ({(os.anexos?.length || 0) + (os.imagens?.length || 0)})
+                </TabsTrigger>
+                <TabsTrigger value="historico">
+                  Histórico ({auditLogs.length})
                 </TabsTrigger>
               </TabsList>
 
@@ -1049,6 +1067,106 @@ export default function OSDetailModal({
                     </div>
                   </div>
                 </div>
+              </TabsContent>
+
+              {/* Histórico Tab */}
+              <TabsContent value="historico" className="space-y-4">
+                {auditLogs.length > 0 ? (
+                  <div className="space-y-3">
+                    {auditLogs.map((log, idx) => {
+                      const logUser = log.user_id ? (Array.isArray(pessoas) ? pessoas.find(p => p?.user_id === log.user_id) : null) : null;
+                      const actionLabels = {
+                        create: 'Criou a OS',
+                        update: 'Atualizou a OS',
+                        delete: 'Excluiu',
+                        status_change: 'Alterou o status',
+                        progress_update: 'Atualizou o progresso',
+                        comment_add: 'Adicionou comentário',
+                        attachment_add: 'Adicionou anexo',
+                        item_add: 'Adicionou item',
+                        item_update: 'Atualizou item',
+                        item_delete: 'Removeu item',
+                        separacao_update: 'Atualizou separação',
+                        expedicao_add: 'Adicionou expedição',
+                        expedicao_update: 'Atualizou expedição'
+                      };
+                      const actionLabel = actionLabels[log.action] || log.action;
+                      
+                      let details = null;
+                      try {
+                        details = log.details ? JSON.parse(log.details) : null;
+                      } catch (e) {
+                        details = log.details;
+                      }
+
+                      return (
+                        <div key={log.id || idx} className="flex gap-3 p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                          <div className="w-10 h-10 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center shrink-0">
+                            {logUser?.foto_perfil ? (
+                              <img src={logUser.foto_perfil} alt={logUser.nome} className="w-full h-full rounded-full object-cover" />
+                            ) : (
+                              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                                {logUser?.nome?.charAt(0) || log.created_by?.charAt(0) || '?'}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2 mb-1">
+                              <div>
+                                <span className="font-medium text-slate-900 dark:text-white">
+                                  {logUser?.nome || log.created_by || 'Usuário'}
+                                </span>
+                                <span className="text-slate-600 dark:text-slate-400 ml-2">
+                                  {actionLabel}
+                                </span>
+                              </div>
+                              <span className="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                                {format(new Date(log.timestamp || log.created_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                              </span>
+                            </div>
+                            {details && typeof details === 'object' && (
+                              <div className="mt-2 text-sm text-slate-600 dark:text-slate-400 space-y-1">
+                                {details.campo && (
+                                  <div className="flex gap-2">
+                                    <span className="font-medium">Campo:</span>
+                                    <span>{details.campo}</span>
+                                  </div>
+                                )}
+                                {details.valor_anterior !== undefined && (
+                                  <div className="flex gap-2">
+                                    <span className="font-medium">De:</span>
+                                    <span className="line-through text-red-600">{String(details.valor_anterior)}</span>
+                                  </div>
+                                )}
+                                {details.valor_novo !== undefined && (
+                                  <div className="flex gap-2">
+                                    <span className="font-medium">Para:</span>
+                                    <span className="text-green-600">{String(details.valor_novo)}</span>
+                                  </div>
+                                )}
+                                {details.descricao && (
+                                  <div className="text-xs mt-1 bg-slate-50 dark:bg-slate-900 p-2 rounded">
+                                    {details.descricao}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            {details && typeof details === 'string' && (
+                              <div className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                                {details}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-slate-400">
+                    <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>Nenhuma alteração registrada</p>
+                  </div>
+                )}
               </TabsContent>
 
               {/* Anexos Tab */}
