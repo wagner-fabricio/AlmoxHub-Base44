@@ -177,12 +177,12 @@ export default function MaterialesTab({ os, onClose, isRecebimento = true }) {
                         <h4 className="font-semibold text-slate-900 dark:text-white text-sm mb-1">
                           {item.descricao}
                         </h4>
-                        {item.endereco && (
-                          <div className="flex items-center gap-1 text-xs text-orange-600 dark:text-orange-400 mb-2">
-                            <MapPin className="w-3 h-3" />
-                            {item.endereco}
-                          </div>
-                        )}
+                        {!isRecebimento && item.endereco && (
+                           <div className="flex items-center gap-1 text-xs text-orange-600 dark:text-orange-400 mb-2">
+                             <MapPin className="w-3 h-3" />
+                             {item.endereco}
+                           </div>
+                         )}
                         <div className="flex items-center gap-2">
                           <Badge variant="outline" className="text-xs">
                             {itemsStatus[index]?.quantidadeSeparada || item.quantidade} {item.unidade || 'UN'}
@@ -237,21 +237,23 @@ export default function MaterialesTab({ os, onClose, isRecebimento = true }) {
 
       {/* Card do Item Atual */}
       <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-lg">
-        {/* Endereço */}
-        <div className="mb-4 text-center pb-4 border-b border-slate-200 dark:border-slate-700">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <MapPin className="w-4 h-4 text-orange-500" />
-            <span className="text-xs text-slate-600 dark:text-slate-400">Endereço</span>
-          </div>
-          <p className="text-3xl font-bold text-orange-500 tracking-wider break-all">
-            {currentItem?.endereco || 'N/A'}
-          </p>
-          {currentItem?.deposito && (
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Dep: {currentItem.deposito}
-            </p>
+        {/* Endereço - apenas em expedição */}
+          {!isRecebimento && (
+            <div className="mb-4 text-center pb-4 border-b border-slate-200 dark:border-slate-700">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <MapPin className="w-4 h-4 text-orange-500" />
+                <span className="text-xs text-slate-600 dark:text-slate-400">Endereço</span>
+              </div>
+              <p className="text-3xl font-bold text-orange-500 tracking-wider break-all">
+                {currentItem?.endereco || 'N/A'}
+              </p>
+              {currentItem?.deposito && (
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  Dep: {currentItem.deposito}
+                </p>
+              )}
+            </div>
           )}
-        </div>
 
         {/* Código e Descrição */}
         <div className="bg-slate-100 dark:bg-slate-700 rounded-xl p-3 mb-4">
