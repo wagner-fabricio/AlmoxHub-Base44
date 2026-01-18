@@ -48,7 +48,8 @@ export default function MaterialesTab({ os, onClose, isRecebimento = true }) {
     const newStatus = [...itemsStatus];
     newStatus[index].checked = !newStatus[index].checked;
     if (newStatus[index].checked && !newStatus[index].quantidadeSeparada) {
-      newStatus[index].quantidadeSeparada = sortedItems[index].quantidade;
+      const quantidade = isRecebimento ? sortedItems[index].quantidade_esperada : sortedItems[index].quantidade;
+      newStatus[index].quantidadeSeparada = quantidade;
     }
     setItemsStatus(newStatus);
   };
