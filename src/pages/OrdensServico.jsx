@@ -212,6 +212,38 @@ export default function OrdensServico() {
       await base44.entities.OrdemServico.update(osId, updateData);
       setOrdens(ordens.map(o => o.id === osId ? { ...o, ...updateData } : o));
       
+      // Registrar mudança de status no histórico
+      try {
+        const statusLabels = {
+          elaboracao: 'Em Elaboração',
+          execucao: 'Em Execução',
+          concluido: 'Concluído',
+          cancelado: 'Cancelado',
+          pendente: 'Pendente',
+          em_separacao: 'Em Separação',
+          separado: 'Separado',
+          em_rota: 'Em Rota',
+          entregue: 'Entregue'
+        };
+        
+        const campo = isExpedicaoView ? 'status_separacao' : 'status';
+        const valorAnterior = isExpedicaoView ? os.status_separacao : os.status;
+        
+        await base44.functions.invoke('registrarAuditLog', {
+          action: 'status_change',
+          entity_type: 'OrdemServico',
+          entity_id: osId,
+          details: {
+            campo: campo,
+            valor_anterior: statusLabels[valorAnterior] || valorAnterior,
+            valor_novo: statusLabels[newStatus] || newStatus,
+            descricao: `Status alterado de ${statusLabels[valorAnterior] || valorAnterior} para ${statusLabels[newStatus] || newStatus}`
+          }
+        });
+      } catch (auditError) {
+        console.error('Erro ao registrar mudança de status no histórico:', auditError);
+      }
+      
       // Criar notificações para líder e executores
       if (os && currentPessoa) {
         const destinatarios = [os.lider_id, ...(os.executores_ids || [])].filter(id => id !== currentPessoa.id);
