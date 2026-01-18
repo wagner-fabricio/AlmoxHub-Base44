@@ -87,21 +87,43 @@ export default function OSFormModal({
         data_entrega: os.data_entrega ? os.data_entrega.split('T')[0] : '',
       });
     } else {
-      // Defaults for new OS
-      const userPessoa = Array.isArray(pessoas) ? pessoas.find(p => p?.email === currentUser?.email) : null;
-      if (userPessoa) {
-        const defaultRegional = userPessoa.regional_id;
-        const userAlmoxarifados = Array.isArray(almoxarifados) ? almoxarifados.filter(a => 
-          userPessoa.almoxarifados_ids?.includes(a?.id)
-        ) : [];
-        
-        setFormData(prev => ({
-          ...prev,
-          regional_id: defaultRegional || '',
-          almoxarifado_id: userAlmoxarifados.length === 1 ? userAlmoxarifados[0].id : '',
-          lider_id: userPessoa.id,
-        }));
-      }
+      // Reset to empty defaults for new OS
+      setFormData({
+        categoria_id: '',
+        subcategorias_ids: [],
+        regional_id: '',
+        almoxarifado_id: '',
+        lider_id: '',
+        atendente_nome: '',
+        executores_ids: [],
+        outros_envolvidos_ids: [],
+        prazo: '',
+        data_inicial: format(new Date(), 'yyyy-MM-dd'),
+        prioridade: 'media',
+        status: 'elaboracao',
+        anotacoes: '',
+        projetos_ids: [],
+        descricao_resumida: '',
+        num_reserva: '',
+        data_reserva: '',
+        usuario_reserva: '',
+        usuario_reserva_email: '',
+        orgao: '',
+        data_migo: '',
+        num_migo: '',
+        vinculacao: '',
+        instalacao_origem_id: '',
+        instalacao_destino_id: '',
+        itens_documento: [],
+        volumes: [],
+        detalhamento_expedicao: [],
+        status_separacao: 'pendente',
+        responsavel_separacao: '',
+        data_separacao: '',
+        data_entrega: '',
+        anexos: [],
+        imagens: [],
+      });
     }
   }, [os, currentUser, pessoas, almoxarifados]);
 
