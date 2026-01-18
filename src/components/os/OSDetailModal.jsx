@@ -602,6 +602,203 @@ export default function OSDetailModal({
                 )}
               </TabsContent>
 
+              {/* Volumes Tab */}
+              <TabsContent value="volumes" className="space-y-4">
+                {os.volumes?.length > 0 ? (
+                  (os.volumes || []).map((volume, index) => (
+                    <div key={index} className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                          <Paperclip className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <h4 className="text-sm font-medium text-slate-900 dark:text-white">
+                          Volume {volume.id_volume || index + 1}
+                        </h4>
+                        <Badge className="ml-auto" variant="outline">
+                          Qtd: {volume.quantidade || 1}
+                        </Badge>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        {volume.largura && (
+                          <div>
+                            <span className="text-slate-500 dark:text-slate-400">Largura:</span>
+                            <p className="font-medium text-slate-900 dark:text-white">{volume.largura} cm</p>
+                          </div>
+                        )}
+                        {volume.altura && (
+                          <div>
+                            <span className="text-slate-500 dark:text-slate-400">Altura:</span>
+                            <p className="font-medium text-slate-900 dark:text-white">{volume.altura} cm</p>
+                          </div>
+                        )}
+                        {volume.comprimento && (
+                          <div>
+                            <span className="text-slate-500 dark:text-slate-400">Comprimento:</span>
+                            <p className="font-medium text-slate-900 dark:text-white">{volume.comprimento} cm</p>
+                          </div>
+                        )}
+                        {volume.peso_bruto && (
+                          <div>
+                            <span className="text-slate-500 dark:text-slate-400">Peso:</span>
+                            <p className="font-medium text-slate-900 dark:text-white">{volume.peso_bruto} kg</p>
+                          </div>
+                        )}
+                        {volume.m3 && (
+                          <div>
+                            <span className="text-slate-500 dark:text-slate-400">Volume:</span>
+                            <p className="font-medium text-slate-900 dark:text-white">{volume.m3} m³</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-12 text-slate-400">
+                    Nenhum volume cadastrado
+                  </div>
+                )}
+              </TabsContent>
+
+              {/* Expedição Tab */}
+              <TabsContent value="expedicao" className="space-y-4">
+                {os.detalhamento_expedicao?.length > 0 ? (
+                  (os.detalhamento_expedicao || []).map((exp, index) => (
+                    <div key={index} className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                            <Paperclip className="w-4 h-4 text-purple-600" />
+                          </div>
+                          <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                            Expedição #{exp.num_expedicao || index + 1}
+                          </h4>
+                        </div>
+                        {exp.data_expedicao && (
+                          <Badge variant="outline">
+                            {format(new Date(exp.data_expedicao), 'dd/MM/yy')}
+                          </Badge>
+                        )}
+                      </div>
+
+                      {/* Informações básicas */}
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        {exp.tipo_doc && (
+                          <div>
+                            <span className="text-slate-500 dark:text-slate-400">Tipo Doc:</span>
+                            <p className="font-medium text-slate-900 dark:text-white">{exp.tipo_doc}</p>
+                          </div>
+                        )}
+                        {exp.num_doc && (
+                          <div>
+                            <span className="text-slate-500 dark:text-slate-400">Nº Doc:</span>
+                            <p className="font-medium text-slate-900 dark:text-white">{exp.num_doc}</p>
+                          </div>
+                        )}
+                        {exp.num_vol && (
+                          <div>
+                            <span className="text-slate-500 dark:text-slate-400">Volumes:</span>
+                            <p className="font-medium text-slate-900 dark:text-white">{exp.num_vol}</p>
+                          </div>
+                        )}
+                        {exp.peso && (
+                          <div>
+                            <span className="text-slate-500 dark:text-slate-400">Peso:</span>
+                            <p className="font-medium text-slate-900 dark:text-white">{exp.peso} kg</p>
+                          </div>
+                        )}
+                        {exp.valor_total && (
+                          <div>
+                            <span className="text-slate-500 dark:text-slate-400">Valor:</span>
+                            <p className="font-medium text-slate-900 dark:text-white">
+                              R$ {exp.valor_total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </p>
+                          </div>
+                        )}
+                        {exp.modal_transporte && (
+                          <div>
+                            <span className="text-slate-500 dark:text-slate-400">Modal:</span>
+                            <p className="font-medium text-slate-900 dark:text-white">{exp.modal_transporte}</p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Transportadora */}
+                      {exp.transportadora && (
+                        <div className="bg-slate-50 dark:bg-slate-700 rounded-xl p-3">
+                          <h5 className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">Transportadora</h5>
+                          <div className="space-y-1 text-sm">
+                            {exp.transportadora.razao_social && (
+                              <p className="font-medium text-slate-900 dark:text-white">{exp.transportadora.razao_social}</p>
+                            )}
+                            {exp.transportadora.cnpj && (
+                              <p className="text-slate-600 dark:text-slate-400">CNPJ: {exp.transportadora.cnpj}</p>
+                            )}
+                            {exp.transportadora.conhecimento && (
+                              <p className="text-slate-600 dark:text-slate-400">Conhecimento: {exp.transportadora.conhecimento}</p>
+                            )}
+                            {exp.transportadora.valor_frete && (
+                              <p className="text-slate-600 dark:text-slate-400">
+                                Frete: R$ {exp.transportadora.valor_frete.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Veículo */}
+                      {exp.veiculo && (
+                        <div className="bg-slate-50 dark:bg-slate-700 rounded-xl p-3">
+                          <h5 className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">Veículo</h5>
+                          <div className="space-y-1 text-sm">
+                            {exp.veiculo.placa && (
+                              <p className="font-medium text-slate-900 dark:text-white">
+                                {exp.veiculo.placa} {exp.veiculo.estado && `(${exp.veiculo.estado})`}
+                              </p>
+                            )}
+                            {exp.veiculo.tipo && (
+                              <p className="text-slate-600 dark:text-slate-400">Tipo: {exp.veiculo.tipo}</p>
+                            )}
+                            {exp.veiculo.carroceria && (
+                              <p className="text-slate-600 dark:text-slate-400">Carroceria: {exp.veiculo.carroceria}</p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Motorista */}
+                      {exp.motorista && (
+                        <div className="bg-slate-50 dark:bg-slate-700 rounded-xl p-3">
+                          <h5 className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">Motorista</h5>
+                          <div className="space-y-1 text-sm">
+                            {exp.motorista.nome && (
+                              <p className="font-medium text-slate-900 dark:text-white">{exp.motorista.nome}</p>
+                            )}
+                            {exp.motorista.cpf && (
+                              <p className="text-slate-600 dark:text-slate-400">CPF: {exp.motorista.cpf}</p>
+                            )}
+                            {exp.motorista.rg && (
+                              <p className="text-slate-600 dark:text-slate-400">RG: {exp.motorista.rg}</p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {exp.detalhes_remessa && (
+                        <div className="text-sm">
+                          <span className="text-slate-500 dark:text-slate-400">Detalhes:</span>
+                          <p className="text-slate-900 dark:text-white mt-1">{exp.detalhes_remessa}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-12 text-slate-400">
+                    Nenhuma expedição cadastrada
+                  </div>
+                )}
+              </TabsContent>
+
               {/* Materiais Tab */}
               <TabsContent value="materiais" className="space-y-6">
                 {os.itens_documento?.length > 0 ? (
