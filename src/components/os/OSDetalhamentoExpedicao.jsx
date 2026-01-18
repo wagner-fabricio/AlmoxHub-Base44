@@ -118,11 +118,12 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) 
   };
 
   const handleCNPJChange = async (index, cnpj) => {
-    updateExpedicao(index, 'transportadora.cnpj', cnpj);
+    const cnpjLimpo = cnpj.replace(/\D/g, '');
+    updateExpedicao(index, 'transportadora.cnpj', cnpjLimpo);
     
     // Buscar transportadora se CNPJ tiver 14 dígitos
-    if (cnpj.length === 14) {
-      const transp = transportadoras.find(t => t.cnpj === cnpj);
+    if (cnpjLimpo.length === 14) {
+      const transp = transportadoras.find(t => t.cnpj.replace(/\D/g, '') === cnpjLimpo);
       if (transp) {
         updateExpedicao(index, 'transportadora.razao_social', transp.razao_social);
         updateExpedicao(index, 'transportadora.telefones', transp.telefones || '');
