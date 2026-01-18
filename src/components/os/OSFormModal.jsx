@@ -41,6 +41,7 @@ export default function OSFormModal({
   const [openOrigemCombo, setOpenOrigemCombo] = useState(false);
   const [openDestinoCombo, setOpenDestinoCombo] = useState(false);
   const [prazoError, setPrazoError] = useState('');
+  const [importingXML, setImportingXML] = useState(false);
   const [formData, setFormData] = useState({
     categoria_id: '',
     subcategorias_ids: [],
