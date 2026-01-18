@@ -1281,12 +1281,25 @@ export default function OSFormModal({
                     {/* Número ID V360 */}
                     <div className="space-y-2">
                       <Label>Número ID V360</Label>
-                      <Input
-                        type="number"
-                        value={formData.numero_v360}
-                        onChange={(e) => setFormData({ ...formData, numero_v360: e.target.value })}
-                        placeholder="Somente número"
-                      />
+                      <div className="flex gap-2">
+                        <Input
+                          type="number"
+                          value={formData.numero_v360}
+                          onChange={(e) => setFormData({ ...formData, numero_v360: e.target.value })}
+                          placeholder="Somente número"
+                        />
+                        {formData.numero_v360 && (
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => window.open(`https://v360.com.br/tracking/${formData.numero_v360}`, '_blank')}
+                            title="Abrir no V360"
+                            className="shrink-0"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
 
                     {/* Doc Referência */}
