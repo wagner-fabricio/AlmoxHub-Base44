@@ -1120,28 +1120,28 @@ export default function OSDetailModal({
               </TabsContent>
 
               {/* Histórico Tab */}
-              <TabsContent value="historico" className="space-y-4">
+              <TabsContent value="historico" className="space-y-3">
                 {auditLogs.length > 0 ? (
                   <div className="space-y-3">
                     {auditLogs.map((log, idx) => {
                       const logUser = log.user_id ? (Array.isArray(pessoas) ? pessoas.find(p => p?.user_id === log.user_id) : null) : null;
                       const actionLabels = {
-                        create: 'Criou a OS',
-                        update: 'Atualizou a OS',
-                        delete: 'Excluiu',
-                        status_change: 'Alterou o status',
-                        progress_update: 'Atualizou o progresso',
-                        comment_add: 'Adicionou comentário',
-                        attachment_add: 'Adicionou anexo',
-                        item_add: 'Adicionou item',
-                        item_update: 'Atualizou item',
-                        item_delete: 'Removeu item',
-                        separacao_update: 'Atualizou separação',
-                        expedicao_add: 'Adicionou expedição',
-                        expedicao_update: 'Atualizou expedição'
+                        create: 'criou a OS',
+                        update: 'atualizou a OS',
+                        delete: 'excluiu',
+                        status_change: 'alterou o status',
+                        progress_update: 'atualizou o progresso',
+                        comment_add: 'adicionou comentário',
+                        attachment_add: 'adicionou anexo',
+                        item_add: 'adicionou item',
+                        item_update: 'atualizou item',
+                        item_delete: 'removeu item',
+                        separacao_update: 'atualizou separação',
+                        expedicao_add: 'adicionou expedição',
+                        expedicao_update: 'atualizou expedição'
                       };
                       const actionLabel = actionLabels[log.action] || log.action;
-                      
+
                       let details = null;
                       try {
                         details = log.details ? JSON.parse(log.details) : null;
@@ -1149,60 +1149,75 @@ export default function OSDetailModal({
                         details = log.details;
                       }
 
+                      const campoLabels = {
+                        status: 'Status',
+                        status_separacao: 'Status de Separação',
+                        progresso: 'Progresso',
+                        prazo: 'Prazo',
+                        prioridade: 'Prioridade',
+                        lider_id: 'Líder',
+                        almoxarifado_id: 'Almoxarifado',
+                        categoria_id: 'Categoria',
+                        regional_id: 'Regional',
+                        data_inicial: 'Data Inicial',
+                        data_conclusao: 'Data de Conclusão',
+                        anotacoes: 'Anotações',
+                        descricao_resumida: 'Descrição'
+                      };
+
                       return (
-                        <div key={log.id || idx} className="flex gap-3 p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-                          <div className="w-10 h-10 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center shrink-0">
+                        <div key={log.id || idx} className="flex gap-3 p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 items-start">
+                          <div className="w-9 h-9 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center shrink-0 mt-0.5">
                             {logUser?.foto_perfil ? (
                               <img src={logUser.foto_perfil} alt={logUser.nome} className="w-full h-full rounded-full object-cover" />
                             ) : (
-                              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                              <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
                                 {logUser?.nome?.charAt(0) || log.created_by?.charAt(0) || '?'}
                               </span>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-2 mb-1">
-                              <div>
-                                <span className="font-medium text-slate-900 dark:text-white">
-                                  {logUser?.nome || log.created_by || 'Usuário'}
-                                </span>
-                                <span className="text-slate-600 dark:text-slate-400 ml-2">
-                                  {actionLabel}
-                                </span>
-                              </div>
-                              <span className="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                            <div className="flex items-baseline gap-2 flex-wrap mb-1">
+                              <span className="font-medium text-slate-900 dark:text-white">
+                                {logUser?.nome || log.created_by || 'Usuário'}
+                              </span>
+                              <span className="text-sm text-slate-600 dark:text-slate-400">
+                                {actionLabel}
+                              </span>
+                              <span className="text-xs text-slate-500 dark:text-slate-400">
                                 {format(new Date(log.timestamp || log.created_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
                               </span>
                             </div>
+
                             {details && typeof details === 'object' && (
-                              <div className="mt-2 text-sm text-slate-600 dark:text-slate-400 space-y-1">
+                              <div className="mt-2 space-y-2">
                                 {details.campo && (
-                                  <div className="flex gap-2">
-                                    <span className="font-medium">Campo:</span>
-                                    <span>{details.campo}</span>
+                                  <div className="text-sm">
+                                    <span className="font-medium text-slate-700 dark:text-slate-300">
+                                      {campoLabels[details.campo] || details.campo}:
+                                    </span>
+                                    {details.valor_anterior !== undefined && details.valor_novo !== undefined && (
+                                      <div className="mt-1 flex items-center gap-2 text-xs">
+                                        <span className="px-2 py-1 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded line-through">
+                                          {String(details.valor_anterior)}
+                                        </span>
+                                        <span className="text-slate-400">→</span>
+                                        <span className="px-2 py-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded font-medium">
+                                          {String(details.valor_novo)}
+                                        </span>
+                                      </div>
+                                    )}
                                   </div>
                                 )}
-                                {details.valor_anterior !== undefined && (
-                                  <div className="flex gap-2">
-                                    <span className="font-medium">De:</span>
-                                    <span className="line-through text-red-600">{String(details.valor_anterior)}</span>
-                                  </div>
-                                )}
-                                {details.valor_novo !== undefined && (
-                                  <div className="flex gap-2">
-                                    <span className="font-medium">Para:</span>
-                                    <span className="text-green-600">{String(details.valor_novo)}</span>
-                                  </div>
-                                )}
-                                {details.descricao && (
-                                  <div className="text-xs mt-1 bg-slate-50 dark:bg-slate-900 p-2 rounded">
+                                {details.descricao && !details.campo && (
+                                  <div className="text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 px-3 py-2 rounded-lg">
                                     {details.descricao}
                                   </div>
                                 )}
                               </div>
                             )}
                             {details && typeof details === 'string' && (
-                              <div className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                              <div className="mt-2 text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 px-3 py-2 rounded-lg">
                                 {details}
                               </div>
                             )}
@@ -1212,8 +1227,8 @@ export default function OSDetailModal({
                     })}
                   </div>
                 ) : (
-                  <div className="text-center py-12 text-slate-400">
-                    <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <div className="flex flex-col items-center justify-start pt-12 pb-8 text-slate-400">
+                    <Clock className="w-12 h-12 mb-3 opacity-50" />
                     <p>Nenhuma alteração registrada</p>
                   </div>
                 )}
