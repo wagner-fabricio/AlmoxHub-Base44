@@ -471,8 +471,8 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) 
                         <Input
                           placeholder="00.000.000/0000-00"
                           value={exp.transportadora?.cnpj || ''}
-                          onChange={(e) => handleCNPJChange(index, e.target.value.replace(/\D/g, ''))}
-                          maxLength={14}
+                          onChange={(e) => handleCNPJChange(index, e.target.value)}
+                          maxLength={18}
                         />
                       </div>
 
