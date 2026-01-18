@@ -20,6 +20,7 @@ import OSDetalhamentoExpedicao from './OSDetalhamentoExpedicao';
 import OSRecebimentoDocumento from './OSRecebimentoDocumento.jsx';
 import OSRecebimentoTransportador from './OSRecebimentoTransportador.jsx';
 import OSRecebimentoMateriais from './OSRecebimentoMateriais.jsx';
+import OSFluxoRecebimento from './OSFluxoRecebimento.jsx';
 
 export default function OSFormModal({
   open,
@@ -547,6 +548,7 @@ export default function OSFormModal({
                     <TabsTrigger value="receb-doc">Documento</TabsTrigger>
                     <TabsTrigger value="receb-transp">Transportador</TabsTrigger>
                     <TabsTrigger value="receb-mat">Materiais</TabsTrigger>
+                    {os && <TabsTrigger value="receb-detalhes">Detalhes</TabsTrigger>}
                   </>
                 )}
                 <TabsTrigger value="anexos">Anexos</TabsTrigger>
@@ -1163,6 +1165,13 @@ export default function OSFormModal({
                       fluxo_recebimento: data.fluxo || prev.fluxo_recebimento
                     }))}
                   />
+                </TabsContent>
+              )}
+
+              {/* TAB: Recebimento - Detalhes (Fluxo) */}
+              {isRecebimentoCategory && os && (
+                <TabsContent value="receb-detalhes" className="space-y-6">
+                  <OSFluxoRecebimento fluxo={formData.fluxo_recebimento} />
                 </TabsContent>
               )}
 
