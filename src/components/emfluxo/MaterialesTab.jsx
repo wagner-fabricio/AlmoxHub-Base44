@@ -58,9 +58,10 @@ export default function MaterialesTab({ os, onClose, isRecebimento = true }) {
     const newStatus = [...itemsStatus];
     
     if (type === 'igual') {
+      const quantidade = isRecebimento ? currentItem.quantidade_esperada : currentItem.quantidade;
       newStatus[currentItemIndex] = { 
         checked: true, 
-        quantidadeSeparada: currentItem.quantidade 
+        quantidadeSeparada: quantidade
       };
     } else {
       setShowQuantityInput(true);
