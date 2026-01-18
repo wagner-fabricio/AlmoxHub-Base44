@@ -542,6 +542,13 @@ export default function OSFormModal({
                     <TabsTrigger value="expedicao">Expedição</TabsTrigger>
                   </>
                 )}
+                {isRecebimentoCategory && (
+                  <>
+                    <TabsTrigger value="receb-doc">Documento</TabsTrigger>
+                    <TabsTrigger value="receb-transp">Transportador</TabsTrigger>
+                    <TabsTrigger value="receb-mat">Materiais</TabsTrigger>
+                  </>
+                )}
                 <TabsTrigger value="anexos">Anexos</TabsTrigger>
               </TabsList>
 
