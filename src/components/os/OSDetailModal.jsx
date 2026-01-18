@@ -1189,31 +1189,28 @@ export default function OSDetailModal({
                               </span>
                             </div>
 
-                            {details && typeof details === 'object' && (
-                              <div className="mt-2 space-y-2">
-                                {details.campo && (
-                                  <div className="text-sm">
-                                    <span className="font-medium text-slate-700 dark:text-slate-300">
-                                      {campoLabels[details.campo] || details.campo}:
-                                    </span>
-                                    {details.valor_anterior !== undefined && details.valor_novo !== undefined && (
-                                      <div className="mt-1 flex items-center gap-2 text-xs">
-                                        <span className="px-2 py-1 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded line-through">
-                                          {String(details.valor_anterior)}
-                                        </span>
-                                        <span className="text-slate-400">→</span>
-                                        <span className="px-2 py-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded font-medium">
-                                          {String(details.valor_novo)}
-                                        </span>
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
-                                {details.descricao && !details.campo && (
-                                  <div className="text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 px-3 py-2 rounded-lg">
-                                    {details.descricao}
-                                  </div>
-                                )}
+                            {details && typeof details === 'object' && details.campo && (
+                              <div className="mt-2">
+                                <div className="text-sm">
+                                  <span className="font-medium text-slate-700 dark:text-slate-300">
+                                    {campoLabels[details.campo] || details.campo}:
+                                  </span>
+                                  {details.valor_anterior !== undefined && details.valor_novo !== undefined && (
+                                    <div className="mt-1 flex items-center gap-2 text-xs flex-wrap">
+                                      {details.valor_anterior !== null && details.valor_anterior !== '' && (
+                                        <>
+                                          <span className="px-2 py-1 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded line-through">
+                                            {String(details.valor_anterior)}
+                                          </span>
+                                          <span className="text-slate-400">→</span>
+                                        </>
+                                      )}
+                                      <span className="px-2 py-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded font-medium">
+                                        {String(details.valor_novo)}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             )}
                             {details && typeof details === 'string' && (
