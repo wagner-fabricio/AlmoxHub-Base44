@@ -572,6 +572,15 @@ export default function OSDetailModal({
             <Tabs defaultValue="detalhes">
               <TabsList className="mb-6">
                 <TabsTrigger value="detalhes">Detalhes</TabsTrigger>
+                {isRecebimento && os.nfe_dados_emissor && Object.keys(os.nfe_dados_emissor).length > 0 && (
+                  <TabsTrigger value="receb-doc">Documento</TabsTrigger>
+                )}
+                {isRecebimento && os.nfe_dados_transportador && Object.keys(os.nfe_dados_transportador).length > 0 && (
+                  <TabsTrigger value="receb-transp">Transportador</TabsTrigger>
+                )}
+                {isRecebimento && os.nfe_itens_conferencia?.length > 0 && (
+                  <TabsTrigger value="receb-mat">Materiais</TabsTrigger>
+                )}
                 {isExpedicao && os.itens_documento?.length > 0 && (
                   <TabsTrigger value="materiais">Materiais</TabsTrigger>
                 )}
@@ -819,6 +828,134 @@ export default function OSDetailModal({
                   </div>
                 )}
               </TabsContent>
+
+              {/* Recebimento - Documento Tab */}
+              {isRecebimento && (
+                <TabsContent value="receb-doc" className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+                      <h4 className="font-semibold text-slate-900 dark:text-white mb-4">Emitente</h4>
+                      <div className="space-y-2 text-sm">
+                        {os.nfe_dados_emissor?.razao_social && (
+                          <div><span className="text-slate-500">Razão Social:</span> {os.nfe_dados_emissor.razao_social}</div>
+                        )}
+                        {os.nfe_dados_emissor?.cnpj && (
+                          <div><span className="text-slate-500">CNPJ:</span> {os.nfe_dados_emissor.cnpj}</div>
+                        )}
+                        {os.nfe_dados_emissor?.inscricao_estadual && (
+                          <div><span className="text-slate-500">Inscrição Estadual:</span> {os.nfe_dados_emissor.inscricao_estadual}</div>
+                        )}
+                        {os.nfe_dados_emissor?.endereco && (
+                          <div><span className="text-slate-500">Endereço:</span> {os.nfe_dados_emissor.endereco}, {os.nfe_dados_emissor.numero}</div>
+                        )}
+                        {os.nfe_dados_emissor?.cidade && (
+                          <div><span className="text-slate-500">Cidade/UF:</span> {os.nfe_dados_emissor.cidade} - {os.nfe_dados_emissor.estado}</div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+                      <h4 className="font-semibold text-slate-900 dark:text-white mb-4">Destinatário</h4>
+                      <div className="space-y-2 text-sm">
+                        {os.nfe_dados_destinatario?.razao_social && (
+                          <div><span className="text-slate-500">Razão Social:</span> {os.nfe_dados_destinatario.razao_social}</div>
+                        )}
+                        {os.nfe_dados_destinatario?.cnpj && (
+                          <div><span className="text-slate-500">CNPJ:</span> {os.nfe_dados_destinatario.cnpj}</div>
+                        )}
+                        {os.nfe_dados_destinatario?.inscricao_estadual && (
+                          <div><span className="text-slate-500">Inscrição Estadual:</span> {os.nfe_dados_destinatario.inscricao_estadual}</div>
+                        )}
+                        {os.nfe_dados_destinatario?.endereco && (
+                          <div><span className="text-slate-500">Endereço:</span> {os.nfe_dados_destinatario.endereco}, {os.nfe_dados_destinatario.numero}</div>
+                        )}
+                        {os.nfe_dados_destinatario?.cidade && (
+                          <div><span className="text-slate-500">Cidade/UF:</span> {os.nfe_dados_destinatario.cidade} - {os.nfe_dados_destinatario.estado}</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+              )}
+
+              {/* Recebimento - Transportador Tab */}
+              {isRecebimento && (
+                <TabsContent value="receb-transp" className="space-y-4">
+                  <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+                    <h4 className="font-semibold text-slate-900 dark:text-white mb-4">Dados do Transportador</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                      {os.nfe_dados_transportador?.razao_social && (
+                        <div><span className="text-slate-500">Razão Social:</span> <span className="font-medium">{os.nfe_dados_transportador.razao_social}</span></div>
+                      )}
+                      {os.nfe_dados_transportador?.cnpj && (
+                        <div><span className="text-slate-500">CNPJ:</span> <span className="font-medium">{os.nfe_dados_transportador.cnpj}</span></div>
+                      )}
+                      {os.nfe_dados_transportador?.endereco && (
+                        <div><span className="text-slate-500">Endereço:</span> <span className="font-medium">{os.nfe_dados_transportador.endereco}</span></div>
+                      )}
+                      {os.nfe_dados_transportador?.valor_frete && (
+                        <div><span className="text-slate-500">Valor Frete:</span> <span className="font-medium">R$ {os.nfe_dados_transportador.valor_frete.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>
+                      )}
+                      {os.nfe_dados_transportador?.tipo_frete && (
+                        <div><span className="text-slate-500">Tipo Frete:</span> <span className="font-medium">{os.nfe_dados_transportador.tipo_frete}</span></div>
+                      )}
+                      {os.nfe_dados_transportador?.quantidade_volumes && (
+                        <div><span className="text-slate-500">Quantidade Volumes:</span> <span className="font-medium">{os.nfe_dados_transportador.quantidade_volumes}</span></div>
+                      )}
+                      {os.nfe_dados_transportador?.peso_bruto && (
+                        <div><span className="text-slate-500">Peso Bruto:</span> <span className="font-medium">{os.nfe_dados_transportador.peso_bruto} kg</span></div>
+                      )}
+                      {os.nfe_dados_transportador?.peso_liquido && (
+                        <div><span className="text-slate-500">Peso Líquido:</span> <span className="font-medium">{os.nfe_dados_transportador.peso_liquido} kg</span></div>
+                      )}
+                    </div>
+                  </div>
+                </TabsContent>
+              )}
+
+              {/* Recebimento - Materiais Tab */}
+              {isRecebimento && (
+                <TabsContent value="receb-mat" className="space-y-4">
+                  {os.nfe_itens_conferencia?.length > 0 ? (
+                    <div className="border rounded-xl overflow-hidden">
+                      <table className="w-full text-sm">
+                        <thead className="bg-slate-50 dark:bg-slate-800">
+                          <tr>
+                            <th className="text-left p-3 font-semibold text-slate-600 dark:text-slate-300">Código</th>
+                            <th className="text-left p-3 font-semibold text-slate-600 dark:text-slate-300">Descrição</th>
+                            <th className="text-center p-3 font-semibold text-slate-600 dark:text-slate-300">Esperada</th>
+                            <th className="text-center p-3 font-semibold text-slate-600 dark:text-slate-300">Recebida</th>
+                            <th className="text-left p-3 font-semibold text-slate-600 dark:text-slate-300">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {os.nfe_itens_conferencia.map((item, i) => (
+                            <tr key={i} className="border-t border-slate-100 dark:border-slate-700">
+                              <td className="p-3 font-mono text-xs">{item.codigo}</td>
+                              <td className="p-3">{item.descricao}</td>
+                              <td className="p-3 text-center">{item.quantidade_esperada} {item.unidade}</td>
+                              <td className="p-3 text-center font-medium">{item.quantidade_recebida || '-'}</td>
+                              <td className="p-3">
+                                <span className={`text-xs px-2 py-1 rounded-full ${
+                                  item.status_conferencia === 'completo' ? 'bg-green-100 text-green-700' :
+                                  item.status_conferencia === 'parcial' ? 'bg-yellow-100 text-yellow-700' :
+                                  item.status_conferencia === 'excedente' ? 'bg-blue-100 text-blue-700' :
+                                  'bg-slate-100 text-slate-700'
+                                }`}>
+                                  {item.status_conferencia || 'pendente'}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 text-slate-400">
+                      Nenhum material cadastrado
+                    </div>
+                  )}
+                </TabsContent>
+              )}
 
               {/* Materiais Tab */}
               <TabsContent value="materiais" className="space-y-4">
