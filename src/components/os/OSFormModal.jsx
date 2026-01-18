@@ -140,41 +140,44 @@ export default function OSFormModal({
     selectedCategoria?.nome?.toLowerCase().includes('expedição');
 
   const calculateProgress = (data) => {
-    // Calcular progresso baseado em quais seções foram preenchidas
+    // Progresso baseado no fluxo de expedição - cada etapa é 20%
     let progress = 0;
 
-    // Seção 1: Dados Gerais (20%)
-    if (data.categoria_id && data.subcategorias_ids?.length > 0 && 
-        data.regional_id && data.almoxarifado_id && data.lider_id) {
-      progress += 20;
+    // Etapa 1: Solicitação (20%) - Dados Gerais e Documento preenchidos
+    const solicitacaoCompleta = 
+      data.categoria_id && data.subcategorias_ids?.length > 0 && 
+      data.regional_id && data.almoxarifado_id && data.lider_id &&
+      data.num_reserva && data.data_reserva && data.usuario_reserva && data.orgao;
+
+    if (solicitacaoCompleta) {
+      progress = 20;
     }
 
-    // Seção 2: Documento (20%) - apenas para expedição
-    const isExpedicao = Array.isArray(categorias) ? 
-      categorias.find(c => c?.id === data.categoria_id)?.nome?.toLowerCase().includes('expedição') : false;
+    // Etapa 2: Separação (20%) - Todos os itens marcados como separados
+    const todosItensSeparados = 
+      data.itens_documento?.length > 0 && 
+      data.itens_documento.every(item => item.separado === true);
 
-    if (isExpedicao) {
-      if (data.num_reserva && data.data_reserva && data.usuario_reserva && data.orgao) {
-        progress += 20;
-      }
-
-      // Seção 3: Materiais (20%)
-      if (data.itens_documento?.length > 0) {
-        progress += 20;
-      }
-
-      // Seção 4: Volumes (10%)
-      if (data.volumes?.length > 0) {
-        progress += 10;
-      }
-
-      // Seção 5: Expedição (10%)
-      if (data.detalhamento_expedicao?.length > 0) {
-        progress += 10;
-      }
+    if (todosItensSeparados) {
+      progress = 40;
     }
 
-    return Math.min(progress, 100);
+    // Etapa 3: Preparação (20%) - Pelo menos um volume adicionado
+    if (data.volumes?.length > 0) {
+      progress = 60;
+    }
+
+    // Etapa 4: Envio (20%) - Pelo menos uma expedição adicionada
+    if (data.detalhamento_expedicao?.length > 0) {
+      progress = 80;
+    }
+
+    // Etapa 5: Entrega (20%) - Status separação = 'entregue'
+    if (data.status_separacao === 'entregue') {
+      progress = 100;
+    }
+
+    return progress;
   };
 
   const handleSubmit = async () => {
