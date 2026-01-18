@@ -62,40 +62,6 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange }) {
 
   return (
     <div className="space-y-6">
-      {/* Stepper Visual */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Progresso do Recebimento</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">Etapa {fluxo?.etapa_atual || 1} de 4</span>
-              <span className="text-sm text-slate-500">{conferenciaProgress}% conferido</span>
-            </div>
-            <Progress value={conferenciaProgress} className="h-2" />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-2 text-xs">
-            <div className={`p-2 rounded text-center ${fluxo?.xml_importado ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-100' : 'bg-slate-100 dark:bg-slate-800'}`}>
-              <div className="font-semibold">1. Importar XML</div>
-              <div className="text-xs">{fluxo?.xml_importado ? '✓' : '○'}</div>
-            </div>
-            <div className={`p-2 rounded text-center ${fluxo?.conferencia_manual_completa ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-100' : 'bg-slate-100 dark:bg-slate-800'}`}>
-              <div className="font-semibold">2. Conferência Manual</div>
-              <div className="text-xs">{fluxo?.conferencia_manual_completa ? '✓' : '○'}</div>
-            </div>
-            <div className={`p-2 rounded text-center ${fluxo?.validacao_divergencias_completa ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-100' : 'bg-slate-100 dark:bg-slate-800'}`}>
-              <div className="font-semibold">3. Divergências</div>
-              <div className="text-xs">{fluxo?.validacao_divergencias_completa ? '✓' : '○'}</div>
-            </div>
-            <div className={`p-2 rounded text-center ${fluxo?.armazenagem_completa ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-100' : 'bg-slate-100 dark:bg-slate-800'}`}>
-              <div className="font-semibold">4. Armazenagem</div>
-              <div className="text-xs">{fluxo?.armazenagem_completa ? '✓' : '○'}</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Materiais Recebidos */}
       <Card>
         <CardHeader>
