@@ -857,7 +857,7 @@ export default function OSDetailModal({
               </TabsContent>
 
               {/* Comentários Tab - Chat Style */}
-              <TabsContent value="comentarios" className="flex flex-col h-[500px]">
+              <TabsContent value="comentarios" className="flex flex-col min-h-[400px]">
                 {/* Messages Container */}
                 <ScrollArea className="flex-1 pr-4">
                   <div className="space-y-1">
