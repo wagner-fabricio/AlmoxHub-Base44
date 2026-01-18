@@ -403,15 +403,15 @@ export default function OSDetailModal({
     return groups;
   };
 
-  if (!os) return null;
+  if (!os || !localOS) return null;
 
-  const categoria = Array.isArray(categorias) ? categorias.find(c => c?.id === localOS.categoria_id) : null;
-  const regional = Array.isArray(regionais) ? regionais.find(r => r?.id === localOS.regional_id) : null;
-  const almoxarifado = Array.isArray(almoxarifados) ? almoxarifados.find(a => a?.id === localOS.almoxarifado_id) : null;
-  const lider = Array.isArray(pessoas) ? pessoas.find(p => p?.id === localOS.lider_id) : null;
-  const StatusIcon = statusConfig[localOS.status]?.icon || Clock;
+  const categoria = Array.isArray(categorias) ? categorias.find(c => c?.id === localOS?.categoria_id) : null;
+  const regional = Array.isArray(regionais) ? regionais.find(r => r?.id === localOS?.regional_id) : null;
+  const almoxarifado = Array.isArray(almoxarifados) ? almoxarifados.find(a => a?.id === localOS?.almoxarifado_id) : null;
+  const lider = Array.isArray(pessoas) ? pessoas.find(p => p?.id === localOS?.lider_id) : null;
+  const StatusIcon = statusConfig[localOS?.status]?.icon || Clock;
   const isExpedicao = categoria?.nome?.toLowerCase().includes('expedição');
-  const hasChanges = JSON.stringify(localOS.itens_documento) !== JSON.stringify(os.itens_documento);
+  const hasChanges = JSON.stringify(localOS?.itens_documento) !== JSON.stringify(os?.itens_documento);
 
   return (
     <>
