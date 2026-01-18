@@ -18,6 +18,7 @@ export default function OSItensDocumento({ itens = [], onChange }) {
       endereco: '',
       saldo: 0,
       seguravel: false,
+      separado: false,
     }]);
   };
 
@@ -53,6 +54,7 @@ export default function OSItensDocumento({ itens = [], onChange }) {
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50 dark:bg-slate-800">
+              <TableHead className="w-12 text-center">✓</TableHead>
               <TableHead className="w-24">Código</TableHead>
               <TableHead>Descrição</TableHead>
               <TableHead className="w-20">Qtd</TableHead>
@@ -69,13 +71,20 @@ export default function OSItensDocumento({ itens = [], onChange }) {
           <TableBody>
             {itens.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={11} className="text-center py-8 text-slate-500">
+                <TableCell colSpan={12} className="text-center py-8 text-slate-500">
                   Nenhum item adicionado. Clique em "Inserir Item" para começar.
                 </TableCell>
               </TableRow>
             ) : (
               itens.map((item, index) => (
-                <TableRow key={index}>
+                <TableRow key={index} className={item.separado ? 'bg-green-50 dark:bg-green-900/10' : ''}>
+                  <TableCell className="text-center">
+                    <Checkbox
+                      checked={item.separado || false}
+                      onCheckedChange={(v) => updateItem(index, 'separado', v)}
+                      className="accent-green-600"
+                    />
+                  </TableCell>
                   <TableCell>
                     <Input
                       value={item.codigo}
