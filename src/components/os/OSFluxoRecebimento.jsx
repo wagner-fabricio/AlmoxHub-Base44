@@ -1,50 +1,75 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+import { CheckCircle, Circle, Clock } from 'lucide-react';
+
+const etapas = [
+  { id: 1, nome: 'Importar XML', campo: 'xml_importado' },
+  { id: 2, nome: 'Conferência Manual', campo: 'conferencia_manual_completa' },
+  { id: 3, nome: 'Divergências', campo: 'validacao_divergencias_completa' },
+  { id: 4, nome: 'Armazenagem', campo: 'armazenagem_completa' }
+];
 
 export default function OSFluxoRecebimento({ fluxo }) {
-  const calcularProgresso = () => {
-    if (!fluxo) return 0;
-    let etapas = 0;
-    if (fluxo.xml_importado) etapas++;
-    if (fluxo.conferencia_manual_completa) etapas++;
-    if (fluxo.validacao_divergencias_completa) etapas++;
-    if (fluxo.armazenagem_completa) etapas++;
-    return Math.round((etapas / 4) * 100);
+  const etapaAtual = fluxo?.etapa_atual || 1;
+
+  const getEtapaStatus = (etapa) => {
+    const completa = fluxo?.[etapa.campo];
+    
+    if (completa) return 'completa';
+    if (etapa.id === etapaAtual) return 'atual';
+    return 'pendente';
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Fluxo de Recebimento</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium">Progresso: Etapa {fluxo?.etapa_atual || 1} de 4</span>
-            <span className="text-sm text-slate-500">{calcularProgresso()}%</span>
-          </div>
-          <Progress value={calcularProgresso()} className="h-2" />
+    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 rounded-xl p-6 border border-blue-100 dark:border-slate-600">
+      <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-6">
+        Fluxo de Recebimento
+      </h3>
+      <div className="relative">
+        {/* Progress Bar Background */}
+        <div className="absolute top-4 left-0 right-0 h-1 bg-slate-200 dark:bg-slate-600 rounded-full" />
+        
+        {/* Progress Bar Fill */}
+        <div 
+          className="absolute top-4 left-0 h-1 bg-gradient-to-r from-green-500 to-blue-500 rounded-full transition-all duration-500"
+          style={{ width: `${((etapaAtual - 1) / (etapas.length - 1)) * 100}%` }}
+        />
+
+        {/* Steps */}
+        <div className="relative flex justify-between">
+          {etapas.map((etapa) => {
+            const status = getEtapaStatus(etapa);
+            
+            return (
+              <div key={etapa.id} className="flex flex-col items-center" style={{ width: '25%' }}>
+                {/* Icon */}
+                <div className={`
+                  w-9 h-9 rounded-full flex items-center justify-center z-10 shadow-lg
+                  ${status === 'completa' ? 'bg-green-500' : ''}
+                  ${status === 'atual' ? 'bg-blue-500 ring-4 ring-blue-200 dark:ring-blue-900' : ''}
+                  ${status === 'pendente' ? 'bg-slate-200 dark:bg-slate-600' : ''}
+                `}>
+                  {status === 'completa' ? (
+                    <CheckCircle className="w-5 h-5 text-white" />
+                  ) : status === 'atual' ? (
+                    <Clock className="w-5 h-5 text-white animate-pulse" />
+                  ) : (
+                    <Circle className="w-5 h-5 text-slate-400" />
+                  )}
+                </div>
+
+                {/* Label */}
+                <p className={`text-xs font-medium mt-3 text-center ${
+                  status === 'completa' ? 'text-green-600 dark:text-green-400' :
+                  status === 'atual' ? 'text-blue-600 dark:text-blue-400' :
+                  'text-slate-400'
+                }`}>
+                  {etapa.nome}
+                </p>
+              </div>
+            );
+          })}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-2 text-xs">
-          <div className={`p-3 rounded text-center ${fluxo?.xml_importado ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-100' : 'bg-slate-100 dark:bg-slate-800'}`}>
-            <div className="font-semibold">1. Importar XML</div>
-            <div className="text-xs mt-1">{fluxo?.xml_importado ? '✓' : '○'}</div>
-          </div>
-          <div className={`p-3 rounded text-center ${fluxo?.conferencia_manual_completa ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-100' : 'bg-slate-100 dark:bg-slate-800'}`}>
-            <div className="font-semibold">2. Conferência Manual</div>
-            <div className="text-xs mt-1">{fluxo?.conferencia_manual_completa ? '✓' : '○'}</div>
-          </div>
-          <div className={`p-3 rounded text-center ${fluxo?.validacao_divergencias_completa ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-100' : 'bg-slate-100 dark:bg-slate-800'}`}>
-            <div className="font-semibold">3. Divergências</div>
-            <div className="text-xs mt-1">{fluxo?.validacao_divergencias_completa ? '✓' : '○'}</div>
-          </div>
-          <div className={`p-3 rounded text-center ${fluxo?.armazenagem_completa ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-100' : 'bg-slate-100 dark:bg-slate-800'}`}>
-            <div className="font-semibold">4. Armazenagem</div>
-            <div className="text-xs mt-1">{fluxo?.armazenagem_completa ? '✓' : '○'}</div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
