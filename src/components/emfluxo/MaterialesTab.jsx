@@ -183,10 +183,16 @@ export default function MaterialesTab({ os, onClose, isRecebimento = true }) {
                              {item.endereco}
                            </div>
                          )}
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-xs">
-                            {itemsStatus[index]?.quantidadeSeparada || item.quantidade} {item.unidade || 'UN'}
-                          </Badge>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {isRecebimento && item.quantidade_esperada ? (
+                            <Badge variant="outline" className="text-xs">
+                              Qtd NF: {item.quantidade_esperada} {item.unidade || 'UN'}
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-xs">
+                              {itemsStatus[index]?.quantidadeSeparada || item.quantidade} {item.unidade || 'UN'}
+                            </Badge>
+                          )}
                           {itemsStatus[index]?.checked && (
                             <Badge className="bg-green-500 text-white text-xs">
                               <Check className="w-3 h-3 mr-1" />
@@ -270,18 +276,20 @@ export default function MaterialesTab({ os, onClose, isRecebimento = true }) {
         </div>
 
         {/* Quantidade a Separar */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className={`grid ${isRecebimento ? 'grid-cols-2' : 'grid-cols-2'} gap-3 mb-4`}>
           <div className="bg-slate-100 dark:bg-slate-700 rounded-xl p-3">
-            <span className="text-xs text-slate-600 dark:text-slate-400 block mb-1">Quantidade</span>
+            <span className="text-xs text-slate-600 dark:text-slate-400 block mb-1">
+              {isRecebimento ? 'Qtd NF' : 'Quantidade'}
+            </span>
             <p className="text-2xl font-bold" style={{ color: '#0000FF' }}>
-              {currentItem?.quantidade}
+              {isRecebimento ? currentItem?.quantidade_esperada : currentItem?.quantidade}
             </p>
             <span className="text-xs text-slate-600 dark:text-slate-400">
               {currentItem?.unidade || 'UN'}
             </span>
           </div>
-          
-          {saldoAposSeparacao !== null && (
+
+          {!isRecebimento && saldoAposSeparacao !== null && (
             <div className="bg-slate-100 dark:bg-slate-700 rounded-xl p-3">
               <span className="text-xs text-slate-600 dark:text-slate-400 block mb-1">Saldo</span>
               <p className="text-2xl font-bold text-slate-700 dark:text-slate-300">
