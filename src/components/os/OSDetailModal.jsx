@@ -375,12 +375,26 @@ export default function OSDetailModal({
         itens_documento: localOS.itens_documento
       });
       
+      // Registrar no histórico
+      const itensSeparados = (localOS.itens_documento || []).filter(item => item.separado).length;
+      const totalItens = (localOS.itens_documento || []).length;
+      
+      await base44.functions.invoke('registrarAuditLog', {
+        action: 'separacao_update',
+        entity_type: 'OrdemServico',
+        entity_id: os.id,
+        details: {
+          descricao: `Marcou ${itensSeparados} de ${totalItens} materiais como separados`
+        }
+      });
+      
       // Atualizar fluxo de expedição se aplicável
       if (isExpedicao) {
         await base44.functions.invoke('atualizarFluxoExpedicao', { os_id: os.id });
       }
       
       if (onRefresh) onRefresh();
+      loadAuditLogs();
     } catch (error) {
       console.error('Erro ao salvar separação:', error);
     } finally {
