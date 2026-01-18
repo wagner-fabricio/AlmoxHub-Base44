@@ -20,8 +20,7 @@ export default function Transportadoras() {
     cnpj: '',
     razao_social: '',
     telefones: '',
-    codigo_sap: '',
-    ativa: true
+    codigo_sap: ''
   });
 
   useEffect(() => {
@@ -56,7 +55,7 @@ export default function Transportadoras() {
   const handleDelete = async (id) => {
     if (confirm('Deseja realmente excluir esta transportadora?')) {
       try {
-        await base44.entities.Transportadora.update(id, { ativa: false });
+        await base44.entities.Transportadora.delete(id);
         loadTransportadoras();
       } catch (e) {
         console.error('Error deleting transportadora:', e);
@@ -76,8 +75,7 @@ export default function Transportadoras() {
       cnpj: '',
       razao_social: '',
       telefones: '',
-      codigo_sap: '',
-      ativa: true
+      codigo_sap: ''
     });
     setModalOpen(true);
   };
@@ -154,7 +152,6 @@ export default function Transportadoras() {
               <TableHead>Razão Social</TableHead>
               <TableHead>Telefones</TableHead>
               <TableHead>Código SAP</TableHead>
-              <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -165,11 +162,6 @@ export default function Transportadoras() {
                 <TableCell className="font-semibold">{transp.razao_social}</TableCell>
                 <TableCell>{transp.telefones || '-'}</TableCell>
                 <TableCell>{transp.codigo_sap || '-'}</TableCell>
-                <TableCell>
-                  <Badge className={transp.ativa ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}>
-                    {transp.ativa ? 'Ativa' : 'Inativa'}
-                  </Badge>
-                </TableCell>
                 <TableCell>
                   <div className="flex items-center justify-end gap-1">
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(transp)}>
