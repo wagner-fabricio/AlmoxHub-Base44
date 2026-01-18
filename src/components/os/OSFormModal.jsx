@@ -458,14 +458,18 @@ export default function OSFormModal({
                     <Select
                       value={formData.lider_id}
                       onValueChange={(v) => setFormData({ ...formData, lider_id: v })}
+                      disabled={!formData.almoxarifado_id}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione..." />
+                        <SelectValue placeholder={formData.almoxarifado_id ? "Selecione..." : "Selecione almoxarifado primeiro"} />
                       </SelectTrigger>
                       <SelectContent>
-                        {(pessoas || []).filter(p => p && p.funcoes?.includes('lider')).map(p => (
-                          <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
-                        ))}
+                        {(pessoas || [])
+                          .filter(p => p && p.funcoes?.includes('lider') && 
+                            (!formData.almoxarifado_id || p.almoxarifados_ids?.includes(formData.almoxarifado_id)))
+                          .map(p => (
+                            <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                   </div>
