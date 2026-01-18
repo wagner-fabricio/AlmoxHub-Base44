@@ -408,22 +408,10 @@ export default function OSMobileDetail({
     }
   };
 
-  const handlePickingComplete = async (itemsStatus, sortedItems) => {
+  const handlePickingComplete = async (itemsStatus, sortedItems, updatedItensFromWMS) => {
     try {
-      // Atualizar itens com as quantidades separadas
-      const updatedItems = [...(os.itens_documento || [])];
-      
-      sortedItems.forEach((sortedItem, sortedIndex) => {
-        const originalIndex = sortedItem.originalIndex;
-        const status = itemsStatus[sortedIndex];
-        
-        updatedItems[originalIndex] = {
-          ...updatedItems[originalIndex],
-          separado: true,
-          quantidade_separada: status.quantidadeSeparada,
-          status_separacao: status.status
-        };
-      });
+      // Usar os itens já atualizados do WMS que incluem separado: true
+      const updatedItems = updatedItensFromWMS || [...(os.itens_documento || [])];
 
       // Atualizar OS com status "separado"
       await base44.entities.OrdemServico.update(os.id, {
