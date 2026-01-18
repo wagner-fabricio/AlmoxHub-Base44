@@ -212,6 +212,12 @@ export default function OSFormModal({
         nfe_dados_destinatario: {},
         nfe_dados_transportador: {},
         nfe_itens_conferencia: [],
+        nfe_numero_receb: '',
+        nfe_data_receb: '',
+        numero_migo_receb: '',
+        data_migo_receb: '',
+        numero_v360: '',
+        doc_referencia: '',
         fluxo_recebimento: {
           etapa_atual: 1,
           xml_importado: false,
