@@ -17,9 +17,9 @@ import { cn } from '@/lib/utils';
 import OSItensDocumento from './OSItensDocumento';
 import OSVolumes from './OSVolumes';
 import OSDetalhamentoExpedicao from './OSDetalhamentoExpedicao';
-import OSRecebimentoDocumento from './OSRecebimentoDocumento';
-import OSRecebimentoTransportador from './OSRecebimentoTransportador';
-import OSRecebimentoMateriais from './OSRecebimentoMateriais';
+import OSRecebimentoDocumento from './OSRecebimentoDocumento.jsx';
+import OSRecebimentoTransportador from './OSRecebimentoTransportador.jsx';
+import OSRecebimentoMateriais from './OSRecebimentoMateriais.jsx';
 
 export default function OSFormModal({
   open,
