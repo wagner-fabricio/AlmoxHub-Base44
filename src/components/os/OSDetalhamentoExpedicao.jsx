@@ -123,22 +123,35 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) 
     return apenas_numeros.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
   };
 
-  const handleCNPJChange = async (index, cnpj) => {
+  const handleCNPJChange = (index, cnpj) => {
     const cnpjLimpo = cnpj.replace(/\D/g, '');
-    updateExpedicao(index, 'transportadora.cnpj', cnpjLimpo);
     
-    // Buscar transportadora se CNPJ tiver 14 dígitos
+    // Buscar transportadora imediatamente se CNPJ tiver 14 dígitos
     if (cnpjLimpo.length === 14) {
       const transp = transportadoras.find(t => {
         const cnpjTransp = t?.cnpj ? t.cnpj.replace(/\D/g, '') : '';
         return cnpjTransp === cnpjLimpo;
       });
       if (transp) {
-        updateExpedicao(index, 'transportadora.razao_social', transp.razao_social);
-        updateExpedicao(index, 'transportadora.telefones', transp.telefones || '');
-        updateExpedicao(index, 'transportadora.codigo_sap', transp.codigo_sap || '');
+        // Atualizar todos os campos de uma vez
+        const updated = [...detalhamento];
+        updated[index] = {
+          ...updated[index],
+          transportadora: {
+            ...updated[index].transportadora,
+            cnpj: cnpjLimpo,
+            razao_social: transp.razao_social,
+            telefones: transp.telefones || '',
+            codigo_sap: transp.codigo_sap || ''
+          }
+        };
+        onChange(updated);
+        return;
       }
     }
+    
+    // Se não encontrou transportadora, apenas atualiza o CNPJ
+    updateExpedicao(index, 'transportadora.cnpj', cnpjLimpo);
   };
 
   const salvarNovaTransportadora = async (index) => {
