@@ -612,7 +612,12 @@ export default function OSFormModal({
                       max="100"
                       value={formData.progresso || 0}
                       onChange={(e) => setFormData({ ...formData, progresso: parseInt(e.target.value) || 0 })}
+                      disabled={isExpedicaoCategory}
+                      className={isExpedicaoCategory ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : ''}
                     />
+                    {isExpedicaoCategory && (
+                      <p className="text-xs text-slate-500">Progresso automático baseado no fluxo de expedição</p>
+                    )}
                   </div>
 
                   {/* Projetos */}
