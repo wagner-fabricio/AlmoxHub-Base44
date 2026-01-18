@@ -54,7 +54,15 @@ export default function OSItensDocumento({ itens = [], onChange }) {
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50 dark:bg-slate-800">
-              <TableHead className="w-12 text-center">✓</TableHead>
+              <TableHead className="w-12 text-center">
+                <Checkbox
+                  checked={itens.length > 0 && itens.every(item => item.separado)}
+                  onCheckedChange={(checked) => {
+                    onChange(itens.map(item => ({ ...item, separado: checked })));
+                  }}
+                  className="accent-green-600"
+                />
+              </TableHead>
               <TableHead className="w-24">Código</TableHead>
               <TableHead>Descrição</TableHead>
               <TableHead className="w-20">Qtd</TableHead>
