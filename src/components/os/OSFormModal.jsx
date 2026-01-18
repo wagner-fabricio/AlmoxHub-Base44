@@ -157,6 +157,9 @@ export default function OSFormModal({
   // Check if we should show expedition fields
   const isExpedicaoCategory = 
     selectedCategoria?.nome?.toLowerCase().includes('expedição');
+  
+  const isRecebimentoCategory = 
+    selectedCategoria?.nome?.toLowerCase().includes('recebimento');
 
   const calculateProgress = (data) => {
     // Progresso baseado no fluxo de expedição - cada etapa é 20%
