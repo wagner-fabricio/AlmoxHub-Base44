@@ -83,46 +83,49 @@ function parseNFeXML(xmlContent) {
     resultado.nfe_natureza_operacao = getElementTextNS('ide', 'natOp') || getElementText('natOp') || '';
 
     // Dados do Emissor (emit)
-    const emitCNPJ = getElementTextNS('emit', 'CNPJ') || getElementText('CNPJ') || '';
+    const emitSection = extractSection('emit');
+    const emitCNPJ = getElementTextNS('emit', 'CNPJ', emitSection) || getElementText('CNPJ', emitSection) || '';
     resultado.nfe_dados_emissor = {
-      razao_social: getElementTextNS('emit', 'xNome') || getElementText('xNome') || '',
+      razao_social: getElementTextNS('emit', 'xNome', emitSection) || getElementText('xNome', emitSection) || '',
       cnpj: emitCNPJ,
-      inscricao_estadual: getElementTextNS('emit', 'IE') || getElementText('IE') || '',
-      endereco: getElementTextNS('emit', 'xLgr') || getElementText('xLgr') || '',
-      numero: getElementTextNS('emit', 'nro') || getElementText('nro') || '',
-      complemento: getElementTextNS('emit', 'xCpl') || getElementText('xCpl') || '',
-      bairro: getElementTextNS('emit', 'xBairro') || getElementText('xBairro') || '',
-      cidade: getElementTextNS('emit', 'xMun') || getElementText('xMun') || '',
-      estado: getElementTextNS('emit', 'UF') || getElementText('UF') || '',
-      cep: getElementTextNS('emit', 'CEP') || getElementText('CEP') || ''
+      inscricao_estadual: getElementTextNS('emit', 'IE', emitSection) || getElementText('IE', emitSection) || '',
+      endereco: getElementTextNS('emit', 'xLgr', emitSection) || getElementText('xLgr', emitSection) || '',
+      numero: getElementTextNS('emit', 'nro', emitSection) || getElementText('nro', emitSection) || '',
+      complemento: getElementTextNS('emit', 'xCpl', emitSection) || getElementText('xCpl', emitSection) || '',
+      bairro: getElementTextNS('emit', 'xBairro', emitSection) || getElementText('xBairro', emitSection) || '',
+      cidade: getElementTextNS('emit', 'xMun', emitSection) || getElementText('xMun', emitSection) || '',
+      estado: getElementTextNS('emit', 'UF', emitSection) || getElementText('UF', emitSection) || '',
+      cep: getElementTextNS('emit', 'CEP', emitSection) || getElementText('CEP', emitSection) || ''
     };
 
     // Dados do Destinatário (dest)
+    const destSection = extractSection('dest');
     resultado.nfe_dados_destinatario = {
-      razao_social: getElementTextNS('dest', 'xNome') || getElementText('xNome') || '',
-      cnpj: getElementTextNS('dest', 'CNPJ') || getElementText('CNPJ') || '',
-      inscricao_estadual: getElementTextNS('dest', 'IE') || getElementText('IE') || '',
-      endereco: getElementTextNS('dest', 'xLgr') || getElementText('xLgr') || '',
-      numero: getElementTextNS('dest', 'nro') || getElementText('nro') || '',
-      complemento: getElementTextNS('dest', 'xCpl') || getElementText('xCpl') || '',
-      bairro: getElementTextNS('dest', 'xBairro') || getElementText('xBairro') || '',
-      cidade: getElementTextNS('dest', 'xMun') || getElementText('xMun') || '',
-      estado: getElementTextNS('dest', 'UF') || getElementText('UF') || '',
-      cep: getElementTextNS('dest', 'CEP') || getElementText('CEP') || ''
+      razao_social: getElementTextNS('dest', 'xNome', destSection) || getElementText('xNome', destSection) || '',
+      cnpj: getElementTextNS('dest', 'CNPJ', destSection) || getElementText('CNPJ', destSection) || '',
+      inscricao_estadual: getElementTextNS('dest', 'IE', destSection) || getElementText('IE', destSection) || '',
+      endereco: getElementTextNS('dest', 'xLgr', destSection) || getElementText('xLgr', destSection) || '',
+      numero: getElementTextNS('dest', 'nro', destSection) || getElementText('nro', destSection) || '',
+      complemento: getElementTextNS('dest', 'xCpl', destSection) || getElementText('xCpl', destSection) || '',
+      bairro: getElementTextNS('dest', 'xBairro', destSection) || getElementText('xBairro', destSection) || '',
+      cidade: getElementTextNS('dest', 'xMun', destSection) || getElementText('xMun', destSection) || '',
+      estado: getElementTextNS('dest', 'UF', destSection) || getElementText('UF', destSection) || '',
+      cep: getElementTextNS('dest', 'CEP', destSection) || getElementText('CEP', destSection) || ''
     };
 
     // Dados do Transportador (transp)
-    const transpCNPJ = getElementTextNS('transp', 'CNPJ') || getElementText('CNPJ') || '';
+    const transpSection = extractSection('transp');
+    const tranpCNPJ = getElementTextNS('transp', 'CNPJ', transpSection) || getElementText('CNPJ', transpSection) || '';
     resultado.nfe_dados_transportador = {
-      razao_social: getElementTextNS('transp', 'xNome') || getElementText('xNome') || '',
-      cnpj: transpCNPJ,
-      endereco: getElementTextNS('transp', 'xEnder') || getElementText('xEnder') || '',
-      valor_frete: parseFloat(getElementTextNS('transp', 'vFrete') || getElementText('vFrete') || '0'),
-      tipo_frete: getElementTextNS('transp', 'modFrete') || getElementText('modFrete') || '',
-      quantidade_volumes: parseInt(getElementTextNS('transp', 'qVol') || getElementText('qVol') || '0'),
-      especie_volume: getElementTextNS('transp', 'esp') || getElementText('esp') || '',
-      peso_bruto: parseFloat(getElementTextNS('transp', 'pesoG') || getElementText('pesoG') || '0'),
-      peso_liquido: parseFloat(getElementTextNS('transp', 'pesoL') || getElementText('pesoL') || '0')
+      razao_social: getElementTextNS('transp', 'xNome', transpSection) || getElementText('xNome', transpSection) || '',
+      cnpj: tranpCNPJ,
+      endereco: getElementTextNS('transp', 'xEnder', transpSection) || getElementText('xEnder', transpSection) || '',
+      valor_frete: parseFloat(getElementTextNS('transp', 'vFrete', transpSection) || getElementText('vFrete', transpSection) || '0'),
+      tipo_frete: getElementTextNS('transp', 'modFrete', transpSection) || getElementText('modFrete', transpSection) || '',
+      quantidade_volumes: parseInt(getElementTextNS('transp', 'qVol', transpSection) || getElementText('qVol', transpSection) || '0'),
+      especie_volume: getElementTextNS('transp', 'esp', transpSection) || getElementText('esp', transpSection) || '',
+      peso_bruto: parseFloat(getElementTextNS('transp', 'pesoG', transpSection) || getElementText('pesoG', transpSection) || '0'),
+      peso_liquido: parseFloat(getElementTextNS('transp', 'pesoL', transpSection) || getElementText('pesoL', transpSection) || '0')
     };
 
     // Itens (det)
