@@ -12,7 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from '@/components/ui/command';
 import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
-import { Save, Plus, Trash2, Upload, X, Loader2, Paperclip, Check, ChevronsUpDown, ExternalLink } from 'lucide-react';
+import { Save, Plus, Trash2, Upload, X, Loader2, Paperclip, Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import OSItensDocumento from './OSItensDocumento';
 import OSVolumes from './OSVolumes';
@@ -1281,25 +1281,12 @@ export default function OSFormModal({
                     {/* Número ID V360 */}
                     <div className="space-y-2">
                       <Label>Número ID V360</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          type="number"
-                          value={formData.numero_v360}
-                          onChange={(e) => setFormData({ ...formData, numero_v360: e.target.value })}
-                          placeholder="Somente número"
-                        />
-                        {formData.numero_v360 && (
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => window.open(`https://v360.com.br/tracking/${formData.numero_v360}`, '_blank')}
-                            title="Abrir no V360"
-                            className="shrink-0"
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                          </Button>
-                        )}
-                      </div>
+                      <Input
+                        type="number"
+                        value={formData.numero_v360}
+                        onChange={(e) => setFormData({ ...formData, numero_v360: e.target.value })}
+                        placeholder="Somente número"
+                      />
                     </div>
 
                     {/* Doc Referência */}
