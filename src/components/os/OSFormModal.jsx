@@ -382,6 +382,46 @@ export default function OSFormModal({
     }
   };
 
+  const handleNFeXMLUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImportingXML(true);
+    try {
+      const formDataXML = new FormData();
+      formDataXML.append('file', file);
+
+      const response = await base44.functions.invoke('parseNFeXML', {
+        file: file
+      });
+
+      if (response.data) {
+        const nfeData = response.data;
+        setFormData(prev => ({
+          ...prev,
+          nfe_numero: nfeData.nfe_numero || '',
+          nfe_serie: nfeData.nfe_serie || '',
+          nfe_data_emissao: nfeData.nfe_data_emissao || '',
+          nfe_chave_acesso: nfeData.nfe_chave_acesso || '',
+          nfe_natureza_operacao: nfeData.nfe_natureza_operacao || '',
+          nfe_dados_emissor: nfeData.nfe_dados_emissor || {},
+          nfe_dados_destinatario: nfeData.nfe_dados_destinatario || {},
+          nfe_dados_transportador: nfeData.nfe_dados_transportador || {},
+          nfe_itens_conferencia: nfeData.nfe_itens_conferencia || [],
+          fluxo_recebimento: {
+            ...prev.fluxo_recebimento,
+            etapa_atual: 2,
+            xml_importado: true
+          }
+        }));
+      }
+    } catch (error) {
+      console.error('Erro ao fazer upload do XML:', error);
+    } finally {
+      setImportingXML(false);
+    }
+  };
+
   const removeFile = (field, index) => {
     setFormData(prev => ({
       ...prev,
