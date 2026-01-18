@@ -376,17 +376,22 @@ export default function OSDetailModal({
       });
       
       // Registrar no histórico
-      const itensSeparados = (localOS.itens_documento || []).filter(item => item.separado).length;
-      const totalItens = (localOS.itens_documento || []).length;
-      
-      await base44.functions.invoke('registrarAuditLog', {
-        action: 'separacao_update',
-        entity_type: 'OrdemServico',
-        entity_id: os.id,
-        details: {
-          descricao: `Marcou ${itensSeparados} de ${totalItens} materiais como separados`
-        }
-      });
+      try {
+        const itensSeparados = (localOS.itens_documento || []).filter(item => item.separado).length;
+        const totalItens = (localOS.itens_documento || []).length;
+        
+        const auditResult = await base44.functions.invoke('registrarAuditLog', {
+          action: 'separacao_update',
+          entity_type: 'OrdemServico',
+          entity_id: os.id,
+          details: {
+            descricao: `Marcou ${itensSeparados} de ${totalItens} materiais como separados`
+          }
+        });
+        console.log('Audit log criado:', auditResult);
+      } catch (auditError) {
+        console.error('Erro ao registrar audit log:', auditError);
+      }
       
       // Atualizar fluxo de expedição se aplicável
       if (isExpedicao) {
@@ -394,7 +399,7 @@ export default function OSDetailModal({
       }
       
       if (onRefresh) onRefresh();
-      loadAuditLogs();
+      await loadAuditLogs();
     } catch (error) {
       console.error('Erro ao salvar separação:', error);
     } finally {
