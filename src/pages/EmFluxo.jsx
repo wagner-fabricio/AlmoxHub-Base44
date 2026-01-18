@@ -101,29 +101,9 @@ export default function EmFluxo() {
       setCurrentPessoa(pessoa);
 
       // Filtrar apenas OS onde o usuário é líder ou executor
-      console.log('=== DEBUG FILTRO OS ===');
-      console.log('Pessoa logada ID:', pessoa?.id);
-      console.log('Total de OS:', (ordensData || []).length);
-      
-      const minhasOrdens = (ordensData || []).filter(os => {
-        const isLider = os.lider_id === pessoa?.id;
-        const isExecutor = (os.executores_ids || []).includes(pessoa?.id);
-        const incluir = isLider || isExecutor;
-        
-        if (os.codigo === 'GLOANE-20260118-0001') {
-          console.log('OS GLOANE-20260118-0001:');
-          console.log('  - lider_id:', os.lider_id);
-          console.log('  - executores_ids:', os.executores_ids);
-          console.log('  - É líder?', isLider);
-          console.log('  - É executor?', isExecutor);
-          console.log('  - Será incluída?', incluir);
-        }
-        
-        return incluir;
-      });
-      
-      console.log('OS filtradas:', minhasOrdens.length);
-      console.log('Códigos das OS:', minhasOrdens.map(o => o.codigo));
+      const minhasOrdens = (ordensData || []).filter(os => 
+        os.lider_id === pessoa?.id || (os.executores_ids || []).includes(pessoa?.id)
+      );
       setOrdens(minhasOrdens);
       setProjetos(projetosData || []);
       

@@ -185,7 +185,10 @@ export default function OrdensServico() {
       if (os.regional_id !== currentPessoa.regional_id) return false;
     }
     if (filters.visao === 'meus' && currentPessoa) {
-      if (os.lider_id !== currentPessoa.id && !os.outros_envolvidos_ids?.includes(currentPessoa.id)) return false;
+      const isLider = os.lider_id === currentPessoa.id;
+      const isExecutor = os.executores_ids?.includes(currentPessoa.id);
+      const isOutroEnvolvido = os.outros_envolvidos_ids?.includes(currentPessoa.id);
+      if (!isLider && !isExecutor && !isOutroEnvolvido) return false;
     }
     
     return true;
