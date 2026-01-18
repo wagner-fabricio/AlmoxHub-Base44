@@ -123,7 +123,7 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) 
     
     // Buscar transportadora se CNPJ tiver 14 dígitos
     if (cnpjLimpo.length === 14) {
-      const transp = transportadoras.find(t => t.cnpj.replace(/\D/g, '') === cnpjLimpo);
+      const transp = transportadoras.find(t => t?.cnpj && t.cnpj.replace(/\D/g, '') === cnpjLimpo);
       if (transp) {
         updateExpedicao(index, 'transportadora.razao_social', transp.razao_social);
         updateExpedicao(index, 'transportadora.telefones', transp.telefones || '');
