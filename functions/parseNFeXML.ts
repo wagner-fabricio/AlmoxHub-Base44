@@ -119,6 +119,7 @@ function parseNFeXML(xmlContent) {
     resultado.nfe_dados_transportador = {
       razao_social: getElementTextNS('transp', 'xNome', transpSection) || getElementText('xNome', transpSection) || '',
       cnpj: tranpCNPJ,
+      inscricao_estadual: getElementTextNS('transp', 'IE', transpSection) || getElementText('IE', transpSection) || '',
       endereco: getElementTextNS('transp', 'xEnder', transpSection) || getElementText('xEnder', transpSection) || '',
       valor_frete: parseFloat(getElementTextNS('transp', 'vFrete', transpSection) || getElementText('vFrete', transpSection) || '0'),
       tipo_frete: getElementTextNS('transp', 'modFrete', transpSection) || getElementText('modFrete', transpSection) || '',
