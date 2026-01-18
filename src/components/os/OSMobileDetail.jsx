@@ -442,9 +442,9 @@ export default function OSMobileDetail({
 
   const tabs = [
     { id: 'detalhes', label: 'Detalhes', icon: Clock },
-    ...(isExpedicao && os.itens_documento?.length > 0 ? [{ id: 'materiais', label: 'Materiais', icon: Package }] : []),
-    ...(isExpedicao && os.volumes?.length > 0 ? [{ id: 'volumes', label: 'Volumes', icon: Package }] : []),
-    ...(isExpedicao && os.detalhamento_expedicao?.length > 0 ? [{ id: 'expedicao', label: 'Expedição', icon: Package }] : []),
+    ...(os.itens_documento?.length > 0 ? [{ id: 'materiais', label: 'Materiais', icon: Package }] : []),
+    ...(os.volumes?.length > 0 ? [{ id: 'volumes', label: 'Volumes', icon: Package }] : []),
+    ...(os.detalhamento_expedicao?.length > 0 ? [{ id: 'expedicao', label: 'Expedição', icon: Package }] : []),
     { id: 'comentarios', label: 'Chat', icon: MessageSquare },
     { id: 'anexos', label: 'Anexos', icon: Paperclip }
   ];
