@@ -500,7 +500,7 @@ export default function OSDetailModal({
           </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto">
+        <ScrollArea className="flex-1">
           <div className="p-6">
             <Tabs defaultValue="detalhes">
               <TabsList className="mb-6">
@@ -1108,7 +1108,7 @@ export default function OSDetailModal({
               </TabsContent>
             </Tabs>
           </div>
-        </div>
+        </ScrollArea>
       </DialogContent>
       </Dialog>
 
