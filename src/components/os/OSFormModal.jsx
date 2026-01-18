@@ -37,6 +37,7 @@ export default function OSFormModal({
   const [zmmtsePDF, setZmmtsePDF] = useState(null);
   const [openOrigemCombo, setOpenOrigemCombo] = useState(false);
   const [openDestinoCombo, setOpenDestinoCombo] = useState(false);
+  const [prazoError, setPrazoError] = useState('');
   const [formData, setFormData] = useState({
     categoria_id: '',
     subcategorias_ids: [],
@@ -341,7 +342,7 @@ export default function OSFormModal({
   };
 
   const isValid = formData.categoria_id && formData.subcategorias_ids?.length > 0 && 
-    formData.regional_id && formData.almoxarifado_id && formData.lider_id && formData.prazo;
+    formData.regional_id && formData.almoxarifado_id && formData.lider_id && formData.prazo && !prazoError;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -555,8 +556,20 @@ export default function OSFormModal({
                     <Input
                       type="date"
                       value={formData.prazo}
-                      onChange={(e) => setFormData({ ...formData, prazo: e.target.value })}
+                      onChange={(e) => {
+                        const novoPrazo = e.target.value;
+                        if (novoPrazo && formData.data_inicial && new Date(novoPrazo) < new Date(formData.data_inicial)) {
+                          setPrazoError('O prazo não pode ser anterior à data inicial');
+                        } else {
+                          setPrazoError('');
+                        }
+                        setFormData({ ...formData, prazo: novoPrazo });
+                      }}
+                      className={prazoError ? 'border-red-500' : ''}
                     />
+                    {prazoError && (
+                      <p className="text-xs text-red-600 dark:text-red-400">{prazoError}</p>
+                    )}
                   </div>
 
                   {/* Data Inicial */}
@@ -565,7 +578,15 @@ export default function OSFormModal({
                     <Input
                       type="date"
                       value={formData.data_inicial}
-                      onChange={(e) => setFormData({ ...formData, data_inicial: e.target.value })}
+                      onChange={(e) => {
+                        const novaDataInicial = e.target.value;
+                        if (formData.prazo && novaDataInicial && new Date(formData.prazo) < new Date(novaDataInicial)) {
+                          setPrazoError('O prazo não pode ser anterior à data inicial');
+                        } else {
+                          setPrazoError('');
+                        }
+                        setFormData({ ...formData, data_inicial: novaDataInicial });
+                      }}
                     />
                   </div>
 
