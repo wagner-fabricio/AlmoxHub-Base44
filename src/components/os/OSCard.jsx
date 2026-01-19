@@ -107,6 +107,42 @@ export default function OSCard({ os, onClick, lider, categoria, regional, instal
         </div>
       )}
 
+      {/* Recebimento Details */}
+      {categoria?.nome?.toLowerCase().includes('recebimento') && (
+        <div className="mb-3 p-2 bg-green-50 dark:bg-green-900/20 rounded-lg space-y-1.5">
+          {os.numero_migo_receb && (
+            <div className="flex items-center gap-2 text-xs">
+              <PackageCheck className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
+              <span className="text-slate-600 dark:text-slate-400">MIGO:</span>
+              <span className="font-medium text-slate-900 dark:text-white">{os.numero_migo_receb}</span>
+            </div>
+          )}
+          {os.nfe_numero_receb && (
+            <div className="flex items-center gap-2 text-xs">
+              <PackageCheck className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
+              <span className="text-slate-600 dark:text-slate-400">NF:</span>
+              <span className="font-medium text-slate-900 dark:text-white">{os.nfe_numero_receb}</span>
+            </div>
+          )}
+          {os.nfe_dados_emissor?.razao_social && (
+            <div className="flex items-center gap-2 text-xs">
+              <User className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
+              <span className="text-slate-600 dark:text-slate-400">Emissor:</span>
+              <span className="font-medium text-slate-900 dark:text-white truncate">
+                {os.nfe_dados_emissor.razao_social}
+              </span>
+            </div>
+          )}
+          {os.numero_v360 && (
+            <div className="flex items-center gap-2 text-xs">
+              <PackageCheck className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
+              <span className="text-slate-600 dark:text-slate-400">V360:</span>
+              <span className="font-medium text-slate-900 dark:text-white">{os.numero_v360}</span>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Footer */}
       <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700">
         <div className="flex items-center gap-2">
