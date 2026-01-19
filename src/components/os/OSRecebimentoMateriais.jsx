@@ -6,10 +6,28 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { PackageCheck, AlertCircle, CheckCircle, TrendingDown } from 'lucide-react';
+import { PackageCheck, AlertCircle, CheckCircle, TrendingDown, Plus, Trash2 } from 'lucide-react';
 
 export default function OSRecebimentoMateriais({ itens, fluxo, onChange }) {
   const [editingIndex, setEditingIndex] = useState(null);
+
+  const addItem = () => {
+    const novoItem = {
+      codigo: '',
+      descricao: '',
+      quantidade_esperada: 0,
+      quantidade_recebida: 0,
+      unidade: 'UN',
+      status_conferencia: 'pendente',
+      endereco_armazenagem: ''
+    };
+    onChange({ itens: [...itens, novoItem], fluxo });
+  };
+
+  const removeItem = (index) => {
+    const newItens = itens.filter((_, i) => i !== index);
+    onChange({ itens: newItens, fluxo });
+  };
 
   const handleItemChange = (index, field, value) => {
     const newItens = [...itens];
@@ -65,10 +83,16 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange }) {
       {/* Materiais Recebidos */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <PackageCheck className="w-5 h-5" />
-            Conferência de Materiais
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <PackageCheck className="w-5 h-5" />
+              Conferência de Materiais
+            </CardTitle>
+            <Button onClick={addItem} size="sm" className="bg-blue-600 hover:bg-blue-700">
+              <Plus className="w-4 h-4 mr-2" />
+              Adicionar Material
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {itemsComStatus.length === 0 ? (
@@ -87,17 +111,44 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange }) {
                     <TableHead className="font-semibold text-center">Recebido</TableHead>
                     <TableHead className="font-semibold text-center">Status</TableHead>
                     <TableHead className="font-semibold">Endereço</TableHead>
+                    <TableHead className="font-semibold w-16"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {itemsComStatus.map((item, index) => (
                     <TableRow key={index} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                      <TableCell className="font-mono text-sm">{item.codigo}</TableCell>
+                      <TableCell className="font-mono text-sm">
+                        <Input
+                          value={item.codigo || ''}
+                          onChange={(e) => handleItemChange(index, 'codigo', e.target.value)}
+                          placeholder="Código"
+                          className="h-8 text-sm font-mono"
+                        />
+                      </TableCell>
                       <TableCell>
-                        <div className="max-w-xs truncate" title={item.descricao}>{item.descricao}</div>
+                        <Input
+                          value={item.descricao || ''}
+                          onChange={(e) => handleItemChange(index, 'descricao', e.target.value)}
+                          placeholder="Descrição"
+                          className="h-8 text-sm"
+                        />
                       </TableCell>
                       <TableCell className="text-center">
-                        <div className="font-semibold">{item.quantidade_esperada} {item.unidade}</div>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="number"
+                            value={item.quantidade_esperada || 0}
+                            onChange={(e) => handleItemChange(index, 'quantidade_esperada', parseFloat(e.target.value) || 0)}
+                            className="w-16 text-center h-8 text-sm"
+                            min="0"
+                          />
+                          <Input
+                            value={item.unidade || 'UN'}
+                            onChange={(e) => handleItemChange(index, 'unidade', e.target.value)}
+                            className="w-16 text-center h-8 text-sm"
+                            placeholder="UN"
+                          />
+                        </div>
                       </TableCell>
                       <TableCell className="text-center">
                         <Input
@@ -118,6 +169,16 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange }) {
                           placeholder="Ex: A-01-01"
                           className="h-8 text-sm"
                         />
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeItem(index)}
+                          className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
