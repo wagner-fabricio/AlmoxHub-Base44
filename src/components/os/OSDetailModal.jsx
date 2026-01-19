@@ -573,7 +573,7 @@ export default function OSDetailModal({
               <TabsList className="mb-6">
                 <TabsTrigger value="detalhes">Detalhes</TabsTrigger>
                 {isRecebimento && os.nfe_dados_emissor && Object.keys(os.nfe_dados_emissor).length > 0 && (
-                  <TabsTrigger value="receb-doc">Documento</TabsTrigger>
+                  <TabsTrigger value="receb-doc">Cabeçalho NF</TabsTrigger>
                 )}
                 {isRecebimento && os.nfe_dados_transportador && Object.keys(os.nfe_dados_transportador).length > 0 && (
                   <TabsTrigger value="receb-transp">Transportador</TabsTrigger>
