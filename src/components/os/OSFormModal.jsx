@@ -1242,9 +1242,7 @@ export default function OSFormModal({
                       <Input
                         value={formData.nfe_numero_receb}
                         onChange={(e) => setFormData({ ...formData, nfe_numero_receb: e.target.value })}
-                        placeholder="Preenchido automaticamente pelo XML"
-                        disabled
-                        className="bg-slate-100 dark:bg-slate-700"
+                        placeholder="Preenchido automaticamente pelo XML ou digite manualmente"
                       />
                     </div>
 
@@ -1255,8 +1253,6 @@ export default function OSFormModal({
                         type="date"
                         value={formData.nfe_data_receb}
                         onChange={(e) => setFormData({ ...formData, nfe_data_receb: e.target.value })}
-                        disabled
-                        className="bg-slate-100 dark:bg-slate-700"
                       />
                     </div>
 
