@@ -483,27 +483,31 @@ export default function OSFormModal({
       });
 
       if (response.data) {
-         const nfeData = response.data;
-         setFormData(prev => ({
-           ...prev,
-           nfe_numero: nfeData.nfe_numero || '',
-           nfe_numero_receb: nfeData.nfe_numero || '',
-           nfe_serie: nfeData.nfe_serie || '',
-           nfe_data_emissao: nfeData.nfe_data_emissao || '',
-           nfe_data_receb: nfeData.nfe_data_emissao || '',
-           nfe_chave_acesso: nfeData.nfe_chave_acesso || '',
-           nfe_natureza_operacao: nfeData.nfe_natureza_operacao || '',
-           nfe_dados_emissor: nfeData.nfe_dados_emissor || {},
-           nfe_dados_destinatario: nfeData.nfe_dados_destinatario || {},
-           nfe_dados_transportador: nfeData.nfe_dados_transportador || {},
-           nfe_itens_conferencia: nfeData.nfe_itens_conferencia || [],
-           fluxo_recebimento: {
-             ...prev.fluxo_recebimento,
-             etapa_atual: 2,
-             xml_importado: true
-           }
-         }));
-       }
+        const nfeData = response.data;
+        setFormData(prev => {
+          const updated = {
+            ...prev,
+            nfe_numero: nfeData.nfe_numero || '',
+            nfe_numero_receb: nfeData.nfe_numero || '',
+            nfe_serie: nfeData.nfe_serie || '',
+            nfe_data_emissao: nfeData.nfe_data_emissao || '',
+            nfe_data_receb: nfeData.nfe_data_emissao || '',
+            nfe_chave_acesso: nfeData.nfe_chave_acesso || '',
+            nfe_natureza_operacao: nfeData.nfe_natureza_operacao || '',
+            nfe_dados_emissor: nfeData.nfe_dados_emissor || {},
+            nfe_dados_destinatario: nfeData.nfe_dados_destinatario || {},
+            nfe_dados_transportador: nfeData.nfe_dados_transportador || {},
+            nfe_itens_conferencia: nfeData.nfe_itens_conferencia || [],
+            fluxo_recebimento: {
+              ...prev.fluxo_recebimento,
+              etapa_atual: 2,
+              xml_importado: true
+            }
+          };
+          console.log('Dados do XML importados:', updated);
+          return updated;
+        });
+      }
     } catch (error) {
       console.error('Erro ao fazer upload do XML:', error);
     } finally {
