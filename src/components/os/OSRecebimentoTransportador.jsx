@@ -24,41 +24,41 @@ export default function OSRecebimentoTransportador({ transportador, onChange }) 
             <Label>Razão Social</Label>
             <Input
               value={transportador?.razao_social || ''}
-              onChange={(e) => handleChange('razao_social', e.target.value)}
-              className="bg-slate-50 dark:bg-slate-800"
+              disabled
+              className="bg-slate-100 dark:bg-slate-700 cursor-not-allowed"
             />
           </div>
           <div className="space-y-2">
             <Label>CNPJ</Label>
             <Input
               value={transportador?.cnpj || ''}
-              onChange={(e) => handleChange('cnpj', e.target.value)}
-              className="bg-slate-50 dark:bg-slate-800"
+              disabled
+              className="bg-slate-100 dark:bg-slate-700 cursor-not-allowed"
             />
           </div>
           <div className="space-y-2">
             <Label>Inscrição Estadual</Label>
             <Input
               value={transportador?.inscricao_estadual || ''}
-              onChange={(e) => handleChange('inscricao_estadual', e.target.value)}
-              className="bg-slate-50 dark:bg-slate-800"
+              disabled
+              className="bg-slate-100 dark:bg-slate-700 cursor-not-allowed"
             />
           </div>
           <div className="space-y-2 lg:col-span-2">
             <Label>Endereço</Label>
             <Input
               value={transportador?.endereco || ''}
-              onChange={(e) => handleChange('endereco', e.target.value)}
-              className="bg-slate-50 dark:bg-slate-800"
+              disabled
+              className="bg-slate-100 dark:bg-slate-700 cursor-not-allowed"
             />
           </div>
           <div className="space-y-2">
             <Label>Tipo de Frete</Label>
             <Input
               value={transportador?.tipo_frete || ''}
-              onChange={(e) => handleChange('tipo_frete', e.target.value)}
+              disabled
               placeholder="CIF, FOB, etc."
-              className="bg-slate-50 dark:bg-slate-800"
+              className="bg-slate-100 dark:bg-slate-700 cursor-not-allowed"
             />
           </div>
           <div className="space-y-2">
@@ -66,8 +66,8 @@ export default function OSRecebimentoTransportador({ transportador, onChange }) 
             <Input
               type="number"
               value={transportador?.valor_frete || 0}
-              onChange={(e) => handleChange('valor_frete', parseFloat(e.target.value))}
-              className="bg-slate-50 dark:bg-slate-800"
+              disabled
+              className="bg-slate-100 dark:bg-slate-700 cursor-not-allowed"
             />
           </div>
           <div className="space-y-2">
@@ -75,17 +75,17 @@ export default function OSRecebimentoTransportador({ transportador, onChange }) 
             <Input
               type="number"
               value={transportador?.quantidade_volumes || 0}
-              onChange={(e) => handleChange('quantidade_volumes', parseInt(e.target.value))}
-              className="bg-slate-50 dark:bg-slate-800"
+              disabled
+              className="bg-slate-100 dark:bg-slate-700 cursor-not-allowed"
             />
           </div>
           <div className="space-y-2">
             <Label>Espécie de Volume</Label>
             <Input
               value={transportador?.especie_volume || ''}
-              onChange={(e) => handleChange('especie_volume', e.target.value)}
+              disabled
               placeholder="Caixa, Pallet, etc."
-              className="bg-slate-50 dark:bg-slate-800"
+              className="bg-slate-100 dark:bg-slate-700 cursor-not-allowed"
             />
           </div>
           <div className="space-y-2">
@@ -94,17 +94,16 @@ export default function OSRecebimentoTransportador({ transportador, onChange }) 
               type="number"
               value={transportador?.peso_bruto || 0}
               disabled
-              className="bg-slate-100 dark:bg-slate-800 cursor-not-allowed opacity-75"
+              className="bg-slate-100 dark:bg-slate-700 cursor-not-allowed"
             />
-            <p className="text-xs text-slate-500 dark:text-slate-400">Preenchido automaticamente do XML</p>
           </div>
           <div className="space-y-2">
             <Label>Peso Líquido (kg)</Label>
             <Input
               type="number"
               value={transportador?.peso_liquido || 0}
-              onChange={(e) => handleChange('peso_liquido', parseFloat(e.target.value))}
-              className="bg-slate-50 dark:bg-slate-800"
+              disabled
+              className="bg-slate-100 dark:bg-slate-700 cursor-not-allowed"
             />
           </div>
         </div>
