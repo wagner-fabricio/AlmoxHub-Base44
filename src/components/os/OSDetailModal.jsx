@@ -572,8 +572,11 @@ export default function OSDetailModal({
             <Tabs defaultValue="detalhes">
               <TabsList className="mb-6">
                 <TabsTrigger value="detalhes">Detalhes</TabsTrigger>
-                {isRecebimento && os.nfe_dados_emissor && Object.keys(os.nfe_dados_emissor).length > 0 && (
+                {isRecebimento && (
                   <TabsTrigger value="receb-doc">Cabeçalho NF</TabsTrigger>
+                )}
+                {isRecebimento && (
+                  <TabsTrigger value="receb-documento">Documento</TabsTrigger>
                 )}
                 {isRecebimento && os.nfe_dados_transportador && Object.keys(os.nfe_dados_transportador).length > 0 && (
                   <TabsTrigger value="receb-transp">Transportador</TabsTrigger>
@@ -829,7 +832,7 @@ export default function OSDetailModal({
                 )}
               </TabsContent>
 
-              {/* Recebimento - Documento Tab */}
+              {/* Recebimento - Cabeçalho NF Tab */}
               {isRecebimento && (
                 <TabsContent value="receb-doc" className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -873,6 +876,62 @@ export default function OSDetailModal({
                         )}
                       </div>
                     </div>
+                  </div>
+                </TabsContent>
+              )}
+
+              {/* Recebimento - Documento Tab */}
+              {isRecebimento && (
+                <TabsContent value="receb-documento" className="space-y-4">
+                  <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+                    <h4 className="font-semibold text-slate-900 dark:text-white mb-4">Dados do Documento</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                      {os.nfe_numero_receb && (
+                        <div>
+                          <span className="text-slate-500 block mb-1">Número da NF:</span>
+                          <span className="font-medium text-slate-900 dark:text-white">{os.nfe_numero_receb}</span>
+                        </div>
+                      )}
+                      {os.nfe_data_receb && (
+                        <div>
+                          <span className="text-slate-500 block mb-1">Data da NF:</span>
+                          <span className="font-medium text-slate-900 dark:text-white">
+                            {format(new Date(os.nfe_data_receb), 'dd/MM/yyyy')}
+                          </span>
+                        </div>
+                      )}
+                      {os.numero_migo_receb && (
+                        <div>
+                          <span className="text-slate-500 block mb-1">Número MIGO:</span>
+                          <span className="font-medium text-slate-900 dark:text-white">{os.numero_migo_receb}</span>
+                        </div>
+                      )}
+                      {os.data_migo_receb && (
+                        <div>
+                          <span className="text-slate-500 block mb-1">Data MIGO:</span>
+                          <span className="font-medium text-slate-900 dark:text-white">
+                            {format(new Date(os.data_migo_receb), 'dd/MM/yyyy')}
+                          </span>
+                        </div>
+                      )}
+                      {os.numero_v360 && (
+                        <div>
+                          <span className="text-slate-500 block mb-1">Número ID V360:</span>
+                          <span className="font-medium text-slate-900 dark:text-white">{os.numero_v360}</span>
+                        </div>
+                      )}
+                      {os.doc_referencia && (
+                        <div className="md:col-span-2 lg:col-span-3">
+                          <span className="text-slate-500 block mb-1">Doc Referência:</span>
+                          <span className="font-medium text-slate-900 dark:text-white">{os.doc_referencia}</span>
+                        </div>
+                      )}
+                    </div>
+                    {!os.nfe_numero_receb && !os.nfe_data_receb && !os.numero_migo_receb && !os.data_migo_receb && !os.numero_v360 && !os.doc_referencia && (
+                      <div className="text-center py-8 text-slate-400">
+                        Nenhum dado de documento cadastrado
+                      </div>
+                    )}
                   </div>
                 </TabsContent>
               )}
