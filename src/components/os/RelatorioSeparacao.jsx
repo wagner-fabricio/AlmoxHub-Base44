@@ -28,7 +28,7 @@ export default function RelatorioSeparacao({ os, regional, almoxarifado, lider, 
           <h1 className="text-2xl font-bold text-center text-white">LISTA DE SEPARAÇÃO DE MATERIAIS</h1>
         </div>
         <div className="p-4 bg-gray-50 border-t-2" style={{ borderColor: getPrioridadeColor() }}>
-          <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="grid gap-4 text-center" style={{ gridTemplateColumns: '2fr 1fr 1fr' }}>
             <div>
               <div className="text-xs text-gray-600 mb-1">ORDEM DE SERVIÇO</div>
               <div className="text-xl font-bold">{os.codigo}</div>
@@ -90,7 +90,7 @@ export default function RelatorioSeparacao({ os, regional, almoxarifado, lider, 
                 <th className="p-2 border-r border-gray-300 text-left font-bold text-sm" style={{ width: '15%' }}>Código</th>
                 <th className="p-2 border-r border-gray-300 text-left font-bold text-sm" style={{ width: '30%' }}>Descrição</th>
                 <th className="p-2 border-r border-gray-300 text-center font-bold text-sm" style={{ width: '10%' }}>Qtd</th>
-                <th className="p-2 border-r border-gray-300 text-center font-bold text-sm" style={{ width: '15%' }}>Depósito</th>
+                <th className="p-2 border-r border-gray-300 text-center font-bold text-sm" style={{ width: '15%' }}>Saldo Após Separação</th>
                 <th className="p-2 text-center font-bold text-sm" style={{ width: '25%' }}>Localização</th>
               </tr>
             </thead>
@@ -104,7 +104,7 @@ export default function RelatorioSeparacao({ os, regional, almoxarifado, lider, 
                     <td className="p-2 border-r border-gray-300 font-mono font-bold text-sm align-middle">{item.codigo || '___________'}</td>
                     <td className="p-2 border-r border-gray-300 text-sm align-middle">{item.descricao || '______________________________'}</td>
                     <td className="p-2 border-r border-gray-300 text-center font-bold text-sm align-middle">{item.quantidade ? `${item.quantidade} ${item.unidade}` : '_____'}</td>
-                    <td className="p-2 border-r border-gray-300 text-center font-bold text-base align-middle" style={{ backgroundColor: '#FEF3C7' }}>{item.deposito || '_____'}</td>
+                    <td className="p-2 border-r border-gray-300 text-center font-bold text-base align-middle" style={{ backgroundColor: '#FEF3C7' }}>_____</td>
                     <td className="p-2 text-center font-bold text-base align-middle" style={{ backgroundColor: '#DBEAFE' }}>{item.endereco || '___________'}</td>
                   </tr>
                 ))
