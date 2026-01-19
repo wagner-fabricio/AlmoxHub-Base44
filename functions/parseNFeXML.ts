@@ -70,20 +70,21 @@ function parseNFeXML(xmlContent) {
     };
 
     // Dados da Nota Fiscal (ideNFe - Identificação)
-    resultado.nfe_numero = getElementTextNS('ide', 'nNF') || getElementText('nNF') || '';
-    resultado.nfe_serie = getElementTextNS('ide', 'serie') || getElementText('serie') || '';
+    const ideSection = extractSection('ide');
+    resultado.nfe_numero = getElementText('nNF', ideSection) || extrairValorRegex(ideSection, 'nNF') || '';
+    resultado.nfe_serie = getElementText('serie', ideSection) || extrairValorRegex(ideSection, 'serie') || '';
 
-    const dataEmissao = getElementTextNS('ide', 'dhEmi') || getElementTextNS('ide', 'dEmi') || getElementText('dhEmi') || getElementText('dEmi') || '';
+    const dataEmissao = getElementText('dhEmi', ideSection) || getElementText('dEmi', ideSection) || extrairValorRegex(ideSection, 'dhEmi') || extrairValorRegex(ideSection, 'dEmi') || '';
     if (dataEmissao) {
       // Converter YYYY-MM-DDTHH:MM:SS ou YYYYMMDD para YYYY-MM-DD
       if (dataEmissao.includes('T')) {
         resultado.nfe_data_emissao = dataEmissao.substring(0, 10);
-      } else {
+      } else if (dataEmissao.length >= 8) {
         resultado.nfe_data_emissao = `${dataEmissao.substring(0, 4)}-${dataEmissao.substring(4, 6)}-${dataEmissao.substring(6, 8)}`;
       }
     }
     
-    resultado.nfe_chave_acesso = getElementTextNS('ide', 'cUF') || getElementText('cUF') || '';
+    resultado.nfe_chave_acesso = getElementText('cUF', ideSection) || extrairValorRegex(ideSection, 'cUF') || '';
     resultado.nfe_natureza_operacao = getElementTextNS('ide', 'natOp') || getElementText('natOp') || '';
 
     // Dados do Emissor (emit)
