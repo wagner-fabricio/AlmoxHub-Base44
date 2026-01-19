@@ -38,7 +38,7 @@ export default function RelatorioConferencia({
       }}>
         <h1 style={{ 
           margin: 0, 
-          fontSize: '24pt', 
+          fontSize: '18pt', 
           fontWeight: 'bold',
           letterSpacing: '1px'
         }}>
@@ -49,7 +49,7 @@ export default function RelatorioConferencia({
       {/* Informações principais */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '1fr 1fr 1fr',
+        gridTemplateColumns: '2fr 1fr 1fr',
         gap: '10px',
         marginBottom: '20px',
         border: '2px solid #e5e7eb',
