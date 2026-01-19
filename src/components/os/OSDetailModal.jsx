@@ -39,6 +39,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import RelatorioSeparacao from './RelatorioSeparacao';
+import RelatorioConferencia from './RelatorioConferencia';
 import ExpedicaoProgressTracker from './ExpedicaoProgressTracker';
 import OSFluxoRecebimento from './OSFluxoRecebimento';
 import html2canvas from 'html2canvas';
@@ -85,6 +86,8 @@ export default function OSDetailModal({
   const textareaRef = useRef(null);
   const [generatingPDF, setGeneratingPDF] = useState(false);
   const [showRelatorio, setShowRelatorio] = useState(false);
+  const [generatingConferenciaPDF, setGeneratingConferenciaPDF] = useState(false);
+  const [showRelatorioConferencia, setShowRelatorioConferencia] = useState(false);
   const [localOS, setLocalOS] = useState(os);
   const [savingSeparacao, setSavingSeparacao] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -363,6 +366,63 @@ export default function OSDetailModal({
     }
   };
 
+  const handleGenerateConferenciaPDF = async () => {
+    setGeneratingConferenciaPDF(true);
+    setShowRelatorioConferencia(true);
+    
+    // Wait for render
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    try {
+      const element = document.getElementById('relatorio-conferencia');
+      if (!element) return;
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      
+      // Calculate how many pages we need
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = imgWidth / imgHeight;
+      
+      const pageWidth = pdfWidth;
+      const pageHeight = pdfHeight;
+      
+      // Scale to fit page width
+      const scaledHeight = pageWidth / ratio;
+      
+      // Calculate total pages needed
+      const totalPages = Math.ceil(scaledHeight / pageHeight);
+      
+      for (let i = 0; i < totalPages; i++) {
+        if (i > 0) {
+          pdf.addPage();
+        }
+        
+        const yOffset = -(pageHeight * i);
+        pdf.addImage(imgData, 'PNG', 0, yOffset, pageWidth, scaledHeight);
+      }
+      
+      pdf.save(`Lista_Conferencia_${os.codigo}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    } finally {
+      setGeneratingConferenciaPDF(false);
+      setShowRelatorioConferencia(false);
+    }
+  };
+
   const handleToggleSeparado = (itemIndex) => {
     const updatedItens = [...(localOS.itens_documento || [])];
     updatedItens[itemIndex] = {
@@ -548,6 +608,25 @@ export default function OSDetailModal({
                     <>
                       <FileText className="w-4 h-4 mr-2" />
                       <span className="hidden sm:inline">Lista de Separação</span>
+                      <span className="sm:hidden">Lista</span>
+                    </>
+                  )}
+                </Button>
+              )}
+              {isRecebimento && (
+                <Button 
+                  variant="outline" 
+                  onClick={handleGenerateConferenciaPDF}
+                  disabled={generatingConferenciaPDF}
+                  size="sm"
+                  className="border-blue-500 text-blue-600 hover:bg-blue-50"
+                >
+                  {generatingConferenciaPDF ? (
+                    <span className="text-xs">Gerando...</span>
+                  ) : (
+                    <>
+                      <FileText className="w-4 h-4 mr-2" />
+                      <span className="hidden sm:inline">Lista de Conferência</span>
                       <span className="sm:hidden">Lista</span>
                     </>
                   )}
@@ -1505,6 +1584,20 @@ export default function OSDetailModal({
           lider={lider}
           categoria={categoria}
           subcategorias={subcategorias}
+          currentUser={currentUser}
+        />
+      </div>
+      )}
+
+      {/* Hidden Relatorio Conferencia for PDF Generation */}
+      {showRelatorioConferencia && (
+      <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+        <RelatorioConferencia
+          os={os}
+          regional={regional}
+          almoxarifado={almoxarifado}
+          lider={lider}
+          categoria={categoria}
           currentUser={currentUser}
         />
       </div>
