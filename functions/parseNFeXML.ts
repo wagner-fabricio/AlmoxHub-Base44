@@ -129,7 +129,7 @@ function parseNFeXML(xmlContent) {
       tipo_frete: getElementTextNS('transp', 'modFrete', transpSection) || getElementText('modFrete', transpSection) || '',
       quantidade_volumes: parseInt(getElementTextNS('transp', 'qVol', transpSection) || getElementText('qVol', transpSection) || '0'),
       especie_volume: getElementTextNS('transp', 'esp', transpSection) || getElementText('esp', transpSection) || '',
-      peso_bruto: parseFloat(getElementTextNS('transp', 'pesoG', transpSection) || getElementText('pesoG', transpSection) || '0'),
+      peso_bruto: parseFloat(getElementTextNS('transp', 'pesoB', transpSection) || getElementText('pesoB', transpSection) || '0'),
       peso_liquido: parseFloat(getElementTextNS('transp', 'pesoL', transpSection) || getElementText('pesoL', transpSection) || '0')
     };
 
