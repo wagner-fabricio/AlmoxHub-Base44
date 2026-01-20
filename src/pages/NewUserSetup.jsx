@@ -59,12 +59,22 @@ export default function NewUserSetup() {
         base44.entities.Almoxarifado.list()
       ]);
       setCurrentUser(user);
-      setRegionais(regionaisData);
-      setAlmoxarifados(almoxarifadosData);
+      
+      // Validação e filtragem robusta dos dados
+      const validRegionais = Array.isArray(regionaisData) 
+        ? regionaisData.filter(r => r && r.id && r.sigla && r.descricao) 
+        : [];
+      
+      const validAlmoxarifados = Array.isArray(almoxarifadosData) 
+        ? almoxarifadosData.filter(a => a && a.id && a.nome && a.regional_id) 
+        : [];
+      
+      setRegionais(validRegionais);
+      setAlmoxarifados(validAlmoxarifados);
       setFormData(prev => ({ ...prev, nome: user.full_name || '' }));
     } catch (err) {
       setError('Erro ao carregar dados. Tente novamente.');
-      console.error('Erro ao carregar dados iniciais');
+      console.error('Erro ao carregar dados iniciais:', err);
     } finally {
       setLoading(false);
     }
@@ -113,7 +123,7 @@ export default function NewUserSetup() {
       setPhotoPreview(file_url);
     } catch (err) {
       setError('Erro ao fazer upload da foto. Tente novamente.');
-      console.error('Erro no upload de foto');
+      console.error('Erro no upload de foto:', err);
     } finally {
       setUploadingPhoto(false);
     }
@@ -164,7 +174,7 @@ export default function NewUserSetup() {
       setCompleted(true);
     } catch (err) {
       setError('Erro ao salvar cadastro. Tente novamente.');
-      console.error('Erro ao salvar cadastro');
+      console.error('Erro ao salvar cadastro:', err);
     } finally {
       setSaving(false);
     }
@@ -205,6 +215,11 @@ export default function NewUserSetup() {
       </div>
     );
   }
+
+  // Filtrar almoxarifados da regional selecionada com proteção
+  const almoxarifadosFiltrados = formData.regional_id 
+    ? almoxarifados.filter(a => a?.regional_id === formData.regional_id)
+    : [];
 
   return (
     <div className={`min-h-screen bg-slate-50 dark:bg-slate-900 p-6 ${darkMode ? 'dark' : ''}`}>
@@ -349,20 +364,31 @@ export default function NewUserSetup() {
                     <Label>Regional *</Label>
                     <Select
                       value={formData.regional_id}
-                      onValueChange={(value) => setFormData({ ...formData, regional_id: value })}
+                      onValueChange={(value) => setFormData({ ...formData, regional_id: value, almoxarifados_ids: [] })}
                       required
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione sua regional" />
                       </SelectTrigger>
                       <SelectContent>
-                        {regionais.map((r) => (
-                          <SelectItem key={r.id} value={r.id}>
-                            {r.sigla} - {r.descricao}
+                        {regionais.length > 0 ? (
+                          regionais.map((r) => (
+                            <SelectItem key={r.id} value={r.id}>
+                              {r.sigla} - {r.descricao}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="sem-regionais" disabled>
+                            Nenhuma regional disponível
                           </SelectItem>
-                        ))}
+                        )}
                       </SelectContent>
                     </Select>
+                    {regionais.length === 0 && (
+                      <p className="text-sm text-red-600 dark:text-red-400 mt-1">
+                        Erro ao carregar regionais. Recarregue a página ou contate o suporte.
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -399,23 +425,21 @@ export default function NewUserSetup() {
                         Selecione os almoxarifados aos quais você terá acesso
                       </p>
                       <div className="space-y-2 mt-2 max-h-40 overflow-y-auto border rounded-lg p-3 bg-slate-50 dark:bg-slate-800">
-                        {almoxarifados
-                          .filter(a => a.regional_id === formData.regional_id)
-                          .length > 0 ? (
-                            almoxarifados
-                              .filter(a => a.regional_id === formData.regional_id)
-                              .map((almox) => (
-                                <label key={almox.id} className="flex items-center gap-2 cursor-pointer">
-                                  <Checkbox
-                                    checked={formData.almoxarifados_ids.includes(almox.id)}
-                                    onCheckedChange={() => toggleAlmoxarifado(almox.id)}
-                                  />
-                                  <span className="text-slate-900 dark:text-slate-100">{almox.nome}</span>
-                                </label>
-                              ))
-                          ) : (
-                            <p className="text-sm text-slate-500 dark:text-slate-400">Nenhum almoxarifado disponível para esta regional</p>
-                          )}
+                        {almoxarifadosFiltrados.length > 0 ? (
+                          almoxarifadosFiltrados.map((almox) => (
+                            <label key={almox.id} className="flex items-center gap-2 cursor-pointer">
+                              <Checkbox
+                                checked={formData.almoxarifados_ids.includes(almox.id)}
+                                onCheckedChange={() => toggleAlmoxarifado(almox.id)}
+                              />
+                              <span className="text-slate-900 dark:text-slate-100">{almox.nome}</span>
+                            </label>
+                          ))
+                        ) : (
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Nenhum almoxarifado disponível para esta regional
+                          </p>
+                        )}
                       </div>
                     </div>
                   )}
