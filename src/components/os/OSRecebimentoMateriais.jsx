@@ -6,10 +6,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Checkbox } from '@/components/ui/checkbox';
 import { PackageCheck, AlertCircle, CheckCircle, TrendingDown, Plus, Trash2 } from 'lucide-react';
 
 export default function OSRecebimentoMateriais({ itens, fluxo, onChange }) {
   const [editingIndex, setEditingIndex] = useState(null);
+  const [allChecked, setAllChecked] = useState(false);
 
   const addItem = () => {
     const novoItem = {
@@ -27,6 +29,72 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange }) {
   const removeItem = (index) => {
     const newItens = itens.filter((_, i) => i !== index);
     onChange({ itens: newItens, fluxo });
+  };
+
+  const handleCheckItem = (index) => {
+    const newItens = [...itens];
+    const item = newItens[index];
+    const isCurrentlyChecked = item.quantidade_recebida === item.quantidade_esperada;
+    
+    if (isCurrentlyChecked) {
+      // Desmarcar: zera a quantidade recebida
+      newItens[index].quantidade_recebida = 0;
+    } else {
+      // Marcar: iguala quantidade recebida com esperada
+      newItens[index].quantidade_recebida = item.quantidade_esperada;
+    }
+    
+    // Atualizar status baseado na comparação
+    const qtdEsperada = newItens[index].quantidade_esperada;
+    const qtdRecebida = newItens[index].quantidade_recebida;
+    
+    if (qtdRecebida === 0) {
+      newItens[index].status_conferencia = 'pendente';
+    } else if (qtdRecebida < qtdEsperada) {
+      newItens[index].status_conferencia = 'parcial';
+    } else if (qtdRecebida === qtdEsperada) {
+      newItens[index].status_conferencia = 'completo';
+    } else if (qtdRecebida > qtdEsperada) {
+      newItens[index].status_conferencia = 'excedente';
+    }
+
+    // Atualizar fluxo se todos os itens estão conferidos
+    const todosCompletos = newItens.every(item => item.status_conferencia === 'completo' || item.status_conferencia === 'excedente');
+    const novoFluxo = { ...fluxo };
+    if (todosCompletos && !novoFluxo.conferencia_manual_completa) {
+      novoFluxo.conferencia_manual_completa = true;
+      novoFluxo.etapa_atual = 3;
+    }
+
+    onChange({ itens: newItens, fluxo: novoFluxo });
+  };
+
+  const handleCheckAll = () => {
+    const newItens = itens.map(item => {
+      if (!allChecked) {
+        // Marcar todos: iguala quantidade recebida com esperada
+        item.quantidade_recebida = item.quantidade_esperada;
+        item.status_conferencia = 'completo';
+      } else {
+        // Desmarcar todos: zera quantidade recebida
+        item.quantidade_recebida = 0;
+        item.status_conferencia = 'pendente';
+      }
+      return item;
+    });
+    
+    // Atualizar fluxo se todos os itens estão conferidos
+    const novoFluxo = { ...fluxo };
+    if (!allChecked) {
+      novoFluxo.conferencia_manual_completa = true;
+      novoFluxo.etapa_atual = 3;
+    } else {
+      novoFluxo.conferencia_manual_completa = false;
+      novoFluxo.etapa_atual = 2;
+    }
+    
+    setAllChecked(!allChecked);
+    onChange({ itens: newItens, fluxo: novoFluxo });
   };
 
   const handleItemChange = (index, field, value) => {
@@ -105,6 +173,12 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange }) {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-slate-50 dark:bg-slate-800">
+                    <TableHead className="font-semibold text-center w-16">
+                      <Checkbox
+                        checked={allChecked}
+                        onCheckedChange={handleCheckAll}
+                      />
+                    </TableHead>
                     <TableHead className="font-semibold">Código</TableHead>
                     <TableHead className="font-semibold">Descrição</TableHead>
                     <TableHead className="font-semibold text-center">Esperado</TableHead>
@@ -115,8 +189,16 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange }) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {itemsComStatus.map((item, index) => (
+                  {itemsComStatus.map((item, index) => {
+                    const isChecked = item.quantidade_recebida === item.quantidade_esperada && item.quantidade_esperada > 0;
+                    return (
                     <TableRow key={index} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                      <TableCell className="text-center">
+                        <Checkbox
+                          checked={isChecked}
+                          onCheckedChange={() => handleCheckItem(index)}
+                        />
+                      </TableCell>
                       <TableCell className="font-mono text-sm">
                         <Input
                           value={item.codigo || ''}
@@ -181,7 +263,8 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange }) {
                         </Button>
                       </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
