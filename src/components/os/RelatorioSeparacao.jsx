@@ -127,77 +127,86 @@ export default function RelatorioSeparacao({ os, regional, almoxarifado, lider, 
         </div>
       </div>
 
-      {/* Volumes - Simplificado e Opcional */}
-      {os.volumes?.length > 0 && (
-        <div className="mb-4">
-          <div className="bg-gray-200 px-3 py-1 font-semibold text-sm border border-gray-400">RESUMO DE VOLUMES</div>
-          <div className="border border-gray-300 bg-gray-50 p-3">
-            <div className="flex justify-between text-sm">
-              <div><span className="font-semibold">Total de Volumes:</span> {os.volumes.length}</div>
-              <div><span className="font-semibold">Peso Total:</span> {totalPeso.toFixed(2)} kg</div>
-              <div><span className="font-semibold">Volume Total:</span> {totalM3.toFixed(3)} m³</div>
-            </div>
-          </div>
+      {/* Volumes - Tabela para Preenchimento Manual */}
+      <div className="mb-4">
+        <div className="bg-gray-200 px-3 py-1 font-semibold text-sm border border-gray-400">RESUMO DE VOLUMES</div>
+        <div className="border border-gray-300">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-300">
+                <th className="p-2 border-r border-gray-300 text-center font-semibold text-xs">Qtd</th>
+                <th className="p-2 border-r border-gray-300 text-center font-semibold text-xs">Largura (cm)</th>
+                <th className="p-2 border-r border-gray-300 text-center font-semibold text-xs">Altura (cm)</th>
+                <th className="p-2 border-r border-gray-300 text-center font-semibold text-xs">Comprimento (cm)</th>
+                <th className="p-2 text-center font-semibold text-xs">Peso (kg)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...Array(4)].map((_, i) => (
+                <tr key={i} className="border-b border-gray-300">
+                  <td className="p-2 border-r border-gray-300 text-center">_____</td>
+                  <td className="p-2 border-r border-gray-300 text-center">_____</td>
+                  <td className="p-2 border-r border-gray-300 text-center">_____</td>
+                  <td className="p-2 border-r border-gray-300 text-center">_____</td>
+                  <td className="p-2 text-center">_____</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      )}
+      </div>
 
-      {/* Controle de Separação - Melhorado */}
-      <div className="mb-6 border-2 border-gray-400">
-        <div className="bg-gray-200 px-3 py-2 font-bold text-base border-b-2 border-gray-400">
+      {/* Controle de Separação - Compacto */}
+      <div className="mb-4 border-2 border-gray-400">
+        <div className="bg-gray-200 px-3 py-1 font-bold text-sm border-b-2 border-gray-400">
           ✍️ CONTROLE DE SEPARAÇÃO
         </div>
-        <div className="p-4">
-          <div className="grid grid-cols-2 gap-6 mb-4">
+        <div className="p-3">
+          <div className="grid grid-cols-2 gap-4 mb-3">
             {/* Início da Separação */}
             <div>
-              <div className="font-semibold mb-3 text-sm">⏰ INÍCIO DA SEPARAÇÃO</div>
+              <div className="font-semibold mb-2 text-xs">⏰ INÍCIO DA SEPARAÇÃO</div>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
                   <label className="text-gray-600">Data:</label>
-                  <div className="border-b-2 border-gray-400 mt-1 h-6"></div>
+                  <div className="border-b-2 border-gray-400 mt-1 h-5"></div>
                 </div>
                 <div>
                   <label className="text-gray-600">Horário:</label>
-                  <div className="border-b-2 border-gray-400 mt-1 h-6"></div>
+                  <div className="border-b-2 border-gray-400 mt-1 h-5"></div>
                 </div>
               </div>
             </div>
             
             {/* Fim da Separação */}
             <div>
-              <div className="font-semibold mb-3 text-sm">⏱️ FIM DA SEPARAÇÃO</div>
+              <div className="font-semibold mb-2 text-xs">⏱️ FIM DA SEPARAÇÃO</div>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
                   <label className="text-gray-600">Data:</label>
-                  <div className="border-b-2 border-gray-400 mt-1 h-6"></div>
+                  <div className="border-b-2 border-gray-400 mt-1 h-5"></div>
                 </div>
                 <div>
                   <label className="text-gray-600">Horário:</label>
-                  <div className="border-b-2 border-gray-400 mt-1 h-6"></div>
+                  <div className="border-b-2 border-gray-400 mt-1 h-5"></div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Observações */}
-          <div className="mb-4">
-            <div className="font-semibold mb-2 text-sm">📝 OBSERVAÇÕES / DIVERGÊNCIAS</div>
-            <div className="border-2 border-gray-300 p-2 min-h-16 bg-gray-50"></div>
-          </div>
-
           {/* Assinaturas */}
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <div className="font-semibold mb-2 text-sm">Responsável pela Separação</div>
-              <div className="text-xs text-gray-600 mb-2">Nome: {os.responsavel_separacao || '_______________________'}</div>
-              <div className="border-b-2 border-gray-400 mt-8 mb-1"></div>
+              <div className="font-semibold mb-1 text-xs">Responsável pela Separação</div>
+              <div className="text-xs text-gray-600 mb-1">Nome: {os.responsavel_separacao || '_______________________'}</div>
+              <div className="border-b-2 border-gray-400 mt-4 mb-1"></div>
               <div className="text-xs text-center text-gray-600">Assinatura</div>
             </div>
             
             <div>
-              <div className="font-semibold mb-2 text-sm">Conferente</div>
-              <div className="text-xs text-gray-600 mb-2">Nome: _______________________</div>
-              <div className="border-b-2 border-gray-400 mt-8 mb-1"></div>
+              <div className="font-semibold mb-1 text-xs">Conferente</div>
+              <div className="text-xs text-gray-600 mb-1">Nome: _______________________</div>
+              <div className="border-b-2 border-gray-400 mt-4 mb-1"></div>
               <div className="text-xs text-center text-gray-600">Assinatura</div>
             </div>
           </div>
