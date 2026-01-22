@@ -236,6 +236,16 @@ export default function OSFormModal({
   const selectedCategoria = Array.isArray(categorias) ? categorias.find(c => c?.id === formData.categoria_id) : null;
   const selectedSubcategorias = Array.isArray(subcategorias) ? subcategorias.filter(s => formData.subcategorias_ids?.includes(s?.id)) : [];
   
+  // Filtro para Instalação Destino: se subcategoria é "venda intercompany", mostra todas; senão, filtra por região do almoxarifado
+  const isVendaIntercompany = selectedSubcategorias.some(s => s?.nome?.toLowerCase().includes('venda intercompany'));
+  const selectedAlmoxarifado = Array.isArray(almoxarifados) ? almoxarifados.find(a => a?.id === formData.almoxarifado_id) : null;
+  const selectedInstalacaoAlmoxarifado = Array.isArray(instalacoes) ? instalacoes.find(i => i?.id === selectedAlmoxarifado?.instalacao_id) : null;
+  const regiaoAlmoxarifado = selectedInstalacaoAlmoxarifado?.regiao;
+  
+  const filteredInstalacoesDestino = isVendaIntercompany 
+    ? (Array.isArray(instalacoes) ? instalacoes : [])
+    : (Array.isArray(instalacoes) ? instalacoes.filter(i => i?.regiao === regiaoAlmoxarifado) : []);
+  
   // Check if we should show expedition fields
   const isExpedicaoCategory = 
     selectedCategoria?.nome?.toLowerCase().includes('expedição');
@@ -1092,7 +1102,7 @@ export default function OSFormModal({
                             className="w-full justify-between"
                           >
                             {formData.instalacao_destino_id
-                              ? (filteredInstalacoes || []).find(i => i.id === formData.instalacao_destino_id)?.nome
+                              ? (instalacoes || []).find(i => i.id === formData.instalacao_destino_id)?.nome
                               : "Selecione..."}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
@@ -1103,7 +1113,7 @@ export default function OSFormModal({
                             <CommandList>
                               <CommandEmpty>Nenhuma instalação encontrada.</CommandEmpty>
                               <CommandGroup>
-                                {(filteredInstalacoes || []).map((i) => (
+                                {(filteredInstalacoesDestino || []).map((i) => (
                                   <CommandItem
                                     key={i.id}
                                     value={i.nome}
