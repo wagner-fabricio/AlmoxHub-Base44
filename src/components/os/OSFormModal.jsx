@@ -10,6 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from '@/components/ui/command';
+import { Slider } from '@/components/ui/slider';
 import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
 import { Save, Plus, Trash2, Upload, X, Loader2, Paperclip, Check, ChevronsUpDown, ExternalLink } from 'lucide-react';
@@ -924,11 +925,24 @@ export default function OSFormModal({
                       max="100"
                       value={formData.progresso || 0}
                       onChange={(e) => setFormData({ ...formData, progresso: parseInt(e.target.value) || 0 })}
-                      disabled={isExpedicaoCategory}
-                      className={isExpedicaoCategory ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : ''}
+                      disabled={isExpedicaoCategory || isRecebimentoCategory}
+                      className={(isExpedicaoCategory || isRecebimentoCategory) ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : ''}
                     />
+                    {!isExpedicaoCategory && !isRecebimentoCategory && (
+                      <Slider
+                        value={[formData.progresso || 0]}
+                        onValueChange={(value) => setFormData({ ...formData, progresso: value[0] })}
+                        min={0}
+                        max={100}
+                        step={1}
+                        className="mt-2"
+                      />
+                    )}
                     {isExpedicaoCategory && (
                       <p className="text-xs text-slate-500">Progresso automático baseado no fluxo de expedição</p>
+                    )}
+                    {isRecebimentoCategory && (
+                      <p className="text-xs text-slate-500">Progresso automático baseado no fluxo de recebimento</p>
                     )}
                   </div>
 
