@@ -347,7 +347,7 @@ export default function OSFormModal({
       const dataToSave = {
         ...formData,
         codigo,
-        progresso: calculateProgress(formData)
+        progresso: (isExpedicaoCategory || isRecebimentoCategory) ? calculateProgress(formData) : (formData.progresso || 0)
       };
 
       console.log('Dados a serem salvos:', dataToSave);
