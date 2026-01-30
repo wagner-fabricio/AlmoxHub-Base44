@@ -88,6 +88,7 @@ export default function OSFormModal({
     nfe_dados_emissor: {},
     nfe_dados_destinatario: {},
     nfe_dados_transportador: {},
+    nfe_info_complementares: '',
     nfe_itens_conferencia: [],
     nfe_numero_receb: '',
     nfe_data_receb: '',
@@ -151,6 +152,7 @@ export default function OSFormModal({
         nfe_dados_emissor: os.nfe_dados_emissor || {},
         nfe_dados_destinatario: os.nfe_dados_destinatario || {},
         nfe_dados_transportador: os.nfe_dados_transportador || {},
+        nfe_info_complementares: os.nfe_info_complementares || '',
         nfe_itens_conferencia: os.nfe_itens_conferencia || [],
         nfe_numero_receb: os.nfe_numero_receb || '',
         nfe_data_receb: os.nfe_data_receb || '',
@@ -575,6 +577,7 @@ export default function OSFormModal({
             nfe_dados_emissor: nfeData.nfe_dados_emissor || {},
             nfe_dados_destinatario: nfeData.nfe_dados_destinatario || {},
             nfe_dados_transportador: nfeData.nfe_dados_transportador || {},
+            nfe_info_complementares: nfeData.nfe_info_complementares || '',
             nfe_itens_conferencia: nfeData.nfe_itens_conferencia || [],
             fluxo_recebimento: {
               ...prev.fluxo_recebimento,
@@ -716,9 +719,9 @@ export default function OSFormModal({
                 {isRecebimentoCategory && (
                   <>
                     <TabsTrigger value="receb-doc">Cabeçalho NF</TabsTrigger>
-                    <TabsTrigger value="receb-documento">Documento</TabsTrigger>
-                    <TabsTrigger value="receb-transp">Transportador</TabsTrigger>
                     <TabsTrigger value="receb-mat">Materiais</TabsTrigger>
+                    <TabsTrigger value="receb-transp">Transportador</TabsTrigger>
+                    <TabsTrigger value="receb-rodape">Rodapé NF</TabsTrigger>
                   </>
                 )}
                 <TabsTrigger value="anexos">Anexos</TabsTrigger>
@@ -1324,6 +1327,24 @@ export default function OSFormModal({
                       nfe_dados_destinatario: data.destinatario || prev.nfe_dados_destinatario
                     }))}
                   />
+                </TabsContent>
+              )}
+
+              {/* TAB: Recebimento - Rodapé NF */}
+              {isRecebimentoCategory && (
+                <TabsContent value="receb-rodape" className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Informações Complementares</Label>
+                      <Textarea
+                        value={formData.nfe_info_complementares}
+                        onChange={(e) => setFormData({ ...formData, nfe_info_complementares: e.target.value })}
+                        placeholder="Informações complementares da nota fiscal..."
+                        rows={8}
+                        className="font-mono text-sm"
+                      />
+                    </div>
+                  </div>
                 </TabsContent>
               )}
 
