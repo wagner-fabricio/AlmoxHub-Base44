@@ -47,6 +47,7 @@ const menuItems = [
   { name: 'Categorias', icon: Tags, page: 'Categorias' },
   { name: 'Veículos Axia', icon: Truck, page: 'VeiculosAxia' },
   { name: 'Transportadoras', icon: Building2, page: 'Transportadoras' },
+  { name: 'Problemas Recebimento', icon: Shield, page: 'ProblemasRecebimento', gestorOnly: true },
 ];
 
 export default function Layout({ children, currentPageName }) {
@@ -297,7 +298,15 @@ export default function Layout({ children, currentPageName }) {
 
             {/* Navigation */}
             <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-              {(menuItems || []).map((item) => {
+              {(menuItems || []).filter(item => {
+                // Filtrar itens restritos a gestores
+                if (item.gestorOnly) {
+                  if (user?.role === 'admin') return true;
+                  if (pessoa?.funcoes?.includes('gestor')) return true;
+                  return false;
+                }
+                return true;
+              }).map((item) => {
                 const isActive = currentPageName === item.page;
                 const Icon = item.icon;
                 return (

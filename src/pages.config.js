@@ -57,6 +57,8 @@ import Instalacoes from './pages/Instalacoes';
 import Mensagens from './pages/Mensagens';
 import MeuPerfilMobile from './pages/MeuPerfilMobile';
 import NewUserSetup from './pages/NewUserSetup';
+import NotificationSettings from './pages/NotificationSettings';
+import NotificationSettingsMobile from './pages/NotificationSettingsMobile';
 import Notifications from './pages/Notifications';
 import NotificationsMobile from './pages/NotificationsMobile';
 import OrdensServico from './pages/OrdensServico';
@@ -68,8 +70,7 @@ import ThankYou from './pages/ThankYou';
 import Transportadoras from './pages/Transportadoras';
 import UserApproval from './pages/UserApproval';
 import VeiculosAxia from './pages/VeiculosAxia';
-import NotificationSettings from './pages/NotificationSettings';
-import NotificationSettingsMobile from './pages/NotificationSettingsMobile';
+import ProblemasRecebimento from './pages/ProblemasRecebimento';
 import __Layout from './Layout.jsx';
 
 
@@ -84,6 +85,8 @@ export const PAGES = {
     "Mensagens": Mensagens,
     "MeuPerfilMobile": MeuPerfilMobile,
     "NewUserSetup": NewUserSetup,
+    "NotificationSettings": NotificationSettings,
+    "NotificationSettingsMobile": NotificationSettingsMobile,
     "Notifications": Notifications,
     "NotificationsMobile": NotificationsMobile,
     "OrdensServico": OrdensServico,
@@ -95,8 +98,7 @@ export const PAGES = {
     "Transportadoras": Transportadoras,
     "UserApproval": UserApproval,
     "VeiculosAxia": VeiculosAxia,
-    "NotificationSettings": NotificationSettings,
-    "NotificationSettingsMobile": NotificationSettingsMobile,
+    "ProblemasRecebimento": ProblemasRecebimento,
 }
 
 export const pagesConfig = {
