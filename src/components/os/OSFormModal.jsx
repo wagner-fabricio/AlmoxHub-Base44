@@ -632,7 +632,7 @@ export default function OSFormModal({
       <DialogContent className="max-w-5xl max-h-[90vh] p-0 overflow-hidden">
         <DialogHeader className="px-6 py-4 border-b bg-slate-50 dark:bg-slate-800">
           <DialogTitle className="text-xl font-semibold">
-            {os ? `Editar OS: ${os.codigo}` : 'Nova Ordem de Serviço'}
+            {os?.id ? `Editar OS: ${os.codigo}` : 'Nova Ordem de Serviço'}
           </DialogTitle>
         </DialogHeader>
 
