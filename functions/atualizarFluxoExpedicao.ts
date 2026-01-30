@@ -91,22 +91,68 @@ Deno.serve(async (req) => {
       mudancas = true;
     }
 
+    // Calcular progresso baseado no fluxo
+    let progresso = 0;
+    if (fluxo.solicitacao_completa) {
+      progresso = 20;
+    }
+    if (fluxo.separacao_completa) {
+      progresso = 40;
+    }
+    if (fluxo.preparacao_completa) {
+      progresso = 60;
+    }
+    if (fluxo.envio_completo) {
+      progresso = 80;
+    }
+    if (fluxo.entrega_completa) {
+      progresso = 100;
+    }
+
     // Atualizar OS se houve mudanças
     if (mudancas) {
       await base44.asServiceRole.entities.OrdemServico.update(os_id, {
-        fluxo_expedicao: fluxo
+        fluxo_expedicao: fluxo,
+        progresso: progresso
       });
 
       return Response.json({
         success: true,
         fluxo_atualizado: fluxo,
+        progresso_atualizado: progresso,
         mensagem: 'Fluxo de expedição atualizado com sucesso'
+      });
+    }
+
+    // Mesmo sem mudanças, atualizar progresso se necessário
+    let progresso = 0;
+    if (fluxo.solicitacao_completa) {
+      progresso = 20;
+    }
+    if (fluxo.separacao_completa) {
+      progresso = 40;
+    }
+    if (fluxo.preparacao_completa) {
+      progresso = 60;
+    }
+    if (fluxo.envio_completo) {
+      progresso = 80;
+    }
+    if (fluxo.entrega_completa) {
+      progresso = 100;
+    }
+
+    // Atualizar progresso se diferente
+    if (os.progresso !== progresso) {
+      await base44.asServiceRole.entities.OrdemServico.update(os_id, {
+        progresso: progresso
       });
     }
 
     return Response.json({
       success: true,
       fluxo_atual: fluxo,
+      progresso_atual: progresso,
       mensagem: 'Nenhuma mudança detectada no fluxo'
     });
 
