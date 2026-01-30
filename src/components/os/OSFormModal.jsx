@@ -45,6 +45,7 @@ export default function OSFormModal({
   const [openDestinoCombo, setOpenDestinoCombo] = useState(false);
   const [prazoError, setPrazoError] = useState('');
   const [importingXML, setImportingXML] = useState(false);
+  const [problemasRecebimento, setProblemasRecebimento] = useState([]);
   const [formData, setFormData] = useState({
     categoria_id: '',
     subcategorias_ids: [],
@@ -97,6 +98,8 @@ export default function OSFormModal({
     numero_v360: '',
     doc_referencia: '',
     data_recebimento: '',
+    problema_recebimento: false,
+    problemas_recebimento_ids: [],
     fluxo_recebimento: {
       etapa_atual: 1,
       xml_importado: false,
@@ -107,6 +110,17 @@ export default function OSFormModal({
   });
 
   useEffect(() => {
+    // Carregar problemas de recebimento
+    const loadProblemas = async () => {
+      try {
+        const problemas = await base44.entities.ProblemaRecebimento.list('-descricao_resumida');
+        setProblemasRecebimento(problemas);
+      } catch (error) {
+        console.error('Erro ao carregar problemas:', error);
+      }
+    };
+    loadProblemas();
+
     if (os && os.id) {
       // Spread os data first, then override dates
       const newFormData = {
@@ -161,6 +175,8 @@ export default function OSFormModal({
         numero_v360: os.numero_v360 || '',
         doc_referencia: os.doc_referencia || '',
         data_recebimento: os.data_recebimento ? os.data_recebimento.split('T')[0] : '',
+        problema_recebimento: os.problema_recebimento || false,
+        problemas_recebimento_ids: os.problemas_recebimento_ids || [],
         fluxo_recebimento: os.fluxo_recebimento || {
           etapa_atual: 1,
           xml_importado: false,
@@ -286,6 +302,8 @@ export default function OSFormModal({
         data_migo_receb: '',
         numero_v360: '',
         doc_referencia: '',
+        problema_recebimento: false,
+        problemas_recebimento_ids: [],
         fluxo_recebimento: {
           etapa_atual: 1,
           xml_importado: false,
@@ -293,9 +311,9 @@ export default function OSFormModal({
           validacao_divergencias_completa: false,
           armazenagem_completa: false
         }
-      });
-    }
-  }, [os, currentUser, pessoas, almoxarifados, categorias, subcategorias]);
+        });
+        }
+        }, [os, currentUser, pessoas, almoxarifados, categorias, subcategorias]);
 
   const filteredSubcategorias = Array.isArray(subcategorias) ? subcategorias.filter(s => s?.categoria_id === formData.categoria_id) : [];
   const filteredAlmoxarifados = Array.isArray(almoxarifados) ? almoxarifados.filter(a => a?.regional_id === formData.regional_id) : [];
@@ -1442,8 +1460,83 @@ export default function OSFormModal({
                       />
                     </div>
                     </div>
-                </TabsContent>
-              )}
+
+                    {/* Problema no Recebimento */}
+                    <div className="border-t pt-6 mt-6">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <Label className="text-base font-semibold">Houve um problema?</Label>
+                        <div className="flex gap-4">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="problema_recebimento"
+                              checked={!formData.problema_recebimento}
+                              onChange={() => setFormData({ ...formData, problema_recebimento: false, problemas_recebimento_ids: [] })}
+                              className="w-4 h-4"
+                            />
+                            <span className="text-sm">Não</span>
+                          </label>
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="problema_recebimento"
+                              checked={formData.problema_recebimento}
+                              onChange={() => setFormData({ ...formData, problema_recebimento: true })}
+                              className="w-4 h-4"
+                            />
+                            <span className="text-sm">Sim</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {formData.problema_recebimento && (
+                        <div className="space-y-3 pl-4 border-l-2 border-orange-500">
+                          <Label className="text-sm text-slate-600 dark:text-slate-400">
+                            Selecione o(s) problema(s) identificado(s):
+                          </Label>
+                          <div className="space-y-2 max-h-64 overflow-y-auto border rounded-lg p-4 bg-slate-50 dark:bg-slate-800">
+                            {problemasRecebimento.map((problema) => (
+                              <div key={problema.id} className="flex items-start gap-2">
+                                <Checkbox
+                                  id={`problema-${problema.id}`}
+                                  checked={formData.problemas_recebimento_ids?.includes(problema.id)}
+                                  onCheckedChange={(checked) => {
+                                    if (checked) {
+                                      setFormData({
+                                        ...formData,
+                                        problemas_recebimento_ids: [...(formData.problemas_recebimento_ids || []), problema.id]
+                                      });
+                                    } else {
+                                      setFormData({
+                                        ...formData,
+                                        problemas_recebimento_ids: formData.problemas_recebimento_ids?.filter(id => id !== problema.id) || []
+                                      });
+                                    }
+                                  }}
+                                />
+                                <Label htmlFor={`problema-${problema.id}`} className="cursor-pointer text-sm flex-1">
+                                  <span className="font-medium">{problema.descricao_resumida}</span>
+                                  {problema.explicacao && (
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                      {problema.explicacao}
+                                    </p>
+                                  )}
+                                </Label>
+                              </div>
+                            ))}
+                            {problemasRecebimento.length === 0 && (
+                              <p className="text-sm text-slate-500 text-center py-4">
+                                Nenhum problema cadastrado
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    </div>
+                    </TabsContent>
+                    )}
 
               {/* TAB: Recebimento - Transportador */}
               {isRecebimentoCategory && (
