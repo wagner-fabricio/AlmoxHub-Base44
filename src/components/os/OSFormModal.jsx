@@ -821,6 +821,7 @@ export default function OSFormModal({
                         {(pessoas || [])
                           .filter(p => p && p.funcoes?.includes('lider') && 
                             (!formData.almoxarifado_id || p.almoxarifados_ids?.includes(formData.almoxarifado_id)))
+                          .sort((a, b) => a.nome.localeCompare(b.nome))
                           .map(p => (
                             <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
                           ))}
@@ -841,13 +842,16 @@ export default function OSFormModal({
                       {formData.almoxarifado_id ? (
                         (pessoas || [])
                           .filter(p => p && p.almoxarifados_ids?.includes(formData.almoxarifado_id))
+                          .sort((a, b) => a.nome.localeCompare(b.nome))
                           .map(p => (
                             <option key={p.id} value={p.nome} />
                           ))
                       ) : (
-                        (pessoas || []).map(p => (
-                          <option key={p.id} value={p.nome} />
-                        ))
+                        (pessoas || [])
+                          .sort((a, b) => a.nome.localeCompare(b.nome))
+                          .map(p => (
+                            <option key={p.id} value={p.nome} />
+                          ))
                       )}
                     </datalist>
                   </div>
