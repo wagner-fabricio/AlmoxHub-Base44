@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { Plus, Loader2 } from 'lucide-react';
+import { Plus, Loader2, Maximize2, Minimize2 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import OSFilters from '@/components/os/OSFilters.jsx';
 import OSKanban from '@/components/os/OSKanban.jsx';
@@ -61,6 +61,7 @@ export default function OrdensServico() {
   const [selectedOS, setSelectedOS] = useState(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deletingOS, setDeletingOS] = useState(null);
+  const [fullscreenMode, setFullscreenMode] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -407,6 +408,94 @@ export default function OrdensServico() {
     );
   }
 
+  if (fullscreenMode) {
+    return (
+      <div className="fixed inset-0 bg-slate-50 dark:bg-slate-900 z-50 overflow-auto">
+        {/* Fullscreen Header */}
+        <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4 flex items-center justify-between shadow-sm z-10">
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white">Ordens de Serviço - Visualização TV</h1>
+          <Button 
+            onClick={() => setFullscreenMode(false)} 
+            variant="outline"
+            size="sm"
+          >
+            <Minimize2 className="w-4 h-4 mr-2" />
+            Sair da Tela Cheia
+          </Button>
+        </div>
+
+        {/* Fullscreen Content */}
+        <div className="p-6">
+          {filteredOrdens.length === 0 ? (
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-12 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
+                <Plus className="w-8 h-8 text-slate-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+                Nenhuma OS encontrada
+              </h3>
+            </div>
+          ) : (
+            <>
+              {viewMode === 'kanban' && (
+                <OSKanban
+                  ordens={filteredOrdens}
+                  pessoas={pessoas}
+                  categorias={categorias}
+                  regionais={regionais}
+                  instalacoes={instalacoes}
+                  onOSClick={handleOSClick}
+                  onStatusChange={handleStatusChange}
+                />
+              )}
+              {viewMode === 'kanban_expedicao' && (
+                <OSKanbanExpedicao
+                  ordens={filteredOrdens}
+                  pessoas={pessoas}
+                  categorias={categorias}
+                  regionais={regionais}
+                  instalacoes={instalacoes}
+                  onOSClick={handleOSClick}
+                  onStatusChange={handleStatusChange}
+                />
+              )}
+              {viewMode === 'list' && (
+                <OSList
+                  ordens={filteredOrdens}
+                  pessoas={pessoas}
+                  categorias={categorias}
+                  regionais={regionais}
+                  onOSClick={handleOSClick}
+                />
+              )}
+              {viewMode === 'gallery' && (
+                <OSGallery
+                  ordens={filteredOrdens}
+                  pessoas={pessoas}
+                  categorias={categorias}
+                  regionais={regionais}
+                  instalacoes={instalacoes}
+                  onOSClick={handleOSClick}
+                />
+              )}
+              {viewMode === 'responsavel' && (
+                <OSByResponsavel
+                  ordensServico={filteredOrdens}
+                  pessoas={pessoas}
+                  onSelectOS={handleOSClick}
+                  onNovaOS={(pessoa) => {
+                    setSelectedOS({ lider_id: pessoa?.id });
+                    setShowFormModal(true);
+                  }}
+                />
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 lg:p-8">
       {/* Header */}
@@ -415,10 +504,19 @@ export default function OrdensServico() {
           <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">Ordens de Serviço</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">Gerencie as OS do almoxarifado</p>
         </div>
-        <Button onClick={handleNewOS} className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="w-4 h-4 mr-2" />
-          Nova OS
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => setFullscreenMode(true)} 
+            variant="outline"
+          >
+            <Maximize2 className="w-4 h-4 mr-2" />
+            Tela Cheia
+          </Button>
+          <Button onClick={handleNewOS} className="bg-blue-600 hover:bg-blue-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Nova OS
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
