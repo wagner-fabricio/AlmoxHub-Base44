@@ -100,6 +100,10 @@ export default function OSFormModal({
     data_recebimento: '',
     problema_recebimento: false,
     problemas_recebimento_ids: [],
+    resumo_pendencias: '',
+    acoes_acompanhamento: '',
+    como_foi_solucionado: '',
+    data_solucao: '',
     fluxo_recebimento: {
       etapa_atual: 1,
       xml_importado: false,
@@ -177,6 +181,10 @@ export default function OSFormModal({
         data_recebimento: os.data_recebimento ? os.data_recebimento.split('T')[0] : '',
         problema_recebimento: os.problema_recebimento || false,
         problemas_recebimento_ids: os.problemas_recebimento_ids || [],
+        resumo_pendencias: os.resumo_pendencias || '',
+        acoes_acompanhamento: os.acoes_acompanhamento || '',
+        como_foi_solucionado: os.como_foi_solucionado || '',
+        data_solucao: os.data_solucao ? os.data_solucao.split('T')[0] : '',
         fluxo_recebimento: os.fluxo_recebimento || {
           etapa_atual: 1,
           xml_importado: false,
@@ -304,6 +312,10 @@ export default function OSFormModal({
         doc_referencia: '',
         problema_recebimento: false,
         problemas_recebimento_ids: [],
+        resumo_pendencias: '',
+        acoes_acompanhamento: '',
+        como_foi_solucionado: '',
+        data_solucao: '',
         fluxo_recebimento: {
           etapa_atual: 1,
           xml_importado: false,
@@ -1419,6 +1431,48 @@ export default function OSFormModal({
                               Nenhum problema cadastrado
                             </p>
                           )}
+                        </div>
+                      </div>
+
+                      {/* Campos adicionais quando há problema */}
+                      <div className="mt-6 space-y-4">
+                        <div className="space-y-2">
+                          <Label>Resumo das Pendências</Label>
+                          <Textarea
+                            value={formData.resumo_pendencias}
+                            onChange={(e) => setFormData({ ...formData, resumo_pendencias: e.target.value })}
+                            placeholder="Descreva as pendências identificadas..."
+                            rows={4}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Ações de Acompanhamento</Label>
+                          <Textarea
+                            value={formData.acoes_acompanhamento}
+                            onChange={(e) => setFormData({ ...formData, acoes_acompanhamento: e.target.value })}
+                            placeholder="Descreva as ações de acompanhamento necessárias..."
+                            rows={4}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Como foi solucionado</Label>
+                          <Textarea
+                            value={formData.como_foi_solucionado}
+                            onChange={(e) => setFormData({ ...formData, como_foi_solucionado: e.target.value })}
+                            placeholder="Descreva como o problema foi solucionado..."
+                            rows={4}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Data Solução</Label>
+                          <Input
+                            type="date"
+                            value={formData.data_solucao}
+                            onChange={(e) => setFormData({ ...formData, data_solucao: e.target.value })}
+                          />
                         </div>
                       </div>
                     </div>
