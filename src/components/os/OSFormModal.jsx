@@ -170,13 +170,23 @@ export default function OSFormModal({
       setFormData(newFormData);
     } else if (os && !os.id) {
       // Nova OS relacionada - preencher anotações com dados da OS origem
-      const categoria = Array.isArray(categorias) ? categorias.find(c => c?.id === os.categoria_id) : null;
-      const subcats = Array.isArray(os.subcategorias_ids) && Array.isArray(subcategorias) 
-        ? os.subcategorias_ids.map(id => subcategorias.find(s => s?.id === id)?.nome).filter(Boolean).join(', ')
-        : '';
-      const lider = Array.isArray(pessoas) ? pessoas.find(p => p?.id === os.lider_id) : null;
+      console.log('OS relacionada:', os);
+      console.log('Categorias disponíveis:', categorias);
+      console.log('Subcategorias disponíveis:', subcategorias);
+      console.log('Pessoas disponíveis:', pessoas);
       
-      const anotacoesRelacionada = `Categoria: ${categoria?.nome || ''} | Subcategoria(s): ${subcats || ''} | Líder: ${lider?.nome || ''} | Descrição: ${os.descricao_resumida || ''}`;
+      const categoria = (categorias || []).find(c => c?.id === os.categoria_id);
+      const subcatsNomes = (os.subcategorias_ids || [])
+        .map(id => (subcategorias || []).find(s => s?.id === id)?.nome)
+        .filter(Boolean)
+        .join(', ');
+      const lider = (pessoas || []).find(p => p?.id === os.lider_id);
+      
+      console.log('Categoria encontrada:', categoria);
+      console.log('Subcategorias encontradas:', subcatsNomes);
+      console.log('Líder encontrado:', lider);
+      
+      const anotacoesRelacionada = `Categoria: ${categoria?.nome || '(não identificada)'} | Subcategoria(s): ${subcatsNomes || '(não identificada)'} | Líder: ${lider?.nome || '(não identificado)'} | Descrição: ${os.descricao_resumida || ''}`;
       
       setFormData({
         categoria_id: '',
