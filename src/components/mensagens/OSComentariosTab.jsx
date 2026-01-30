@@ -82,7 +82,6 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
       const os = ordensComComentarios.find(o => o.id === osId);
       if (os) {
         setOsSelecionada(os);
-        // Limpar URL
         window.history.replaceState({}, '', window.location.pathname + '?tab=os');
       }
     }
@@ -108,7 +107,6 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
     
     setLoading(true);
     try {
-      // Buscar comentários onde o usuário é autor ou foi mencionado
       const [comentariosAutor, todasNotificacoes] = await Promise.all([
         base44.entities.Comentario.filter({ autor_id: currentPessoa.id }),
         base44.entities.Notificacao.filter({ 
@@ -118,19 +116,16 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
         })
       ]);
 
-      // Pegar IDs únicos de OSs
       const osIds = new Set();
       (comentariosAutor || []).forEach(c => osIds.add(c.ordem_servico_id));
       (todasNotificacoes || []).forEach(n => osIds.add(n.referencia_id));
 
-      // Buscar OSs com progresso < 100%
       if (osIds.size > 0) {
         const ordensPromises = Array.from(osIds).map(id => 
           base44.entities.OrdemServico.filter({ id }).then(r => r[0])
         );
         const ordens = await Promise.all(ordensPromises);
         
-        // Filtrar progresso < 100% e ordenar por última atualização
         const ordensValidas = ordens
           .filter(o => o && (o.progresso === undefined || o.progresso < 100))
           .sort((a, b) => new Date(b.updated_date) - new Date(a.updated_date));
@@ -178,7 +173,6 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
         is_edited: false
       });
 
-      // Criar notificações para mencionados
       if (mentionedIds?.length > 0) {
         try {
           const notificacoes = mentionedIds
@@ -201,7 +195,6 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
           if (notificacoes.length > 0) {
             await base44.entities.Notificacao.bulkCreate(notificacoes);
             
-            // Enviar push notifications
             for (const mencaoId of mentionedIds.filter(id => id !== currentPessoa.id)) {
               notifyCommentMention(osSelecionada, mencaoId, currentPessoa.nome);
             }
@@ -255,7 +248,6 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
         is_edited: true
       });
       
-      // Criar notificações para novas menções
       if (mencoesIds?.length > 0) {
         const notificacoes = mencoesIds
           .filter(id => id !== currentPessoa.id)
@@ -381,11 +373,9 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
                               {categoria?.nome || 'Ordem de Serviço'}
                             </h3>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <Badge className={`${prioridadeConfig[os.prioridade]?.color} text-xs px-2 py-0.5`}>
-                              {prioridadeConfig[os.prioridade]?.label}
-                            </Badge>
-                          </div>
+                          <Badge className={`${prioridadeConfig[os.prioridade]?.color} text-xs px-2 py-0.5`}>
+                            {prioridadeConfig[os.prioridade]?.label}
+                          </Badge>
                         </div>
 
                         {os.descricao_resumida && (
