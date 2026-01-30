@@ -355,7 +355,7 @@ export default function OSFormModal({
       console.log('Itens documento:', dataToSave.itens_documento);
 
       let savedOS;
-      if (os) {
+      if (os?.id) {
         // Atualizar OS existente
         savedOS = await base44.entities.OrdemServico.update(os.id, dataToSave);
 
