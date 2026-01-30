@@ -229,7 +229,14 @@ export default function Pessoas() {
       await base44.entities.Pessoa.update(editingFuncoes.pessoa.id, {
         funcoes: editingFuncoes.funcoes
       });
-      await loadData();
+      
+      // Atualizar estado local sem recarregar tudo
+      setPessoas(pessoas.map(p => 
+        p.id === editingFuncoes.pessoa.id 
+          ? { ...p, funcoes: editingFuncoes.funcoes }
+          : p
+      ));
+      
       setShowFuncoesModal(false);
     } catch (error) {
       console.error('Erro ao atualizar funções');
@@ -251,7 +258,13 @@ export default function Pessoas() {
       }
 
       await base44.entities.Pessoa.update(pessoa.id, updateData);
-      await loadData();
+      
+      // Atualizar estado local sem recarregar tudo
+      setPessoas(pessoas.map(p => 
+        p.id === pessoa.id 
+          ? { ...p, ...updateData }
+          : p
+      ));
     } catch (error) {
       console.error('Erro ao atualizar status');
       alert('Erro ao atualizar status. Tente novamente.');
@@ -269,7 +282,14 @@ export default function Pessoas() {
         status_aprovacao: nextStatus
       });
 
-      // Enviar e-mail se for aprovado ou rejeitado
+      // Atualizar estado local imediatamente
+      setPessoas(pessoas.map(p => 
+        p.id === pessoa.id 
+          ? { ...p, status_aprovacao: nextStatus }
+          : p
+      ));
+
+      // Enviar e-mail se for aprovado ou rejeitado (em background)
       if (nextStatus === 'aprovado' || nextStatus === 'rejeitado') {
         const regional = regionais.find(r => r.id === pessoa.regional_id);
         const almoxs = almoxarifados.filter(a => pessoa.almoxarifados_ids?.includes(a.id));
@@ -400,15 +420,16 @@ export default function Pessoas() {
           `;
         }
 
-        await base44.integrations.Core.SendEmail({
+        // Enviar e-mail em background sem bloquear a UI
+        base44.integrations.Core.SendEmail({
           from_name: 'AlmoxHub - Axia Energia',
           to: pessoa.email,
           subject: assunto,
           body: corpo
+        }).catch(emailError => {
+          console.error('Erro ao enviar e-mail:', emailError);
         });
       }
-
-      await loadData();
     } catch (error) {
       console.error('Erro ao atualizar status de aprovação');
       alert('Erro ao atualizar status de aprovação. Tente novamente.');
