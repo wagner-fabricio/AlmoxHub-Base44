@@ -515,7 +515,7 @@ export default function MensagensPage() {
         </TabsList>
 
         {/* Tab: Conversas */}
-        <TabsContent value="conversas" className="flex-1 flex min-h-0 m-0">
+        <TabsContent value="conversas" className="flex-1 flex min-h-0 m-0 data-[state=inactive]:hidden">
           <div className="flex-1 flex min-h-0">
             {/* Lista de Conversas */}
             <div className={`
@@ -559,7 +559,7 @@ export default function MensagensPage() {
         </TabsContent>
 
         {/* Tab: Comentários de OS */}
-        <TabsContent value="os" className="flex-1 min-h-0 m-0">
+        <TabsContent value="os" className="flex-1 min-h-0 m-0 data-[state=inactive]:hidden">
           <OSComentariosTab 
             currentPessoa={currentPessoa}
             pessoas={pessoas}
