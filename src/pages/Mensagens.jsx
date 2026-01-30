@@ -6,6 +6,7 @@ import ConversaList from '@/components/mensagens/ConversaList';
 import ChatArea from '@/components/mensagens/ChatArea';
 import NovaConversaModal from '@/components/mensagens/NovaConversaModal';
 import { showError, showSuccess } from '@/components/ui/toast-error';
+import { notifyMessageMention } from '@/components/notifications/PushNotificationHelper';
 
 export default function MensagensPage() {
   const [loading, setLoading] = useState(true);
@@ -326,6 +327,14 @@ export default function MensagensPage() {
             })
           )
         );
+        
+        // Enviar push notifications
+        const conversaNome = conversaSelecionada.conversa.tipo === 'grupo' 
+          ? conversaSelecionada.conversa.nome_grupo 
+          : 'uma conversa';
+        for (const pessoaId of pessoasMencionadas) {
+          notifyMessageMention(conversaSelecionada.conversa, pessoaId, currentPessoa.nome, conversaNome);
+        }
       }
 
       await loadMensagens(conversaSelecionada.conversa.id);

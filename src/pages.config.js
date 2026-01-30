@@ -69,6 +69,7 @@ import Transportadoras from './pages/Transportadoras';
 import UserApproval from './pages/UserApproval';
 import VeiculosAxia from './pages/VeiculosAxia';
 import NotificationSettings from './pages/NotificationSettings';
+import NotificationSettingsMobile from './pages/NotificationSettingsMobile';
 import __Layout from './Layout.jsx';
 
 
@@ -95,6 +96,7 @@ export const PAGES = {
     "UserApproval": UserApproval,
     "VeiculosAxia": VeiculosAxia,
     "NotificationSettings": NotificationSettings,
+    "NotificationSettingsMobile": NotificationSettingsMobile,
 }
 
 export const pagesConfig = {

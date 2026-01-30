@@ -44,6 +44,7 @@ import ExpedicaoProgressTracker from './ExpedicaoProgressTracker';
 import OSFluxoRecebimento from './OSFluxoRecebimento';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { notifyCommentMention } from '@/components/notifications/PushNotificationHelper';
 
 const prioridadeConfig = {
   baixa: { color: 'bg-slate-100 text-slate-700', label: 'Baixa' },
@@ -216,6 +217,11 @@ export default function OSDetailModal({
           
           if (notificacoes.length > 0) {
             await base44.entities.Notificacao.bulkCreate(notificacoes);
+            
+            // Enviar push notifications
+            for (const mencaoId of mencoesIds.filter(id => id !== currentUserPessoa?.id)) {
+              notifyCommentMention(os, mencaoId, currentUser?.full_name || 'Usuário');
+            }
           }
         } catch (notifError) {
           console.error('Erro ao criar notificações de menção:', notifError);
