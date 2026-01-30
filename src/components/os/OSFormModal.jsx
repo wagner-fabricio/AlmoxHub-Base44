@@ -176,7 +176,7 @@ export default function OSFormModal({
         : '';
       const lider = Array.isArray(pessoas) ? pessoas.find(p => p?.id === os.lider_id) : null;
       
-      const anotacoesRelacionada = `OS relacionada: ${os.codigo || ''} | Categoria: ${categoria?.nome || ''} | Subcategoria(s): ${subcats || ''} | Líder: ${lider?.nome || ''} | Descrição: ${os.descricao_resumida || ''}`;
+      const anotacoesRelacionada = `Categoria: ${categoria?.nome || ''} | Subcategoria(s): ${subcats || ''} | Líder: ${lider?.nome || ''} | Descrição: ${os.descricao_resumida || ''}`;
       
       setFormData({
         categoria_id: '',
