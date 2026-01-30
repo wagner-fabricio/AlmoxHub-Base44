@@ -489,7 +489,8 @@ export default function OSFormModal({
         // Atualizar fluxo de expedição se aplicável
         if (isExpedicaoCategory) {
           try {
-            await base44.functions.invoke('atualizarFluxoExpedicao', { os_id: os.id });
+            const fluxoResult = await base44.functions.invoke('atualizarFluxoExpedicao', { os_id: os.id });
+            console.log('Fluxo atualizado:', fluxoResult.data);
           } catch (fluxoError) {
             console.error('Erro ao atualizar fluxo de expedição:', fluxoError);
           }
