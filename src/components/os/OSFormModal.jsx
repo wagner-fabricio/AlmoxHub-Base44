@@ -170,23 +170,7 @@ export default function OSFormModal({
       setFormData(newFormData);
     } else if (os && !os.id) {
       // Nova OS relacionada - preencher anotações com dados da OS origem
-      console.log('OS relacionada:', os);
-      console.log('Categorias disponíveis:', categorias);
-      console.log('Subcategorias disponíveis:', subcategorias);
-      console.log('Pessoas disponíveis:', pessoas);
-      
-      const categoria = (categorias || []).find(c => c?.id === os.categoria_id);
-      const subcatsNomes = (os.subcategorias_ids || [])
-        .map(id => (subcategorias || []).find(s => s?.id === id)?.nome)
-        .filter(Boolean)
-        .join(', ');
-      const lider = (pessoas || []).find(p => p?.id === os.lider_id);
-      
-      console.log('Categoria encontrada:', categoria);
-      console.log('Subcategorias encontradas:', subcatsNomes);
-      console.log('Líder encontrado:', lider);
-      
-      const anotacoesRelacionada = `Categoria: ${categoria?.nome || '(não identificada)'} | Subcategoria(s): ${subcatsNomes || '(não identificada)'} | Líder: ${lider?.nome || '(não identificado)'} | Descrição: ${os.descricao_resumida || ''}`;
+      const anotacoesRelacionada = `Descrição: ${os.descricao_resumida || ''}`;
       
       setFormData({
         categoria_id: '',
