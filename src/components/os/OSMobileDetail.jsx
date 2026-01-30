@@ -204,15 +204,15 @@ export default function OSMobileDetail({
   };
 
   const handleAddComment = async () => {
-    if (!newComment.trim() || !currentUser) return;
+    if (!newComment.trim() || !currentUserPessoa) return;
     
     setLoadingComment(true);
     try {
       await base44.entities.Comentario.create({
         ordem_servico_id: os.id,
         conteudo: newComment,
-        autor_nome: currentUser.full_name || 'Usuário',
-        autor_id: currentUser.id,
+        autor_nome: currentUser?.full_name || 'Usuário',
+        autor_id: currentUserPessoa.id,
         mencoes_ids: mentionedIds,
         is_deleted: false,
         is_edited: false
@@ -889,7 +889,7 @@ export default function OSMobileDetail({
                 />
                 <Button
                   onClick={handleAddComment}
-                  disabled={!newComment.trim() || loadingComment || !currentUser}
+                  disabled={!newComment.trim() || loadingComment || !currentUserPessoa}
                   size="icon"
                   className="rounded-full shrink-0"
                   style={{ backgroundColor: '#0000FF' }}
