@@ -15,6 +15,7 @@ import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
 import { Save, Plus, Trash2, Upload, X, Loader2, Paperclip, Check, ChevronsUpDown, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from "sonner";
 import OSItensDocumento from './OSItensDocumento';
 import OSVolumes from './OSVolumes';
 import OSDetalhamentoExpedicao from './OSDetalhamentoExpedicao';
@@ -321,7 +322,7 @@ export default function OSFormModal({
     setSaving(true);
     try {
       let codigo = formData.codigo;
-      const isNew = !os;
+      const isNew = !os?.id;
 
       if (isNew) {
         // Generate unique ID with regional prefix
@@ -461,9 +462,11 @@ export default function OSFormModal({
       }
 
       onSave?.(isNew, { ...dataToSave, id: savedOS.id || os?.id });
+      toast.success(`OS ${codigo || savedOS.codigo} salva com sucesso!`);
       onClose();
     } catch (error) {
       console.error('Error saving OS:', error);
+      toast.error('Erro ao salvar OS', { description: error.message });
     } finally {
       setSaving(false);
     }
