@@ -170,17 +170,13 @@ export default function OSFormModal({
       setFormData(newFormData);
     } else if (os && !os.id) {
       // Nova OS relacionada - preencher anotações com dados da OS origem
-      const categoria = categorias?.find(c => c.id === os.categoria_id);
-      const subcats = os.subcategorias_ids?.map(id => 
-        subcategorias?.find(s => s.id === id)?.nome
-      ).filter(Boolean).join(', ');
-      const lider = pessoas?.find(p => p.id === os.lider_id);
+      const categoria = Array.isArray(categorias) ? categorias.find(c => c?.id === os.categoria_id) : null;
+      const subcats = Array.isArray(os.subcategorias_ids) && Array.isArray(subcategorias) 
+        ? os.subcategorias_ids.map(id => subcategorias.find(s => s?.id === id)?.nome).filter(Boolean).join(', ')
+        : '';
+      const lider = Array.isArray(pessoas) ? pessoas.find(p => p?.id === os.lider_id) : null;
       
-      const anotacoesRelacionada = `OS relacionada: ${os.codigo || 'N/A'}
-Categoria: ${categoria?.nome || 'N/A'}
-Subcategoria(s): ${subcats || 'N/A'}
-Líder: ${lider?.nome || 'N/A'}
-Descrição: ${os.descricao_resumida || 'N/A'}`;
+      const anotacoesRelacionada = `OS relacionada: ${os.codigo || ''} | Categoria: ${categoria?.nome || ''} | Subcategoria(s): ${subcats || ''} | Líder: ${lider?.nome || ''} | Descrição: ${os.descricao_resumida || ''}`;
       
       setFormData({
         categoria_id: '',
