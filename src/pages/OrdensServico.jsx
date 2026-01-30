@@ -11,6 +11,7 @@ import OSGallery from '@/components/os/OSGallery.jsx';
 import OSByResponsavel from '@/components/os/OSByResponsavel.jsx';
 import OSFormModal from '@/components/os/OSFormModal.jsx';
 import OSDetailModal from '@/components/os/OSDetailModal.jsx';
+import { notifyOSAssignment, notifyStatusChange } from '@/components/notifications/PushNotificationHelper';
 
 export default function OrdensServico() {
   const [loading, setLoading] = useState(true);
@@ -272,6 +273,12 @@ export default function OrdensServico() {
           }));
           
           await base44.entities.Notificacao.bulkCreate(notificacoes);
+          
+          // Enviar push notifications
+          const oldStatus = isExpedicaoView ? os.status_separacao : os.status;
+          for (const destId of destinatarios) {
+            notifyStatusChange(os, destId, oldStatus, newStatus);
+          }
         }
       }
     } catch (error) {
@@ -345,6 +352,11 @@ export default function OrdensServico() {
         }));
         
         await base44.entities.Notificacao.bulkCreate(notificacoes);
+        
+        // Enviar push notifications
+        for (const execId of osData.executores_ids) {
+          notifyOSAssignment(osData, execId);
+        }
       } catch (e) {
         console.error('Error creating assignment notifications:', e);
       }

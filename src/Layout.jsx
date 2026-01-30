@@ -22,7 +22,8 @@ import {
   UserCircle,
   MessageSquare,
   Truck,
-  Shield
+  Shield,
+  Bell
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -392,6 +393,10 @@ export default function Layout({ children, currentPageName }) {
                         <UserCircle className="w-4 h-4 mr-2" />
                         Ver perfil completo
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => window.location.href = createPageUrl('NotificationSettings')}>
+                        <Bell className="w-4 h-4 mr-2" />
+                        Notificações
+                      </DropdownMenuItem>
                       {user?.role === 'admin' && (
                         <DropdownMenuItem onClick={() => window.location.href = createPageUrl('AuditLogs')}>
                           <Shield className="w-4 h-4 mr-2" />
@@ -460,16 +465,20 @@ export default function Layout({ children, currentPageName }) {
                       <UserCircle className="w-4 h-4 mr-2" />
                       Ver perfil completo
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => window.location.href = createPageUrl('NotificationSettings')}>
+                      <Bell className="w-4 h-4 mr-2" />
+                      Notificações
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleLogout}>
                       <LogOut className="w-4 h-4 mr-2" />
                       Sair
                     </DropdownMenuItem>
-                  {user?.role === 'admin' && (
+                    {user?.role === 'admin' && (
                     <DropdownMenuItem onClick={() => window.location.href = createPageUrl('AuditLogs')}>
                       <Shield className="w-4 h-4 mr-2" />
                       Logs de Auditoria
                     </DropdownMenuItem>
-                  )}
+                    )}
                   </DropdownMenuContent>
                   </DropdownMenu>
                   )}
