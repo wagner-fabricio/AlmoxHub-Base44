@@ -168,8 +168,80 @@ export default function OSFormModal({
         progresso: os.progresso || 0
       };
       setFormData(newFormData);
+    } else if (os && !os.id) {
+      // Nova OS relacionada - preencher anotações com dados da OS origem
+      const categoria = categorias?.find(c => c.id === os.categoria_id);
+      const subcats = os.subcategorias_ids?.map(id => 
+        subcategorias?.find(s => s.id === id)?.nome
+      ).filter(Boolean).join(', ');
+      const lider = pessoas?.find(p => p.id === os.lider_id);
+      
+      const anotacoesRelacionada = `OS relacionada: ${os.codigo || 'N/A'}
+Categoria: ${categoria?.nome || 'N/A'}
+Subcategoria(s): ${subcats || 'N/A'}
+Líder: ${lider?.nome || 'N/A'}
+Descrição: ${os.descricao_resumida || 'N/A'}`;
+      
+      setFormData({
+        categoria_id: '',
+        subcategorias_ids: [],
+        regional_id: '',
+        almoxarifado_id: '',
+        lider_id: '',
+        atendente_nome: '',
+        executores_ids: [],
+        outros_envolvidos_ids: [],
+        prazo: '',
+        data_inicial: format(new Date(), 'yyyy-MM-dd'),
+        prioridade: 'media',
+        status: 'elaboracao',
+        anotacoes: anotacoesRelacionada,
+        projetos_ids: [],
+        descricao_resumida: '',
+        num_reserva: '',
+        data_reserva: '',
+        usuario_reserva: '',
+        usuario_reserva_email: '',
+        orgao: '',
+        data_migo: '',
+        num_migo: '',
+        vinculacao: '',
+        instalacao_origem_id: '',
+        instalacao_destino_id: '',
+        itens_documento: [],
+        volumes: [],
+        detalhamento_expedicao: [],
+        status_separacao: 'pendente',
+        responsavel_separacao: '',
+        data_separacao: '',
+        data_entrega: '',
+        anexos: [],
+        imagens: [],
+        nfe_numero: '',
+        nfe_serie: '',
+        nfe_data_emissao: '',
+        nfe_chave_acesso: '',
+        nfe_natureza_operacao: '',
+        nfe_dados_emissor: {},
+        nfe_dados_destinatario: {},
+        nfe_dados_transportador: {},
+        nfe_itens_conferencia: [],
+        nfe_numero_receb: '',
+        nfe_data_receb: '',
+        numero_migo_receb: '',
+        data_migo_receb: '',
+        numero_v360: '',
+        doc_referencia: '',
+        fluxo_recebimento: {
+          etapa_atual: 1,
+          xml_importado: false,
+          conferencia_manual_completa: false,
+          validacao_divergencias_completa: false,
+          armazenagem_completa: false
+        }
+      });
     } else {
-      // Reset to empty defaults for new OS
+      // Reset completo para nova OS sem relação
       setFormData({
         categoria_id: '',
         subcategorias_ids: [],
@@ -229,7 +301,7 @@ export default function OSFormModal({
         }
       });
     }
-  }, [os, currentUser, pessoas, almoxarifados]);
+  }, [os, currentUser, pessoas, almoxarifados, categorias, subcategorias]);
 
   const filteredSubcategorias = Array.isArray(subcategorias) ? subcategorias.filter(s => s?.categoria_id === formData.categoria_id) : [];
   const filteredAlmoxarifados = Array.isArray(almoxarifados) ? almoxarifados.filter(a => a?.regional_id === formData.regional_id) : [];
