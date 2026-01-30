@@ -486,6 +486,15 @@ export default function OSFormModal({
         // Atualizar OS existente
         savedOS = await base44.entities.OrdemServico.update(os.id, dataToSave);
 
+        // Atualizar fluxo de expedição se aplicável
+        if (isExpedicaoCategory) {
+          try {
+            await base44.functions.invoke('atualizarFluxoExpedicao', { os_id: os.id });
+          } catch (fluxoError) {
+            console.error('Erro ao atualizar fluxo de expedição:', fluxoError);
+          }
+        }
+
         // Registrar no histórico com campos alterados
         try {
           const camposAlterados = {};
@@ -527,6 +536,15 @@ export default function OSFormModal({
       } else {
         // Criar nova OS
         savedOS = await base44.entities.OrdemServico.create(dataToSave);
+
+        // Atualizar fluxo de expedição se aplicável
+        if (isExpedicaoCategory) {
+          try {
+            await base44.functions.invoke('atualizarFluxoExpedicao', { os_id: savedOS.id });
+          } catch (fluxoError) {
+            console.error('Erro ao atualizar fluxo de expedição:', fluxoError);
+          }
+        }
         
         // Registrar criação no histórico
         try {
