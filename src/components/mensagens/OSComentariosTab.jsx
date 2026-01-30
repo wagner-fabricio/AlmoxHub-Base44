@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import MentionInput from '@/components/notifications/MentionInput';
 import { 
   MessageSquare, 
@@ -215,7 +214,7 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
       setNewComment('');
       setMentionedIds([]);
       loadComentarios(osSelecionada.id);
-      loadOSComComentarios(); // Atualizar lista
+      loadOSComComentarios();
     } catch (error) {
       console.error('Erro ao adicionar comentário:', error);
     } finally {
@@ -383,7 +382,7 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
                             </h3>
                           </div>
                           <div className="flex items-center gap-1">
-                            <Badge className={prioridadeConfig[os.prioridade]?.color} className="text-xs px-2 py-0.5">
+                            <Badge className={`${prioridadeConfig[os.prioridade]?.color} text-xs px-2 py-0.5`}>
                               {prioridadeConfig[os.prioridade]?.label}
                             </Badge>
                           </div>
@@ -439,82 +438,309 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
   const StatusIcon = statusConfig[osSelecionada.status]?.icon || Clock;
   
   return (
-    <div className="h-full flex flex-col bg-slate-50 dark:bg-slate-900">
-      {/* Header da OS */}
-      <div className="p-6 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0">
-        <div className="flex items-start justify-between gap-4 mb-4">
-          <div className="flex items-start gap-3 flex-1 min-w-0">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setOsSelecionada(null)}
-              className="shrink-0"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div className="flex-1 min-w-0">
-              <span className="text-sm font-mono text-slate-500 dark:text-slate-400">{osSelecionada.codigo}</span>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white mt-1">
-                {categoria?.nome || 'Ordem de Serviço'}
-              </h2>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge className={prioridadeConfig[osSelecionada.prioridade]?.color}>
-              {prioridadeConfig[osSelecionada.prioridade]?.label}
-            </Badge>
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${statusConfig[osSelecionada.status]?.color}`}>
-              <StatusIcon className="w-4 h-4" />
-              <span className="text-sm font-medium">{statusConfig[osSelecionada.status]?.label}</span>
-            </div>
-          </div>
+    <div className="h-full flex bg-slate-50 dark:bg-slate-900">
+      {/* Painel Esquerdo - Informações da OS */}
+      <div className="w-80 border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0 flex flex-col">
+        <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setOsSelecionada(null)}
+            className="mb-3 -ml-2"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Voltar
+          </Button>
+          <span className="text-xs font-mono text-slate-500 dark:text-slate-400">{osSelecionada.codigo}</span>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white mt-1">
+            {categoria?.nome || 'Ordem de Serviço'}
+          </h2>
         </div>
 
-        {/* Informações Principais */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-          <div className="flex items-center gap-2 text-sm">
-            <MapPin className="w-4 h-4 text-slate-400" />
-            <div className="min-w-0">
-              <p className="text-xs text-slate-500 dark:text-slate-400">Regional</p>
-              <p className="font-medium text-slate-900 dark:text-white truncate">{regional?.sigla}</p>
+        <ScrollArea className="flex-1 p-4">
+          <div className="space-y-4">
+            {/* Status e Prioridade */}
+            <div className="space-y-2">
+              <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${statusConfig[osSelecionada.status]?.color}`}>
+                <StatusIcon className="w-4 h-4" />
+                <span className="text-sm font-medium">{statusConfig[osSelecionada.status]?.label}</span>
+              </div>
+              <Badge className={`${prioridadeConfig[osSelecionada.prioridade]?.color} w-full justify-center py-1.5`}>
+                {prioridadeConfig[osSelecionada.prioridade]?.label}
+              </Badge>
             </div>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Building2 className="w-4 h-4 text-slate-400" />
-            <div className="min-w-0">
-              <p className="text-xs text-slate-500 dark:text-slate-400">Almoxarifado</p>
-              <p className="font-medium text-slate-900 dark:text-white truncate">{almoxarifado?.nome}</p>
+
+            {/* Progresso */}
+            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Progresso</span>
+                <span className="text-lg font-bold text-blue-600">{osSelecionada.progresso || 0}%</span>
+              </div>
+              <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all"
+                  style={{ width: `${osSelecionada.progresso || 0}%` }}
+                />
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <User className="w-4 h-4 text-slate-400" />
-            <div className="min-w-0">
-              <p className="text-xs text-slate-500 dark:text-slate-400">Líder</p>
-              <p className="font-medium text-slate-900 dark:text-white truncate">{lider?.nome}</p>
+
+            {/* Informações */}
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Regional</p>
+                <p className="text-sm font-medium text-slate-900 dark:text-white">{regional?.sigla} - {regional?.descricao}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Almoxarifado</p>
+                <p className="text-sm font-medium text-slate-900 dark:text-white">{almoxarifado?.nome}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Líder</p>
+                <p className="text-sm font-medium text-slate-900 dark:text-white">{lider?.nome}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Prazo</p>
+                <p className="text-sm font-medium text-slate-900 dark:text-white">
+                  {osSelecionada.prazo ? format(new Date(osSelecionada.prazo), "dd/MM/yyyy", { locale: ptBR }) : '-'}
+                </p>
+              </div>
             </div>
+
+            {/* Descrição */}
+            {osSelecionada.descricao_resumida && (
+              <div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Descrição</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+                  {osSelecionada.descricao_resumida}
+                </p>
+              </div>
+            )}
+
+            {/* Anotações */}
+            {osSelecionada.anotacoes && (
+              <div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Anotações</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+                  {osSelecionada.anotacoes}
+                </p>
+              </div>
+            )}
           </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Calendar className="w-4 h-4 text-slate-400" />
-            <div className="min-w-0">
-              <p className="text-xs text-slate-500 dark:text-slate-400">Prazo</p>
-              <p className="font-medium text-slate-900 dark:text-white">
-                {osSelecionada.prazo ? format(new Date(osSelecionada.prazo), 'dd/MM/yyyy') : '-'}
-              </p>
-            </div>
-          </div>
+        </ScrollArea>
+      </div>
+
+      {/* Painel Direito - Chat */}
+      <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-slate-900">
+        {/* Header */}
+        <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0">
+          <h3 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+            <MessageSquare className="w-5 h-5" />
+            Comentários ({comentarios.length})
+          </h3>
         </div>
 
-        {/* Progresso */}
-        <div className="mt-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Progresso</span>
-            <span className="text-lg font-bold text-blue-600">{osSelecionada.progresso || 0}%</span>
+        {/* Messages Container */}
+        <ScrollArea className="flex-1 p-6">
+          <div className="space-y-1">
+            {comentarios.length === 0 ? (
+              <div className="text-center py-12 text-slate-400">
+                <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>Nenhuma mensagem ainda</p>
+                <p className="text-sm mt-1">Seja o primeiro a comentar</p>
+              </div>
+            ) : (
+              groupMessagesByDate(comentarios).map((item, idx) => {
+                if (item.type === 'separator') {
+                  return (
+                    <div key={`sep-${idx}`} className="flex items-center gap-3 my-4">
+                      <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+                      <span className="text-xs font-medium text-slate-500 dark:text-slate-400 px-2">
+                        {getDateSeparator(item.date)}
+                      </span>
+                      <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+                    </div>
+                  );
+                }
+
+                const comment = item.data;
+                const isOwnMessage = currentPessoa?.id === comment.autor_id;
+                const commentAuthor = pessoas.find(p => p?.id === comment.autor_id);
+                const canEdit = canEditOrDelete(comment);
+
+                return (
+                  <div 
+                    key={comment.id} 
+                    className={`flex gap-2 mb-2 ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'}`}
+                  >
+                    <Avatar className="w-8 h-8 shrink-0 mt-1">
+                      {commentAuthor?.foto_perfil && (
+                        <AvatarImage src={commentAuthor.foto_perfil} alt={comment.autor_nome} />
+                      )}
+                      <AvatarFallback className={`text-xs ${isOwnMessage ? 'bg-blue-100 text-blue-700' : 'bg-slate-200 text-slate-700'}`}>
+                        {comment.autor_nome?.charAt(0) || '?'}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    <div className={`flex flex-col ${isOwnMessage ? 'items-end' : 'items-start'} max-w-[75%]`}>
+                      {!isOwnMessage && (
+                        <span className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 px-1">
+                          {comment.autor_nome}
+                        </span>
+                      )}
+                      
+                      <div className="relative group">
+                        <div 
+                          className={`rounded-2xl px-4 py-2 ${
+                            isOwnMessage 
+                              ? 'bg-blue-600 text-white rounded-tr-sm' 
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-tl-sm'
+                          }`}
+                        >
+                          {comment.is_deleted ? (
+                            <p className="italic text-slate-400">Mensagem removida</p>
+                          ) : editingCommentId === comment.id ? (
+                            <div className="space-y-2">
+                              <MentionInput
+                                value={editingContent}
+                                onChange={(e) => setEditingContent(e.target.value)}
+                                pessoas={pessoas}
+                                className="min-h-[60px] bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                                textareaRef={React.createRef()}
+                              />
+                              <div className="flex gap-2 justify-end">
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost"
+                                  onClick={() => {
+                                    setEditingCommentId(null);
+                                    setEditingContent('');
+                                  }}
+                                >
+                                  Cancelar
+                                </Button>
+                                <Button 
+                                  size="sm"
+                                  onClick={() => handleSaveEdit(comment.id)}
+                                >
+                                  Salvar
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                              {comment.conteudo.split(/(@\S+(?:\s+\S+)*?)(?=\s|$|@)/g).map((part, i) => {
+                                if (part.startsWith('@')) {
+                                  const mentionedName = part.slice(1);
+                                  const isPessoaMentioned = pessoas.some(p => 
+                                    p?.nome?.toLowerCase() === mentionedName.toLowerCase()
+                                  );
+                                  return isPessoaMentioned ? (
+                                    <span key={i} className={`font-semibold ${isOwnMessage ? 'text-blue-100' : 'text-blue-600 dark:text-blue-400'}`}>
+                                      {part}
+                                    </span>
+                                  ) : part;
+                                }
+                                return part;
+                              })}
+                            </p>
+                          )}
+                        </div>
+                        
+                        {!comment.is_deleted && canEdit && editingCommentId !== comment.id && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className={`absolute top-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity ${
+                                  isOwnMessage ? 'left-[-28px]' : 'right-[-28px]'
+                                }`}
+                              >
+                                <MoreVertical className="w-3 h-3" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align={isOwnMessage ? 'end' : 'start'}>
+                              <DropdownMenuItem onClick={() => handleEditComment(comment)}>
+                                <Edit className="w-3 h-3 mr-2" />
+                                Editar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => handleDeleteComment(comment.id)}
+                                className="text-red-600"
+                              >
+                                <Trash2 className="w-3 h-3 mr-2" />
+                                Excluir
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 mt-1 px-1">
+                        <span>{format(new Date(comment.created_date), 'HH:mm')}</span>
+                        {comment.is_edited && !comment.is_deleted && (
+                          <span className="italic">• editado</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+            <div ref={messagesEndRef} />
           </div>
-          <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all"
-              style={{ width: `${osSelecionada.progresso || 0}%` }}
-            />
+        </ScrollArea>
+
+        {/* Fixed Input at Bottom */}
+        <div className="border-t border-slate-200 dark:border-slate-700 p-4 bg-white dark:bg-slate-800 shrink-0">
+          <div className="flex gap-3 items-end">
+            <Avatar className="w-9 h-9 shrink-0">
+              {currentPessoa?.foto_perfil && (
+                <AvatarImage src={currentPessoa.foto_perfil} alt={currentPessoa?.nome} />
+              )}
+              <AvatarFallback className="bg-blue-100 text-blue-700 text-sm">
+                {currentPessoa?.nome?.charAt(0) || 'U'}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 relative">
+              <MentionInput
+                ref={textareaRef}
+                textareaRef={textareaRef}
+                placeholder="Digite uma mensagem... (@ para mencionar, Enter para enviar)"
+                value={newComment}
+                onChange={(e) => {
+                  setNewComment(e.target.value);
+                  if (textareaRef.current) {
+                    textareaRef.current.style.height = 'auto';
+                    textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 120) + 'px';
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleAddComment();
+                  }
+                }}
+                pessoas={pessoas}
+                onMentionsChange={setMentionedIds}
+                className="min-h-[44px] max-h-[120px] resize-none pr-12"
+              />
+              <Button 
+                onClick={handleAddComment} 
+                disabled={loadingComment || !newComment.trim()}
+                size="icon"
+                className="absolute right-2 bottom-2 h-8 w-8 rounded-full"
+              >
+                {loadingComment ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
+    </div>
+  );
+}
