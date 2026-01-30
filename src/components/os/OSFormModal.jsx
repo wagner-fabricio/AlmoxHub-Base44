@@ -1459,39 +1459,40 @@ export default function OSFormModal({
                         onChange={(e) => setFormData({ ...formData, data_recebimento: e.target.value })}
                       />
                     </div>
+
+                    {/* Houve um problema? */}
+                    <div className="space-y-2">
+                      <Label>Houve um problema?</Label>
+                      <div className="flex gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="problema_recebimento"
+                            checked={!formData.problema_recebimento}
+                            onChange={() => setFormData({ ...formData, problema_recebimento: false, problemas_recebimento_ids: [] })}
+                            className="w-4 h-4"
+                          />
+                          <span className="text-sm">Não</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="problema_recebimento"
+                            checked={formData.problema_recebimento}
+                            onChange={() => setFormData({ ...formData, problema_recebimento: true })}
+                            className="w-4 h-4"
+                          />
+                          <span className="text-sm">Sim</span>
+                        </label>
+                      </div>
+                    </div>
                     </div>
 
-                    {/* Problema no Recebimento */}
+                    {/* Lista de Problemas */}
+                    {formData.problema_recebimento && (
                     <div className="border-t pt-6 mt-6">
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-3">
-                        <Label className="text-base font-semibold">Houve um problema?</Label>
-                        <div className="flex gap-4">
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                              type="radio"
-                              name="problema_recebimento"
-                              checked={!formData.problema_recebimento}
-                              onChange={() => setFormData({ ...formData, problema_recebimento: false, problemas_recebimento_ids: [] })}
-                              className="w-4 h-4"
-                            />
-                            <span className="text-sm">Não</span>
-                          </label>
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                              type="radio"
-                              name="problema_recebimento"
-                              checked={formData.problema_recebimento}
-                              onChange={() => setFormData({ ...formData, problema_recebimento: true })}
-                              className="w-4 h-4"
-                            />
-                            <span className="text-sm">Sim</span>
-                          </label>
-                        </div>
-                      </div>
-
-                      {formData.problema_recebimento && (
-                        <div className="space-y-3 pl-4 border-l-2 border-orange-500">
+                      <div className="space-y-4">
+                      <div className="space-y-3">
                           <Label className="text-sm text-slate-600 dark:text-slate-400">
                             Selecione o(s) problema(s) identificado(s):
                           </Label>
@@ -1532,9 +1533,8 @@ export default function OSFormModal({
                             )}
                           </div>
                         </div>
-                      )}
-                    </div>
-                    </div>
+                        </div>
+                        )}
                     </TabsContent>
                     )}
 
