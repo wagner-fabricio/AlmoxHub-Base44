@@ -95,6 +95,7 @@ export default function OSFormModal({
     data_migo_receb: '',
     numero_v360: '',
     doc_referencia: '',
+    data_recebimento: '',
     fluxo_recebimento: {
       etapa_atual: 1,
       xml_importado: false,
@@ -157,6 +158,7 @@ export default function OSFormModal({
         data_migo_receb: os.data_migo_receb ? os.data_migo_receb.split('T')[0] : '',
         numero_v360: os.numero_v360 || '',
         doc_referencia: os.doc_referencia || '',
+        data_recebimento: os.data_recebimento ? os.data_recebimento.split('T')[0] : '',
         fluxo_recebimento: os.fluxo_recebimento || {
           etapa_atual: 1,
           xml_importado: false,
@@ -1407,7 +1409,17 @@ export default function OSFormModal({
                         placeholder="Texto livre"
                       />
                     </div>
-                  </div>
+
+                    {/* Data Recebimento */}
+                    <div className="space-y-2">
+                      <Label>Data Recebimento</Label>
+                      <Input
+                        type="date"
+                        value={formData.data_recebimento}
+                        onChange={(e) => setFormData({ ...formData, data_recebimento: e.target.value })}
+                      />
+                    </div>
+                    </div>
                 </TabsContent>
               )}
 
