@@ -187,11 +187,18 @@ export default function Dashboard() {
       }, 0) / completedOS.length)
     : 0;
 
-  // Chart data: OS by Regional
-  const osByRegional = regionais.map(r => ({
-    name: r.sigla,
-    total: filteredOrdens.filter(os => os.regional_id === r.id).length
-  })).filter(d => d.total > 0);
+  // Chart data: OS by Regional (com breakdown por status)
+  const osByRegional = regionais.map(r => {
+    const ordensRegional = filteredOrdens.filter(os => os.regional_id === r.id);
+    return {
+      name: r.sigla,
+      elaboracao: ordensRegional.filter(os => os.status === 'elaboracao').length,
+      execucao: ordensRegional.filter(os => os.status === 'execucao').length,
+      concluido: ordensRegional.filter(os => os.status === 'concluido').length,
+      cancelado: ordensRegional.filter(os => os.status === 'cancelado').length,
+      total: ordensRegional.length
+    };
+  }).filter(d => d.total > 0);
 
   // Chart data: OS by Category
   const osByCategoria = categorias.map(c => ({
@@ -559,9 +566,17 @@ export default function Dashboard() {
                       backgroundColor: '#fff', 
                       border: '1px solid #e2e8f0',
                       borderRadius: '8px'
-                    }} 
+                    }}
+                    formatter={(value, name) => [value, statusLabels[name] || name]}
                   />
-                  <Bar dataKey="total" fill="#0000FF" radius={[4, 4, 0, 0]} />
+                  <Legend 
+                    wrapperStyle={{ fontSize: '12px' }}
+                    formatter={(value) => statusLabels[value] || value}
+                  />
+                  <Bar dataKey="elaboracao" stackId="a" fill="#64748b" radius={[0, 0, 0, 0]} />
+                  <Bar dataKey="execucao" stackId="a" fill="#0000FF" radius={[0, 0, 0, 0]} />
+                  <Bar dataKey="concluido" stackId="a" fill="#10b981" radius={[0, 0, 0, 0]} />
+                  <Bar dataKey="cancelado" stackId="a" fill="#ef4444" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
