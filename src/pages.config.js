@@ -64,13 +64,13 @@ import NotificationsMobile from './pages/NotificationsMobile';
 import OrdensServico from './pages/OrdensServico';
 import PendingApproval from './pages/PendingApproval';
 import Pessoas from './pages/Pessoas';
+import ProblemasRecebimento from './pages/ProblemasRecebimento';
 import Projetos from './pages/Projetos';
 import Regionais from './pages/Regionais';
 import ThankYou from './pages/ThankYou';
 import Transportadoras from './pages/Transportadoras';
 import UserApproval from './pages/UserApproval';
 import VeiculosAxia from './pages/VeiculosAxia';
-import ProblemasRecebimento from './pages/ProblemasRecebimento';
 import __Layout from './Layout.jsx';
 
 
@@ -92,13 +92,13 @@ export const PAGES = {
     "OrdensServico": OrdensServico,
     "PendingApproval": PendingApproval,
     "Pessoas": Pessoas,
+    "ProblemasRecebimento": ProblemasRecebimento,
     "Projetos": Projetos,
     "Regionais": Regionais,
     "ThankYou": ThankYou,
     "Transportadoras": Transportadoras,
     "UserApproval": UserApproval,
     "VeiculosAxia": VeiculosAxia,
-    "ProblemasRecebimento": ProblemasRecebimento,
 }
 
 export const pagesConfig = {

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { CheckCheck, Loader2, MessageSquare, UserPlus, RefreshCw, Bell } from 'lucide-react';
+import { CheckCheck, Loader2, MessageSquare, UserPlus, RefreshCw, Bell, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { createPageUrl } from '@/utils';
@@ -89,6 +89,19 @@ export default function Notifications() {
     }
   };
 
+  const deleteAllNotifications = async () => {
+    if (!confirm('Tem certeza que deseja excluir todas as notificações?')) return;
+    
+    try {
+      await Promise.all(
+        notificacoes.map(n => base44.entities.Notificacao.delete(n.id))
+      );
+      setNotificacoes([]);
+    } catch (error) {
+      console.error('Error deleting all notifications:', error);
+    }
+  };
+
   const handleNotificationClick = async (notif) => {
     if (!notif.lida) {
       await markAsRead(notif.id);
@@ -131,12 +144,20 @@ export default function Notifications() {
             {unreadCount > 0 ? `${unreadCount} não lida${unreadCount > 1 ? 's' : ''}` : 'Todas lidas'}
           </p>
         </div>
-        {unreadCount > 0 && (
-          <Button onClick={markAllAsRead} variant="outline">
-            <CheckCheck className="w-4 h-4 mr-2" />
-            Marcar todas como lidas
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {unreadCount > 0 && (
+            <Button onClick={markAllAsRead} variant="outline">
+              <CheckCheck className="w-4 h-4 mr-2" />
+              Marcar todas como lidas
+            </Button>
+          )}
+          {notificacoes.length > 0 && (
+            <Button onClick={deleteAllNotifications} variant="outline" className="text-red-600 hover:text-red-700">
+              <Trash2 className="w-4 h-4 mr-2" />
+              Excluir todas
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Filter Tabs */}
