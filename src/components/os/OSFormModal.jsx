@@ -111,6 +111,15 @@ export default function OSFormModal({
       conferencia_manual_completa: false,
       validacao_divergencias_completa: false,
       armazenagem_completa: false
+    },
+    fluxo_expedicao: {
+      etapa_atual: 1,
+      solicitacao_completa: true,
+      solicitacao_data: new Date().toISOString(),
+      separacao_completa: false,
+      preparacao_completa: false,
+      envio_completo: false,
+      entrega_completa: false
     }
   });
 
@@ -193,6 +202,15 @@ export default function OSFormModal({
           conferencia_manual_completa: false,
           validacao_divergencias_completa: false,
           armazenagem_completa: false
+        },
+        fluxo_expedicao: os.fluxo_expedicao || {
+          etapa_atual: 1,
+          solicitacao_completa: true,
+          solicitacao_data: os.created_date || new Date().toISOString(),
+          separacao_completa: false,
+          preparacao_completa: false,
+          envio_completo: false,
+          entrega_completa: false
         },
         codigo: os.codigo || '',
         progresso: os.progresso || 0
@@ -325,6 +343,15 @@ export default function OSFormModal({
           conferencia_manual_completa: false,
           validacao_divergencias_completa: false,
           armazenagem_completa: false
+        },
+        fluxo_expedicao: {
+          etapa_atual: 1,
+          solicitacao_completa: true,
+          solicitacao_data: new Date().toISOString(),
+          separacao_completa: false,
+          preparacao_completa: false,
+          envio_completo: false,
+          entrega_completa: false
         }
         });
         }
@@ -377,40 +404,23 @@ export default function OSFormModal({
       return progress;
     }
     
-    // Progresso baseado no fluxo de expedição - cada etapa é 20%
+    // Progresso baseado no fluxo de expedição
+    // Cada etapa representa 20% do progresso total
     let progress = 0;
 
-    // Etapa 1: Solicitação (20%) - Dados Gerais e Documento preenchidos
-    const solicitacaoCompleta = 
-      data.categoria_id && data.subcategorias_ids?.length > 0 && 
-      data.regional_id && data.almoxarifado_id && data.lider_id &&
-      data.num_reserva && data.data_reserva && data.usuario_reserva && data.orgao;
-
-    if (solicitacaoCompleta) {
+    if (data.fluxo_expedicao?.solicitacao_completa) {
       progress = 20;
     }
-
-    // Etapa 2: Separação (20%) - Todos os itens marcados como separados
-    const todosItensSeparados = 
-      data.itens_documento?.length > 0 && 
-      data.itens_documento.every(item => item.separado === true);
-
-    if (todosItensSeparados) {
+    if (data.fluxo_expedicao?.separacao_completa) {
       progress = 40;
     }
-
-    // Etapa 3: Preparação (20%) - Pelo menos um volume adicionado
-    if (data.volumes?.length > 0) {
+    if (data.fluxo_expedicao?.preparacao_completa) {
       progress = 60;
     }
-
-    // Etapa 4: Envio (20%) - Pelo menos uma expedição adicionada
-    if (data.detalhamento_expedicao?.length > 0) {
+    if (data.fluxo_expedicao?.envio_completo) {
       progress = 80;
     }
-
-    // Etapa 5: Entrega (20%) - Status separação = 'entregue'
-    if (data.status_separacao === 'entregue') {
+    if (data.fluxo_expedicao?.entrega_completa) {
       progress = 100;
     }
 
@@ -444,10 +454,28 @@ export default function OSFormModal({
         codigo = codigo_tentativa;
       }
 
+      // Inicializar fluxo_expedicao se for expedição e não existir
+      let fluxoExpedicao = formData.fluxo_expedicao;
+      if (isExpedicaoCategory && isNew && !fluxoExpedicao) {
+        fluxoExpedicao = {
+          etapa_atual: 1,
+          solicitacao_completa: true,
+          solicitacao_data: new Date().toISOString(),
+          separacao_completa: false,
+          preparacao_completa: false,
+          envio_completo: false,
+          entrega_completa: false
+        };
+      }
+
       const dataToSave = {
         ...formData,
         codigo,
-        progresso: (isExpedicaoCategory || isRecebimentoCategory) ? calculateProgress(formData) : (formData.progresso || 0)
+        fluxo_expedicao: isExpedicaoCategory ? fluxoExpedicao : formData.fluxo_expedicao,
+        progresso: (isExpedicaoCategory || isRecebimentoCategory) ? calculateProgress({
+          ...formData,
+          fluxo_expedicao: isExpedicaoCategory ? fluxoExpedicao : formData.fluxo_expedicao
+        }) : (formData.progresso || 0)
       };
 
       console.log('Dados a serem salvos:', dataToSave);
