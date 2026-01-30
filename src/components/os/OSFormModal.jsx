@@ -718,6 +718,7 @@ export default function OSFormModal({
                 )}
                 {isRecebimentoCategory && (
                   <>
+                    <TabsTrigger value="receb-documento">Documento</TabsTrigger>
                     <TabsTrigger value="receb-doc">Cabeçalho NF</TabsTrigger>
                     <TabsTrigger value="receb-mat">Materiais</TabsTrigger>
                     <TabsTrigger value="receb-transp">Transportador</TabsTrigger>
