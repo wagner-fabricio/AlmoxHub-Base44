@@ -1,16 +1,51 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import MentionInput from '@/components/notifications/MentionInput';
-import { MessageSquare, Send, Loader2, Package, ArrowLeft } from 'lucide-react';
-import { format, isToday, isYesterday } from 'date-fns';
+import { 
+  MessageSquare, 
+  Send, 
+  Loader2, 
+  ArrowLeft, 
+  Calendar,
+  MapPin,
+  User,
+  Building2,
+  Clock,
+  AlertTriangle,
+  CheckCircle,
+  MoreVertical,
+  Trash2,
+  Edit
+} from 'lucide-react';
+import { format, isToday, isYesterday, differenceInMinutes } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { createPageUrl } from '@/utils';
 import { notifyCommentMention } from '@/components/notifications/PushNotificationHelper';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+const prioridadeConfig = {
+  baixa: { color: 'bg-slate-100 text-slate-700', label: 'Baixa' },
+  media: { color: 'bg-blue-100 text-blue-700', label: 'Média' },
+  alta: { color: 'bg-amber-100 text-amber-700', label: 'Alta' },
+  urgente: { color: 'bg-red-100 text-red-700', label: 'Urgente' },
+};
+
+const statusConfig = {
+  elaboracao: { icon: Clock, color: 'text-slate-500 bg-slate-100', label: 'Em Elaboração' },
+  execucao: { icon: AlertTriangle, color: 'text-blue-500 bg-blue-100', label: 'Em Execução' },
+  concluido: { icon: CheckCircle, color: 'text-green-500 bg-green-100', label: 'Concluído' },
+  cancelado: { icon: AlertTriangle, color: 'text-red-500 bg-red-100', label: 'Cancelado' },
+};
 
 export default function OSComentariosTab({ currentPessoa, pessoas }) {
   const [ordensComComentarios, setOrdensComComentarios] = useState([]);
@@ -23,6 +58,8 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
   const [categorias, setCategorias] = useState([]);
   const [regionais, setRegionais] = useState([]);
   const [almoxarifados, setAlmoxarifados] = useState([]);
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingContent, setEditingContent] = useState('');
   const textareaRef = useRef(null);
   const messagesEndRef = useRef(null);
 
@@ -38,6 +75,19 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
       return () => clearInterval(interval);
     }
   }, [osSelecionada]);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const osId = urlParams.get('os_id');
+    if (osId && ordensComComentarios.length > 0) {
+      const os = ordensComComentarios.find(o => o.id === osId);
+      if (os) {
+        setOsSelecionada(os);
+        // Limpar URL
+        window.history.replaceState({}, '', window.location.pathname + '?tab=os');
+      }
+    }
+  }, [ordensComComentarios]);
 
   const loadEntities = async () => {
     try {
@@ -74,17 +124,17 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
       (comentariosAutor || []).forEach(c => osIds.add(c.ordem_servico_id));
       (todasNotificacoes || []).forEach(n => osIds.add(n.referencia_id));
 
-      // Buscar OSs
+      // Buscar OSs com progresso < 100%
       if (osIds.size > 0) {
         const ordensPromises = Array.from(osIds).map(id => 
           base44.entities.OrdemServico.filter({ id }).then(r => r[0])
         );
         const ordens = await Promise.all(ordensPromises);
         
-        // Ordenar por última atualização
-        const ordensValidas = ordens.filter(Boolean).sort((a, b) => 
-          new Date(b.updated_date) - new Date(a.updated_date)
-        );
+        // Filtrar progresso < 100% e ordenar por última atualização
+        const ordensValidas = ordens
+          .filter(o => o && (o.progresso === undefined || o.progresso < 100))
+          .sort((a, b) => new Date(b.updated_date) - new Date(a.updated_date));
         
         setOrdensComComentarios(ordensValidas);
       } else {
@@ -173,6 +223,88 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
     }
   };
 
+  const handleEditComment = (comment) => {
+    setEditingCommentId(comment.id);
+    setEditingContent(comment.conteudo);
+  };
+
+  const handleSaveEdit = async (commentId) => {
+    if (!editingContent.trim()) return;
+    
+    try {
+      const extractMentions = (text) => {
+        const mentionRegex = /@(\S+(?:\s+\S+)*?)(?=\s|$|@)/g;
+        const mentions = [];
+        let match;
+        
+        while ((match = mentionRegex.exec(text)) !== null) {
+          const mentionedName = match[1].trim();
+          const pessoa = pessoas.find(p => 
+            p?.nome?.toLowerCase() === mentionedName.toLowerCase()
+          );
+          if (pessoa) mentions.push(pessoa.id);
+        }
+        
+        return [...new Set(mentions)];
+      };
+
+      const mencoesIds = extractMentions(editingContent);
+      
+      await base44.entities.Comentario.update(commentId, {
+        conteudo: editingContent,
+        mencoes_ids: mencoesIds,
+        is_edited: true
+      });
+      
+      // Criar notificações para novas menções
+      if (mencoesIds?.length > 0) {
+        const notificacoes = mencoesIds
+          .filter(id => id !== currentPessoa.id)
+          .map(destinatarioId => ({
+            destinatario_id: destinatarioId,
+            remetente_id: currentPessoa.id,
+            tipo: 'mencao',
+            referencia_id: osSelecionada.id,
+            referencia_tipo: 'tarefa',
+            mensagem: `Você foi mencionado(a) em um comentário da OS ${osSelecionada.codigo}`,
+            lida: false,
+            contexto_adicional: {
+              comentario_id: commentId,
+              os_codigo: osSelecionada.codigo,
+              url: `${createPageUrl('Mensagens')}?tab=os&os_id=${osSelecionada.id}`
+            }
+          }));
+        
+        if (notificacoes.length > 0) {
+          await base44.entities.Notificacao.bulkCreate(notificacoes);
+        }
+      }
+      
+      setEditingCommentId(null);
+      setEditingContent('');
+      loadComentarios(osSelecionada.id);
+    } catch (error) {
+      console.error('Erro ao editar comentário:', error);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await base44.entities.Comentario.update(commentId, {
+        is_deleted: true
+      });
+      loadComentarios(osSelecionada.id);
+    } catch (error) {
+      console.error('Erro ao deletar comentário:', error);
+    }
+  };
+
+  const canEditOrDelete = (comment) => {
+    if (!currentPessoa || comment.autor_id !== currentPessoa.id) return false;
+    const minutesSinceCreation = differenceInMinutes(new Date(), new Date(comment.created_date));
+    return minutesSinceCreation <= 10;
+  };
+
   const getDateSeparator = (date) => {
     if (isToday(new Date(date))) return 'Hoje';
     if (isYesterday(new Date(date))) return 'Ontem';
@@ -207,59 +339,91 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
   if (!osSelecionada) {
     return (
       <div className="h-full flex flex-col bg-slate-50 dark:bg-slate-900">
-        <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Comentários de OS</h2>
+        <div className="p-6 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Comentários de OS</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            OSs com conversas em que você participou
+            OSs em andamento com conversas em que você participou
           </p>
         </div>
 
         <ScrollArea className="flex-1">
-          <div className="p-4 space-y-3">
+          <div className="p-6">
             {ordensComComentarios.length === 0 ? (
               <div className="text-center py-12">
                 <MessageSquare className="w-16 h-16 mx-auto mb-4 text-slate-300 dark:text-slate-600" />
-                <p className="text-slate-500 dark:text-slate-400">Nenhum comentário ainda</p>
+                <p className="text-slate-500 dark:text-slate-400">Nenhuma OS em andamento com comentários</p>
               </div>
             ) : (
-              ordensComComentarios.map((os) => {
-                const categoria = categorias.find(c => c.id === os.categoria_id);
-                const regional = regionais.find(r => r.id === os.regional_id);
-                const almoxarifado = almoxarifados.find(a => a.id === os.almoxarifado_id);
-                
-                return (
-                  <button
-                    key={os.id}
-                    onClick={() => setOsSelecionada(os)}
-                    className="w-full bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 hover:border-blue-500 transition-all text-left"
-                  >
-                    <div className="flex items-start gap-3">
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                {ordensComComentarios.map((os) => {
+                  const categoria = categorias.find(c => c.id === os.categoria_id);
+                  const regional = regionais.find(r => r.id === os.regional_id);
+                  const almoxarifado = almoxarifados.find(a => a.id === os.almoxarifado_id);
+                  const lider = pessoas.find(p => p.id === os.lider_id);
+                  const StatusIcon = statusConfig[os.status]?.icon || Clock;
+                  
+                  return (
+                    <button
+                      key={os.id}
+                      onClick={() => setOsSelecionada(os)}
+                      className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:shadow-lg transition-all text-left overflow-hidden"
+                    >
                       <div 
-                        className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                        className="h-2" 
                         style={{ backgroundColor: categoria?.cor || '#3b82f6' }}
-                      >
-                        <Package className="w-6 h-6 text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-mono text-sm text-slate-500 dark:text-slate-400 mb-1">
-                          {os.codigo}
-                        </p>
-                        <p className="font-semibold text-slate-900 dark:text-white mb-2">
-                          {categoria?.nome || 'Ordem de Serviço'}
-                        </p>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <Badge variant="outline" className="text-xs">
-                            {regional?.sigla}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs truncate max-w-[150px]">
-                            {almoxarifado?.nome}
-                          </Badge>
+                      />
+                      <div className="p-4">
+                        <div className="flex items-start justify-between gap-2 mb-3">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-mono text-xs text-slate-500 dark:text-slate-400 mb-1">
+                              {os.codigo}
+                            </p>
+                            <h3 className="font-semibold text-slate-900 dark:text-white text-sm mb-1 truncate">
+                              {categoria?.nome || 'Ordem de Serviço'}
+                            </h3>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Badge className={prioridadeConfig[os.prioridade]?.color} className="text-xs px-2 py-0.5">
+                              {prioridadeConfig[os.prioridade]?.label}
+                            </Badge>
+                          </div>
+                        </div>
+
+                        {os.descricao_resumida && (
+                          <p className="text-xs text-slate-600 dark:text-slate-400 mb-3 line-clamp-2">
+                            {os.descricao_resumida}
+                          </p>
+                        )}
+
+                        <div className="space-y-2 text-xs mb-3">
+                          <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                            <MapPin className="w-3 h-3 shrink-0" />
+                            <span className="truncate">{regional?.sigla} - {almoxarifado?.nome}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                            <User className="w-3 h-3 shrink-0" />
+                            <span className="truncate">{lider?.nome || '-'}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                            <Calendar className="w-3 h-3 shrink-0" />
+                            <span>{os.prazo ? format(new Date(os.prazo), 'dd/MM/yyyy') : '-'}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700">
+                          <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs ${statusConfig[os.status]?.color}`}>
+                            <StatusIcon className="w-3 h-3" />
+                            <span className="font-medium">{statusConfig[os.status]?.label}</span>
+                          </div>
+                          <div className="text-xs font-semibold text-blue-600">
+                            {os.progresso || 0}%
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </button>
-                );
-              })
+                    </button>
+                  );
+                })}
+              </div>
             )}
           </div>
         </ScrollArea>
@@ -269,181 +433,190 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
 
   // Vista do chat da OS selecionada
   const categoria = categorias.find(c => c.id === osSelecionada.categoria_id);
+  const regional = regionais.find(r => r.id === osSelecionada.regional_id);
+  const almoxarifado = almoxarifados.find(a => a.id === osSelecionada.almoxarifado_id);
+  const lider = pessoas.find(p => p.id === osSelecionada.lider_id);
+  const StatusIcon = statusConfig[osSelecionada.status]?.icon || Clock;
   
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-slate-900">
+    <div className="h-full flex flex-col bg-slate-50 dark:bg-slate-900">
       {/* Header da OS */}
-      <div 
-        className="p-4 border-b border-slate-200 dark:border-slate-700 shrink-0"
-        style={{ 
-          background: `linear-gradient(135deg, ${categoria?.cor || '#3b82f6'} 0%, ${categoria?.cor || '#3b82f6'}dd 100%)`
-        }}
-      >
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setOsSelecionada(null)}
-            className="text-white hover:bg-white/20 shrink-0"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div className="flex-1 min-w-0">
-            <p className="text-white/90 text-sm font-mono mb-1">{osSelecionada.codigo}</p>
-            <p className="text-white font-semibold truncate">{categoria?.nome || 'Ordem de Serviço'}</p>
+      <div className="p-6 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0">
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <div className="flex items-start gap-3 flex-1 min-w-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setOsSelecionada(null)}
+              className="shrink-0"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div className="flex-1 min-w-0">
+              <span className="text-sm font-mono text-slate-500 dark:text-slate-400">{osSelecionada.codigo}</span>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white mt-1">
+                {categoria?.nome || 'Ordem de Serviço'}
+              </h2>
+            </div>
           </div>
+          <div className="flex items-center gap-2">
+            <Badge className={prioridadeConfig[osSelecionada.prioridade]?.color}>
+              {prioridadeConfig[osSelecionada.prioridade]?.label}
+            </Badge>
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${statusConfig[osSelecionada.status]?.color}`}>
+              <StatusIcon className="w-4 h-4" />
+              <span className="text-sm font-medium">{statusConfig[osSelecionada.status]?.label}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Informações Principais */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="flex items-center gap-2 text-sm">
+            <MapPin className="w-4 h-4 text-slate-400" />
+            <div className="min-w-0">
+              <p className="text-xs text-slate-500 dark:text-slate-400">Regional</p>
+              <p className="font-medium text-slate-900 dark:text-white truncate">{regional?.sigla}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <Building2 className="w-4 h-4 text-slate-400" />
+            <div className="min-w-0">
+              <p className="text-xs text-slate-500 dark:text-slate-400">Almoxarifado</p>
+              <p className="font-medium text-slate-900 dark:text-white truncate">{almoxarifado?.nome}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <User className="w-4 h-4 text-slate-400" />
+            <div className="min-w-0">
+              <p className="text-xs text-slate-500 dark:text-slate-400">Líder</p>
+              <p className="font-medium text-slate-900 dark:text-white truncate">{lider?.nome}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <Calendar className="w-4 h-4 text-slate-400" />
+            <div className="min-w-0">
+              <p className="text-xs text-slate-500 dark:text-slate-400">Prazo</p>
+              <p className="font-medium text-slate-900 dark:text-white">
+                {osSelecionada.prazo ? format(new Date(osSelecionada.prazo), 'dd/MM/yyyy') : '-'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Progresso */}
+        <div className="mt-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Progresso</span>
+            <span className="text-lg font-bold text-blue-600">{osSelecionada.progresso || 0}%</span>
+          </div>
+          <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all"
+              style={{ width: `${osSelecionada.progresso || 0}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+  // Vista do chat da OS selecionada
+  const categoria = categorias.find(c => c.id === osSelecionada.categoria_id);
+  const regional = regionais.find(r => r.id === osSelecionada.regional_id);
+  const almoxarifado = almoxarifados.find(a => a.id === osSelecionada.almoxarifado_id);
+  const lider = pessoas.find(p => p.id === osSelecionada.lider_id);
+  const StatusIcon = statusConfig[osSelecionada.status]?.icon || Clock;
+  
+  return (
+    <div className="h-full flex bg-slate-50 dark:bg-slate-900">
+      {/* Painel Esquerdo - Informações da OS */}
+      <div className="w-80 border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0 flex flex-col">
+        <div className="p-4 border-b border-slate-200 dark:border-slate-700">
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => window.open(`${createPageUrl('OrdensServico')}?os_id=${osSelecionada.id}`, '_blank')}
-            className="text-white hover:bg-white/20 text-xs"
+            onClick={() => setOsSelecionada(null)}
+            className="mb-3 -ml-2"
           >
-            Abrir OS
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Voltar
           </Button>
+          <span className="text-xs font-mono text-slate-500 dark:text-slate-400">{osSelecionada.codigo}</span>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white mt-1">
+            {categoria?.nome || 'Ordem de Serviço'}
+          </h2>
         </div>
-      </div>
 
-      {/* Messages Container */}
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-1">
-          {comentarios.length === 0 ? (
-            <div className="text-center py-12 text-slate-400">
-              <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p>Nenhuma mensagem ainda</p>
-              <p className="text-sm mt-1">Seja o primeiro a comentar</p>
+        <ScrollArea className="flex-1 p-4">
+          <div className="space-y-4">
+            {/* Status e Prioridade */}
+            <div className="space-y-2">
+              <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${statusConfig[osSelecionada.status]?.color}`}>
+                <StatusIcon className="w-4 h-4" />
+                <span className="text-sm font-medium">{statusConfig[osSelecionada.status]?.label}</span>
+              </div>
+              <Badge className={`${prioridadeConfig[osSelecionada.prioridade]?.color} w-full justify-center py-1.5`}>
+                {prioridadeConfig[osSelecionada.prioridade]?.label}
+              </Badge>
             </div>
-          ) : (
-            groupMessagesByDate(comentarios).map((item, idx) => {
-              if (item.type === 'separator') {
-                return (
-                  <div key={`sep-${idx}`} className="flex items-center gap-3 my-4">
-                    <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
-                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400 px-2">
-                      {getDateSeparator(item.date)}
-                    </span>
-                    <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
-                  </div>
-                );
-              }
 
-              const comment = item.data;
-              const isOwnMessage = currentPessoa?.id === comment.autor_id;
-              const commentAuthor = pessoas.find(p => p?.id === comment.autor_id);
-
-              return (
+            {/* Progresso */}
+            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Progresso</span>
+                <span className="text-lg font-bold text-blue-600">{osSelecionada.progresso || 0}%</span>
+              </div>
+              <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                 <div 
-                  key={comment.id} 
-                  className={`flex gap-2 mb-2 ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'}`}
-                >
-                  <Avatar className="w-8 h-8 shrink-0 mt-1">
-                    {commentAuthor?.foto_perfil && (
-                      <AvatarImage src={commentAuthor.foto_perfil} alt={comment.autor_nome} />
-                    )}
-                    <AvatarFallback className={`text-xs ${isOwnMessage ? 'bg-blue-100 text-blue-700' : 'bg-slate-200 text-slate-700'}`}>
-                      {comment.autor_nome?.charAt(0) || '?'}
-                    </AvatarFallback>
-                  </Avatar>
-                  
-                  <div className={`flex flex-col ${isOwnMessage ? 'items-end' : 'items-start'} max-w-[75%]`}>
-                    {!isOwnMessage && (
-                      <span className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 px-1">
-                        {comment.autor_nome}
-                      </span>
-                    )}
-                    
-                    <div 
-                      className={`rounded-2xl px-4 py-2 ${
-                        isOwnMessage 
-                          ? 'bg-blue-600 text-white rounded-tr-sm' 
-                          : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-tl-sm'
-                      }`}
-                    >
-                      {comment.is_deleted ? (
-                        <p className="italic text-slate-400">Mensagem removida</p>
-                      ) : (
-                        <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
-                          {comment.conteudo.split(/(@\S+(?:\s+\S+)*?)(?=\s|$|@)/g).map((part, i) => {
-                            if (part.startsWith('@')) {
-                              const mentionedName = part.slice(1);
-                              const isPessoaMentioned = pessoas.some(p => 
-                                p?.nome?.toLowerCase() === mentionedName.toLowerCase()
-                              );
-                              return isPessoaMentioned ? (
-                                <span key={i} className={`font-semibold ${isOwnMessage ? 'text-blue-100' : 'text-blue-600 dark:text-blue-400'}`}>
-                                  {part}
-                                </span>
-                              ) : part;
-                            }
-                            return part;
-                          })}
-                        </p>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 mt-1 px-1">
-                      <span>{format(new Date(comment.created_date), 'HH:mm')}</span>
-                      {comment.is_edited && !comment.is_deleted && (
-                        <span className="italic">• editado</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-      </ScrollArea>
+                  className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all"
+                  style={{ width: `${osSelecionada.progresso || 0}%` }}
+                />
+              </div>
+            </div>
 
-      {/* Fixed Input at Bottom */}
-      <div className="border-t border-slate-200 dark:border-slate-700 p-4 bg-white dark:bg-slate-800 shrink-0">
-        <div className="flex gap-3 items-end">
-          <Avatar className="w-9 h-9 shrink-0">
-            {currentPessoa?.foto_perfil && (
-              <AvatarImage src={currentPessoa.foto_perfil} alt={currentPessoa?.nome} />
+            {/* Informações */}
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Regional</p>
+                <p className="text-sm font-medium text-slate-900 dark:text-white">{regional?.sigla} - {regional?.descricao}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Almoxarifado</p>
+                <p className="text-sm font-medium text-slate-900 dark:text-white">{almoxarifado?.nome}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Líder</p>
+                <p className="text-sm font-medium text-slate-900 dark:text-white">{lider?.nome}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Prazo</p>
+                <p className="text-sm font-medium text-slate-900 dark:text-white">
+                  {osSelecionada.prazo ? format(new Date(osSelecionada.prazo), "dd/MM/yyyy", { locale: ptBR }) : '-'}
+                </p>
+              </div>
+            </div>
+
+            {/* Descrição */}
+            {osSelecionada.descricao_resumida && (
+              <div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Descrição</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+                  {osSelecionada.descricao_resumida}
+                </p>
+              </div>
             )}
-            <AvatarFallback className="bg-blue-100 text-blue-700 text-sm">
-              {currentPessoa?.nome?.charAt(0) || 'U'}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 relative">
-            <MentionInput
-              ref={textareaRef}
-              textareaRef={textareaRef}
-              placeholder="Digite uma mensagem... (@ para mencionar, Enter para enviar)"
-              value={newComment}
-              onChange={(e) => {
-                setNewComment(e.target.value);
-                if (textareaRef.current) {
-                  textareaRef.current.style.height = 'auto';
-                  textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 120) + 'px';
-                }
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleAddComment();
-                }
-              }}
-              pessoas={pessoas}
-              onMentionsChange={setMentionedIds}
-              className="min-h-[44px] max-h-[120px] resize-none pr-12"
-            />
-            <Button 
-              onClick={handleAddComment} 
-              disabled={loadingComment || !newComment.trim()}
-              size="icon"
-              className="absolute right-2 bottom-2 h-8 w-8 rounded-full"
-            >
-              {loadingComment ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Send className="w-4 h-4" />
-              )}
-            </Button>
+
+            {/* Anotações */}
+            {osSelecionada.anotacoes && (
+              <div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Anotações</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+                  {osSelecionada.anotacoes}
+                </p>
+              </div>
+            )}
           </div>
-        </div>
+        </ScrollArea>
       </div>
-    </div>
-  );
-}
+
+      {/* Painel Direito - Chat */}
+      <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-slate-900">
