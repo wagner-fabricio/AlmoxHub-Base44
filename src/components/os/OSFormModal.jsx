@@ -1486,57 +1486,56 @@ export default function OSFormModal({
                         </label>
                       </div>
                     </div>
-                    </div>
+                  </div>
 
-                    {/* Lista de Problemas */}
-                    {formData.problema_recebimento && (
+                  {/* Lista de Problemas */}
+                  {formData.problema_recebimento && (
                     <div className="border-t pt-6 mt-6">
-                      <div className="space-y-4">
                       <div className="space-y-3">
-                          <Label className="text-sm text-slate-600 dark:text-slate-400">
-                            Selecione o(s) problema(s) identificado(s):
-                          </Label>
-                          <div className="space-y-2 max-h-64 overflow-y-auto border rounded-lg p-4 bg-slate-50 dark:bg-slate-800">
-                            {problemasRecebimento.map((problema) => (
-                              <div key={problema.id} className="flex items-start gap-2">
-                                <Checkbox
-                                  id={`problema-${problema.id}`}
-                                  checked={formData.problemas_recebimento_ids?.includes(problema.id)}
-                                  onCheckedChange={(checked) => {
-                                    if (checked) {
-                                      setFormData({
-                                        ...formData,
-                                        problemas_recebimento_ids: [...(formData.problemas_recebimento_ids || []), problema.id]
-                                      });
-                                    } else {
-                                      setFormData({
-                                        ...formData,
-                                        problemas_recebimento_ids: formData.problemas_recebimento_ids?.filter(id => id !== problema.id) || []
-                                      });
-                                    }
-                                  }}
-                                />
-                                <Label htmlFor={`problema-${problema.id}`} className="cursor-pointer text-sm flex-1">
-                                  <span className="font-medium">{problema.descricao_resumida}</span>
-                                  {problema.explicacao && (
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                      {problema.explicacao}
-                                    </p>
-                                  )}
-                                </Label>
-                              </div>
-                            ))}
-                            {problemasRecebimento.length === 0 && (
-                              <p className="text-sm text-slate-500 text-center py-4">
-                                Nenhum problema cadastrado
-                              </p>
-                            )}
-                          </div>
+                        <Label className="text-sm text-slate-600 dark:text-slate-400">
+                          Selecione o(s) problema(s) identificado(s):
+                        </Label>
+                        <div className="space-y-2 max-h-64 overflow-y-auto border rounded-lg p-4 bg-slate-50 dark:bg-slate-800">
+                          {problemasRecebimento.map((problema) => (
+                            <div key={problema.id} className="flex items-start gap-2">
+                              <Checkbox
+                                id={`problema-${problema.id}`}
+                                checked={formData.problemas_recebimento_ids?.includes(problema.id)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setFormData({
+                                      ...formData,
+                                      problemas_recebimento_ids: [...(formData.problemas_recebimento_ids || []), problema.id]
+                                    });
+                                  } else {
+                                    setFormData({
+                                      ...formData,
+                                      problemas_recebimento_ids: formData.problemas_recebimento_ids?.filter(id => id !== problema.id) || []
+                                    });
+                                  }
+                                }}
+                              />
+                              <Label htmlFor={`problema-${problema.id}`} className="cursor-pointer text-sm flex-1">
+                                <span className="font-medium">{problema.descricao_resumida}</span>
+                                {problema.explicacao && (
+                                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                    {problema.explicacao}
+                                  </p>
+                                )}
+                              </Label>
+                            </div>
+                          ))}
+                          {problemasRecebimento.length === 0 && (
+                            <p className="text-sm text-slate-500 text-center py-4">
+                              Nenhum problema cadastrado
+                            </p>
+                          )}
                         </div>
-                        </div>
-                        )}
-                    </TabsContent>
-                    )}
+                      </div>
+                    </div>
+                  )}
+                </TabsContent>
+              )}
 
               {/* TAB: Recebimento - Transportador */}
               {isRecebimentoCategory && (
