@@ -736,6 +736,7 @@ export default function OSFormModal({
                 )}
                 {isRecebimentoCategory && (
                   <>
+                    <TabsTrigger value="receb-dados">Dados Recebimento</TabsTrigger>
                     <TabsTrigger value="receb-documento">Documento</TabsTrigger>
                     <TabsTrigger value="receb-doc">Cabeçalho NF</TabsTrigger>
                     <TabsTrigger value="receb-mat">Materiais</TabsTrigger>
@@ -1334,6 +1335,97 @@ export default function OSFormModal({
                 </TabsContent>
               )}
 
+              {/* TAB: Recebimento - Dados Recebimento */}
+              {isRecebimentoCategory && (
+                <TabsContent value="receb-dados" className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Data Recebimento */}
+                    <div className="space-y-2">
+                      <Label>Data Recebimento</Label>
+                      <Input
+                        type="date"
+                        value={formData.data_recebimento}
+                        onChange={(e) => setFormData({ ...formData, data_recebimento: e.target.value })}
+                      />
+                    </div>
+
+                    {/* Houve um problema? */}
+                    <div className="space-y-2">
+                      <Label>Houve um problema?</Label>
+                      <div className="flex gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="problema_recebimento"
+                            checked={!formData.problema_recebimento}
+                            onChange={() => setFormData({ ...formData, problema_recebimento: false, problemas_recebimento_ids: [] })}
+                            className="w-4 h-4"
+                          />
+                          <span className="text-sm">Não</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="problema_recebimento"
+                            checked={formData.problema_recebimento}
+                            onChange={() => setFormData({ ...formData, problema_recebimento: true })}
+                            className="w-4 h-4"
+                          />
+                          <span className="text-sm">Sim</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Lista de Problemas */}
+                  {formData.problema_recebimento && (
+                    <div className="border-t pt-6 mt-6">
+                      <div className="space-y-3">
+                        <Label className="text-sm text-slate-600 dark:text-slate-400">
+                          Selecione o(s) problema(s) identificado(s):
+                        </Label>
+                        <div className="space-y-2 max-h-64 overflow-y-auto border rounded-lg p-4 bg-slate-50 dark:bg-slate-800">
+                          {problemasRecebimento.map((problema) => (
+                            <div key={problema.id} className="flex items-start gap-2">
+                              <Checkbox
+                                id={`problema-${problema.id}`}
+                                checked={formData.problemas_recebimento_ids?.includes(problema.id)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setFormData({
+                                      ...formData,
+                                      problemas_recebimento_ids: [...(formData.problemas_recebimento_ids || []), problema.id]
+                                    });
+                                  } else {
+                                    setFormData({
+                                      ...formData,
+                                      problemas_recebimento_ids: formData.problemas_recebimento_ids?.filter(id => id !== problema.id) || []
+                                    });
+                                  }
+                                }}
+                              />
+                              <Label htmlFor={`problema-${problema.id}`} className="cursor-pointer text-sm flex-1">
+                                <span className="font-medium">{problema.descricao_resumida}</span>
+                                {problema.explicacao && (
+                                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                    {problema.explicacao}
+                                  </p>
+                                )}
+                              </Label>
+                            </div>
+                          ))}
+                          {problemasRecebimento.length === 0 && (
+                            <p className="text-sm text-slate-500 text-center py-4">
+                              Nenhum problema cadastrado
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </TabsContent>
+              )}
+
               {/* TAB: Recebimento - Documento */}
               {isRecebimentoCategory && (
                 <TabsContent value="receb-doc" className="space-y-6">
@@ -1449,91 +1541,7 @@ export default function OSFormModal({
                         placeholder="Texto livre"
                       />
                     </div>
-
-                    {/* Data Recebimento */}
-                    <div className="space-y-2">
-                      <Label>Data Recebimento</Label>
-                      <Input
-                        type="date"
-                        value={formData.data_recebimento}
-                        onChange={(e) => setFormData({ ...formData, data_recebimento: e.target.value })}
-                      />
-                    </div>
-
-                    {/* Houve um problema? */}
-                    <div className="space-y-2">
-                      <Label>Houve um problema?</Label>
-                      <div className="flex gap-4">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="radio"
-                            name="problema_recebimento"
-                            checked={!formData.problema_recebimento}
-                            onChange={() => setFormData({ ...formData, problema_recebimento: false, problemas_recebimento_ids: [] })}
-                            className="w-4 h-4"
-                          />
-                          <span className="text-sm">Não</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="radio"
-                            name="problema_recebimento"
-                            checked={formData.problema_recebimento}
-                            onChange={() => setFormData({ ...formData, problema_recebimento: true })}
-                            className="w-4 h-4"
-                          />
-                          <span className="text-sm">Sim</span>
-                        </label>
-                      </div>
-                    </div>
                   </div>
-
-                  {/* Lista de Problemas */}
-                  {formData.problema_recebimento && (
-                    <div className="border-t pt-6 mt-6">
-                      <div className="space-y-3">
-                        <Label className="text-sm text-slate-600 dark:text-slate-400">
-                          Selecione o(s) problema(s) identificado(s):
-                        </Label>
-                        <div className="space-y-2 max-h-64 overflow-y-auto border rounded-lg p-4 bg-slate-50 dark:bg-slate-800">
-                          {problemasRecebimento.map((problema) => (
-                            <div key={problema.id} className="flex items-start gap-2">
-                              <Checkbox
-                                id={`problema-${problema.id}`}
-                                checked={formData.problemas_recebimento_ids?.includes(problema.id)}
-                                onCheckedChange={(checked) => {
-                                  if (checked) {
-                                    setFormData({
-                                      ...formData,
-                                      problemas_recebimento_ids: [...(formData.problemas_recebimento_ids || []), problema.id]
-                                    });
-                                  } else {
-                                    setFormData({
-                                      ...formData,
-                                      problemas_recebimento_ids: formData.problemas_recebimento_ids?.filter(id => id !== problema.id) || []
-                                    });
-                                  }
-                                }}
-                              />
-                              <Label htmlFor={`problema-${problema.id}`} className="cursor-pointer text-sm flex-1">
-                                <span className="font-medium">{problema.descricao_resumida}</span>
-                                {problema.explicacao && (
-                                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                    {problema.explicacao}
-                                  </p>
-                                )}
-                              </Label>
-                            </div>
-                          ))}
-                          {problemasRecebimento.length === 0 && (
-                            <p className="text-sm text-slate-500 text-center py-4">
-                              Nenhum problema cadastrado
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </TabsContent>
               )}
 
