@@ -435,7 +435,7 @@ export default function EmFluxo() {
       <div className="p-4 pb-20">
         {activeModule === 'ordens' && (
           <div className="space-y-3">
-            {/* Controles de Filtro e Criar */}
+            {/* Controles de Filtro */}
             <div className="flex gap-3">
               <div className="flex-1">
                 <Button
@@ -466,14 +466,6 @@ export default function EmFluxo() {
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
-              <Button
-                onClick={() => setShowOSForm(true)}
-                size="icon"
-                className="shrink-0"
-                style={{ backgroundColor: '#0000FF' }}
-              >
-                <Plus className="w-5 h-5" />
-              </Button>
             </div>
 
             {(ordens || []).filter(os => os && (statusFilter === 'all' || os.status === statusFilter)).length === 0 ? (
