@@ -208,7 +208,7 @@ export default function OSMobileDetail({
     
     setLoadingComment(true);
     try {
-      await base44.entities.Comentario.create({
+      const comentario = await base44.entities.Comentario.create({
         ordem_servico_id: os.id,
         conteudo: newComment,
         autor_nome: currentUser?.full_name || 'Usuário',
@@ -217,6 +217,39 @@ export default function OSMobileDetail({
         is_deleted: false,
         is_edited: false
       });
+
+      // Criar notificações para mencionados
+      if (mentionedIds && mentionedIds.length > 0) {
+        try {
+          const notificacoes = mentionedIds
+            .filter(id => id !== currentUserPessoa?.id)
+            .map(destinatarioId => ({
+              destinatario_id: destinatarioId,
+              remetente_id: currentUserPessoa?.id,
+              tipo: 'mencao',
+              referencia_id: os.id,
+              referencia_tipo: 'tarefa',
+              mensagem: `Você foi mencionado(a) em um comentário da OS ${os.codigo}`,
+              lida: false,
+              contexto_adicional: {
+                comentario_id: comentario.id,
+                os_codigo: os.codigo,
+                url: `${createPageUrl('EmFluxo')}?os_id=${os.id}&tab=comentarios`
+              }
+            }));
+          
+          if (notificacoes.length > 0) {
+            await base44.entities.Notificacao.bulkCreate(notificacoes);
+            
+            // Enviar push notifications
+            for (const mencaoId of mentionedIds.filter(id => id !== currentUserPessoa?.id)) {
+              notifyCommentMention(os, mencaoId, currentUser?.full_name || 'Usuário');
+            }
+          }
+        } catch (notifError) {
+          console.error('Erro ao criar notificações de menção:', notifError);
+        }
+      }
       
       setNewComment('');
       setMentionedIds([]);

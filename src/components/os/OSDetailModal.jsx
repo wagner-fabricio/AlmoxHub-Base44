@@ -45,6 +45,7 @@ import OSFluxoRecebimento from './OSFluxoRecebimento';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { notifyCommentMention } from '@/components/notifications/PushNotificationHelper';
+import { createPageUrl } from '@/utils';
 
 const prioridadeConfig = {
   baixa: { color: 'bg-slate-100 text-slate-700', label: 'Baixa' },
@@ -211,7 +212,9 @@ export default function OSDetailModal({
               mensagem: `Você foi mencionado(a) em um comentário da OS ${os.codigo}`,
               lida: false,
               contexto_adicional: {
-                comentario_id: comentario.id
+                comentario_id: comentario.id,
+                os_codigo: os.codigo,
+                url: `${createPageUrl('OrdensServico')}?os_id=${os.id}&tab=comentarios`
               }
             }));
           
@@ -278,7 +281,9 @@ export default function OSDetailModal({
               mensagem: `Você foi mencionado(a) em um comentário da OS ${os.codigo}`,
               lida: false,
               contexto_adicional: {
-                comentario_id: commentId
+                comentario_id: commentId,
+                os_codigo: os.codigo,
+                url: `${createPageUrl('OrdensServico')}?os_id=${os.id}&tab=comentarios`
               }
             }));
           
