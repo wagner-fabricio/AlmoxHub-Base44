@@ -43,6 +43,7 @@ function parseNFeXML(xmlContent) {
     nfe_dados_emissor: {},
     nfe_dados_destinatario: {},
     nfe_dados_transportador: {},
+    nfe_info_complementares: '',
     nfe_itens_conferencia: []
   };
 
@@ -133,6 +134,10 @@ function parseNFeXML(xmlContent) {
       peso_bruto: parseFloat(getElementTextNS('transp', 'pesoB', transpSection) || getElementText('pesoB', transpSection) || '0'),
       peso_liquido: parseFloat(getElementTextNS('transp', 'pesoL', transpSection) || getElementText('pesoL', transpSection) || '0')
     };
+
+    // Informações Complementares (infCpl)
+    const infAdic = extractSection('infAdic');
+    resultado.nfe_info_complementares = getElementText('infCpl', infAdic) || getElementTextNS('infAdic', 'infCpl', infAdic) || '';
 
     // Itens (det)
     const detMatches = xmlContent.match(/<det[^>]*>[\s\S]*?<\/det>/gi) || [];
