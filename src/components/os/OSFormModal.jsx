@@ -104,6 +104,7 @@ export default function OSFormModal({
     acoes_acompanhamento: '',
     como_foi_solucionado: '',
     data_solucao: '',
+    problemas_anexos: [],
     fluxo_recebimento: {
       etapa_atual: 1,
       xml_importado: false,
@@ -185,6 +186,7 @@ export default function OSFormModal({
         acoes_acompanhamento: os.acoes_acompanhamento || '',
         como_foi_solucionado: os.como_foi_solucionado || '',
         data_solucao: os.data_solucao ? os.data_solucao.split('T')[0] : '',
+        problemas_anexos: os.problemas_anexos || [],
         fluxo_recebimento: os.fluxo_recebimento || {
           etapa_atual: 1,
           xml_importado: false,
@@ -316,6 +318,7 @@ export default function OSFormModal({
         acoes_acompanhamento: '',
         como_foi_solucionado: '',
         data_solucao: '',
+        problemas_anexos: [],
         fluxo_recebimento: {
           etapa_atual: 1,
           xml_importado: false,
@@ -1466,13 +1469,42 @@ export default function OSFormModal({
                           />
                         </div>
 
-                        <div className="space-y-2">
-                          <Label>Data Solução</Label>
-                          <Input
-                            type="date"
-                            value={formData.data_solucao}
-                            onChange={(e) => setFormData({ ...formData, data_solucao: e.target.value })}
-                          />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Data Solução</Label>
+                            <Input
+                              type="date"
+                              value={formData.data_solucao}
+                              onChange={(e) => setFormData({ ...formData, data_solucao: e.target.value })}
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Anexos do Problema</Label>
+                            <div className="flex gap-2">
+                              <Input
+                                type="file"
+                                multiple
+                                className="cursor-pointer"
+                                id="problemas-anexos-upload"
+                                onChange={(e) => handleFileUpload(e, 'problemas_anexos')}
+                              />
+                            </div>
+                            {formData.problemas_anexos?.length > 0 && (
+                              <div className="space-y-1 mt-2">
+                                {(formData.problemas_anexos || []).map((url, i) => (
+                                  <div key={i} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800 rounded-lg text-xs">
+                                    <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate flex-1">
+                                      Anexo {i + 1}
+                                    </a>
+                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeFile('problemas_anexos', i)}>
+                                      <X className="w-3 h-3" />
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
