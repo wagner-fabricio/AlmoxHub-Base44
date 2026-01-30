@@ -413,7 +413,7 @@ export default function OrdensServico() {
       <div className="fixed inset-0 bg-slate-50 dark:bg-slate-900 z-50 overflow-auto">
         {/* Fullscreen Header */}
         <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4 flex items-center justify-between shadow-sm z-10">
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white">Ordens de Serviço - Visualização TV</h1>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white">Ordens de Serviço</h1>
           <Button 
             onClick={() => setFullscreenMode(false)} 
             variant="outline"
