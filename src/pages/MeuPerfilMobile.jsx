@@ -287,6 +287,18 @@ export default function MeuPerfilMobile() {
           </div>
         </div>
 
+        {/* Configurações de Notificação */}
+        <div className="bg-white rounded-xl p-6 shadow-sm">
+          <h2 className="font-semibold text-slate-900 mb-4">Preferências</h2>
+          <Button
+            onClick={() => window.location.href = createPageUrl('NotificationSettingsMobile')}
+            variant="outline"
+            className="w-full justify-start"
+          >
+            🔔 Configurar Notificações
+          </Button>
+        </div>
+
         {/* Botão Salvar */}
         <Button
           onClick={handleSave}
