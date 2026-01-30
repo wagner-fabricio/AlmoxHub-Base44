@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, MessageSquare, ClipboardList } from 'lucide-react';
 import ConversaList from '@/components/mensagens/ConversaList';
 import ChatArea from '@/components/mensagens/ChatArea';
 import NovaConversaModal from '@/components/mensagens/NovaConversaModal';
+import OSComentariosTab from '@/components/mensagens/OSComentariosTab';
 import { showError, showSuccess } from '@/components/ui/toast-error';
 import { notifyMessageMention } from '@/components/notifications/PushNotificationHelper';
 
@@ -17,9 +19,19 @@ export default function MensagensPage() {
   const [currentPessoa, setCurrentPessoa] = useState(null);
   const [showNovaConversa, setShowNovaConversa] = useState(false);
   const [mostrarLista, setMostrarLista] = useState(true);
+  const [activeMainTab, setActiveMainTab] = useState('conversas');
 
   // Cache para OSs - evita buscar todas as OSs repetidamente
   const [osCache, setOsCache] = useState(new Map());
+
+  // Verificar parâmetros de URL para abrir aba de OS
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    if (tab === 'os') {
+      setActiveMainTab('os');
+    }
+  }, []);
 
   useEffect(() => {
     loadData();
@@ -480,54 +492,80 @@ export default function MensagensPage() {
       <div className="hidden lg:block px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Mensagens</h1>
-          <Button onClick={() => setShowNovaConversa(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Nova Conversa
-          </Button>
+          {activeMainTab === 'conversas' && (
+            <Button onClick={() => setShowNovaConversa(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Nova Conversa
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex min-h-0">
-        {/* Lista de Conversas */}
-        <div className={`
-          ${mostrarLista ? 'flex' : 'hidden lg:flex'}
-          w-full lg:w-96 lg:min-w-[360px] lg:max-w-[360px]
-          border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800
-          flex-col overflow-hidden
-        `}>
-          <ConversaList
-            conversas={conversas}
-            pessoas={pessoas}
-            currentPessoaId={currentPessoa.id}
-            onSelectConversa={handleSelectConversa}
-            conversaSelecionada={conversaSelecionada}
-            onToggleFavorito={handleToggleFavorito}
-            onNovaConversa={() => setShowNovaConversa(true)}
-          />
-        </div>
+      {/* Tabs */}
+      <Tabs value={activeMainTab} onValueChange={setActiveMainTab} className="flex-1 flex flex-col min-h-0">
+        <TabsList className="px-6 py-2 bg-slate-50 dark:bg-slate-800 border-b shrink-0">
+          <TabsTrigger value="conversas" className="gap-2">
+            <MessageSquare className="w-4 h-4" />
+            Conversas
+          </TabsTrigger>
+          <TabsTrigger value="os" className="gap-2">
+            <ClipboardList className="w-4 h-4" />
+            Comentários de OS
+          </TabsTrigger>
+        </TabsList>
 
-        {/* Área de Chat */}
-        <div className={`
-          ${!mostrarLista ? 'flex' : 'hidden lg:flex'}
-          flex-1 min-w-0
-        `}>
-          <ChatArea
-            conversa={conversaSelecionada?.conversa}
-            mensagens={mensagens}
-            participantes={conversaSelecionada?.participantes || []}
+        {/* Tab: Conversas */}
+        <TabsContent value="conversas" className="flex-1 flex min-h-0 m-0">
+          <div className="flex-1 flex min-h-0">
+            {/* Lista de Conversas */}
+            <div className={`
+              ${mostrarLista ? 'flex' : 'hidden lg:flex'}
+              w-full lg:w-96 lg:min-w-[360px] lg:max-w-[360px]
+              border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800
+              flex-col overflow-hidden
+            `}>
+              <ConversaList
+                conversas={conversas}
+                pessoas={pessoas}
+                currentPessoaId={currentPessoa.id}
+                onSelectConversa={handleSelectConversa}
+                conversaSelecionada={conversaSelecionada}
+                onToggleFavorito={handleToggleFavorito}
+                onNovaConversa={() => setShowNovaConversa(true)}
+              />
+            </div>
+
+            {/* Área de Chat */}
+            <div className={`
+              ${!mostrarLista ? 'flex' : 'hidden lg:flex'}
+              flex-1 min-w-0
+            `}>
+              <ChatArea
+                conversa={conversaSelecionada?.conversa}
+                mensagens={mensagens}
+                participantes={conversaSelecionada?.participantes || []}
+                pessoas={pessoas}
+                currentPessoaId={currentPessoa.id}
+                onEnviarMensagem={handleEnviarMensagem}
+                onEditarMensagem={handleEditarMensagem}
+                onExcluirMensagem={handleExcluirMensagem}
+                onAbrirDetalhes={() => {}}
+                onVoltar={window.innerWidth < 1024 ? handleVoltarLista : undefined}
+                onLimparMensagens={handleLimparMensagens}
+                onExcluirConversa={handleExcluirConversa}
+              />
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Tab: Comentários de OS */}
+        <TabsContent value="os" className="flex-1 min-h-0 m-0">
+          <OSComentariosTab 
+            currentPessoa={currentPessoa}
             pessoas={pessoas}
-            currentPessoaId={currentPessoa.id}
-            onEnviarMensagem={handleEnviarMensagem}
-            onEditarMensagem={handleEditarMensagem}
-            onExcluirMensagem={handleExcluirMensagem}
-            onAbrirDetalhes={() => {}}
-            onVoltar={window.innerWidth < 1024 ? handleVoltarLista : undefined}
-            onLimparMensagens={handleLimparMensagens}
-            onExcluirConversa={handleExcluirConversa}
           />
-        </div>
-      </div>
+        </TabsContent>
+      </Tabs>
 
       {/* Modal Nova Conversa */}
       <NovaConversaModal
