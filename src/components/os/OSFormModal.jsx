@@ -46,6 +46,7 @@ export default function OSFormModal({
   const [prazoError, setPrazoError] = useState('');
   const [importingXML, setImportingXML] = useState(false);
   const [problemasRecebimento, setProblemasRecebimento] = useState([]);
+  const isMountedRef = React.useRef(true);
   const [formData, setFormData] = useState({
     categoria_id: '',
     subcategorias_ids: [],
@@ -124,11 +125,15 @@ export default function OSFormModal({
   });
 
   useEffect(() => {
+    isMountedRef.current = true;
+
     // Carregar problemas de recebimento
     const loadProblemas = async () => {
       try {
         const problemas = await base44.entities.ProblemaRecebimento.list('-descricao_resumida');
-        setProblemasRecebimento(problemas);
+        if (isMountedRef.current) {
+          setProblemasRecebimento(problemas);
+        }
       } catch (error) {
         console.error('Erro ao carregar problemas:', error);
       }
@@ -355,6 +360,10 @@ export default function OSFormModal({
         }
         });
         }
+
+        return () => {
+          isMountedRef.current = false;
+        };
         }, [os, currentUser, pessoas, almoxarifados, categorias, subcategorias]);
 
   const filteredSubcategorias = Array.isArray(subcategorias) ? subcategorias.filter(s => s?.categoria_id === formData.categoria_id) : [];
@@ -607,14 +616,28 @@ export default function OSFormModal({
         }
       }
 
-      onSave?.(isNew, { ...dataToSave, id: savedOS.id || os?.id });
-      toast.success(`OS ${codigo || savedOS.codigo} salva com sucesso!`);
-      onClose();
+      // Chamar onSave e mostrar toast ANTES de fechar o modal
+      if (isMountedRef.current) {
+        onSave?.(isNew, { ...dataToSave, id: savedOS.id || os?.id });
+        toast.success(`OS ${codigo || savedOS.codigo} salva com sucesso!`);
+      }
+
+      // Aguardar todas as atualizações de estado finalizarem antes de fechar
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Fechar modal apenas se ainda estiver montado
+      if (isMountedRef.current) {
+        onClose();
+      }
     } catch (error) {
       console.error('Error saving OS:', error);
-      toast.error('Erro ao salvar OS', { description: error.message });
+      if (isMountedRef.current) {
+        toast.error('Erro ao salvar OS', { description: error.message });
+      }
     } finally {
-      setSaving(false);
+      if (isMountedRef.current) {
+        setSaving(false);
+      }
     }
   };
 
