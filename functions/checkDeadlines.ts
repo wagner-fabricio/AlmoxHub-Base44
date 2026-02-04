@@ -24,93 +24,76 @@ Deno.serve(async (req) => {
       return diasRestantes >= 0 && diasRestantes <= 3;
     });
 
-    // Processar em lotes menores com delay para evitar rate limit
-    const LOTE_TAMANHO = 5;
-    const DELAY_ENTRE_LOTES = 1000; // 1 segundo entre lotes
-    const notificacoesEnviadas = [];
-    
-    for (let i = 0; i < ordensProximasPrazo.length; i += LOTE_TAMANHO) {
-      const lote = ordensProximasPrazo.slice(i, i + LOTE_TAMANHO);
-      
-      // Delay entre lotes (exceto no primeiro)
-      if (i > 0) {
-        await new Promise(resolve => setTimeout(resolve, DELAY_ENTRE_LOTES));
-      }
-      
-      // Processar todas as OS do lote em paralelo
-      const resultadosLote = await Promise.allSettled(
-        lote.map(async (os) => {
-          const destinatarios = [os.lider_id, ...(os.executores_ids || [])].filter(Boolean);
-          const destinatariosUnicos = [...new Set(destinatarios)];
+    // Criar todas as notificações in-app de uma vez (bulk)
+    const todasNotificacoes = [];
+    for (const os of ordensProximasPrazo) {
+      const destinatarios = [os.lider_id, ...(os.executores_ids || [])].filter(Boolean);
+      const destinatariosUnicos = [...new Set(destinatarios)];
+      const diasRestantes = differenceInDays(new Date(os.prazo), hoje);
+      const mensagem = diasRestantes === 0 
+        ? `URGENTE: O prazo da OS ${os.codigo} vence HOJE!`
+        : `A OS ${os.codigo} tem prazo em ${diasRestantes} dia${diasRestantes > 1 ? 's' : ''}`;
 
-          const diasRestantes = differenceInDays(new Date(os.prazo), hoje);
-          const mensagem = diasRestantes === 0 
-            ? `URGENTE: O prazo da OS ${os.codigo} vence HOJE!`
-            : `A OS ${os.codigo} tem prazo em ${diasRestantes} dia${diasRestantes > 1 ? 's' : ''}`;
-
-          // Criar todas as notificações em paralelo
-          const notificacoes = destinatariosUnicos.map(pessoaId => ({
-            destinatario_id: pessoaId,
-            tipo: 'mudanca_status',
-            referencia_id: os.id,
-            referencia_tipo: 'tarefa',
-            mensagem,
-            lida: false,
-            contexto_adicional: {
-              os_codigo: os.codigo,
-              prazo: os.prazo,
-              dias_restantes: diasRestantes
-            }
-          }));
-
-          // Bulk create notificações
-          if (notificacoes.length > 0) {
-            await base44.asServiceRole.entities.Notificacao.bulkCreate(notificacoes);
-          }
-
-          // Enviar push notifications sequencialmente com pequeno delay
-          const pushResults = [];
-          for (const pessoaId of destinatariosUnicos) {
-            try {
-              await base44.asServiceRole.functions.invoke('sendPushNotification', {
-                pessoa_id: pessoaId,
-                notification_type: 'deadline_approaching',
-                title: diasRestantes === 0 ? '⏰ Prazo vencendo HOJE' : `📅 Prazo em ${diasRestantes} dia${diasRestantes > 1 ? 's' : ''}`,
-                body: mensagem,
-                data: {
-                  os_id: os.id,
-                  os_codigo: os.codigo,
-                  url: `/OrdensServico?os_id=${os.id}`
-                }
-              });
-              pushResults.push({ status: 'fulfilled' });
-              // Pequeno delay entre push notifications
-              await new Promise(resolve => setTimeout(resolve, 200));
-            } catch (err) {
-              pushResults.push({ status: 'rejected', reason: err });
-            }
-          }
-
-          return {
+      destinatariosUnicos.forEach(pessoaId => {
+        todasNotificacoes.push({
+          destinatario_id: pessoaId,
+          tipo: 'mudanca_status',
+          referencia_id: os.id,
+          referencia_tipo: 'tarefa',
+          mensagem,
+          lida: false,
+          contexto_adicional: {
             os_codigo: os.codigo,
-            notificacoes_criadas: notificacoes.length,
-            push_enviados: pushResults.filter(r => r.status === 'fulfilled').length
-          };
-        })
-      );
-
-      // Coletar resultados bem-sucedidos
-      resultadosLote.forEach(result => {
-        if (result.status === 'fulfilled') {
-          notificacoesEnviadas.push(result.value);
-        }
+            prazo: os.prazo,
+            dias_restantes: diasRestantes
+          }
+        });
       });
+    }
+
+    // Criar todas as notificações de uma vez
+    if (todasNotificacoes.length > 0) {
+      await base44.asServiceRole.entities.Notificacao.bulkCreate(todasNotificacoes);
+    }
+
+    // Enviar push notifications com rate limiting agressivo
+    const DELAY_ENTRE_PUSH = 500; // 500ms entre cada push
+    let pushEnviados = 0;
+
+    for (const os of ordensProximasPrazo) {
+      const destinatarios = [os.lider_id, ...(os.executores_ids || [])].filter(Boolean);
+      const destinatariosUnicos = [...new Set(destinatarios)];
+      const diasRestantes = differenceInDays(new Date(os.prazo), hoje);
+      const mensagem = diasRestantes === 0 
+        ? `URGENTE: O prazo da OS ${os.codigo} vence HOJE!`
+        : `A OS ${os.codigo} tem prazo em ${diasRestantes} dia${diasRestantes > 1 ? 's' : ''}`;
+
+      for (const pessoaId of destinatariosUnicos) {
+        try {
+          await base44.asServiceRole.functions.invoke('sendPushNotification', {
+            pessoa_id: pessoaId,
+            notification_type: 'deadline_approaching',
+            title: diasRestantes === 0 ? '⏰ Prazo vencendo HOJE' : `📅 Prazo em ${diasRestantes} dia${diasRestantes > 1 ? 's' : ''}`,
+            body: mensagem,
+            data: {
+              os_id: os.id,
+              os_codigo: os.codigo,
+              url: `/OrdensServico?os_id=${os.id}`
+            }
+          });
+          pushEnviados++;
+          // Delay entre cada push
+          await new Promise(resolve => setTimeout(resolve, DELAY_ENTRE_PUSH));
+        } catch (err) {
+          console.error(`Erro ao enviar push para ${pessoaId}:`, err.message);
+        }
+      }
     }
 
     return Response.json({ 
       ordens_verificadas: ordensProximasPrazo.length,
-      notificacoes_enviadas: notificacoesEnviadas.length,
-      detalhes: notificacoesEnviadas
+      notificacoes_criadas: todasNotificacoes.length,
+      push_enviados: pushEnviados
     });
 
   } catch (error) {
