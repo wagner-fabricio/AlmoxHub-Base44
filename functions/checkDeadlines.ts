@@ -24,12 +24,18 @@ Deno.serve(async (req) => {
       return diasRestantes >= 0 && diasRestantes <= 3;
     });
 
-    // Processar em lotes de 10 para evitar timeout
-    const LOTE_TAMANHO = 10;
+    // Processar em lotes menores com delay para evitar rate limit
+    const LOTE_TAMANHO = 5;
+    const DELAY_ENTRE_LOTES = 1000; // 1 segundo entre lotes
     const notificacoesEnviadas = [];
     
     for (let i = 0; i < ordensProximasPrazo.length; i += LOTE_TAMANHO) {
       const lote = ordensProximasPrazo.slice(i, i + LOTE_TAMANHO);
+      
+      // Delay entre lotes (exceto no primeiro)
+      if (i > 0) {
+        await new Promise(resolve => setTimeout(resolve, DELAY_ENTRE_LOTES));
+      }
       
       // Processar todas as OS do lote em paralelo
       const resultadosLote = await Promise.allSettled(
@@ -62,10 +68,11 @@ Deno.serve(async (req) => {
             await base44.asServiceRole.entities.Notificacao.bulkCreate(notificacoes);
           }
 
-          // Enviar push notifications em paralelo
-          const pushResults = await Promise.allSettled(
-            destinatariosUnicos.map(pessoaId => 
-              base44.asServiceRole.functions.invoke('sendPushNotification', {
+          // Enviar push notifications sequencialmente com pequeno delay
+          const pushResults = [];
+          for (const pessoaId of destinatariosUnicos) {
+            try {
+              await base44.asServiceRole.functions.invoke('sendPushNotification', {
                 pessoa_id: pessoaId,
                 notification_type: 'deadline_approaching',
                 title: diasRestantes === 0 ? '⏰ Prazo vencendo HOJE' : `📅 Prazo em ${diasRestantes} dia${diasRestantes > 1 ? 's' : ''}`,
@@ -75,9 +82,14 @@ Deno.serve(async (req) => {
                   os_codigo: os.codigo,
                   url: `/OrdensServico?os_id=${os.id}`
                 }
-              }).catch(err => ({ error: err.message }))
-            )
-          );
+              });
+              pushResults.push({ status: 'fulfilled' });
+              // Pequeno delay entre push notifications
+              await new Promise(resolve => setTimeout(resolve, 200));
+            } catch (err) {
+              pushResults.push({ status: 'rejected', reason: err });
+            }
+          }
 
           return {
             os_codigo: os.codigo,
