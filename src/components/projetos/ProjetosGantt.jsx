@@ -1,12 +1,8 @@
-import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { 
   ChevronDown, 
   ChevronRight, 
@@ -14,9 +10,6 @@ import {
   Clock, 
   Loader2, 
   AlertTriangle,
-  ZoomIn,
-  ZoomOut,
-  Calendar,
   Filter,
   X,
   FolderKanban
@@ -38,38 +31,8 @@ export default function ProjetosGantt({
   onOpenOS 
 }) {
   const [expandedProjetos, setExpandedProjetos] = useState(new Set());
-  const [zoom, setZoom] = useState('week'); // 'day', 'week', 'month'
-  const [showFilters, setShowFilters] = useState(false);
+  const [zoom, setZoom] = useState('week');
   const [searchTerm, setSearchTerm] = useState('');
-  const listRef = useRef(null);
-  const timelineRef = useRef(null);
-
-  // Filtros
-  const [filters, setFilters] = useState({
-    showCriticalPath: false,
-    dateRange: [],
-    progress: [],
-    labels: [],
-    categories: [],
-    priority: [],
-    assignedTo: [],
-  });
-
-  // Sincronizar scroll (debounced)
-  const syncingRef = useRef(false);
-  const handleScroll = useCallback((source) => {
-    if (syncingRef.current) return;
-    syncingRef.current = true;
-    
-    requestAnimationFrame(() => {
-      if (source === 'list' && listRef.current && timelineRef.current) {
-        timelineRef.current.scrollTop = listRef.current.scrollTop;
-      } else if (source === 'timeline' && listRef.current && timelineRef.current) {
-        listRef.current.scrollTop = timelineRef.current.scrollTop;
-      }
-      syncingRef.current = false;
-    });
-  }, []);
 
   // Toggle expansão de projeto
   const toggleExpanded = (projetoId) => {
@@ -82,27 +45,8 @@ export default function ProjetosGantt({
     setExpandedProjetos(newExpanded);
   };
 
-  // Calcular range de datas do projeto
-  const getProjetoDateRange = (projetoId) => {
-    if (!Array.isArray(ordens)) return null;
-    const projetoOrdens = ordens.filter(os => os?.projetos_ids?.includes(projetoId));
-    if (projetoOrdens.length === 0) return null;
-
-    const datesWithData = projetoOrdens.filter(os => os?.data_inicial || os?.prazo);
-    if (datesWithData.length === 0) return null;
-
-    const minDate = new Date(Math.min(...datesWithData.map(os => 
-      new Date(os.data_inicial || os.prazo).getTime()
-    )));
-    const maxDate = new Date(Math.max(...datesWithData.map(os => 
-      new Date(os.prazo || os.data_inicial).getTime()
-    )));
-
-    return { start: minDate, end: maxDate };
-  };
-
   // Calcular timeline range
-  const getTimelineRange = () => {
+  const timelineRange = useMemo(() => {
     if (!Array.isArray(ordens) || ordens.length === 0) {
       const now = new Date();
       return {
@@ -130,12 +74,10 @@ export default function ProjetosGantt({
       start: startOfMonth(addMonths(minDate, -1)),
       end: endOfMonth(addMonths(maxDate, 1))
     };
-  };
-
-  const timelineRange = useMemo(() => getTimelineRange(), [ordens]);
+  }, [ordens]);
 
   // Gerar células da timeline
-  const getTimelineCells = () => {
+  const timelineCells = useMemo(() => {
     const { start, end } = timelineRange;
     
     if (zoom === 'day') {
@@ -145,15 +87,39 @@ export default function ProjetosGantt({
     } else {
       return eachMonthOfInterval({ start, end });
     }
-  };
-
-  const timelineCells = useMemo(() => getTimelineCells(), [timelineRange, zoom]);
+  }, [timelineRange, zoom]);
 
   // Calcular largura da célula
   const cellWidth = zoom === 'day' ? 40 : zoom === 'week' ? 80 : 120;
 
-  // Calcular posição e largura da barra (memoizado)
-  const getBarStyle = useCallback((os) => {
+  // Aplicar filtros
+  const filteredProjetos = useMemo(() => {
+    if (!Array.isArray(projetos)) return [];
+    return projetos.filter(projeto => {
+      if (!projeto) return false;
+      if (searchTerm && !projeto?.nome?.toLowerCase().includes(searchTerm.toLowerCase())) {
+        return false;
+      }
+      return true;
+    });
+  }, [projetos, searchTerm]);
+
+  const getFilteredOrdens = (projetoId) => {
+    if (!Array.isArray(ordens)) return [];
+    return ordens.filter(os => os?.projetos_ids?.includes(projetoId));
+  };
+
+  // Calcular progresso do projeto
+  const getProjetoProgress = (projetoId) => {
+    const projetoOrdens = getFilteredOrdens(projetoId);
+    if (projetoOrdens.length === 0) return 0;
+
+    const totalProgress = projetoOrdens.reduce((sum, os) => sum + (os.progresso || 0), 0);
+    return Math.round(totalProgress / projetoOrdens.length);
+  };
+
+  // Calcular posição e largura da barra
+  const getBarStyle = (os) => {
     if (!os.data_inicial && !os.prazo) return null;
 
     const start = os.data_inicial ? new Date(os.data_inicial) : new Date(os.prazo);
@@ -168,14 +134,14 @@ export default function ProjetosGantt({
     const width = (durationDays / divisor) * cellWidth;
 
     return { left, width };
-  }, [timelineRange, zoom, cellWidth]);
+  };
 
-  // Determinar cor da barra (memoizado)
-  const now = useMemo(() => new Date(), []);
-  const getBarColor = useCallback((os) => {
+  // Determinar cor da barra
+  const getBarColor = (os) => {
     if (os.status === 'concluido') return 'bg-green-500';
     if (os.status === 'cancelado') return 'bg-red-500';
     
+    const now = new Date();
     const prazo = os.prazo ? new Date(os.prazo) : null;
     
     if (prazo && prazo < now && os.status !== 'concluido') {
@@ -184,93 +150,6 @@ export default function ProjetosGantt({
     
     if (os.status === 'execucao') return 'bg-blue-500';
     return 'bg-slate-400';
-  }, [now]);
-
-  // Aplicar filtros
-  const filteredProjetos = useMemo(() => {
-    if (!Array.isArray(projetos)) return [];
-    return projetos.filter(projeto => {
-      if (!projeto) return false;
-      if (searchTerm && !projeto?.nome?.toLowerCase().includes(searchTerm.toLowerCase())) {
-        return false;
-      }
-      return true;
-    });
-  }, [projetos, searchTerm]);
-
-  // Memoizar ordens filtradas por projeto
-  const filteredOrdensByProjeto = useMemo(() => {
-    if (!Array.isArray(ordens)) return {};
-    
-    const result = {};
-    filteredProjetos.forEach(projeto => {
-      let projetoOrdens = ordens.filter(os => os?.projetos_ids?.includes(projeto.id));
-
-      // Filtro de progresso
-      if (filters.progress.length > 0) {
-        projetoOrdens = projetoOrdens.filter(os => {
-          if (filters.progress.includes('nao_iniciado') && os.status === 'elaboracao') return true;
-          if (filters.progress.includes('em_andamento') && os.status === 'execucao') return true;
-          if (filters.progress.includes('concluido') && os.status === 'concluido') return true;
-          return false;
-        });
-      }
-
-      // Filtro de prioridade
-      if (filters.priority.length > 0) {
-        projetoOrdens = projetoOrdens.filter(os => filters.priority.includes(os.prioridade));
-      }
-
-      // Filtro de categoria
-      if (filters.categories.length > 0) {
-        projetoOrdens = projetoOrdens.filter(os => filters.categories.includes(os.categoria_id));
-      }
-
-      // Filtro de responsável
-      if (filters.assignedTo.length > 0) {
-        projetoOrdens = projetoOrdens.filter(os => filters.assignedTo.includes(os.lider_id));
-      }
-
-      result[projeto.id] = projetoOrdens;
-    });
-    
-    return result;
-  }, [ordens, filteredProjetos, filters]);
-
-  const getFilteredOrdens = useCallback((projetoId) => {
-    return filteredOrdensByProjeto[projetoId] || [];
-  }, [filteredOrdensByProjeto]);
-
-  // Memoizar progresso dos projetos
-  const projetoProgress = useMemo(() => {
-    const result = {};
-    Object.keys(filteredOrdensByProjeto).forEach(projetoId => {
-      const projetoOrdens = filteredOrdensByProjeto[projetoId];
-      if (projetoOrdens.length === 0) {
-        result[projetoId] = 0;
-      } else {
-        const totalProgress = projetoOrdens.reduce((sum, os) => sum + (os.progresso || 0), 0);
-        result[projetoId] = Math.round(totalProgress / projetoOrdens.length);
-      }
-    });
-    return result;
-  }, [filteredOrdensByProjeto]);
-
-  const getProjetoProgress = useCallback((projetoId) => {
-    return projetoProgress[projetoId] || 0;
-  }, [projetoProgress]);
-
-  // Limpar todos os filtros
-  const clearAllFilters = () => {
-    setFilters({
-      showCriticalPath: false,
-      dateRange: [],
-      progress: [],
-      labels: [],
-      categories: [],
-      priority: [],
-      assignedTo: [],
-    });
   };
 
   return (
@@ -296,26 +175,17 @@ export default function ProjetosGantt({
           <Button variant="outline" size="sm" onClick={() => setZoom('month')} className={zoom === 'month' ? 'bg-slate-100' : ''}>
             Meses
           </Button>
-
-          <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
-            <Filter className="w-4 h-4 mr-2" />
-            Filtros
-          </Button>
         </div>
       </div>
 
       {/* Área principal: Lista + Timeline */}
       <div className="flex flex-1 overflow-hidden">
         {/* Painel Esquerdo - Lista */}
-        <div className="w-80 border-r border-slate-200 dark:border-slate-700 flex flex-col">
+        <div className="w-80 border-r border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden">
           <div className="p-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 font-semibold text-sm">
             Projetos / Ordens
           </div>
-          <div 
-            className="flex-1 overflow-y-auto" 
-            ref={listRef}
-            onScroll={() => handleScroll('list')}
-          >
+          <div className="flex-1 overflow-y-auto">
             <div className="p-2 space-y-1">
               {filteredProjetos.map(projeto => {
                 const projetoOrdens = getFilteredOrdens(projeto.id);
@@ -393,11 +263,7 @@ export default function ProjetosGantt({
           </div>
 
           {/* Timeline com barras */}
-          <div 
-            className="flex-1 relative overflow-auto" 
-            ref={timelineRef}
-            onScroll={() => handleScroll('timeline')}
-          >
+          <div className="flex-1 relative overflow-auto">
             <div className="relative" style={{ minWidth: `${timelineCells.length * cellWidth}px` }}>
               {/* Grid de fundo */}
               <div className="absolute inset-0 flex">
@@ -467,144 +333,6 @@ export default function ProjetosGantt({
             </div>
           </div>
         </div>
-
-        {/* Painel de Filtros Lateral */}
-        {showFilters && (
-          <div className="w-80 border-l border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex flex-col">
-            <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
-              <h3 className="font-semibold">Filtros</h3>
-              <Button variant="ghost" size="icon" onClick={() => setShowFilters(false)}>
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-
-            <ScrollArea className="flex-1 p-4">
-              <div className="space-y-6">
-                {/* Caminho Crítico */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm font-medium">Mostrar Caminho Crítico</Label>
-                    <Switch
-                      checked={filters.showCriticalPath}
-                      onCheckedChange={(checked) => setFilters({ ...filters, showCriticalPath: checked })}
-                    />
-                  </div>
-                </div>
-
-                {/* Progresso */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Progresso</Label>
-                  <div className="space-y-2">
-                    {[
-                      { value: 'nao_iniciado', label: 'Não iniciado' },
-                      { value: 'em_andamento', label: 'Em andamento' },
-                      { value: 'concluido', label: 'Concluído' }
-                    ].map(item => (
-                      <label key={item.value} className="flex items-center gap-2 cursor-pointer">
-                        <Checkbox
-                          checked={filters.progress.includes(item.value)}
-                          onCheckedChange={(checked) => {
-                            setFilters({
-                              ...filters,
-                              progress: checked
-                                ? [...filters.progress, item.value]
-                                : filters.progress.filter(p => p !== item.value)
-                            });
-                          }}
-                        />
-                        <span className="text-sm">{item.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Categorias */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Categorias</Label>
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {Array.isArray(categorias) && categorias.map(cat => (
-                      <label key={cat.id} className="flex items-center gap-2 cursor-pointer">
-                        <Checkbox
-                          checked={filters.categories.includes(cat.id)}
-                          onCheckedChange={(checked) => {
-                            setFilters({
-                              ...filters,
-                              categories: checked
-                                ? [...filters.categories, cat.id]
-                                : filters.categories.filter(c => c !== cat.id)
-                            });
-                          }}
-                        />
-                        <span className="text-sm">{cat.nome}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Prioridade */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Prioridade</Label>
-                  <div className="space-y-2">
-                    {[
-                      { value: 'alta', label: 'Alta' },
-                      { value: 'media', label: 'Média' },
-                      { value: 'baixa', label: 'Baixa' }
-                    ].map(item => (
-                      <label key={item.value} className="flex items-center gap-2 cursor-pointer">
-                        <Checkbox
-                          checked={filters.priority.includes(item.value)}
-                          onCheckedChange={(checked) => {
-                            setFilters({
-                              ...filters,
-                              priority: checked
-                                ? [...filters.priority, item.value]
-                                : filters.priority.filter(p => p !== item.value)
-                            });
-                          }}
-                        />
-                        <span className="text-sm">{item.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Atribuído a */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Atribuído a</Label>
-                  <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {Array.isArray(pessoas) && pessoas.map(pessoa => (
-                      <label key={pessoa.id} className="flex items-center gap-2 cursor-pointer">
-                        <Checkbox
-                          checked={filters.assignedTo.includes(pessoa.id)}
-                          onCheckedChange={(checked) => {
-                            setFilters({
-                              ...filters,
-                              assignedTo: checked
-                                ? [...filters.assignedTo, pessoa.id]
-                                : filters.assignedTo.filter(p => p !== pessoa.id)
-                            });
-                          }}
-                        />
-                        <Avatar className="w-6 h-6">
-                          <AvatarFallback className="text-xs bg-blue-100 text-blue-700">
-                            {pessoa.nome?.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm">{pessoa.nome}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </ScrollArea>
-
-            <div className="p-4 border-t border-slate-200 dark:border-slate-700">
-              <Button variant="outline" className="w-full" onClick={clearAllFilters}>
-                Limpar tudo
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
