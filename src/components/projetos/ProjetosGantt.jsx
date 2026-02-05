@@ -21,7 +21,7 @@ import {
   X,
   FolderKanban
 } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, addMonths, isToday, isSameDay, differenceInDays, parseISO } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, addMonths, isToday, differenceInDays } from 'date-fns';
 
 const statusConfig = {
   elaboracao: { icon: Clock, color: 'bg-slate-300', label: 'Não iniciado' },
@@ -77,10 +77,11 @@ export default function ProjetosGantt({
 
   // Calcular range de datas do projeto
   const getProjetoDateRange = (projetoId) => {
-    const projetoOrdens = ordens.filter(os => os.projetos_ids?.includes(projetoId));
+    if (!Array.isArray(ordens)) return null;
+    const projetoOrdens = ordens.filter(os => os?.projetos_ids?.includes(projetoId));
     if (projetoOrdens.length === 0) return null;
 
-    const datesWithData = projetoOrdens.filter(os => os.data_inicial || os.prazo);
+    const datesWithData = projetoOrdens.filter(os => os?.data_inicial || os?.prazo);
     if (datesWithData.length === 0) return null;
 
     const minDate = new Date(Math.min(...datesWithData.map(os => 
@@ -95,9 +96,17 @@ export default function ProjetosGantt({
 
   // Calcular timeline range
   const getTimelineRange = () => {
+    if (!Array.isArray(ordens) || ordens.length === 0) {
+      const now = new Date();
+      return {
+        start: startOfMonth(now),
+        end: endOfMonth(addMonths(now, 3))
+      };
+    }
+
     const allDates = ordens
-      .filter(os => os.data_inicial || os.prazo)
-      .flatMap(os => [os.data_inicial, os.prazo].filter(Boolean).map(d => new Date(d)));
+      .filter(os => os?.data_inicial || os?.prazo)
+      .flatMap(os => [os?.data_inicial, os?.prazo].filter(Boolean).map(d => new Date(d)));
 
     if (allDates.length === 0) {
       const now = new Date();
@@ -171,8 +180,10 @@ export default function ProjetosGantt({
 
   // Aplicar filtros
   const filteredProjetos = useMemo(() => {
+    if (!Array.isArray(projetos)) return [];
     return projetos.filter(projeto => {
-      if (searchTerm && !projeto.nome.toLowerCase().includes(searchTerm.toLowerCase())) {
+      if (!projeto) return false;
+      if (searchTerm && !projeto?.nome?.toLowerCase().includes(searchTerm.toLowerCase())) {
         return false;
       }
       return true;
@@ -180,7 +191,8 @@ export default function ProjetosGantt({
   }, [projetos, searchTerm]);
 
   const getFilteredOrdens = (projetoId) => {
-    let projetoOrdens = ordens.filter(os => os.projetos_ids?.includes(projetoId));
+    if (!Array.isArray(ordens)) return [];
+    let projetoOrdens = ordens.filter(os => os?.projetos_ids?.includes(projetoId));
 
     // Filtro de progresso
     if (filters.progress.length > 0) {
@@ -270,8 +282,8 @@ export default function ProjetosGantt({
           <div className="p-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 font-semibold text-sm">
             Projetos / Ordens
           </div>
-          <ScrollArea 
-            className="flex-1" 
+          <div 
+            className="flex-1 overflow-y-auto" 
             ref={listRef}
             onScroll={() => handleScroll('list')}
           >
@@ -352,8 +364,8 @@ export default function ProjetosGantt({
           </div>
 
           {/* Timeline com barras */}
-          <ScrollArea 
-            className="flex-1 relative" 
+          <div 
+            className="flex-1 relative overflow-auto" 
             ref={timelineRef}
             onScroll={() => handleScroll('timeline')}
           >
@@ -424,7 +436,7 @@ export default function ProjetosGantt({
                 })}
               </div>
             </div>
-          </ScrollArea>
+          </div>
         </div>
 
         {/* Painel de Filtros Lateral */}
