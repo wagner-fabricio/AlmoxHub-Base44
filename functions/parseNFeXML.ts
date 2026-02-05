@@ -9,20 +9,22 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const formData = await req.formData();
-    const file = formData.get('file');
+    const body = await req.json();
+    const xmlContent = body.xmlContent;
 
-    if (!file) {
-      return Response.json({ error: 'Arquivo não fornecido' }, { status: 400 });
+    if (!xmlContent) {
+      return Response.json({ error: 'Conteúdo XML não fornecido' }, { status: 400 });
     }
 
-    const xmlContent = await file.text();
+    console.log('Recebido XML com tamanho:', xmlContent.length);
     
     // Remover BOM se presente
     const cleanXml = xmlContent.replace(/^\uFEFF/, '');
     
     // Parse simples usando regex para NFe XML (formato padrão SEFAZ)
     const dados = parseNFeXML(cleanXml);
+    
+    console.log('Dados extraídos:', JSON.stringify(dados, null, 2));
 
     return Response.json(dados);
   } catch (error) {

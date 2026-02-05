@@ -658,7 +658,17 @@ export default function OSFormModal({
 
     setImportingXML(true);
     try {
-      const response = await base44.functions.invoke('parseNFeXML', { file });
+      // Primeiro fazer upload do arquivo para obter a URL
+      const uploadResult = await base44.integrations.Core.UploadFile({ file });
+      
+      // Baixar o conteúdo do XML
+      const xmlResponse = await fetch(uploadResult.file_url);
+      const xmlText = await xmlResponse.text();
+      
+      // Enviar o conteúdo XML para a função
+      const response = await base44.functions.invoke('parseNFeXML', { 
+        xmlContent: xmlText 
+      });
 
       if (response?.data) {
         const nfeData = response.data;
