@@ -104,19 +104,6 @@ export default function OSDetailModal({
     }
   }, [open, os]);
 
-  useEffect(() => {
-    if (!open || !os?.id) return;
-
-    const unsubscribe = base44.entities.OrdemServico.subscribe((event) => {
-      if (event.id === os.id && event.type === 'update') {
-        setLocalOS(event.data);
-        if (onRefresh) onRefresh();
-      }
-    });
-
-    return unsubscribe;
-  }, [open, os?.id]);
-
   const loadUser = async () => {
     try {
       const user = await base44.auth.me();
