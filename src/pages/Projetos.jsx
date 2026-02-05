@@ -235,16 +235,22 @@ export default function Projetos() {
           <p className="text-slate-500">Nenhum projeto cadastrado</p>
         </Card>
       ) : viewMode === 'gantt' ? (
-        <ProjetosGantt
-          projetos={filteredItems}
-          ordens={ordens}
-          pessoas={pessoas}
-          categorias={categorias}
-          onOpenOS={(os) => {
-            setSelectedOS(os);
-            setShowOSModal(true);
-          }}
-        />
+        <React.Suspense fallback={
+          <div className="flex items-center justify-center h-96">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+          </div>
+        }>
+          <ProjetosGantt
+            projetos={filteredItems}
+            ordens={ordens}
+            pessoas={pessoas}
+            categorias={categorias}
+            onOpenOS={(os) => {
+              setSelectedOS(os);
+              setShowOSModal(true);
+            }}
+          />
+        </React.Suspense>
       ) : viewMode === 'list' ? (
         <ProjetosList
           projetos={filteredItems}

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -23,7 +23,51 @@ const statusConfig = {
   cancelado: { icon: AlertTriangle, color: 'bg-red-500', label: 'Cancelado' },
 };
 
-export default function ProjetosGantt({ 
+// Componente de linha de projeto memoizado
+const ProjetoRow = memo(({ projeto, projetoOrdens, isExpanded, toggleExpanded, pessoas, progress }) => (
+  <div 
+    className="flex items-center gap-2 p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded cursor-pointer"
+    onClick={() => toggleExpanded(projeto.id)}
+  >
+    <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0">
+      {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+    </Button>
+    <div 
+      className="w-6 h-6 rounded flex items-center justify-center shrink-0"
+      style={{ backgroundColor: `${projeto.cor}20` }}
+    >
+      <FolderKanban className="w-3 h-3" style={{ color: projeto.cor }} />
+    </div>
+    <span className="font-medium text-sm flex-1 truncate">{projeto.nome}</span>
+    <span className="text-xs text-slate-500">{progress}%</span>
+  </div>
+));
+
+// Componente de linha de OS memoizado
+const OSRow = memo(({ os, pessoas, statusConfig, onOpenOS }) => {
+  const StatusIcon = statusConfig[os.status]?.icon || Clock;
+  const lider = os.lider_id && Array.isArray(pessoas) ? pessoas.find(p => p?.id === os.lider_id) : null;
+
+  return (
+    <div 
+      className="flex items-center gap-2 p-2 pl-10 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded cursor-pointer text-sm"
+      onClick={() => onOpenOS?.(os)}
+    >
+      <StatusIcon className={`w-4 h-4 ${statusConfig[os.status]?.color === 'bg-green-500' ? 'text-green-500' : 'text-slate-400'}`} />
+      <span className="flex-1 truncate">{os.codigo}</span>
+      {lider && (
+        <Avatar className="w-5 h-5">
+          <AvatarFallback className="text-xs bg-blue-100 text-blue-700">
+            {lider.nome?.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
+      )}
+      {os.status === 'concluido' && <CheckCircle className="w-4 h-4 text-green-500" />}
+    </div>
+  );
+});
+
+function ProjetosGantt({ 
   projetos, 
   ordens, 
   pessoas,
@@ -104,10 +148,16 @@ export default function ProjetosGantt({
     });
   }, [projetos, searchTerm]);
 
-  const getFilteredOrdens = (projetoId) => {
-    if (!Array.isArray(ordens)) return [];
-    return ordens.filter(os => os?.projetos_ids?.includes(projetoId));
-  };
+  const getFilteredOrdens = useMemo(() => {
+    const ordensMap = new Map();
+    if (!Array.isArray(ordens)) return (projetoId) => [];
+    
+    projetos.forEach(projeto => {
+      ordensMap.set(projeto.id, ordens.filter(os => os?.projetos_ids?.includes(projeto.id)));
+    });
+    
+    return (projetoId) => ordensMap.get(projetoId) || [];
+  }, [ordens, projetos]);
 
   // Calcular progresso do projeto
   const getProjetoProgress = (projetoId) => {
@@ -194,48 +244,24 @@ export default function ProjetosGantt({
 
                 return (
                   <div key={projeto.id}>
-                    {/* Linha do Projeto */}
-                    <div 
-                      className="flex items-center gap-2 p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded cursor-pointer"
-                      onClick={() => toggleExpanded(projeto.id)}
-                    >
-                      <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0">
-                        {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                      </Button>
-                      <div 
-                        className="w-6 h-6 rounded flex items-center justify-center shrink-0"
-                        style={{ backgroundColor: `${projeto.cor}20` }}
-                      >
-                        <FolderKanban className="w-3 h-3" style={{ color: projeto.cor }} />
-                      </div>
-                      <span className="font-medium text-sm flex-1 truncate">{projeto.nome}</span>
-                      <span className="text-xs text-slate-500">{progress}%</span>
-                    </div>
+                    <ProjetoRow 
+                      projeto={projeto}
+                      projetoOrdens={projetoOrdens}
+                      isExpanded={isExpanded}
+                      toggleExpanded={toggleExpanded}
+                      pessoas={pessoas}
+                      progress={progress}
+                    />
 
-                    {/* Ordens do Projeto */}
-                    {isExpanded && projetoOrdens.map(os => {
-                      const StatusIcon = statusConfig[os.status]?.icon || Clock;
-                      const lider = os.lider_id && Array.isArray(pessoas) ? pessoas.find(p => p?.id === os.lider_id) : null;
-
-                      return (
-                        <div 
-                          key={os.id}
-                          className="flex items-center gap-2 p-2 pl-10 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded cursor-pointer text-sm"
-                          onClick={() => onOpenOS?.(os)}
-                        >
-                          <StatusIcon className={`w-4 h-4 ${statusConfig[os.status]?.color === 'bg-green-500' ? 'text-green-500' : 'text-slate-400'}`} />
-                          <span className="flex-1 truncate">{os.codigo}</span>
-                          {lider && (
-                            <Avatar className="w-5 h-5">
-                              <AvatarFallback className="text-xs bg-blue-100 text-blue-700">
-                                {lider.nome?.charAt(0)}
-                              </AvatarFallback>
-                            </Avatar>
-                          )}
-                          {os.status === 'concluido' && <CheckCircle className="w-4 h-4 text-green-500" />}
-                        </div>
-                      );
-                    })}
+                    {isExpanded && projetoOrdens.map(os => (
+                      <OSRow
+                        key={os.id}
+                        os={os}
+                        pessoas={pessoas}
+                        statusConfig={statusConfig}
+                        onOpenOS={onOpenOS}
+                      />
+                    ))}
                   </div>
                 );
               })}
@@ -337,3 +363,5 @@ export default function ProjetosGantt({
     </div>
   );
 }
+
+export default memo(ProjetosGantt);
