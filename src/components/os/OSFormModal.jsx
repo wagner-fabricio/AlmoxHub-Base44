@@ -1140,19 +1140,32 @@ export default function OSFormModal({
                   {/* Projetos */}
                   <div className="space-y-2">
                     <Label>Projetos/Tags</Label>
-                    <Select
-                      value={formData.projetos_ids?.[0] || ''}
-                      onValueChange={(v) => setFormData({ ...formData, projetos_ids: v ? [v] : [] })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(projetos || []).map(p => (
-                          <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex gap-2">
+                      <Select
+                        value={formData.projetos_ids?.[0] || ''}
+                        onValueChange={(v) => setFormData({ ...formData, projetos_ids: v ? [v] : [] })}
+                      >
+                        <SelectTrigger className="flex-1">
+                          <SelectValue placeholder="Selecione..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(projetos || []).map(p => (
+                            <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {formData.projetos_ids?.[0] && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => setFormData({ ...formData, projetos_ids: [] })}
+                          title="Limpar seleção"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
 
