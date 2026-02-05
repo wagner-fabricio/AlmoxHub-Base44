@@ -658,15 +658,12 @@ export default function OSFormModal({
 
     setImportingXML(true);
     try {
-      const formDataXML = new FormData();
-      formDataXML.append('file', file);
+      const response = await base44.functions.invoke('parseNFeXML', { file });
 
-      const response = await base44.functions.invoke('parseNFeXML', {
-        file: file
-      });
-
-      if (response.data) {
+      if (response?.data) {
         const nfeData = response.data;
+        console.log('Dados recebidos do XML:', nfeData);
+        
         setFormData(prev => {
           const updated = {
             ...prev,
@@ -688,12 +685,17 @@ export default function OSFormModal({
               xml_importado: true
             }
           };
-          console.log('Dados do XML importados:', updated);
+          console.log('FormData atualizado:', updated);
           return updated;
         });
+        
+        toast.success('XML importado com sucesso!');
+      } else {
+        toast.error('Erro ao processar XML');
       }
     } catch (error) {
       console.error('Erro ao fazer upload do XML:', error);
+      toast.error('Erro ao importar XML: ' + (error.message || 'Erro desconhecido'));
     } finally {
       setImportingXML(false);
     }
