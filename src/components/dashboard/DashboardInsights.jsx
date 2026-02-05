@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Lightbulb, AlertTriangle, Clock, Users, TrendingUp, Package, Shield } from 'lucide-react';
-import { differenceInDays, parseISO } from 'date-fns';
+import { differenceInDays } from 'date-fns';
 import { createPageUrl } from '@/utils';
 import { Link } from 'react-router-dom';
 
