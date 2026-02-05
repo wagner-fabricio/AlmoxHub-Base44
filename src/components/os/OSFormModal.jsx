@@ -1140,32 +1140,39 @@ export default function OSFormModal({
                   {/* Projetos */}
                   <div className="space-y-2">
                     <Label>Projetos/Tags</Label>
-                    <div className="flex gap-2">
-                      <Select
-                        value={formData.projetos_ids?.[0] || ''}
-                        onValueChange={(v) => setFormData({ ...formData, projetos_ids: v ? [v] : [] })}
+                    <Select
+                      value={formData.projetos_ids?.[0] || ''}
+                      onValueChange={(v) => setFormData({ ...formData, projetos_ids: v ? [v] : [] })}
+                    >
+                      <SelectTrigger
+                        onKeyDown={(e) => {
+                          if ((e.key === 'Delete' || e.key === 'Backspace') && formData.projetos_ids?.[0]) {
+                            e.preventDefault();
+                            setFormData({ ...formData, projetos_ids: [] });
+                          }
+                        }}
                       >
-                        <SelectTrigger className="flex-1">
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {(projetos || []).map(p => (
-                            <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {formData.projetos_ids?.[0] && (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          onClick={() => setFormData({ ...formData, projetos_ids: [] })}
-                          title="Limpar seleção"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
+                        <SelectValue placeholder="Selecione..." />
+                        {formData.projetos_ids?.[0] && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFormData({ ...formData, projetos_ids: [] });
+                            }}
+                            className="ml-auto mr-2 rounded-sm opacity-70 hover:opacity-100 hover:bg-slate-100 dark:hover:bg-slate-800 p-1 transition-all"
+                            title="Limpar"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        )}
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(projetos || []).map(p => (
+                          <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
