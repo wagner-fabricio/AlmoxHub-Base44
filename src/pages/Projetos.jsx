@@ -490,7 +490,7 @@ export default function Projetos() {
       </AlertDialog>
 
       {/* OS Detail Modal */}
-      {selectedOS && (
+      {showOSModal && selectedOS && (
         <OSDetailModal
           open={showOSModal}
           onClose={() => {
