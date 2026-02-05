@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -55,14 +55,21 @@ export default function ProjetosGantt({
     assignedTo: [],
   });
 
-  // Sincronizar scroll
-  const handleScroll = (source) => {
-    if (source === 'list' && listRef.current && timelineRef.current) {
-      timelineRef.current.scrollTop = listRef.current.scrollTop;
-    } else if (source === 'timeline' && listRef.current && timelineRef.current) {
-      listRef.current.scrollTop = timelineRef.current.scrollTop;
-    }
-  };
+  // Sincronizar scroll (debounced)
+  const syncingRef = useRef(false);
+  const handleScroll = useCallback((source) => {
+    if (syncingRef.current) return;
+    syncingRef.current = true;
+    
+    requestAnimationFrame(() => {
+      if (source === 'list' && listRef.current && timelineRef.current) {
+        timelineRef.current.scrollTop = listRef.current.scrollTop;
+      } else if (source === 'timeline' && listRef.current && timelineRef.current) {
+        listRef.current.scrollTop = timelineRef.current.scrollTop;
+      }
+      syncingRef.current = false;
+    });
+  }, []);
 
   // Toggle expansão de projeto
   const toggleExpanded = (projetoId) => {
@@ -145,8 +152,8 @@ export default function ProjetosGantt({
   // Calcular largura da célula
   const cellWidth = zoom === 'day' ? 40 : zoom === 'week' ? 80 : 120;
 
-  // Calcular posição e largura da barra
-  const getBarStyle = (os) => {
+  // Calcular posição e largura da barra (memoizado)
+  const getBarStyle = useCallback((os) => {
     if (!os.data_inicial && !os.prazo) return null;
 
     const start = os.data_inicial ? new Date(os.data_inicial) : new Date(os.prazo);
@@ -156,27 +163,28 @@ export default function ProjetosGantt({
     const offsetDays = differenceInDays(start, timelineStart);
     const durationDays = Math.max(1, differenceInDays(end, start));
 
-    const left = (offsetDays / (zoom === 'day' ? 1 : zoom === 'week' ? 7 : 30)) * cellWidth;
-    const width = (durationDays / (zoom === 'day' ? 1 : zoom === 'week' ? 7 : 30)) * cellWidth;
+    const divisor = zoom === 'day' ? 1 : zoom === 'week' ? 7 : 30;
+    const left = (offsetDays / divisor) * cellWidth;
+    const width = (durationDays / divisor) * cellWidth;
 
     return { left, width };
-  };
+  }, [timelineRange, zoom, cellWidth]);
 
-  // Determinar cor da barra
-  const getBarColor = (os) => {
+  // Determinar cor da barra (memoizado)
+  const now = useMemo(() => new Date(), []);
+  const getBarColor = useCallback((os) => {
     if (os.status === 'concluido') return 'bg-green-500';
     if (os.status === 'cancelado') return 'bg-red-500';
     
-    const now = new Date();
     const prazo = os.prazo ? new Date(os.prazo) : null;
     
     if (prazo && prazo < now && os.status !== 'concluido') {
-      return 'bg-red-600'; // Atrasado
+      return 'bg-red-600';
     }
     
     if (os.status === 'execucao') return 'bg-blue-500';
-    return 'bg-slate-400'; // Planejado
-  };
+    return 'bg-slate-400';
+  }, [now]);
 
   // Aplicar filtros
   const filteredProjetos = useMemo(() => {
@@ -190,46 +198,67 @@ export default function ProjetosGantt({
     });
   }, [projetos, searchTerm]);
 
-  const getFilteredOrdens = (projetoId) => {
-    if (!Array.isArray(ordens)) return [];
-    let projetoOrdens = ordens.filter(os => os?.projetos_ids?.includes(projetoId));
+  // Memoizar ordens filtradas por projeto
+  const filteredOrdensByProjeto = useMemo(() => {
+    if (!Array.isArray(ordens)) return {};
+    
+    const result = {};
+    filteredProjetos.forEach(projeto => {
+      let projetoOrdens = ordens.filter(os => os?.projetos_ids?.includes(projeto.id));
 
-    // Filtro de progresso
-    if (filters.progress.length > 0) {
-      projetoOrdens = projetoOrdens.filter(os => {
-        if (filters.progress.includes('nao_iniciado') && os.status === 'elaboracao') return true;
-        if (filters.progress.includes('em_andamento') && os.status === 'execucao') return true;
-        if (filters.progress.includes('concluido') && os.status === 'concluido') return true;
-        return false;
-      });
-    }
+      // Filtro de progresso
+      if (filters.progress.length > 0) {
+        projetoOrdens = projetoOrdens.filter(os => {
+          if (filters.progress.includes('nao_iniciado') && os.status === 'elaboracao') return true;
+          if (filters.progress.includes('em_andamento') && os.status === 'execucao') return true;
+          if (filters.progress.includes('concluido') && os.status === 'concluido') return true;
+          return false;
+        });
+      }
 
-    // Filtro de prioridade
-    if (filters.priority.length > 0) {
-      projetoOrdens = projetoOrdens.filter(os => filters.priority.includes(os.prioridade));
-    }
+      // Filtro de prioridade
+      if (filters.priority.length > 0) {
+        projetoOrdens = projetoOrdens.filter(os => filters.priority.includes(os.prioridade));
+      }
 
-    // Filtro de categoria
-    if (filters.categories.length > 0) {
-      projetoOrdens = projetoOrdens.filter(os => filters.categories.includes(os.categoria_id));
-    }
+      // Filtro de categoria
+      if (filters.categories.length > 0) {
+        projetoOrdens = projetoOrdens.filter(os => filters.categories.includes(os.categoria_id));
+      }
 
-    // Filtro de responsável
-    if (filters.assignedTo.length > 0) {
-      projetoOrdens = projetoOrdens.filter(os => filters.assignedTo.includes(os.lider_id));
-    }
+      // Filtro de responsável
+      if (filters.assignedTo.length > 0) {
+        projetoOrdens = projetoOrdens.filter(os => filters.assignedTo.includes(os.lider_id));
+      }
 
-    return projetoOrdens;
-  };
+      result[projeto.id] = projetoOrdens;
+    });
+    
+    return result;
+  }, [ordens, filteredProjetos, filters]);
 
-  // Calcular progresso do projeto
-  const getProjetoProgress = (projetoId) => {
-    const projetoOrdens = getFilteredOrdens(projetoId);
-    if (projetoOrdens.length === 0) return 0;
+  const getFilteredOrdens = useCallback((projetoId) => {
+    return filteredOrdensByProjeto[projetoId] || [];
+  }, [filteredOrdensByProjeto]);
 
-    const totalProgress = projetoOrdens.reduce((sum, os) => sum + (os.progresso || 0), 0);
-    return Math.round(totalProgress / projetoOrdens.length);
-  };
+  // Memoizar progresso dos projetos
+  const projetoProgress = useMemo(() => {
+    const result = {};
+    Object.keys(filteredOrdensByProjeto).forEach(projetoId => {
+      const projetoOrdens = filteredOrdensByProjeto[projetoId];
+      if (projetoOrdens.length === 0) {
+        result[projetoId] = 0;
+      } else {
+        const totalProgress = projetoOrdens.reduce((sum, os) => sum + (os.progresso || 0), 0);
+        result[projetoId] = Math.round(totalProgress / projetoOrdens.length);
+      }
+    });
+    return result;
+  }, [filteredOrdensByProjeto]);
+
+  const getProjetoProgress = useCallback((projetoId) => {
+    return projetoProgress[projetoId] || 0;
+  }, [projetoProgress]);
 
   // Limpar todos os filtros
   const clearAllFilters = () => {
@@ -316,7 +345,7 @@ export default function ProjetosGantt({
                     {/* Ordens do Projeto */}
                     {isExpanded && projetoOrdens.map(os => {
                       const StatusIcon = statusConfig[os.status]?.icon || Clock;
-                      const lider = Array.isArray(pessoas) ? pessoas.find(p => p?.id === os.lider_id) : null;
+                      const lider = os.lider_id && Array.isArray(pessoas) ? pessoas.find(p => p?.id === os.lider_id) : null;
 
                       return (
                         <div 
