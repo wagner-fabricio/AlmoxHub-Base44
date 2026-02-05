@@ -278,7 +278,7 @@ export default function Pessoas() {
     const nextStatus = statusOrder[(currentIndex + 1) % statusOrder.length];
 
     try {
-      await base44.entities.Pessoa.update(pessoa.id, {
+      await base44.asServiceRole.entities.Pessoa.update(pessoa.id, {
         status_aprovacao: nextStatus
       });
 
