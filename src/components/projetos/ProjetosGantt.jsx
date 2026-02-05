@@ -22,7 +22,6 @@ import {
   FolderKanban
 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, addMonths, isToday, isSameDay, differenceInDays, parseISO } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 
 const statusConfig = {
   elaboracao: { icon: Clock, color: 'bg-slate-300', label: 'Não iniciado' },
@@ -344,9 +343,9 @@ export default function ProjetosGantt({
                   className="text-xs text-center font-medium py-2 border-r border-slate-200 dark:border-slate-700"
                   style={{ width: cellWidth }}
                 >
-                  {zoom === 'day' && format(date, 'dd MMM', { locale: ptBR })}
-                  {zoom === 'week' && format(date, "dd MMM", { locale: ptBR })}
-                  {zoom === 'month' && format(date, 'MMM yyyy', { locale: ptBR })}
+                  {zoom === 'day' && format(date, 'dd/MM')}
+                  {zoom === 'week' && format(date, "dd/MM")}
+                  {zoom === 'month' && format(date, 'MM/yyyy')}
                 </div>
               ))}
             </div>
