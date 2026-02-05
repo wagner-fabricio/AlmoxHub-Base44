@@ -341,7 +341,7 @@ export default function ProjetosGantt({
                 );
               })}
             </div>
-          </ScrollArea>
+          </div>
         </div>
 
         {/* Painel Direito - Timeline */}
