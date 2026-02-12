@@ -11,7 +11,7 @@ import {
   AlertTriangle,
   FolderKanban
 } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, eachWeekOfInterval, eachMonthOfInterval, addMonths, differenceInDays } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachMonthOfInterval, addMonths, differenceInDays } from 'date-fns';
 
 const statusConfig = {
   elaboracao: { icon: Clock, color: 'bg-slate-300', label: 'Não iniciado' },
@@ -88,7 +88,6 @@ const GanttBar = memo(({ os, barStyle, barColor, onOpenOS }) => {
 
 function ProjetosGantt({ projetos, ordens, pessoas, onOpenOS }) {
   const [expandedProjetos, setExpandedProjetos] = useState(new Set());
-  const [zoom, setZoom] = useState('week');
   const [searchTerm, setSearchTerm] = useState('');
 
   // Memoizar mapa de pessoas para lookup rápido
@@ -124,18 +123,13 @@ function ProjetosGantt({ projetos, ordens, pessoas, onOpenOS }) {
     };
   }, [ordens]);
 
-  // Memoizar células da timeline (limitado para performance)
+  // Memoizar células da timeline
   const timelineCells = useMemo(() => {
     const { start, end } = timelineRange;
-    
-    if (zoom === 'week') {
-      return eachWeekOfInterval({ start, end }, { weekStartsOn: 0 });
-    } else {
-      return eachMonthOfInterval({ start, end });
-    }
-  }, [timelineRange, zoom]);
+    return eachMonthOfInterval({ start, end });
+  }, [timelineRange]);
 
-  const cellWidth = zoom === 'week' ? 80 : 120;
+  const cellWidth = 120;
 
   // Memoizar ordens por projeto
   const ordensByProjeto = useMemo(() => {
@@ -184,13 +178,12 @@ function ProjetosGantt({ projetos, ordens, pessoas, onOpenOS }) {
     const end = os.prazo ? new Date(os.prazo) : new Date(os.data_inicial);
     const offsetDays = differenceInDays(start, timelineRange.start);
     const durationDays = Math.max(1, differenceInDays(end, start));
-    const divisor = zoom === 'week' ? 7 : 30;
     
     return { 
-      left: (offsetDays / divisor) * cellWidth,
-      width: (durationDays / divisor) * cellWidth
+      left: (offsetDays / 30) * cellWidth,
+      width: (durationDays / 30) * cellWidth
     };
-  }, [timelineRange, zoom, cellWidth]);
+  }, [timelineRange, cellWidth]);
 
   const getBarColor = useCallback((os) => {
     if (os.status === 'concluido') return 'bg-green-500';
@@ -208,9 +201,8 @@ function ProjetosGantt({ projetos, ordens, pessoas, onOpenOS }) {
   const todayLineStyle = useMemo(() => {
     const today = new Date();
     const offsetDays = differenceInDays(today, timelineRange.start);
-    const divisor = zoom === 'week' ? 7 : 30;
-    return { left: (offsetDays / divisor) * cellWidth };
-  }, [timelineRange, zoom, cellWidth]);
+    return { left: (offsetDays / 30) * cellWidth };
+  }, [timelineRange, cellWidth]);
 
   return (
     <div className="flex flex-col h-[calc(100vh-12rem)] bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -222,24 +214,6 @@ function ProjetosGantt({ projetos, ordens, pessoas, onOpenOS }) {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-xs"
         />
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => setZoom('week')} 
-            className={zoom === 'week' ? 'bg-slate-100' : ''}
-          >
-            Semanas
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => setZoom('month')} 
-            className={zoom === 'month' ? 'bg-slate-100' : ''}
-          >
-            Meses
-          </Button>
-        </div>
       </div>
 
       {/* Área principal */}
@@ -290,7 +264,7 @@ function ProjetosGantt({ projetos, ordens, pessoas, onOpenOS }) {
                   className="text-xs text-center font-medium py-2 border-r border-slate-200 dark:border-slate-700"
                   style={{ width: cellWidth }}
                 >
-                  {zoom === 'week' ? format(date, "dd/MM") : format(date, 'MM/yyyy')}
+                  {format(date, 'MM/yyyy')}
                 </div>
               ))}
             </div>
