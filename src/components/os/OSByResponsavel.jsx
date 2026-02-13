@@ -53,18 +53,18 @@ export default function OSByResponsavel({ ordensServico, pessoas, onSelectOS, on
       }).length;
 
       // Agrupar por status
-      const incompletas = oss.filter(os => os.status === 'elaboracao' || os.status === 'execucao');
+      const incompletasList = oss.filter(os => os.status === 'elaboracao' || os.status === 'execucao');
       const atrasadasList = oss.filter(os => {
         if (os.status === 'concluido') return false;
         if (!os.prazo) return false;
         return new Date(os.prazo) < hoje;
       });
-      const concluidas = oss.filter(os => os.status === 'concluido');
+      const concluidasList = oss.filter(os => os.status === 'concluido');
       
       const porStatus = {
-        incompleto: incompletas,
+        incompleto: incompletasList,
         atrasadas: atrasadasList,
-        concluido: concluidas
+        concluido: concluidasList
       };
 
       return {
