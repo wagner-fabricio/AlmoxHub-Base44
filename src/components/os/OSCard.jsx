@@ -25,10 +25,18 @@ export default function OSCard({ os, onClick, lider, categoria, regional, instal
   const isOverdue = prazoDate && isPast(prazoDate) && os.status !== 'concluido';
   const isDueToday = prazoDate && isToday(prazoDate);
 
+  // Determinar cor da borda baseado no status e prazo
+  const getBorderColor = () => {
+    if (os.status === 'concluido') return '#10b981'; // verde
+    if (isOverdue) return '#ef4444'; // vermelho
+    if (os.status === 'execucao') return '#0000FF'; // azul
+    return '#64748b'; // cinza (elaboração)
+  };
+
   return (
     <Card 
-      className="p-4 cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 bg-white dark:bg-slate-800 group"
-      style={{ borderLeftColor: statusConfig[os.status]?.color?.replace('bg-', '') || '#64748b' }}
+      className="p-4 cursor-pointer hover:shadow-lg transition-all duration-200 border-2 bg-white dark:bg-slate-800 group"
+      style={{ borderColor: getBorderColor() }}
       onClick={() => onClick?.(os)}
     >
       {/* Header */}
