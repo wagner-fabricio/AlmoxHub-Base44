@@ -910,8 +910,8 @@ export default function Dashboard() {
                 .filter(inst => {
                   if (inst.classificacao === 'Usina') return mapFilters.usina;
                   if (inst.classificacao === 'Subestação') return mapFilters.subestacao;
-                  if (inst.classificacao === 'Almoxarifado') return mapFilters.almoxarifado;
                   if (inst.classificacao === 'Outros') return mapFilters.outros;
+                  // Não exibir Almoxarifados do tipo Instalação aqui, apenas via entidade Almoxarifado
                   return false;
                 })
                 .filter(inst => inst.latitude && inst.longitude)
