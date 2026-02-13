@@ -7,12 +7,15 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ChevronDown, ChevronRight, Plus, Clock, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
 
-export default function OSByResponsavel({ ordensServico, pessoas, onSelectOS, onNovaOS }) {
+export default function OSByResponsavel({ ordensServico, pessoas, onSelectOS, onNovaOS, filteredOrdens }) {
   const [expandedStatus, setExpandedStatus] = useState({});
+  
+  // Usar as OSs filtradas se fornecidas, senão usar todas
+  const ordensParaUsar = filteredOrdens || ordensServico;
 
   // Agrupar OSs por responsável
   const osPorResponsavel = useMemo(() => {
-    if (!Array.isArray(ordensServico) || !Array.isArray(pessoas)) return [];
+    if (!Array.isArray(ordensParaUsar) || !Array.isArray(pessoas)) return [];
 
     const grupos = {};
 
@@ -27,7 +30,7 @@ export default function OSByResponsavel({ ordensServico, pessoas, onSelectOS, on
     });
 
     // Agrupar OSs
-    ordensServico.forEach(os => {
+    ordensParaUsar.forEach(os => {
       if (os.lider_id) {
         if (!grupos[os.lider_id]) {
           grupos[os.lider_id] = {
@@ -76,8 +79,8 @@ export default function OSByResponsavel({ ordensServico, pessoas, onSelectOS, on
         porcentagem: total > 0 ? Math.round((concluidas / total) * 100) : 0,
         porStatus
       };
-    }).sort((a, b) => b.total - a.total);
-  }, [ordensServico, pessoas]);
+    }).filter(grupo => grupo.total > 0).sort((a, b) => b.total - a.total);
+  }, [ordensParaUsar, pessoas]);
 
   const toggleStatus = (responsavelId, status) => {
     const key = `${responsavelId}-${status}`;
@@ -117,12 +120,12 @@ export default function OSByResponsavel({ ordensServico, pessoas, onSelectOS, on
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+    <div className="flex gap-4 overflow-x-auto pb-4">
       {osPorResponsavel.map((grupo) => {
         const pessoa = grupo.pessoa;
 
         return (
-          <Card key={pessoa?.id} className="flex flex-col">
+          <Card key={pessoa?.id} className="flex flex-col shrink-0 w-80">
             {/* Header - Avatar e nome */}
             <div className="p-4 border-b border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-3">
