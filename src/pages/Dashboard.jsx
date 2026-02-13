@@ -39,6 +39,7 @@ export default function Dashboard() {
     almoxarifadosEntidade: true
   });
   const [heatmapCriteria, setHeatmapCriteria] = useState('quantidade_os');
+  const [heatmapInstalacao, setHeatmapInstalacao] = useState('destino');
   const [currentUser, setCurrentUser] = useState(null);
   const [filters, setFilters] = useState({
     regional: 'all',
@@ -222,14 +223,15 @@ export default function Dashboard() {
     total: filteredOrdens.filter(os => os.almoxarifado_id === a.id).length
   })).sort((a, b) => b.total - a.total).slice(0, 5);
 
-  // Heatmap data: OS de Expedição agrupadas por instalação de destino
+  // Heatmap data: OS de Expedição agrupadas por instalação de origem ou destino
   const categoriaExpedicao = Array.isArray(categorias) ? categorias.find(c => c?.nome?.toLowerCase().includes('expedi')) : null;
-  const osExpedicao = Array.isArray(ordens) ? ordens.filter(os => os?.categoria_id === categoriaExpedicao?.id && os?.instalacao_destino_id) : [];
+  const campoInstalacao = heatmapInstalacao === 'origem' ? 'instalacao_origem_id' : 'instalacao_destino_id';
+  const osExpedicao = Array.isArray(ordens) ? ordens.filter(os => os?.categoria_id === categoriaExpedicao?.id && os?.[campoInstalacao]) : [];
   
   const heatmapData = instalacoes
     .filter(inst => inst.latitude && inst.longitude)
     .map(inst => {
-      const osDestino = osExpedicao.filter(os => os.instalacao_destino_id === inst.id);
+      const osDestino = osExpedicao.filter(os => os[campoInstalacao] === inst.id);
       
       let value = 0;
       if (heatmapCriteria === 'quantidade_os') {
@@ -734,37 +736,50 @@ export default function Dashboard() {
               <MapPin className="w-5 h-5 text-orange-500" />
               Mapa de Calor - Expedições
             </CardTitle>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
-              <label className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700">
-                <Checkbox 
-                  checked={heatmapCriteria === 'quantidade_os'}
-                  onCheckedChange={(checked) => checked && setHeatmapCriteria('quantidade_os')}
-                />
-                <span className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm">Qtd OS</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700">
-                <Checkbox 
-                  checked={heatmapCriteria === 'valor_total'}
-                  onCheckedChange={(checked) => checked && setHeatmapCriteria('valor_total')}
-                />
-                <span className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm">Valor</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700">
-                <Checkbox 
-                  checked={heatmapCriteria === 'peso_total'}
-                  onCheckedChange={(checked) => checked && setHeatmapCriteria('peso_total')}
-                />
-                <span className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm">Peso</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700">
-                <Checkbox 
-                  checked={heatmapCriteria === 'quantidade_itens'}
-                  onCheckedChange={(checked) => checked && setHeatmapCriteria('quantidade_itens')}
-                />
-                <span className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm">Itens</span>
-              </label>
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <Select value={heatmapInstalacao} onValueChange={setHeatmapInstalacao}>
+                  <SelectTrigger className="w-48 bg-white dark:bg-slate-700">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="origem">Instalação de Origem</SelectItem>
+                    <SelectItem value="destino">Instalação de Destino</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              </CardHeader>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
+                <label className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700">
+                  <Checkbox 
+                    checked={heatmapCriteria === 'quantidade_os'}
+                    onCheckedChange={(checked) => checked && setHeatmapCriteria('quantidade_os')}
+                  />
+                  <span className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm">Qtd OS</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700">
+                  <Checkbox 
+                    checked={heatmapCriteria === 'valor_total'}
+                    onCheckedChange={(checked) => checked && setHeatmapCriteria('valor_total')}
+                  />
+                  <span className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm">Valor</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700">
+                  <Checkbox 
+                    checked={heatmapCriteria === 'peso_total'}
+                    onCheckedChange={(checked) => checked && setHeatmapCriteria('peso_total')}
+                  />
+                  <span className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm">Peso</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700">
+                  <Checkbox 
+                    checked={heatmapCriteria === 'quantidade_itens'}
+                    onCheckedChange={(checked) => checked && setHeatmapCriteria('quantidade_itens')}
+                  />
+                  <span className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm">Itens</span>
+                </label>
+              </div>
+            </div>
+          </CardHeader>
           <CardContent>
             <div className="h-[300px] sm:h-[400px] lg:h-[500px] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
               <MapContainer
