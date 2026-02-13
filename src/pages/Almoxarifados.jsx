@@ -23,6 +23,8 @@ export default function Almoxarifados() {
   const [search, setSearch] = useState('');
   const [filterRegional, setFilterRegional] = useState('all');
   const [filterRegiao, setFilterRegiao] = useState('all');
+  const [filterEstado, setFilterEstado] = useState('all');
+  const [filterCidade, setFilterCidade] = useState('all');
   const [showModal, setShowModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -151,10 +153,38 @@ export default function Almoxarifados() {
     }
   };
 
+  // Extrair estados e cidades dos almoxarifados através das instalações
+  const estadosFromInstalacoes = [...new Set(
+    almoxarifados
+      .map(a => {
+        const inst = instalacoes.find(i => i.id === a.instalacao_id);
+        return inst?.estado;
+      })
+      .filter(Boolean)
+  )].sort();
+
+  const cidadesFromInstalacoes = [...new Set(
+    almoxarifados
+      .filter(a => {
+        const inst = instalacoes.find(i => i.id === a.instalacao_id);
+        return filterEstado === 'all' || inst?.estado === filterEstado;
+      })
+      .map(a => {
+        const inst = instalacoes.find(i => i.id === a.instalacao_id);
+        return inst?.cidade;
+      })
+      .filter(Boolean)
+  )].sort();
+
   const filteredItems = almoxarifados.filter(a => {
     if (filterRegional !== 'all' && a.regional_id !== filterRegional) return false;
     if (filterRegiao !== 'all' && a.regiao !== filterRegiao) return false;
     if (search && !a.nome?.toLowerCase().includes(search.toLowerCase())) return false;
+    
+    const instalacao = instalacoes.find(i => i.id === a.instalacao_id);
+    if (filterEstado !== 'all' && instalacao?.estado !== filterEstado) return false;
+    if (filterCidade !== 'all' && instalacao?.cidade !== filterCidade) return false;
+    
     return true;
   });
 
@@ -206,7 +236,7 @@ export default function Almoxarifados() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas Regionais</SelectItem>
-              {regionais.map(r => (
+              {[...regionais].sort((a, b) => a.sigla.localeCompare(b.sigla)).map(r => (
                 <SelectItem key={r.id} value={r.id}>{r.sigla}</SelectItem>
               ))}
             </SelectContent>
@@ -222,6 +252,31 @@ export default function Almoxarifados() {
               <SelectItem value="Centro Oeste">Centro Oeste</SelectItem>
               <SelectItem value="Sudeste">Sudeste</SelectItem>
               <SelectItem value="Sul">Sul</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={filterEstado} onValueChange={(v) => {
+            setFilterEstado(v);
+            if (v !== filterEstado) setFilterCidade('all');
+          }}>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Estado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              {estadosFromInstalacoes.map((e) => (
+                <SelectItem key={e} value={e}>{e}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={filterCidade} onValueChange={setFilterCidade}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Cidade" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              {cidadesFromInstalacoes.map((c) => (
+                <SelectItem key={c} value={c}>{c}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
