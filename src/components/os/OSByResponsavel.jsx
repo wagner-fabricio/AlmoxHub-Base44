@@ -1,14 +1,13 @@
 import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Progress } from '@/components/ui/progress';
-import { ChevronDown, ChevronRight, Plus, Clock, AlertTriangle, CheckCircle2, PlayCircle } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ChevronDown, ChevronRight, Plus, Clock, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function OSByResponsavel({ ordensServico, pessoas, onSelectOS, onNovaOS }) {
-  const [expandedResponsavel, setExpandedResponsavel] = useState({});
   const [expandedStatus, setExpandedStatus] = useState({});
 
   // Agrupar OSs por responsável
@@ -54,15 +53,18 @@ export default function OSByResponsavel({ ordensServico, pessoas, onSelectOS, on
       }).length;
 
       // Agrupar por status
+      const incompletas = oss.filter(os => os.status === 'elaboracao' || os.status === 'execucao');
+      const atrasadasList = oss.filter(os => {
+        if (os.status === 'concluido') return false;
+        if (!os.prazo) return false;
+        return new Date(os.prazo) < hoje;
+      });
+      const concluidas = oss.filter(os => os.status === 'concluido');
+      
       const porStatus = {
-        elaboracao: oss.filter(os => os.status === 'elaboracao'),
-        execucao: oss.filter(os => os.status === 'execucao'),
-        atrasadas: oss.filter(os => {
-          if (os.status === 'concluido') return false;
-          if (!os.prazo) return false;
-          return new Date(os.prazo) < hoje;
-        }),
-        concluido: oss.filter(os => os.status === 'concluido')
+        incompleto: incompletas,
+        atrasadas: atrasadasList,
+        concluido: concluidas
       };
 
       return {
@@ -77,13 +79,6 @@ export default function OSByResponsavel({ ordensServico, pessoas, onSelectOS, on
     }).sort((a, b) => b.total - a.total);
   }, [ordensServico, pessoas]);
 
-  const toggleResponsavel = (responsavelId) => {
-    setExpandedResponsavel(prev => ({
-      ...prev,
-      [responsavelId]: !prev[responsavelId]
-    }));
-  };
-
   const toggleStatus = (responsavelId, status) => {
     const key = `${responsavelId}-${status}`;
     setExpandedStatus(prev => ({
@@ -93,29 +88,20 @@ export default function OSByResponsavel({ ordensServico, pessoas, onSelectOS, on
   };
 
   const statusConfig = {
-    elaboracao: {
-      label: 'Pendentes',
+    incompleto: {
+      label: 'Incompleto',
       icon: Clock,
-      color: 'text-slate-600 dark:text-slate-400',
-      bgColor: 'bg-slate-100 dark:bg-slate-700'
-    },
-    execucao: {
-      label: 'Em Andamento',
-      icon: PlayCircle,
-      color: 'text-blue-600 dark:text-blue-400',
-      bgColor: 'bg-blue-100 dark:bg-blue-900'
+      color: 'text-slate-600 dark:text-slate-400'
     },
     atrasadas: {
       label: 'Atrasadas',
       icon: AlertTriangle,
-      color: 'text-red-600 dark:text-red-400',
-      bgColor: 'bg-red-100 dark:bg-red-900'
+      color: 'text-red-600 dark:text-red-400'
     },
     concluido: {
-      label: 'Concluídas',
+      label: 'Concluída',
       icon: CheckCircle2,
-      color: 'text-green-600 dark:text-green-400',
-      bgColor: 'bg-green-100 dark:bg-green-900'
+      color: 'text-green-600 dark:text-green-400'
     }
   };
 
@@ -134,162 +120,129 @@ export default function OSByResponsavel({ ordensServico, pessoas, onSelectOS, on
     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
       {osPorResponsavel.map((grupo) => {
         const pessoa = grupo.pessoa;
-        const isExpanded = expandedResponsavel[pessoa?.id];
 
         return (
-          <Card key={pessoa?.id} className="flex flex-col h-fit">
-            <CardHeader className="pb-3">
-              {/* Cabeçalho com avatar e nome */}
-              <div className="flex items-center gap-3 mb-3">
+          <Card key={pessoa?.id} className="flex flex-col">
+            {/* Header - Avatar e nome */}
+            <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+              <div className="flex items-center gap-3">
                 {pessoa?.foto_perfil ? (
                   <img
                     src={pessoa.foto_perfil}
                     alt={pessoa.nome}
-                    className="w-12 h-12 rounded-full object-cover"
+                    className="w-10 h-10 rounded-full object-cover border-2 border-slate-200 dark:border-slate-700"
                   />
                 ) : (
-                  <Avatar className="w-12 h-12">
-                    <AvatarFallback className="bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                  <Avatar className="w-10 h-10">
+                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white text-sm font-semibold">
                       {pessoa?.nome?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>
                 )}
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-slate-900 dark:text-white truncate">
+                  <h3 className="font-semibold text-slate-900 dark:text-white truncate text-sm">
                     {pessoa?.nome || 'Responsável'}
                   </h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
-                    {grupo.total} {grupo.total === 1 ? 'ordem' : 'ordens'}
-                  </p>
                 </div>
               </div>
-
-              {/* Indicadores */}
-              <div className="flex gap-2 mb-3">
-                <Badge variant="outline" className="text-slate-600 dark:text-slate-400">
-                  {grupo.incompletas} incompletas
-                </Badge>
-                {grupo.atrasadas > 0 && (
-                  <Badge variant="destructive">
-                    {grupo.atrasadas} {grupo.atrasadas === 1 ? 'atrasada' : 'atrasadas'}
-                  </Badge>
-                )}
-              </div>
-
-              {/* Barra de progresso */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-600 dark:text-slate-400">Progresso</span>
-                  <span className="font-medium text-slate-900 dark:text-white">
-                    {grupo.porcentagem}%
-                  </span>
+              
+              {/* Contadores de status */}
+              <div className="flex gap-4 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                <div className="flex-1 text-center">
+                  <div className="text-lg font-bold text-slate-900 dark:text-white">
+                    {grupo.incompletas}
+                  </div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">
+                    Incompleto
+                  </div>
                 </div>
-                <Progress value={grupo.porcentagem} className="h-2" />
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {grupo.concluidas} de {grupo.total} concluídas
-                </p>
+                <div className="flex-1 text-center border-l border-slate-200 dark:border-slate-700">
+                  <div className="text-lg font-bold text-red-600 dark:text-red-400">
+                    {grupo.atrasadas}
+                  </div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">
+                    Atrasadas
+                  </div>
+                </div>
               </div>
+            </div>
 
-              {/* Botão adicionar OS */}
+            {/* Botão adicionar tarefa */}
+            <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
-                className="w-full mt-3"
+                className="w-full justify-start text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950"
                 onClick={() => onNovaOS?.(pessoa)}
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Adicionar ordem de serviço
+                Adicionar tarefa
               </Button>
+            </div>
 
-              {/* Toggle expandir/recolher */}
-              {grupo.total > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full mt-2"
-                  onClick={() => toggleResponsavel(pessoa?.id)}
-                >
-                  {isExpanded ? (
-                    <>
-                      <ChevronDown className="w-4 h-4 mr-2" />
-                      Recolher ordens
-                    </>
-                  ) : (
-                    <>
-                      <ChevronRight className="w-4 h-4 mr-2" />
-                      Ver ordens
-                    </>
-                  )}
-                </Button>
-              )}
-            </CardHeader>
+            {/* Lista de OSs por status - sempre expandido */}
+            <div className="flex-1 overflow-auto max-h-[600px]">
+              {Object.entries(statusConfig).map(([statusKey, config]) => {
+                const oss = grupo.porStatus[statusKey];
+                if (!oss || oss.length === 0) return null;
 
-            {/* Lista de OSs expandida */}
-            {isExpanded && (
-              <CardContent className="pt-0 space-y-3">
-                {Object.entries(statusConfig).map(([statusKey, config]) => {
-                  const oss = grupo.porStatus[statusKey];
-                  if (!oss || oss.length === 0) return null;
+                const isStatusExpanded = expandedStatus[`${pessoa?.id}-${statusKey}`] ?? true;
+                const Icon = config.icon;
 
-                  const isStatusExpanded = expandedStatus[`${pessoa?.id}-${statusKey}`];
-                  const Icon = config.icon;
-
-                  return (
-                    <div key={statusKey} className="border-t pt-3">
-                      <button
-                        onClick={() => toggleStatus(pessoa?.id, statusKey)}
-                        className="flex items-center justify-between w-full text-left hover:opacity-80 transition-opacity"
-                      >
-                        <div className="flex items-center gap-2">
-                          <Icon className={`w-4 h-4 ${config.color}`} />
-                          <span className="font-medium text-sm text-slate-900 dark:text-white">
-                            {config.label}
-                          </span>
-                          <Badge variant="outline" className="text-xs">
-                            {oss.length}
-                          </Badge>
-                        </div>
+                return (
+                  <div key={statusKey} className="border-b border-slate-200 dark:border-slate-700">
+                    <button
+                      onClick={() => toggleStatus(pessoa?.id, statusKey)}
+                      className="flex items-center justify-between w-full px-4 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
                         {isStatusExpanded ? (
                           <ChevronDown className="w-4 h-4 text-slate-400" />
                         ) : (
                           <ChevronRight className="w-4 h-4 text-slate-400" />
                         )}
-                      </button>
+                        <span className="font-medium text-sm text-slate-700 dark:text-slate-300">
+                          {config.label}
+                        </span>
+                      </div>
+                      <Badge variant="outline" className="text-xs font-normal">
+                        {oss.length}
+                      </Badge>
+                    </button>
 
-                      {isStatusExpanded && (
-                        <div className="mt-2 space-y-1">
-                          {oss.map((os) => (
-                            <button
-                              key={os.id}
-                              onClick={() => onSelectOS(os)}
-                              className={`w-full text-left p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors ${config.bgColor} bg-opacity-30`}
-                            >
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
-                                    {os.codigo}
-                                  </p>
-                                  {os.prazo && (
-                                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                                      Prazo: {format(new Date(os.prazo), 'dd/MM/yyyy')}
-                                    </p>
-                                  )}
-                                </div>
-                                {os.progresso !== undefined && (
-                                  <span className="text-xs font-medium text-slate-600 dark:text-slate-400 shrink-0">
-                                    {os.progresso}%
-                                  </span>
-                                )}
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </CardContent>
-            )}
+                    {isStatusExpanded && (
+                      <div className="pb-2">
+                        {oss.map((os) => (
+                          <button
+                            key={os.id}
+                            onClick={() => onSelectOS(os)}
+                            className="w-full flex items-start gap-3 px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"
+                          >
+                            <Checkbox 
+                              checked={os.status === 'concluido'}
+                              className="mt-0.5"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className={`text-sm text-slate-900 dark:text-white leading-tight ${
+                                os.status === 'concluido' ? 'line-through opacity-60' : ''
+                              }`}>
+                                {os.codigo}
+                              </p>
+                              {os.prazo && (
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                  {format(new Date(os.prazo), 'dd/MM/yyyy')}
+                                </p>
+                              )}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </Card>
         );
       })}
