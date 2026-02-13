@@ -38,6 +38,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Plus, Search, Pencil, Trash2, Loader2, MapPin, Building2, FileSpreadsheet } from 'lucide-react';
 import BulkUpdateModal from '@/components/bulk/BulkUpdateModal';
+import { SortableTableHead, useTableSort, useColumnFilters } from '@/components/ui/table-sortable';
 
 const classificacaoColors = {
   'Usina': 'bg-green-100 text-green-700',
@@ -63,6 +64,15 @@ export default function Instalacoes() {
   const [showBulkUpdate, setShowBulkUpdate] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  
+  const { sortConfig, handleSort } = useTableSort();
+  const { columnFilters, toggleFilter, clearFilter } = useColumnFilters({
+    nome: [],
+    classificacao: [],
+    cidade: [],
+    estado: [],
+    regional: []
+  });
   const [formData, setFormData] = useState({
     nome: '',
     logradouro: '',
@@ -222,7 +232,22 @@ export default function Instalacoes() {
       .filter(Boolean)
   )].sort();
 
-  const filteredInstalacoes = instalacoes.filter(inst => {
+  const getUniqueValues = (column) => {
+    const values = new Set();
+    instalacoes.forEach(inst => {
+      if (column === 'nome') values.add(inst.nome);
+      if (column === 'classificacao') values.add(inst.classificacao);
+      if (column === 'cidade') values.add(inst.cidade);
+      if (column === 'estado') values.add(inst.estado);
+      if (column === 'regional') {
+        const reg = regionais.find(r => r.id === inst.regional_id);
+        if (reg) values.add(reg.sigla);
+      }
+    });
+    return Array.from(values).filter(Boolean).sort();
+  };
+
+  let filteredInstalacoes = instalacoes.filter(inst => {
     const matchesSearch = 
       inst.nome?.toLowerCase().includes(search.toLowerCase()) ||
       inst.logradouro?.toLowerCase().includes(search.toLowerCase()) ||
@@ -234,9 +259,47 @@ export default function Instalacoes() {
     const matchesCidade = filterCidade === 'all' || inst.cidade === filterCidade;
     const matchesEstado = filterEstado === 'all' || inst.estado === filterEstado;
     const matchesRegiao = filterRegiao === 'all' || inst.regiao === filterRegiao;
+    
+    // Filtros de coluna
+    if (columnFilters.nome.length > 0 && !columnFilters.nome.includes(inst.nome)) return false;
+    if (columnFilters.classificacao.length > 0 && !columnFilters.classificacao.includes(inst.classificacao)) return false;
+    if (columnFilters.cidade.length > 0 && !columnFilters.cidade.includes(inst.cidade)) return false;
+    if (columnFilters.estado.length > 0 && !columnFilters.estado.includes(inst.estado)) return false;
+    const regional = regionais.find(r => r.id === inst.regional_id);
+    if (columnFilters.regional.length > 0 && !columnFilters.regional.includes(regional?.sigla)) return false;
 
     return matchesSearch && matchesRegional && matchesClassificacao && matchesCidade && matchesEstado && matchesRegiao;
   });
+
+  // Aplicar ordenação
+  if (sortConfig.column && sortConfig.direction) {
+    filteredInstalacoes = [...filteredInstalacoes].sort((a, b) => {
+      let aValue, bValue;
+      
+      if (sortConfig.column === 'nome') {
+        aValue = a.nome || '';
+        bValue = b.nome || '';
+      } else if (sortConfig.column === 'classificacao') {
+        aValue = a.classificacao || '';
+        bValue = b.classificacao || '';
+      } else if (sortConfig.column === 'cidade') {
+        aValue = a.cidade || '';
+        bValue = b.cidade || '';
+      } else if (sortConfig.column === 'estado') {
+        aValue = a.estado || '';
+        bValue = b.estado || '';
+      } else if (sortConfig.column === 'regional') {
+        const regA = regionais.find(r => r.id === a.regional_id);
+        const regB = regionais.find(r => r.id === b.regional_id);
+        aValue = regA?.sigla || '';
+        bValue = regB?.sigla || '';
+      }
+      
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
 
   // Contagem por classificação
   const countByClassificacao = {
@@ -423,14 +486,69 @@ export default function Instalacoes() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead>Classificação</TableHead>
+              <TableHead>
+                <SortableTableHead
+                  label="Nome"
+                  column="nome"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                />
+              </TableHead>
+              <TableHead>
+                <SortableTableHead
+                  label="Classificação"
+                  column="classificacao"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                />
+              </TableHead>
               <TableHead>Endereço</TableHead>
               <TableHead>Número</TableHead>
               <TableHead>Bairro</TableHead>
-              <TableHead>Cidade</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead>Regional</TableHead>
+              <TableHead>
+                <SortableTableHead
+                  label="Cidade"
+                  column="cidade"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                />
+              </TableHead>
+              <TableHead>
+                <SortableTableHead
+                  label="Estado"
+                  column="estado"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                />
+              </TableHead>
+              <TableHead>
+                <SortableTableHead
+                  label="Regional"
+                  column="regional"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                />
+              </TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>

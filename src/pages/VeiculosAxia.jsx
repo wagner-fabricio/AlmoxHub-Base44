@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, Search, Truck, FileSpreadsheet } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import BulkUpdateModal from '@/components/bulk/BulkUpdateModal';
+import { SortableTableHead, useTableSort, useColumnFilters } from '@/components/ui/table-sortable';
 
 const estadosBrasil = [
   "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", 
@@ -23,6 +24,14 @@ export default function VeiculosAxia() {
   const [editingVeiculo, setEditingVeiculo] = useState(null);
   const [search, setSearch] = useState('');
   const [showBulkUpdate, setShowBulkUpdate] = useState(false);
+  
+  const { sortConfig, handleSort } = useTableSort();
+  const { columnFilters, toggleFilter, clearFilter } = useColumnFilters({
+    placa: [],
+    estado: [],
+    tipo: [],
+    carroceria: []
+  });
   const [formData, setFormData] = useState({
     proprietario: 'Axia Energia S.A.',
     renavam: '',
@@ -98,11 +107,61 @@ export default function VeiculosAxia() {
     setEditingVeiculo(null);
   };
 
-  const filteredVeiculos = veiculos.filter(v => 
-    v?.placa?.toLowerCase().includes(search.toLowerCase()) ||
-    v?.proprietario?.toLowerCase().includes(search.toLowerCase()) ||
-    v?.renavam?.includes(search)
-  );
+  const getUniqueValues = (column) => {
+    const values = new Set();
+    veiculos.forEach(v => {
+      if (column === 'placa') values.add(v.placa);
+      if (column === 'estado') values.add(v.estado);
+      if (column === 'tipo') values.add(v.tipo);
+      if (column === 'carroceria') values.add(v.carroceria);
+    });
+    return Array.from(values).filter(Boolean).sort();
+  };
+
+  let filteredVeiculos = veiculos.filter(v => {
+    const matchesSearch = 
+      v?.placa?.toLowerCase().includes(search.toLowerCase()) ||
+      v?.proprietario?.toLowerCase().includes(search.toLowerCase()) ||
+      v?.renavam?.includes(search);
+    
+    if (!matchesSearch) return false;
+    
+    // Filtros de coluna
+    if (columnFilters.placa.length > 0 && !columnFilters.placa.includes(v.placa)) return false;
+    if (columnFilters.estado.length > 0 && !columnFilters.estado.includes(v.estado)) return false;
+    if (columnFilters.tipo.length > 0 && !columnFilters.tipo.includes(v.tipo)) return false;
+    if (columnFilters.carroceria.length > 0 && !columnFilters.carroceria.includes(v.carroceria)) return false;
+    
+    return true;
+  });
+
+  // Aplicar ordenação
+  if (sortConfig.column && sortConfig.direction) {
+    filteredVeiculos = [...filteredVeiculos].sort((a, b) => {
+      let aValue, bValue;
+      
+      if (sortConfig.column === 'placa') {
+        aValue = a.placa || '';
+        bValue = b.placa || '';
+      } else if (sortConfig.column === 'estado') {
+        aValue = a.estado || '';
+        bValue = b.estado || '';
+      } else if (sortConfig.column === 'tipo') {
+        aValue = a.tipo || '';
+        bValue = b.tipo || '';
+      } else if (sortConfig.column === 'carroceria') {
+        aValue = a.carroceria || '';
+        bValue = b.carroceria || '';
+      } else if (sortConfig.column === 'tara') {
+        aValue = a.tara || 0;
+        bValue = b.tara || 0;
+      }
+      
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
 
   const isValid = formData.placa && formData.estado;
 
@@ -154,13 +213,64 @@ export default function VeiculosAxia() {
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50 dark:bg-slate-800/50">
-              <TableHead>Placa</TableHead>
-              <TableHead>UF</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead>Carroceria</TableHead>
+              <TableHead>
+                <SortableTableHead
+                  label="Placa"
+                  column="placa"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                />
+              </TableHead>
+              <TableHead>
+                <SortableTableHead
+                  label="UF"
+                  column="estado"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                />
+              </TableHead>
+              <TableHead>
+                <SortableTableHead
+                  label="Tipo"
+                  column="tipo"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                />
+              </TableHead>
+              <TableHead>
+                <SortableTableHead
+                  label="Carroceria"
+                  column="carroceria"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                />
+              </TableHead>
               <TableHead>RENAVAM</TableHead>
               <TableHead>Proprietário</TableHead>
-              <TableHead>Tara (kg)</TableHead>
+              <TableHead>
+                <SortableTableHead
+                  label="Tara (kg)"
+                  column="tara"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                />
+              </TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>

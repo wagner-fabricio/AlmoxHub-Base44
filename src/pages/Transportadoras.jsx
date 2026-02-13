@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, Search, Building2, FileSpreadsheet } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import BulkUpdateModal from '@/components/bulk/BulkUpdateModal';
+import { SortableTableHead, useTableSort, useColumnFilters } from '@/components/ui/table-sortable';
 
 export default function Transportadoras() {
   const [transportadoras, setTransportadoras] = useState([]);
@@ -16,6 +17,12 @@ export default function Transportadoras() {
   const [editingTransportadora, setEditingTransportadora] = useState(null);
   const [search, setSearch] = useState('');
   const [showBulkUpdate, setShowBulkUpdate] = useState(false);
+  
+  const { sortConfig, handleSort } = useTableSort();
+  const { columnFilters, toggleFilter, clearFilter } = useColumnFilters({
+    razao_social: [],
+    cnpj: []
+  });
   const [formData, setFormData] = useState({
     cnpj: '',
     razao_social: '',
@@ -92,11 +99,51 @@ export default function Transportadoras() {
     return cleaned.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
   };
 
-  const filteredTransportadoras = transportadoras.filter(t => 
-    t?.razao_social?.toLowerCase().includes(search.toLowerCase()) ||
-    t?.cnpj?.includes(search.replace(/\D/g, '')) ||
-    t?.codigo_sap?.includes(search)
-  );
+  const getUniqueValues = (column) => {
+    const values = new Set();
+    transportadoras.forEach(t => {
+      if (column === 'razao_social') values.add(t.razao_social);
+      if (column === 'cnpj') values.add(t.cnpj);
+    });
+    return Array.from(values).filter(Boolean).sort();
+  };
+
+  let filteredTransportadoras = transportadoras.filter(t => {
+    const matchesSearch = 
+      t?.razao_social?.toLowerCase().includes(search.toLowerCase()) ||
+      t?.cnpj?.includes(search.replace(/\D/g, '')) ||
+      t?.codigo_sap?.includes(search);
+    
+    if (!matchesSearch) return false;
+    
+    // Filtros de coluna
+    if (columnFilters.razao_social.length > 0 && !columnFilters.razao_social.includes(t.razao_social)) return false;
+    if (columnFilters.cnpj.length > 0 && !columnFilters.cnpj.includes(t.cnpj)) return false;
+    
+    return true;
+  });
+
+  // Aplicar ordenação
+  if (sortConfig.column && sortConfig.direction) {
+    filteredTransportadoras = [...filteredTransportadoras].sort((a, b) => {
+      let aValue, bValue;
+      
+      if (sortConfig.column === 'razao_social') {
+        aValue = a.razao_social || '';
+        bValue = b.razao_social || '';
+      } else if (sortConfig.column === 'cnpj') {
+        aValue = a.cnpj || '';
+        bValue = b.cnpj || '';
+      } else if (sortConfig.column === 'codigo_sap') {
+        aValue = a.codigo_sap || '';
+        bValue = b.codigo_sap || '';
+      }
+      
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
 
   const isValid = formData.cnpj?.replace(/\D/g, '').length === 14 && formData.razao_social;
 
@@ -148,10 +195,39 @@ export default function Transportadoras() {
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50 dark:bg-slate-800/50">
-              <TableHead>CNPJ</TableHead>
-              <TableHead>Razão Social</TableHead>
+              <TableHead>
+                <SortableTableHead
+                  label="CNPJ"
+                  column="cnpj"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                />
+              </TableHead>
+              <TableHead>
+                <SortableTableHead
+                  label="Razão Social"
+                  column="razao_social"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                />
+              </TableHead>
               <TableHead>Telefones</TableHead>
-              <TableHead>Código SAP</TableHead>
+              <TableHead>
+                <SortableTableHead
+                  label="Código SAP"
+                  column="codigo_sap"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                />
+              </TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>

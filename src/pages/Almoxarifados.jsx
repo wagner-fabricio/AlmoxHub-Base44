@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, Warehouse, Loader2, Search, MapPin, FileSpreadsheet } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import BulkUpdateModal from '@/components/bulk/BulkUpdateModal';
+import { SortableTableHead, useTableSort, useColumnFilters } from '@/components/ui/table-sortable';
 
 export default function Almoxarifados() {
   const [loading, setLoading] = useState(true);
@@ -42,6 +43,15 @@ export default function Almoxarifados() {
   });
   const [saving, setSaving] = useState(false);
   const [showBulkUpdate, setShowBulkUpdate] = useState(false);
+  
+  const { sortConfig, handleSort } = useTableSort();
+  const { columnFilters, toggleFilter, clearFilter } = useColumnFilters({
+    nome: [],
+    regional: [],
+    regiao: [],
+    tipo_almoxarifado: [],
+    status: []
+  });
 
   useEffect(() => {
     loadData();
@@ -176,7 +186,22 @@ export default function Almoxarifados() {
       .filter(Boolean)
   )].sort();
 
-  const filteredItems = almoxarifados.filter(a => {
+  const getUniqueValues = (column) => {
+    const values = new Set();
+    almoxarifados.forEach(a => {
+      if (column === 'nome') values.add(a.nome);
+      if (column === 'regional') {
+        const reg = getRegional(a.regional_id);
+        if (reg) values.add(reg.sigla);
+      }
+      if (column === 'regiao') values.add(a.regiao);
+      if (column === 'tipo_almoxarifado') values.add(a.tipo_almoxarifado);
+      if (column === 'status') values.add(a.ativo !== false ? 'Ativo' : 'Inativo');
+    });
+    return Array.from(values).filter(Boolean).sort();
+  };
+
+  let filteredItems = almoxarifados.filter(a => {
     if (filterRegional !== 'all' && a.regional_id !== filterRegional) return false;
     if (filterRegiao !== 'all' && a.regiao !== filterRegiao) return false;
     if (search && !a.nome?.toLowerCase().includes(search.toLowerCase())) return false;
@@ -185,8 +210,42 @@ export default function Almoxarifados() {
     if (filterEstado !== 'all' && instalacao?.estado !== filterEstado) return false;
     if (filterCidade !== 'all' && instalacao?.cidade !== filterCidade) return false;
     
+    // Filtros de coluna
+    if (columnFilters.nome.length > 0 && !columnFilters.nome.includes(a.nome)) return false;
+    const regional = getRegional(a.regional_id);
+    if (columnFilters.regional.length > 0 && !columnFilters.regional.includes(regional?.sigla)) return false;
+    if (columnFilters.regiao.length > 0 && !columnFilters.regiao.includes(a.regiao)) return false;
+    if (columnFilters.tipo_almoxarifado.length > 0 && !columnFilters.tipo_almoxarifado.includes(a.tipo_almoxarifado)) return false;
+    const status = a.ativo !== false ? 'Ativo' : 'Inativo';
+    if (columnFilters.status.length > 0 && !columnFilters.status.includes(status)) return false;
+    
     return true;
   });
+
+  // Aplicar ordenação
+  if (sortConfig.column && sortConfig.direction) {
+    filteredItems = [...filteredItems].sort((a, b) => {
+      let aValue, bValue;
+      
+      if (sortConfig.column === 'nome') {
+        aValue = a.nome || '';
+        bValue = b.nome || '';
+      } else if (sortConfig.column === 'regional') {
+        aValue = getRegional(a.regional_id)?.sigla || '';
+        bValue = getRegional(b.regional_id)?.sigla || '';
+      } else if (sortConfig.column === 'regiao') {
+        aValue = a.regiao || '';
+        bValue = b.regiao || '';
+      } else if (sortConfig.column === 'tipo_almoxarifado') {
+        aValue = a.tipo_almoxarifado || '';
+        bValue = b.tipo_almoxarifado || '';
+      }
+      
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
 
   if (loading) {
     return (
@@ -310,12 +369,54 @@ export default function Almoxarifados() {
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50 dark:bg-slate-800">
-              <TableHead className="font-semibold">Nome</TableHead>
-              <TableHead className="font-semibold">Regional</TableHead>
-              <TableHead className="font-semibold">Região</TableHead>
+              <TableHead className="font-semibold">
+                <SortableTableHead
+                  label="Nome"
+                  column="nome"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                />
+              </TableHead>
+              <TableHead className="font-semibold">
+                <SortableTableHead
+                  label="Regional"
+                  column="regional"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                />
+              </TableHead>
+              <TableHead className="font-semibold">
+                <SortableTableHead
+                  label="Região"
+                  column="regiao"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                />
+              </TableHead>
               <TableHead className="font-semibold">Instalação</TableHead>
               <TableHead className="font-semibold">Endereço</TableHead>
-              <TableHead className="font-semibold">Status</TableHead>
+              <TableHead className="font-semibold">
+                <SortableTableHead
+                  label="Status"
+                  column="status"
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                />
+              </TableHead>
               <TableHead className="font-semibold text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
