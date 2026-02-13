@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Plus, Edit, Trash2, User, Loader2, Search, Upload, X } from 'lucide-react';
+import { Plus, Edit, Trash2, User, Loader2, Search, Upload, X, CheckCircle2, UserX, Mail } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { SortableTableHead, useTableSort, useColumnFilters } from '@/components/ui/table-sortable';
 
@@ -51,6 +51,7 @@ export default function Pessoas() {
   });
   const [uploadingImage, setUploadingImage] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [sendingInvite, setSendingInvite] = useState({});
   
   const { sortConfig, handleSort } = useTableSort();
   const { columnFilters, toggleFilter, clearFilter } = useColumnFilters({
@@ -468,6 +469,30 @@ export default function Pessoas() {
     setFormData({ ...formData, foto_perfil: '' });
   };
 
+  const handleSendInvite = async (pessoaId) => {
+    if (!window.confirm('Deseja enviar um convite para esta pessoa criar uma conta no sistema?')) {
+      return;
+    }
+
+    setSendingInvite(prev => ({ ...prev, [pessoaId]: true }));
+    
+    try {
+      const response = await base44.functions.invoke('invitePersonUser', { pessoa_id: pessoaId });
+      
+      if (response.data.success) {
+        alert(response.data.message);
+        loadData(); // Recarregar para atualizar o status
+      } else {
+        alert(response.data.error || 'Erro ao enviar convite');
+      }
+    } catch (error) {
+      console.error('Erro ao enviar convite:', error);
+      alert('Erro ao enviar convite. Tente novamente.');
+    } finally {
+      setSendingInvite(prev => ({ ...prev, [pessoaId]: false }));
+    }
+  };
+
   const getRegional = (id) => regionais.find(r => r.id === id);
   const filteredAlmoxarifados = almoxarifados.filter(a => a.regional_id === formData.regional_id);
 
@@ -711,13 +736,14 @@ export default function Pessoas() {
                   getUniqueValues={getUniqueValues}
                 />
               </TableHead>
+              <TableHead className="font-semibold text-center">Conta</TableHead>
               <TableHead className="font-semibold text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredItems.length === 0 ? (
               <TableRow>
-              <TableCell colSpan={9} className="text-center py-12 text-slate-500">
+              <TableCell colSpan={10} className="text-center py-12 text-slate-500">
                 <User className="w-12 h-12 mx-auto mb-3 text-slate-300" />
                 <p>Nenhuma pessoa cadastrada</p>
               </TableCell>
@@ -808,6 +834,37 @@ export default function Pessoas() {
                          'Pendente'}
                       </Badge>
                     </TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-center gap-2">
+                        {item.user_id ? (
+                          <div className="flex items-center gap-1 text-green-600" title="Possui conta de usuário vinculada">
+                            <CheckCircle2 className="w-5 h-5" />
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex items-center gap-1 text-slate-400" title="Sem conta de usuário">
+                              <UserX className="w-5 h-5" />
+                            </div>
+                            {(currentUser?.role === 'admin' || currentPessoa?.funcoes?.includes('gestor')) && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleSendInvite(item.id)}
+                                disabled={sendingInvite[item.id]}
+                                className="h-7 px-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                title="Enviar convite para criar conta"
+                              >
+                                {sendingInvite[item.id] ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <Mail className="w-4 h-4" />
+                                )}
+                              </Button>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
                         {(currentPessoa?.funcoes?.includes('gestor') || item.id === currentPessoa?.id) && (
@@ -828,7 +885,7 @@ export default function Pessoas() {
             )}
             {filteredItems.length > 0 && (
               <TableRow className="bg-slate-50 dark:bg-slate-800 font-semibold border-t-2 border-slate-300 dark:border-slate-600">
-                <TableCell colSpan={8} className="text-slate-900 dark:text-white">
+                <TableCell colSpan={9} className="text-slate-900 dark:text-white">
                   Total de Pessoas
                 </TableCell>
                 <TableCell className="text-right text-slate-900 dark:text-white">
