@@ -12,6 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Plus, Edit, Trash2, User, Loader2, Search, Upload, X } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { SortableTableHead, useTableSort, useColumnFilters } from '@/components/ui/table-sortable';
 
 const funcaoLabels = {
   gestor: { label: 'Gestor', color: 'bg-purple-100 text-purple-700' },
@@ -50,6 +51,17 @@ export default function Pessoas() {
   });
   const [uploadingImage, setUploadingImage] = useState(false);
   const [saving, setSaving] = useState(false);
+  
+  const { sortConfig, handleSort } = useTableSort();
+  const { columnFilters, toggleFilter, clearFilter } = useColumnFilters({
+    nome: [],
+    matricula: [],
+    funcao: [],
+    regional: [],
+    funcoes: [],
+    status: [],
+    acesso: []
+  });
 
   useEffect(() => {
     loadData();
@@ -459,17 +471,84 @@ export default function Pessoas() {
   const getRegional = (id) => regionais.find(r => r.id === id);
   const filteredAlmoxarifados = almoxarifados.filter(a => a.regional_id === formData.regional_id);
 
+  const getUniqueValues = (column) => {
+    const values = new Set();
+    pessoas.forEach(p => {
+      if (column === 'nome') values.add(p.nome);
+      if (column === 'matricula') values.add(p.matricula);
+      if (column === 'funcao') values.add(p.funcao);
+      if (column === 'regional') {
+        const reg = getRegional(p.regional_id);
+        if (reg) values.add(reg.sigla);
+      }
+      if (column === 'funcoes') {
+        (p.funcoes || []).forEach(f => values.add(f));
+      }
+      if (column === 'status') values.add(p.ativo !== false ? 'Ativo' : 'Inativo');
+      if (column === 'acesso') {
+        const status = p.status_aprovacao === 'aprovado' ? 'Aprovado' :
+                       p.status_aprovacao === 'rejeitado' ? 'Rejeitado' : 'Pendente';
+        values.add(status);
+      }
+    });
+    return Array.from(values).filter(Boolean).sort();
+  };
+
   // Sanitizar busca para prevenir injection
   const sanitizedSearch = search.trim().replace(/[^\w\s\-@.]/g, '').substring(0, 100);
   
-  const filteredItems = pessoas.filter(p => {
+  let filteredItems = pessoas.filter(p => {
     if (filterRegional !== 'all' && p.regional_id !== filterRegional) return false;
     if (filterAlmoxarifado !== 'all' && !p.almoxarifados_ids?.includes(filterAlmoxarifado)) return false;
     if (filterFuncao !== 'all' && !p.funcoes?.includes(filterFuncao)) return false;
     if (sanitizedSearch && !p.nome?.toLowerCase().includes(sanitizedSearch.toLowerCase()) && 
         !p.matricula?.toLowerCase().includes(sanitizedSearch.toLowerCase())) return false;
+    
+    // Filtros de coluna
+    if (columnFilters.nome.length > 0 && !columnFilters.nome.includes(p.nome)) return false;
+    if (columnFilters.matricula.length > 0 && !columnFilters.matricula.includes(p.matricula)) return false;
+    if (columnFilters.funcao.length > 0 && !columnFilters.funcao.includes(p.funcao)) return false;
+    const regional = getRegional(p.regional_id);
+    if (columnFilters.regional.length > 0 && !columnFilters.regional.includes(regional?.sigla)) return false;
+    if (columnFilters.funcoes.length > 0) {
+      const hasFuncao = columnFilters.funcoes.some(f => p.funcoes?.includes(f));
+      if (!hasFuncao) return false;
+    }
+    const status = p.ativo !== false ? 'Ativo' : 'Inativo';
+    if (columnFilters.status.length > 0 && !columnFilters.status.includes(status)) return false;
+    const acesso = p.status_aprovacao === 'aprovado' ? 'Aprovado' :
+                    p.status_aprovacao === 'rejeitado' ? 'Rejeitado' : 'Pendente';
+    if (columnFilters.acesso.length > 0 && !columnFilters.acesso.includes(acesso)) return false;
+    
     return true;
   });
+
+  // Aplicar ordenação
+  if (sortConfig.column && sortConfig.direction) {
+    filteredItems = [...filteredItems].sort((a, b) => {
+      let aValue, bValue;
+      
+      if (sortConfig.column === 'nome') {
+        aValue = a.nome || '';
+        bValue = b.nome || '';
+      } else if (sortConfig.column === 'matricula') {
+        aValue = a.matricula || '';
+        bValue = b.matricula || '';
+      } else if (sortConfig.column === 'funcao') {
+        aValue = a.funcao || '';
+        bValue = b.funcao || '';
+      } else if (sortConfig.column === 'regional') {
+        const regA = getRegional(a.regional_id);
+        const regB = getRegional(b.regional_id);
+        aValue = regA?.sigla || '';
+        bValue = regB?.sigla || '';
+      }
+      
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
 
   if (loading) {
     return (
@@ -550,14 +629,88 @@ export default function Pessoas() {
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50 dark:bg-slate-800">
-              <TableHead className="font-semibold">Pessoa</TableHead>
-              <TableHead className="font-semibold">Matrícula</TableHead>
-              <TableHead className="font-semibold">Função</TableHead>
-              <TableHead className="font-semibold">Regional</TableHead>
+              <TableHead className="font-semibold">
+                <SortableTableHead
+                  label="Pessoa"
+                  column="nome"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                />
+              </TableHead>
+              <TableHead className="font-semibold">
+                <SortableTableHead
+                  label="Matrícula"
+                  column="matricula"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                />
+              </TableHead>
+              <TableHead className="font-semibold">
+                <SortableTableHead
+                  label="Função"
+                  column="funcao"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                />
+              </TableHead>
+              <TableHead className="font-semibold">
+                <SortableTableHead
+                  label="Regional"
+                  column="regional"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                />
+              </TableHead>
               <TableHead className="font-semibold">Almoxarifados</TableHead>
-              <TableHead className="font-semibold">Perfil</TableHead>
-              <TableHead className="font-semibold">Status</TableHead>
-              <TableHead className="font-semibold">Acesso</TableHead>
+              <TableHead className="font-semibold">
+                <SortableTableHead
+                  label="Perfil"
+                  column="funcoes"
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                  renderFilterItem={(column, value) => (
+                    <span className="text-sm">{funcaoLabels[value]?.label || value}</span>
+                  )}
+                />
+              </TableHead>
+              <TableHead className="font-semibold">
+                <SortableTableHead
+                  label="Status"
+                  column="status"
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                />
+              </TableHead>
+              <TableHead className="font-semibold">
+                <SortableTableHead
+                  label="Acesso"
+                  column="acesso"
+                  filterConfig={columnFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilter={clearFilter}
+                  getUniqueValues={getUniqueValues}
+                />
+              </TableHead>
               <TableHead className="font-semibold text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
