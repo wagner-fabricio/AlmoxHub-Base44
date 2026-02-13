@@ -55,14 +55,14 @@ Deno.serve(async (req) => {
             });
         }
 
-        // Criar convite para novo usuário
+        // Criar convite para novo usuário usando o método correto do SDK
         try {
-            // Usar base44.asServiceRole para ter permissão de convidar
-            await base44.asServiceRole.users.inviteUser(pessoaToInvite.email, 'user');
+            // Usar o método inviteUser do SDK
+            await base44.users.inviteUser(pessoaToInvite.email, 'user');
 
             // Buscar o user_id do usuário recém-convidado
             // Aguardar um pouco para garantir que o usuário foi criado
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 1500));
 
             const newUser = await base44.asServiceRole.entities.User.filter({ 
                 email: pessoaToInvite.email 
