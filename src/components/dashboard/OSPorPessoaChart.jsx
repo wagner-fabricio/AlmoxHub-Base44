@@ -16,8 +16,8 @@ const statusColors = {
 };
 
 const statusLabels = {
-  elaboracao: 'Não Iniciada',
-  execucao: 'Em Andamento',
+  elaboracao: 'Em Elaboração',
+  execucao: 'Em Execução',
   atrasado: 'Atrasado',
   concluido: 'Concluído'
 };
