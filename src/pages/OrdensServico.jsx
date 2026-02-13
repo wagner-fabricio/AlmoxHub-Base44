@@ -159,7 +159,15 @@ export default function OrdensServico() {
     if (filters.status !== 'all' && os.status !== filters.status) return false;
     
     // Period filter
-    if (filters.periodo === 'mes_atual') {
+    if (filters.periodo === 'hoje') {
+      // Filtrar por prazo de vencimento = hoje
+      if (!os.prazo) return false;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const prazoDate = new Date(os.prazo);
+      prazoDate.setHours(0, 0, 0, 0);
+      if (prazoDate.getTime() !== today.getTime()) return false;
+    } else if (filters.periodo === 'mes_atual') {
       const now = new Date();
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
