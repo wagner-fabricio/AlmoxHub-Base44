@@ -5,12 +5,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend, AreaChart, Area } from 'recharts';
-import { ClipboardList, CheckCircle, Clock, AlertTriangle, TrendingUp, Building2, MapPin, Loader2, Zap, Warehouse, Grid } from 'lucide-react';
+import { ClipboardList, CheckCircle, Clock, AlertTriangle, TrendingUp, Building2, MapPin, Loader2, Zap, Warehouse, Grid, Users } from 'lucide-react';
 import { format, subDays, differenceInDays } from 'date-fns';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import DashboardInsights from '@/components/dashboard/DashboardInsights';
+import OSPorPessoaChart from '@/components/dashboard/OSPorPessoaChart';
 
 const COLORS = ['#0000FF', '#FF6B00', '#10B981', '#A0B4D2', '#0A003C', '#EC4899'];
 
@@ -29,6 +30,7 @@ export default function Dashboard() {
   const [subcategorias, setSubcategorias] = useState([]);
   const [almoxarifados, setAlmoxarifados] = useState([]);
   const [instalacoes, setInstalacoes] = useState([]);
+  const [pessoas, setPessoas] = useState([]);
   const [mapFilters, setMapFilters] = useState({
     usina: true,
     subestacao: true,
@@ -70,14 +72,15 @@ export default function Dashboard() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [user, ordensData, regionaisData, categoriasData, subcategoriasData, almoxarifadosData, instalacoesData] = await Promise.all([
+      const [user, ordensData, regionaisData, categoriasData, subcategoriasData, almoxarifadosData, instalacoesData, pessoasData] = await Promise.all([
         base44.auth.me(),
         base44.entities.OrdemServico.list(),
         base44.entities.Regional.list(),
         base44.entities.Categoria.list(),
         base44.entities.Subcategoria.list(),
         base44.entities.Almoxarifado.list(),
-        base44.entities.Instalacao.list()
+        base44.entities.Instalacao.list(),
+        base44.entities.Pessoa.list()
       ]);
       setCurrentUser(user);
       setOrdens(ordensData);
@@ -86,6 +89,7 @@ export default function Dashboard() {
       setSubcategorias(subcategoriasData);
       setAlmoxarifados(almoxarifadosData);
       setInstalacoes(instalacoesData);
+      setPessoas(pessoasData);
 
       if (user.filtros_preferidos?.Dashboard) {
         setFilters(user.filtros_preferidos.Dashboard);
@@ -543,6 +547,24 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Gráfico de Esforço por Pessoa */}
+      <Card className="bg-white dark:bg-slate-800">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold flex items-center gap-2">
+            <Users className="w-5 h-5 text-blue-500" />
+            Esforço por Pessoa
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <OSPorPessoaChart 
+            ordens={filteredOrdens} 
+            pessoas={pessoas}
+            regionais={regionais}
+            almoxarifados={almoxarifados}
+          />
+        </CardContent>
+      </Card>
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
