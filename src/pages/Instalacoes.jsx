@@ -212,8 +212,15 @@ export default function Instalacoes() {
     }
   };
 
-  const cidades = [...new Set(instalacoes.map(i => i.cidade).filter(Boolean))].sort();
   const estados = [...new Set(instalacoes.map(i => i.estado).filter(Boolean))].sort();
+  
+  // Filtrar cidades baseado no estado selecionado
+  const cidades = [...new Set(
+    instalacoes
+      .filter(i => filterEstado === 'all' || i.estado === filterEstado)
+      .map(i => i.cidade)
+      .filter(Boolean)
+  )].sort();
 
   const filteredInstalacoes = instalacoes.filter(inst => {
     const matchesSearch = 
@@ -290,7 +297,7 @@ export default function Instalacoes() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas</SelectItem>
-              {regionais.map((r) => (
+              {[...regionais].sort((a, b) => a.sigla.localeCompare(b.sigla)).map((r) => (
                 <SelectItem key={r.id} value={r.id}>{r.sigla}</SelectItem>
               ))}
             </SelectContent>
@@ -320,7 +327,11 @@ export default function Instalacoes() {
               <SelectItem value="Sul">Sul</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={filterEstado} onValueChange={(v) => { setFilterEstado(v); saveFilters({ search, filterRegional, filterClassificacao, filterCidade, filterEstado: v, filterRegiao }); }}>
+          <Select value={filterEstado} onValueChange={(v) => { 
+            setFilterEstado(v);
+            if (v !== filterEstado) setFilterCidade('all'); // Resetar cidade ao mudar estado
+            saveFilters({ search, filterRegional, filterClassificacao, filterCidade: 'all', filterEstado: v, filterRegiao }); 
+          }}>
             <SelectTrigger className="w-full lg:w-32 bg-slate-50 dark:bg-slate-900">
               <SelectValue placeholder="Estado" />
             </SelectTrigger>
