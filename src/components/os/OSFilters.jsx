@@ -234,6 +234,7 @@ export default function OSFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todo período</SelectItem>
+              <SelectItem value="hoje">Hoje</SelectItem>
               <SelectItem value="7">Últimos 7 dias</SelectItem>
               <SelectItem value="30">Últimos 30 dias</SelectItem>
               <SelectItem value="90">Últimos 90 dias</SelectItem>
