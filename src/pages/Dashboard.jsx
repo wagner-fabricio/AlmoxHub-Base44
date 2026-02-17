@@ -203,8 +203,8 @@ export default function Dashboard() {
   // KPIs Recebimento
   const osRecebimento = filteredOrdens.filter(os => os.categoria_id === categoriaRecebimento?.id);
   
-  const numItensNFCompra = osRecebimento.reduce((sum, os) => {
-    return sum + (os.nfe_itens_conferencia?.length || 0);
+  const numItensNFCompra = filteredOrdens.reduce((sum, os) => {
+    return sum + (os.itens_documento?.length || 0) + (os.nfe_itens_conferencia?.length || 0);
   }, 0);
   
   const valorItensNFCompra = osRecebimento.reduce((sum, os) => {
