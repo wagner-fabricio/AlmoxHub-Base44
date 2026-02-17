@@ -196,12 +196,16 @@ export default function Dashboard() {
 
   // Torre de Controle - KPIs Recebimento
   const categoriaRecebimento = categorias.find(c => c.nome?.toLowerCase().includes('recebimento'));
-  const subcategoriaCompra = subcategorias.find(s => s.nome?.toLowerCase().includes('compra'));
+  const subcategoriaCompra = subcategorias.find(s => 
+    s.nome?.toLowerCase().includes('compra') || 
+    s.nome?.toLowerCase().includes('pedido') ||
+    (s.categoria_id === categoriaRecebimento?.id && s.nome?.toLowerCase().includes('com'))
+  );
   
   const osRecebimentoCompra = filteredOrdens.filter(os => 
     os.categoria_id === categoriaRecebimento?.id && 
-    os.subcategorias_ids?.includes(subcategoriaCompra?.id) &&
-    os.status === 'concluido'
+    os.status === 'concluido' &&
+    (os.subcategorias_ids?.includes(subcategoriaCompra?.id) || os.subcategorias_ids?.length > 0)
   );
   
   const numItensNFCompra = osRecebimentoCompra.reduce((sum, os) => {
