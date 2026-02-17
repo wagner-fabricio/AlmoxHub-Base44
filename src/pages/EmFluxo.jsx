@@ -17,7 +17,10 @@ import {
   Plus,
   Filter,
   UserCircle,
-  BarChart3
+  BarChart3,
+  Bell,
+  Trash2,
+  CheckCheck
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -66,6 +69,7 @@ export default function EmFluxo() {
   const [currentUser, setCurrentUser] = useState(null);
   const [showDesempenho, setShowDesempenho] = useState(false);
   const [todasOrdens, setTodasOrdens] = useState([]);
+  const [notificacoes, setNotificacoes] = useState([]);
 
   useEffect(() => {
     loadData();
@@ -86,7 +90,8 @@ export default function EmFluxo() {
         regionaisData,
         almoxarifadosData,
         instalacoesData,
-        participantesData
+        participantesData,
+        notificacoesData
       ] = await Promise.all([
         base44.entities.Pessoa.list(),
         base44.entities.OrdemServico.list(),
@@ -98,6 +103,7 @@ export default function EmFluxo() {
         base44.entities.Almoxarifado.list(),
         base44.entities.Instalacao.list(),
         base44.entities.ParticipanteConversa.list(),
+        base44.entities.Notificacao.list(),
       ]);
 
       setTodasOrdens(ordensData || []);
@@ -105,6 +111,12 @@ export default function EmFluxo() {
       setPessoas(pessoasData || []);
       const pessoa = (pessoasData || []).find(p => p.email === user.email);
       setCurrentPessoa(pessoa);
+
+      // Filtrar notificações do usuário
+      const minhasNotificacoes = (notificacoesData || [])
+        .filter(n => n.destinatario_id === pessoa?.id)
+        .sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+      setNotificacoes(minhasNotificacoes);
 
       // Filtrar apenas OS onde o usuário é líder ou executor
       const minhasOrdens = (ordensData || []).filter(os => 
@@ -199,6 +211,14 @@ export default function EmFluxo() {
       color: '#10B981',
       bgColor: '#10B981',
       count: null
+    },
+    {
+      id: 'notificacoes',
+      name: 'Notificações',
+      icon: Bell,
+      color: '#F59E0B',
+      bgColor: '#F59E0B',
+      count: (notificacoes || []).filter(n => !n.lida).length
     }
   ] || [];
 
@@ -234,6 +254,38 @@ export default function EmFluxo() {
 
   const handleCloseProjeto = () => {
     setSelectedProjeto(null);
+  };
+
+  const handleMarcarTodasLidas = async () => {
+    try {
+      const naoLidas = notificacoes.filter(n => !n.lida);
+      await Promise.all(
+        naoLidas.map(n => base44.entities.Notificacao.update(n.id, { lida: true }))
+      );
+      await loadData();
+    } catch (error) {
+      console.error('Error marking notifications as read:', error);
+    }
+  };
+
+  const handleExcluirNotificacao = async (notifId) => {
+    try {
+      await base44.entities.Notificacao.delete(notifId);
+      setNotificacoes(notificacoes.filter(n => n.id !== notifId));
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+    }
+  };
+
+  const handleExcluirTodas = async () => {
+    try {
+      await Promise.all(
+        notificacoes.map(n => base44.entities.Notificacao.delete(n.id))
+      );
+      setNotificacoes([]);
+    } catch (error) {
+      console.error('Error deleting all notifications:', error);
+    }
   };
 
   const getNomeConversa = (conversa) => {
@@ -711,6 +763,89 @@ export default function EmFluxo() {
                   </button>
                 );
               })
+            )}
+          </div>
+        )}
+
+        {activeModule === 'notificacoes' && (
+          <div className="space-y-3">
+            {/* Botões de Ação */}
+            {notificacoes.length > 0 && (
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleMarcarTodasLidas}
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  disabled={notificacoes.filter(n => !n.lida).length === 0}
+                >
+                  <CheckCheck className="w-4 h-4 mr-2" />
+                  Marcar Todas como Lidas
+                </Button>
+                <Button
+                  onClick={handleExcluirTodas}
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Excluir Todas
+                </Button>
+              </div>
+            )}
+
+            {notificacoes.length === 0 ? (
+              <div className="text-center py-12 text-slate-500 dark:text-slate-400">
+                <Bell className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <p>Nenhuma notificação</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {notificacoes.map((notif) => {
+                  const remetente = pessoas.find(p => p.id === notif.remetente_id);
+                  
+                  return (
+                    <div
+                      key={notif.id}
+                      className={`bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border-l-4 ${
+                        notif.lida 
+                          ? 'border-slate-300 dark:border-slate-600' 
+                          : 'border-amber-500 bg-amber-50/50 dark:bg-amber-900/10'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <p className={`text-sm ${notif.lida ? 'text-slate-700 dark:text-slate-300' : 'text-slate-900 dark:text-white font-medium'}`}>
+                              {notif.mensagem}
+                            </p>
+                            {!notif.lida && (
+                              <div className="w-2 h-2 rounded-full bg-amber-500 shrink-0 mt-1" />
+                            )}
+                          </div>
+                          
+                          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                            {remetente && (
+                              <>
+                                <span>{remetente.nome}</span>
+                                <span>•</span>
+                              </>
+                            )}
+                            <span>{format(new Date(notif.created_date), 'dd/MM/yyyy HH:mm')}</span>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => handleExcluirNotificacao(notif.id)}
+                          className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-slate-400 hover:text-red-600 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </div>
         )}
