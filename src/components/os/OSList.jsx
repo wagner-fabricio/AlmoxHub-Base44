@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { format } from 'date-fns';
+import { format, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { AlertTriangle, CheckCircle, Clock, Loader2, Filter, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 
@@ -123,9 +123,17 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
       } else if (sortConfig.column === 'lider') {
         aValue = getLider(a.lider_id)?.nome || '';
         bValue = getLider(b.lider_id)?.nome || '';
+      } else if (sortConfig.column === 'data_inicial') {
+        aValue = a.data_inicial ? new Date(a.data_inicial).getTime() : 0;
+        bValue = b.data_inicial ? new Date(b.data_inicial).getTime() : 0;
       } else if (sortConfig.column === 'prazo') {
         aValue = a.prazo ? new Date(a.prazo).getTime() : 0;
         bValue = b.prazo ? new Date(b.prazo).getTime() : 0;
+      } else if (sortConfig.column === 'tempo_decorrido') {
+        const aDays = a.data_inicial && a.prazo ? differenceInDays(new Date(a.prazo), new Date(a.data_inicial)) : 0;
+        const bDays = b.data_inicial && b.prazo ? differenceInDays(new Date(b.prazo), new Date(b.data_inicial)) : 0;
+        aValue = aDays;
+        bValue = bDays;
       } else if (sortConfig.column === 'prioridade') {
         const prioridadeOrder = { baixa: 1, media: 2, alta: 3, urgente: 4 };
         aValue = prioridadeOrder[a.prioridade] || 0;
@@ -320,11 +328,45 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
             </TableHead>
             <TableHead className="font-semibold">
               <button
+                onClick={() => handleSort('data_inicial')}
+                className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+              >
+                Data Inicial
+                {sortConfig.column === 'data_inicial' ? (
+                  sortConfig.direction === 'asc' ? (
+                    <ArrowUp className="w-4 h-4" />
+                  ) : (
+                    <ArrowDown className="w-4 h-4" />
+                  )
+                ) : (
+                  <ArrowUpDown className="w-4 h-4 opacity-30" />
+                )}
+              </button>
+            </TableHead>
+            <TableHead className="font-semibold">
+              <button
                 onClick={() => handleSort('prazo')}
                 className="flex items-center gap-1 hover:text-blue-600 transition-colors"
               >
                 Prazo
                 {sortConfig.column === 'prazo' ? (
+                  sortConfig.direction === 'asc' ? (
+                    <ArrowUp className="w-4 h-4" />
+                  ) : (
+                    <ArrowDown className="w-4 h-4" />
+                  )
+                ) : (
+                  <ArrowUpDown className="w-4 h-4 opacity-30" />
+                )}
+              </button>
+            </TableHead>
+            <TableHead className="font-semibold">
+              <button
+                onClick={() => handleSort('tempo_decorrido')}
+                className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+              >
+                Tempo Decorrido
+                {sortConfig.column === 'tempo_decorrido' ? (
                   sortConfig.direction === 'asc' ? (
                     <ArrowUp className="w-4 h-4" />
                   ) : (
@@ -494,7 +536,17 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
                 </TableCell>
                 <TableCell>
                   <span className="text-sm text-slate-600 dark:text-slate-400">
+                    {os.data_inicial ? format(new Date(os.data_inicial), 'dd/MM/yyyy', { locale: ptBR }) : '-'}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <span className="text-sm text-slate-600 dark:text-slate-400">
                     {os.prazo ? format(new Date(os.prazo), 'dd/MM/yyyy', { locale: ptBR }) : '-'}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <span className="text-sm text-slate-600 dark:text-slate-400">
+                    {os.data_inicial && os.prazo ? `${differenceInDays(new Date(os.prazo), new Date(os.data_inicial))} dias` : '-'}
                   </span>
                 </TableCell>
                 <TableCell>
