@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
       'pendente': 10,
       'em_separacao': 20,
       'separado': 40,
-      'embalado': 60,
+      'embalando': 60,
       'aguardando_transporte': 80,
       'em_rota': 90,
       'entregue': 100
