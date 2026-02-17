@@ -145,6 +145,28 @@ export default function EmFluxo() {
     }
   };
 
+  // Filtrar projetos do usuário
+  const projetosFiltrados = useMemo(() => {
+    if (!currentPessoa) return [];
+    
+    return (projetos || []).filter(projeto => {
+      // Verifica se o usuário é líder ou está envolvido no projeto
+      const estaNoTime = 
+        projeto.lider_id === currentPessoa.id ||
+        (projeto.outros_envolvidos_ids || []).includes(currentPessoa.id);
+      
+      if (estaNoTime) return true;
+      
+      // Verifica se há alguma OS do projeto onde o usuário está envolvido
+      const temOSVinculada = (ordens || []).some(os => 
+        (os.projetos_ids || []).includes(projeto.id) &&
+        (os.lider_id === currentPessoa.id || (os.executores_ids || []).includes(currentPessoa.id))
+      );
+      
+      return temOSVinculada;
+    });
+  }, [projetos, currentPessoa, ordens]);
+
   const modules = [
     {
       id: 'ordens',
@@ -267,28 +289,6 @@ export default function EmFluxo() {
     
     return format(msgDate, 'dd/MM/yy');
   };
-
-  // Filtrar projetos do usuário
-  const projetosFiltrados = React.useMemo(() => {
-    if (!currentPessoa) return [];
-    
-    return (projetos || []).filter(projeto => {
-      // Verifica se o usuário é líder ou está envolvido no projeto
-      const estaNoTime = 
-        projeto.lider_id === currentPessoa.id ||
-        (projeto.outros_envolvidos_ids || []).includes(currentPessoa.id);
-      
-      if (estaNoTime) return true;
-      
-      // Verifica se há alguma OS do projeto onde o usuário está envolvido
-      const temOSVinculada = (ordens || []).some(os => 
-        (os.projetos_ids || []).includes(projeto.id) &&
-        (os.lider_id === currentPessoa.id || (os.executores_ids || []).includes(currentPessoa.id))
-      );
-      
-      return temOSVinculada;
-    });
-  }, [projetos, currentPessoa, ordens]);
 
   const handleCriarConversa = async (tipo, participantesIds, nomeGrupo) => {
     try {
