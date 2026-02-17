@@ -7,6 +7,8 @@ const columns = [
   { id: 'pendente', title: 'Pendente', color: 'bg-slate-500' },
   { id: 'em_separacao', title: 'Em Separação', color: 'bg-amber-500' },
   { id: 'separado', title: 'Separado', color: 'bg-blue-500' },
+  { id: 'embalado', title: 'Embalado', color: 'bg-purple-500' },
+  { id: 'aguardando_transporte', title: 'Aguardando Transporte', color: 'bg-orange-500' },
   { id: 'em_rota', title: 'Em Rota', color: 'bg-indigo-500' },
   { id: 'entregue', title: 'Entregue', color: 'bg-green-500' },
 ];
