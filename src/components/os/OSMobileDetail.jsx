@@ -536,7 +536,7 @@ export default function OSMobileDetail({
       });
       
       // Atualizar objeto local
-      os.volumes = volumes;
+      os.volumes = [...volumes];
       
       // Registrar no histórico
       try {
@@ -550,11 +550,6 @@ export default function OSMobileDetail({
         });
       } catch (auditError) {
         console.log('Audit log failed:', auditError);
-      }
-      
-      // Forçar refresh
-      if (onRefresh) {
-        await onRefresh();
       }
     } catch (error) {
       console.error('Error saving volumes:', error);
