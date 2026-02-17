@@ -49,6 +49,7 @@ export default function OSFilters({
       categorias: expedicaoCategoria ? [expedicaoCategoria.id] : [],
       subcategoria: 'all',
       status: 'all',
+      statusList: [],
       visao: 'todos',
       periodo: 'all',
       dataInicio: '',
@@ -64,6 +65,7 @@ export default function OSFilters({
     filters.categorias?.length > 0 || 
     filters.subcategoria !== 'all' ||
     filters.status !== 'all' ||
+    filters.statusList?.length > 0 ||
     filters.periodo !== 'all';
 
   const filteredSubcategorias = !filters.categorias || filters.categorias.length === 0
@@ -225,21 +227,61 @@ export default function OSFilters({
             </SelectContent>
           </Select>
 
-          <Select
-            value={filters.status}
-            onValueChange={(value) => setFilters({ ...filters, status: value })}
-          >
-            <SelectTrigger className="bg-slate-50 dark:bg-slate-900 text-sm">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos Status</SelectItem>
-              <SelectItem value="elaboracao">Em Elaboração</SelectItem>
-              <SelectItem value="execucao">Em Execução</SelectItem>
-              <SelectItem value="concluido">Concluído</SelectItem>
-              <SelectItem value="cancelado">Cancelado</SelectItem>
-            </SelectContent>
-          </Select>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="outline"
+                className="justify-between bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-sm h-9"
+              >
+                <span className="truncate text-xs sm:text-sm">
+                  {!filters.statusList || filters.statusList.length === 0 ? 'Status' : 
+                    filters.statusList.length === 1 ? 
+                      ({ elaboracao: 'Elaboração', execucao: 'Execução', concluido: 'Concluído', cancelado: 'Cancelado' }[filters.statusList[0]] || 'Status') :
+                    `${filters.statusList.length} status`}
+                </span>
+                <ChevronDown className="w-4 h-4 shrink-0 ml-1" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-56 p-3">
+              <div className="space-y-2">
+                <button
+                  onClick={() => setFilters({ ...filters, statusList: [] })}
+                  className="w-full text-left px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
+                  Limpar seleção
+                </button>
+                <div className="border-t border-slate-200 dark:border-slate-700 pt-2">
+                  {[
+                    { id: 'elaboracao', label: 'Em Elaboração' },
+                    { id: 'execucao', label: 'Em Execução' },
+                    { id: 'concluido', label: 'Concluído' },
+                    { id: 'cancelado', label: 'Cancelado' }
+                  ].map((status) => (
+                    <label key={status.id} className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer">
+                      <Checkbox
+                        checked={filters.statusList?.includes(status.id) || false}
+                        onCheckedChange={(checked) => {
+                          const currentList = filters.statusList || [];
+                          if (checked) {
+                            setFilters({ 
+                              ...filters, 
+                              statusList: [...currentList, status.id]
+                            });
+                          } else {
+                            setFilters({ 
+                              ...filters, 
+                              statusList: currentList.filter(id => id !== status.id)
+                            });
+                          }
+                        }}
+                      />
+                      <span className="text-sm text-slate-700 dark:text-slate-300">{status.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
 
           <Select
             value={filters.periodo}
