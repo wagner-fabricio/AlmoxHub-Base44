@@ -75,7 +75,8 @@ export default function OSDetailModal({
   onDelete,
   onCreateRelated,
   canDelete,
-  onRefresh
+  onRefresh,
+  projetos
 }) {
   const [comentarios, setComentarios] = useState([]);
   const [newComment, setNewComment] = useState('');
