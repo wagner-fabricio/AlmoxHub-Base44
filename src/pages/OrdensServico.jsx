@@ -6,6 +6,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import OSFilters from '@/components/os/OSFilters.jsx';
 import OSKanban from '@/components/os/OSKanban.jsx';
 import OSKanbanExpedicao from '@/components/os/OSKanbanExpedicao.jsx';
+import OSKanbanRecebimento from '@/components/os/OSKanbanRecebimento.jsx';
 import OSList from '@/components/os/OSList.jsx';
 import OSGallery from '@/components/os/OSGallery.jsx';
 import OSByResponsavel from '@/components/os/OSByResponsavel.jsx';
@@ -218,15 +219,22 @@ export default function OrdensServico() {
     setShowDetailModal(true);
   };
 
-  const handleStatusChange = async (osId, newStatus) => {
+  const handleStatusChange = async (osId, newStatus, fluxoData) => {
     try {
       const os = Array.isArray(ordens) ? ordens.find(o => o?.id === osId) : null;
       
-      // Determinar se é mudança de status normal ou status_separacao
+      // Determinar se é mudança de status normal, status_separacao ou fluxo_recebimento
       const isExpedicaoView = viewMode === 'kanban_expedicao';
-      const updateData = isExpedicaoView 
-        ? { status_separacao: newStatus }
-        : { status: newStatus };
+      const isRecebimentoView = viewMode === 'kanban_recebimento';
+      
+      let updateData;
+      if (isRecebimentoView && fluxoData) {
+        updateData = { fluxo_recebimento: fluxoData };
+      } else if (isExpedicaoView) {
+        updateData = { status_separacao: newStatus };
+      } else {
+        updateData = { status: newStatus };
+      }
       
       await base44.entities.OrdemServico.update(osId, updateData);
       setOrdens(ordens.map(o => o.id === osId ? { ...o, ...updateData } : o));
@@ -476,6 +484,17 @@ export default function OrdensServico() {
                   onStatusChange={handleStatusChange}
                 />
               )}
+              {viewMode === 'kanban_recebimento' && (
+                <OSKanbanRecebimento
+                  ordens={filteredOrdens}
+                  pessoas={pessoas}
+                  categorias={categorias}
+                  regionais={regionais}
+                  instalacoes={instalacoes}
+                  onOSClick={handleOSClick}
+                  onStatusChange={handleStatusChange}
+                />
+              )}
               {viewMode === 'list' && (
                 <OSList
                   ordens={filteredOrdens}
@@ -547,6 +566,7 @@ export default function OrdensServico() {
         viewMode={viewMode}
         setViewMode={setViewMode}
         isExpedicaoView={viewMode === 'kanban_expedicao'}
+        isRecebimentoView={viewMode === 'kanban_recebimento'}
       />
 
       {/* Content */}
@@ -581,6 +601,17 @@ export default function OrdensServico() {
           )}
           {viewMode === 'kanban_expedicao' && (
             <OSKanbanExpedicao
+              ordens={filteredOrdens}
+              pessoas={pessoas}
+              categorias={categorias}
+              regionais={regionais}
+              instalacoes={instalacoes}
+              onOSClick={handleOSClick}
+              onStatusChange={handleStatusChange}
+            />
+          )}
+          {viewMode === 'kanban_recebimento' && (
+            <OSKanbanRecebimento
               ordens={filteredOrdens}
               pessoas={pessoas}
               categorias={categorias}

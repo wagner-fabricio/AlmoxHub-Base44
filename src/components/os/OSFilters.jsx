@@ -31,7 +31,8 @@ export default function OSFilters({
   subcategorias,
   viewMode,
   setViewMode,
-  isExpedicaoView = false
+  isExpedicaoView = false,
+  isRecebimentoView = false
 }) {
   const [isOpen, setIsOpen] = React.useState(true);
 
@@ -41,12 +42,17 @@ export default function OSFilters({
       ? categorias.find(c => c.nome === 'Expedição')
       : null;
     
+    // Se estiver na visão de recebimento, manter a categoria Recebimento
+    const recebimentoCategoria = isRecebimentoView 
+      ? categorias.find(c => c.nome === 'Recebimento')
+      : null;
+    
     setFilters({
       search: '',
       migo: '',
       regional: 'all',
       almoxarifado: 'all',
-      categorias: expedicaoCategoria ? [expedicaoCategoria.id] : [],
+      categorias: expedicaoCategoria ? [expedicaoCategoria.id] : (recebimentoCategoria ? [recebimentoCategoria.id] : []),
       subcategoria: 'all',
       status: 'all',
       statusList: [],
@@ -162,16 +168,18 @@ export default function OSFilters({
               <Button 
                 variant="outline"
                 className="col-span-2 sm:col-span-1 justify-between bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-sm h-9"
-                disabled={isExpedicaoView}
+                disabled={isExpedicaoView || isRecebimentoView}
               >
                 <span className="truncate text-xs sm:text-sm">
                   {isExpedicaoView 
                     ? 'Expedição'
+                    : isRecebimentoView
+                    ? 'Recebimento'
                     : filters.categorias?.length === 0 ? 'Categorias' : 
                       filters.categorias?.length === 1 ? (categorias.find(c => c.id === filters.categorias[0])?.nome || 'Cat.') :
                       `${filters.categorias?.length} cat.`}
                 </span>
-                {!isExpedicaoView && <ChevronDown className="w-4 h-4 shrink-0 ml-1" />}
+                {!isExpedicaoView && !isRecebimentoView && <ChevronDown className="w-4 h-4 shrink-0 ml-1" />}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-56 p-3">
@@ -307,7 +315,7 @@ export default function OSFilters({
               size="icon"
               onClick={clearFilters}
               className="text-slate-500 hover:text-red-500 h-9"
-              title={isExpedicaoView ? "Limpar filtros (mantém categoria Expedição)" : "Limpar filtros"}
+              title={isExpedicaoView ? "Limpar filtros (mantém categoria Expedição)" : isRecebimentoView ? "Limpar filtros (mantém categoria Recebimento)" : "Limpar filtros"}
             >
               <X className="w-4 h-4" />
             </Button>
@@ -392,6 +400,22 @@ export default function OSFilters({
           >
             <LayoutGrid className="w-4 h-4" />
             <span className="text-xs">Expedição</span>
+          </Button>
+          <Button
+            variant={viewMode === 'kanban_recebimento' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => {
+              const recebimentoCategoria = categorias.find(c => c.nome === 'Recebimento');
+              if (recebimentoCategoria) {
+                setFilters({ ...filters, categorias: [recebimentoCategoria.id] });
+              }
+              setViewMode('kanban_recebimento');
+            }}
+            className="h-9 gap-2"
+            title="Kanban Recebimento"
+          >
+            <LayoutGrid className="w-4 h-4" />
+            <span className="text-xs">Recebimento</span>
           </Button>
         </div>
       </CollapsibleContent>
