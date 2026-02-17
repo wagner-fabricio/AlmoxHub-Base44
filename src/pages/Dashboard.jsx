@@ -207,9 +207,9 @@ export default function Dashboard() {
     return sum + (os.nfe_itens_conferencia?.length || 0);
   }, 0);
   
-  const valorItensNFCompra = filteredOrdens.reduce((sum, os) => {
-    return sum + (os.itens_documento || []).reduce((s, item) => {
-      return s + (item.r_total || 0);
+  const valorItensNFCompra = osRecebimento.reduce((sum, os) => {
+    return sum + (os.nfe_itens_conferencia || []).reduce((s, item) => {
+      return s + ((item.quantidade_esperada || 0) * (item.valor_unitario || 0));
     }, 0);
   }, 0);
   
