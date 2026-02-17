@@ -150,7 +150,7 @@ export default function OSFilters({
             value={filters.almoxarifado}
             onValueChange={(value) => setFilters({ ...filters, almoxarifado: value })}
           >
-            <SelectTrigger className="bg-slate-50 dark:bg-slate-900 text-sm col-span-2 sm:col-span-1">
+            <SelectTrigger className="bg-slate-50 dark:bg-slate-900 text-sm">
               <SelectValue placeholder="Almoxarifado" />
             </SelectTrigger>
             <SelectContent>
