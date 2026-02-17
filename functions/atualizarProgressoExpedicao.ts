@@ -4,7 +4,7 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     
-    // Verificar autenticação e se é admin
+    // Verificar autenticação
     const user = await base44.auth.me();
     if (!user) {
       return Response.json({ error: 'Não autorizado' }, { status: 401 });
