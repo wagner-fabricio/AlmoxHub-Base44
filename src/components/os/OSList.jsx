@@ -591,7 +591,6 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
           }, 0)} dias
         </span>
       </div>
-      </Table>
     </div>
   );
 }
