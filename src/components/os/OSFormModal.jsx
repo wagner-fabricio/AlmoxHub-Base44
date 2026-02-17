@@ -815,149 +815,174 @@ export default function OSFormModal({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-5xl max-h-[90vh] p-0 overflow-hidden">
-        <DialogHeader className="px-6 py-4 border-b bg-slate-50 dark:bg-slate-800">
-          <DialogTitle className="text-xl font-semibold">
+        <DialogHeader className="px-6 py-5 border-b" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
+          <DialogTitle className="text-xl font-semibold text-white">
             {os?.id ? `Editar OS: ${os.codigo}` : 'Nova Ordem de Serviço'}
           </DialogTitle>
         </DialogHeader>
 
         <ScrollArea className="max-h-[calc(90vh-140px)]">
-          <div className="p-6">
+          <div className="p-8 bg-slate-50/30 dark:bg-slate-900/30">
             <Tabs defaultValue="geral" className="w-full">
-              <TabsList className="mb-6 bg-slate-100 dark:bg-slate-800 p-1">
-                <TabsTrigger value="geral">Dados Gerais</TabsTrigger>
+              <TabsList className="mb-8 bg-transparent border-b border-slate-200 dark:border-slate-700 rounded-none h-auto p-0 space-x-8">
+                <TabsTrigger 
+                  value="geral" 
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3"
+                >
+                  Dados Gerais
+                </TabsTrigger>
                 {isAtendimentoCategory && (
-                  <TabsTrigger value="materiais">Materiais ({formData.itens_documento?.length || 0})</TabsTrigger>
+                  <TabsTrigger 
+                    value="materiais"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3"
+                  >
+                    Materiais ({formData.itens_documento?.length || 0})
+                  </TabsTrigger>
                 )}
                 {isExpedicaoCategory && (
                   <>
-                    <TabsTrigger value="documento">Documento</TabsTrigger>
-                    <TabsTrigger value="materiais">Materiais</TabsTrigger>
-                    <TabsTrigger value="volumes">Volumes</TabsTrigger>
-                    <TabsTrigger value="expedicao">Expedição</TabsTrigger>
+                    <TabsTrigger value="documento" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Documento</TabsTrigger>
+                    <TabsTrigger value="materiais" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Materiais</TabsTrigger>
+                    <TabsTrigger value="volumes" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Volumes</TabsTrigger>
+                    <TabsTrigger value="expedicao" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Expedição</TabsTrigger>
                   </>
                 )}
                 {isRecebimentoCategory && (
                   <>
-                    <TabsTrigger value="receb-dados">Dados Recebimento</TabsTrigger>
-                    <TabsTrigger value="receb-documento">Documento</TabsTrigger>
-                    <TabsTrigger value="receb-doc">Cabeçalho NF</TabsTrigger>
-                    <TabsTrigger value="receb-mat">Materiais</TabsTrigger>
-                    <TabsTrigger value="receb-transp">Transportador</TabsTrigger>
-                    <TabsTrigger value="receb-rodape">Rodapé NF</TabsTrigger>
+                    <TabsTrigger value="receb-dados" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Dados Recebimento</TabsTrigger>
+                    <TabsTrigger value="receb-documento" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Documento</TabsTrigger>
+                    <TabsTrigger value="receb-doc" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Cabeçalho NF</TabsTrigger>
+                    <TabsTrigger value="receb-mat" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Materiais</TabsTrigger>
+                    <TabsTrigger value="receb-transp" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Transportador</TabsTrigger>
+                    <TabsTrigger value="receb-rodape" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Rodapé NF</TabsTrigger>
                   </>
                 )}
-                <TabsTrigger value="anexos">Anexos</TabsTrigger>
+                <TabsTrigger value="anexos" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Anexos</TabsTrigger>
               </TabsList>
 
               {/* TAB: Dados Gerais */}
-              <TabsContent value="geral" className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {/* Categoria */}
-                  <div className="space-y-2">
-                    <Label>Categoria *</Label>
-                    <Select
-                      value={formData.categoria_id}
-                      onValueChange={(v) => setFormData({ ...formData, categoria_id: v, subcategorias_ids: [] })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione..." />
-                      </SelectTrigger>
+              <TabsContent value="geral" className="space-y-8">
+                {/* Seção 1: Classificação */}
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                  <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                    <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                    Classificação
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {/* Categoria */}
+                    <div className="space-y-2">
+                      <Label className="text-slate-700 dark:text-slate-300 font-medium">Categoria *</Label>
+                      <Select
+                        value={formData.categoria_id}
+                        onValueChange={(v) => setFormData({ ...formData, categoria_id: v, subcategorias_ids: [] })}
+                      >
+                        <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600">
+                          <SelectValue placeholder="Selecione..." />
+                        </SelectTrigger>
                       <SelectContent>
                         {(categorias || [])
                           .sort((a, b) => a.nome.localeCompare(b.nome))
                           .map(c => (
                             <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
                           ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  {/* Subcategorias */}
-                  <div className="space-y-2">
-                    <Label>Subcategorias *</Label>
-                    <Select
-                      value={formData.subcategorias_ids?.[0] || ''}
-                      onValueChange={(v) => setFormData({ ...formData, subcategorias_ids: [v] })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione..." />
-                      </SelectTrigger>
+                    {/* Subcategorias */}
+                    <div className="space-y-2">
+                      <Label className="text-slate-700 dark:text-slate-300 font-medium">Subcategorias *</Label>
+                      <Select
+                        value={formData.subcategorias_ids?.[0] || ''}
+                        onValueChange={(v) => setFormData({ ...formData, subcategorias_ids: [v] })}
+                      >
+                        <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600">
+                          <SelectValue placeholder="Selecione..." />
+                        </SelectTrigger>
                       <SelectContent>
                         {(filteredSubcategorias || []).map(s => (
                           <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
                         ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  {/* Regional */}
-                  <div className="space-y-2">
-                    <Label>Regional *</Label>
-                    <Select
-                      value={formData.regional_id}
-                      onValueChange={(v) => setFormData({ ...formData, regional_id: v, almoxarifado_id: '' })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione..." />
-                      </SelectTrigger>
+                    {/* Regional */}
+                    <div className="space-y-2">
+                      <Label className="text-slate-700 dark:text-slate-300 font-medium">Regional *</Label>
+                      <Select
+                        value={formData.regional_id}
+                        onValueChange={(v) => setFormData({ ...formData, regional_id: v, almoxarifado_id: '' })}
+                      >
+                        <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600">
+                          <SelectValue placeholder="Selecione..." />
+                        </SelectTrigger>
                       <SelectContent>
                         {(regionais || []).map(r => (
                           <SelectItem key={r.id} value={r.id}>{r.sigla} - {r.descricao}</SelectItem>
                         ))}
-                      </SelectContent>
-                    </Select>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
+                </div>
 
-                  {/* Almoxarifado */}
-                  <div className="space-y-2">
-                    <Label>Almoxarifado *</Label>
-                    <Select
-                      value={formData.almoxarifado_id}
-                      onValueChange={(v) => {
-                        const selectedAlmox = (filteredAlmoxarifados || []).find(a => a.id === v);
-                        setFormData({ 
-                          ...formData, 
-                          almoxarifado_id: v, 
-                          executores_ids: [], 
-                          atendente_nome: '',
-                          instalacao_origem_id: selectedAlmox?.instalacao_id || ''
-                        });
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione..." />
-                      </SelectTrigger>
+                {/* Seção 2: Atribuição e Responsáveis */}
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                  <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                    <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                    Atribuição e Responsáveis
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {/* Almoxarifado */}
+                    <div className="space-y-2">
+                      <Label className="text-slate-700 dark:text-slate-300 font-medium">Almoxarifado *</Label>
+                      <Select
+                        value={formData.almoxarifado_id}
+                        onValueChange={(v) => {
+                          const selectedAlmox = (filteredAlmoxarifados || []).find(a => a.id === v);
+                          setFormData({ 
+                            ...formData, 
+                            almoxarifado_id: v, 
+                            executores_ids: [], 
+                            atendente_nome: '',
+                            instalacao_origem_id: selectedAlmox?.instalacao_id || ''
+                          });
+                        }}
+                      >
+                        <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600">
+                          <SelectValue placeholder="Selecione..." />
+                        </SelectTrigger>
                       <SelectContent>
                         {(filteredAlmoxarifados || []).map(a => (
                           <SelectItem key={a.id} value={a.id}>{a.nome}</SelectItem>
                         ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  {/* Líder */}
-                  <div className="space-y-2">
-                    <Label>Líder *</Label>
-                    <Select
-                      value={formData.lider_id}
-                      onValueChange={(v) => {
-                        // Adicionar líder automaticamente aos executores
-                        const executoresAtualizados = formData.executores_ids?.includes(v) 
-                          ? formData.executores_ids 
-                          : [...(formData.executores_ids || []), v];
-                        
-                        setFormData({ 
-                          ...formData, 
-                          lider_id: v,
-                          executores_ids: executoresAtualizados
-                        });
-                      }}
-                      disabled={!formData.almoxarifado_id}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={formData.almoxarifado_id ? "Selecione..." : "Selecione almoxarifado primeiro"} />
-                      </SelectTrigger>
+                    {/* Líder */}
+                    <div className="space-y-2">
+                      <Label className="text-slate-700 dark:text-slate-300 font-medium">Líder *</Label>
+                      <Select
+                        value={formData.lider_id}
+                        onValueChange={(v) => {
+                          // Adicionar líder automaticamente aos executores
+                          const executoresAtualizados = formData.executores_ids?.includes(v) 
+                            ? formData.executores_ids 
+                            : [...(formData.executores_ids || []), v];
+                          
+                          setFormData({ 
+                            ...formData, 
+                            lider_id: v,
+                            executores_ids: executoresAtualizados
+                          });
+                        }}
+                        disabled={!formData.almoxarifado_id}
+                      >
+                        <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600">
+                          <SelectValue placeholder={formData.almoxarifado_id ? "Selecione..." : "Selecione almoxarifado primeiro"} />
+                        </SelectTrigger>
                       <SelectContent>
                         {(pessoas || [])
                           .filter(p => p && p.funcoes?.includes('lider') && 
@@ -966,19 +991,20 @@ export default function OSFormModal({
                           .map(p => (
                             <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
                           ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  {/* Atendente */}
-                  <div className="space-y-2">
-                    <Label>Atendente</Label>
-                    <Input
-                      list="pessoas-list"
-                      value={formData.atendente_nome}
-                      onChange={(e) => setFormData({ ...formData, atendente_nome: e.target.value })}
-                      placeholder="Digite ou selecione..."
-                    />
+                    {/* Atendente */}
+                    <div className="space-y-2">
+                      <Label className="text-slate-700 dark:text-slate-300 font-medium">Atendente</Label>
+                      <Input
+                        list="pessoas-list"
+                        value={formData.atendente_nome}
+                        onChange={(e) => setFormData({ ...formData, atendente_nome: e.target.value })}
+                        placeholder="Digite ou selecione..."
+                        className="border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
+                      />
                     <datalist id="pessoas-list">
                       {formData.almoxarifado_id ? (
                         (pessoas || [])
@@ -994,17 +1020,17 @@ export default function OSFormModal({
                             <option key={p.id} value={p.nome} />
                           ))
                       )}
-                    </datalist>
+                      </datalist>
+                    </div>
                   </div>
-                </div>
 
-                {/* Executores */}
-                <div className="space-y-2">
-                  <Label>Executores</Label>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
-                    Selecione os usuários que irão executar esta tarefa
-                  </p>
-                  <div className="border rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto bg-slate-50 dark:bg-slate-800">
+                  {/* Executores - Largura Total */}
+                  <div className="space-y-3 col-span-full">
+                    <Label className="text-slate-700 dark:text-slate-300 font-medium">Executores</Label>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Selecione os usuários que irão executar esta tarefa
+                    </p>
+                    <div className="border border-slate-300 dark:border-slate-600 rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto bg-slate-50/50 dark:bg-slate-800/50">
                     {formData.almoxarifado_id ? (
                       (pessoas || []).filter(p => p && p.almoxarifados_ids?.includes(formData.almoxarifado_id)).length > 0 ? (
                         (pessoas || [])
@@ -1043,135 +1069,144 @@ export default function OSFormModal({
                       )
                     ) : (
                       <p className="text-sm text-slate-500">Selecione um almoxarifado primeiro</p>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {/* Prazo */}
-                  <div className="space-y-2">
-                    <Label>Prazo *</Label>
-                    <Input
-                      type="date"
-                      value={formData.prazo}
-                      onChange={(e) => {
-                        const novoPrazo = e.target.value;
-                        if (novoPrazo && formData.data_inicial && new Date(novoPrazo) < new Date(formData.data_inicial)) {
-                          setPrazoError('O prazo não pode ser anterior à data inicial');
-                        } else {
-                          setPrazoError('');
-                        }
-                        setFormData({ ...formData, prazo: novoPrazo });
-                      }}
-                      className={prazoError ? 'border-red-500' : ''}
-                    />
-                    {prazoError && (
-                      <p className="text-xs text-red-600 dark:text-red-400">{prazoError}</p>
-                    )}
-                  </div>
+                {/* Seção 3: Prazos e Controle */}
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                  <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                    <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                    Prazos e Controle
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {/* Data Inicial */}
+                    <div className="space-y-2">
+                      <Label className="text-slate-700 dark:text-slate-300 font-medium">Data Inicial</Label>
+                      <Input
+                        type="date"
+                        value={formData.data_inicial}
+                        onChange={(e) => {
+                          const novaDataInicial = e.target.value;
+                          if (formData.prazo && novaDataInicial && new Date(formData.prazo) < new Date(novaDataInicial)) {
+                            setPrazoError('O prazo não pode ser anterior à data inicial');
+                          } else {
+                            setPrazoError('');
+                          }
+                          setFormData({ ...formData, data_inicial: novaDataInicial });
+                        }}
+                        className="border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
+                      />
+                    </div>
 
-                  {/* Data Inicial */}
-                  <div className="space-y-2">
-                    <Label>Data Inicial</Label>
-                    <Input
-                      type="date"
-                      value={formData.data_inicial}
-                      onChange={(e) => {
-                        const novaDataInicial = e.target.value;
-                        if (formData.prazo && novaDataInicial && new Date(formData.prazo) < new Date(novaDataInicial)) {
-                          setPrazoError('O prazo não pode ser anterior à data inicial');
-                        } else {
-                          setPrazoError('');
-                        }
-                        setFormData({ ...formData, data_inicial: novaDataInicial });
-                      }}
-                    />
-                  </div>
+                    {/* Prazo */}
+                    <div className="space-y-2">
+                      <Label className="text-slate-700 dark:text-slate-300 font-medium">Prazo *</Label>
+                      <Input
+                        type="date"
+                        value={formData.prazo}
+                        onChange={(e) => {
+                          const novoPrazo = e.target.value;
+                          if (novoPrazo && formData.data_inicial && new Date(novoPrazo) < new Date(formData.data_inicial)) {
+                            setPrazoError('O prazo não pode ser anterior à data inicial');
+                          } else {
+                            setPrazoError('');
+                          }
+                          setFormData({ ...formData, prazo: novoPrazo });
+                        }}
+                        className={prazoError ? 'border-red-500 rounded-lg' : 'border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600'}
+                      />
+                      {prazoError && (
+                        <p className="text-xs text-red-600 dark:text-red-400 mt-1">{prazoError}</p>
+                      )}
+                    </div>
 
-                  {/* Prioridade */}
-                  <div className="space-y-2">
-                    <Label>Prioridade</Label>
-                    <Select
-                      value={formData.prioridade}
-                      onValueChange={(v) => setFormData({ ...formData, prioridade: v })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
+                    {/* Prioridade */}
+                    <div className="space-y-2">
+                      <Label className="text-slate-700 dark:text-slate-300 font-medium">Prioridade</Label>
+                      <Select
+                        value={formData.prioridade}
+                        onValueChange={(v) => setFormData({ ...formData, prioridade: v })}
+                      >
+                        <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600">
+                          <SelectValue />
+                        </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="baixa">Baixa</SelectItem>
                         <SelectItem value="media">Média</SelectItem>
                         <SelectItem value="alta">Alta</SelectItem>
                         <SelectItem value="urgente">Urgente</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  {/* Status */}
-                  <div className="space-y-2">
-                    <Label>Status</Label>
-                    <Select
-                      value={formData.status}
-                      onValueChange={(v) => setFormData({ ...formData, status: v })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
+                    {/* Status */}
+                    <div className="space-y-2">
+                      <Label className="text-slate-700 dark:text-slate-300 font-medium">Status</Label>
+                      <Select
+                        value={formData.status}
+                        onValueChange={(v) => setFormData({ ...formData, status: v })}
+                      >
+                        <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600">
+                          <SelectValue />
+                        </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="elaboracao">Em Elaboração</SelectItem>
                         <SelectItem value="execucao">Em Execução</SelectItem>
                         <SelectItem value="concluido">Concluído</SelectItem>
                         <SelectItem value="cancelado">Cancelado</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  {/* Progresso */}
-                  <div className="space-y-2">
-                    <Label>Progresso (%)</Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={formData.progresso || 0}
-                      onChange={(e) => setFormData({ ...formData, progresso: parseInt(e.target.value) || 0 })}
-                      disabled={isExpedicaoCategory || isRecebimentoCategory}
-                      className={(isExpedicaoCategory || isRecebimentoCategory) ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : ''}
-                    />
-                    {!isExpedicaoCategory && !isRecebimentoCategory && (
-                      <Slider
-                        value={[formData.progresso || 0]}
-                        onValueChange={(value) => setFormData({ ...formData, progresso: value[0] })}
-                        min={0}
-                        max={100}
-                        step={1}
-                        className="mt-2"
+                    {/* Progresso */}
+                    <div className="space-y-2">
+                      <Label className="text-slate-700 dark:text-slate-300 font-medium">Progresso (%)</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={formData.progresso || 0}
+                        onChange={(e) => setFormData({ ...formData, progresso: parseInt(e.target.value) || 0 })}
+                        disabled={isExpedicaoCategory || isRecebimentoCategory}
+                        className={(isExpedicaoCategory || isRecebimentoCategory) ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed rounded-lg' : 'border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600'}
                       />
-                    )}
-                    {isExpedicaoCategory && (
-                      <p className="text-xs text-slate-500">Progresso automático baseado no fluxo de expedição</p>
-                    )}
-                    {isRecebimentoCategory && (
-                      <p className="text-xs text-slate-500">Progresso automático baseado no fluxo de recebimento</p>
-                    )}
-                  </div>
+                      {!isExpedicaoCategory && !isRecebimentoCategory && (
+                        <Slider
+                          value={[formData.progresso || 0]}
+                          onValueChange={(value) => setFormData({ ...formData, progresso: value[0] })}
+                          min={0}
+                          max={100}
+                          step={1}
+                          className="mt-3 [&_.slider-track]:bg-slate-200 dark:[&_.slider-track]:bg-slate-700 [&_.slider-range]:bg-gradient-to-r [&_.slider-range]:from-[#22c55e] [&_.slider-range]:to-[#84cc16] [&_.slider-thumb]:border-[#22c55e] [&_.slider-thumb]:bg-white"
+                        />
+                      )}
+                      {isExpedicaoCategory && (
+                        <p className="text-xs text-slate-500 mt-1">Progresso automático baseado no fluxo de expedição</p>
+                      )}
+                      {isRecebimentoCategory && (
+                        <p className="text-xs text-slate-500 mt-1">Progresso automático baseado no fluxo de recebimento</p>
+                      )}
+                    </div>
 
-                  {/* Projetos */}
-                  <div className="space-y-2">
-                    <Label>Projetos/Tags</Label>
-                    <Select
-                      value={formData.projetos_ids?.[0] || ''}
-                      onValueChange={(v) => setFormData({ ...formData, projetos_ids: v ? [v] : [] })}
-                    >
-                      <SelectTrigger
-                        onKeyDown={(e) => {
-                          if ((e.key === 'Delete' || e.key === 'Backspace') && formData.projetos_ids?.[0]) {
-                            e.preventDefault();
-                            setFormData({ ...formData, projetos_ids: [] });
-                          }
-                        }}
+                    {/* Projetos */}
+                    <div className="space-y-2">
+                      <Label className="text-slate-700 dark:text-slate-300 font-medium">Projetos/Tags</Label>
+                      <Select
+                        value={formData.projetos_ids?.[0] || ''}
+                        onValueChange={(v) => setFormData({ ...formData, projetos_ids: v ? [v] : [] })}
                       >
-                        <SelectValue placeholder="Selecione..." />
+                        <SelectTrigger
+                          className="border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
+                          onKeyDown={(e) => {
+                            if ((e.key === 'Delete' || e.key === 'Backspace') && formData.projetos_ids?.[0]) {
+                              e.preventDefault();
+                              setFormData({ ...formData, projetos_ids: [] });
+                            }
+                          }}
+                        >
+                          <SelectValue placeholder="Selecione..." />
                         {formData.projetos_ids?.[0] && (
                           <button
                             type="button"
@@ -1190,31 +1225,42 @@ export default function OSFormModal({
                         {(projetos || []).map(p => (
                           <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
                         ))}
-                      </SelectContent>
-                    </Select>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
 
-                {/* Descrição Resumida */}
-                <div className="space-y-2">
-                  <Label>Descrição Resumida</Label>
-                  <Textarea
-                    value={formData.descricao_resumida}
-                    onChange={(e) => setFormData({ ...formData, descricao_resumida: e.target.value })}
-                    placeholder="Descreva brevemente a OS..."
-                    rows={3}
-                  />
-                </div>
+                {/* Seção 4: Detalhamento */}
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                  <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                    <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                    Detalhamento
+                  </h3>
+                  
+                  {/* Descrição Resumida */}
+                  <div className="space-y-2 mb-5">
+                    <Label className="text-slate-700 dark:text-slate-300 font-medium">Descrição Resumida</Label>
+                    <Textarea
+                      value={formData.descricao_resumida}
+                      onChange={(e) => setFormData({ ...formData, descricao_resumida: e.target.value })}
+                      placeholder="Descreva brevemente a OS..."
+                      rows={3}
+                      className="border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
+                    />
+                  </div>
 
-                {/* Anotações */}
-                <div className="space-y-2">
-                  <Label>Anotações</Label>
-                  <Textarea
-                    value={formData.anotacoes}
-                    onChange={(e) => setFormData({ ...formData, anotacoes: e.target.value })}
-                    placeholder="Notas adicionais..."
-                    rows={3}
-                  />
+                  {/* Anotações */}
+                  <div className="space-y-2">
+                    <Label className="text-slate-700 dark:text-slate-300 font-medium">Anotações</Label>
+                    <Textarea
+                      value={formData.anotacoes}
+                      onChange={(e) => setFormData({ ...formData, anotacoes: e.target.value })}
+                      placeholder="Notas adicionais..."
+                      rows={3}
+                      className="border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
+                    />
+                  </div>
                 </div>
               </TabsContent>
 
@@ -1940,13 +1986,27 @@ export default function OSFormModal({
         </ScrollArea>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t bg-slate-50 dark:bg-slate-800 flex items-center justify-between">
-          <p className="text-sm text-slate-500">
+        <div className="px-6 py-5 border-t bg-white dark:bg-slate-800 flex items-center justify-between">
+          <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
             * Campos obrigatórios
           </p>
           <div className="flex gap-3">
-            <Button variant="outline" onClick={onClose}>Cancelar</Button>
-            <Button onClick={handleSubmit} disabled={!isValid || loading}>
+            <Button 
+              variant="outline" 
+              onClick={onClose}
+              className="rounded-lg border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700"
+            >
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleSubmit} 
+              disabled={!isValid || loading}
+              className="rounded-lg shadow-md hover:shadow-lg transition-shadow"
+              style={{ 
+                background: (!isValid || loading) ? undefined : 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)',
+                color: 'white'
+              }}
+            >
               {loading ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Salvando...</>
               ) : (
