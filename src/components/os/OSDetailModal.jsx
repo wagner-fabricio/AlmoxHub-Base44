@@ -431,6 +431,46 @@ export default function OSDetailModal({
     setLocalOS({ ...localOS, itens_documento: updatedItens });
   };
 
+  const handleAddMaterial = () => {
+    const newItem = {
+      codigo: '',
+      descricao: '',
+      quantidade: 1,
+      unidade: 'UN',
+      r_unit: 0,
+      r_total: 0,
+      deposito: '',
+      endereco: '',
+      saldo: 0,
+      seguravel: false,
+      separado: false
+    };
+    const updatedItens = [...(localOS.itens_documento || []), newItem];
+    setLocalOS({ ...localOS, itens_documento: updatedItens });
+  };
+
+  const handleRemoveMaterial = (itemIndex) => {
+    const updatedItens = (localOS.itens_documento || []).filter((_, index) => index !== itemIndex);
+    setLocalOS({ ...localOS, itens_documento: updatedItens });
+  };
+
+  const handleUpdateMaterial = (itemIndex, field, value) => {
+    const updatedItens = [...(localOS.itens_documento || [])];
+    updatedItens[itemIndex] = {
+      ...updatedItens[itemIndex],
+      [field]: value
+    };
+    
+    // Recalcular r_total se quantidade ou r_unit mudou
+    if (field === 'quantidade' || field === 'r_unit') {
+      const qtd = field === 'quantidade' ? parseFloat(value) || 0 : parseFloat(updatedItens[itemIndex].quantidade) || 0;
+      const preco = field === 'r_unit' ? parseFloat(value) || 0 : parseFloat(updatedItens[itemIndex].r_unit) || 0;
+      updatedItens[itemIndex].r_total = qtd * preco;
+    }
+    
+    setLocalOS({ ...localOS, itens_documento: updatedItens });
+  };
+
   const handleSaveSeparacao = async () => {
     setSavingSeparacao(true);
     try {
@@ -555,6 +595,7 @@ export default function OSDetailModal({
   const StatusIcon = statusConfig[localOS?.status]?.icon || Clock;
   const isExpedicao = categoria?.nome?.toLowerCase().includes('expedição');
   const isRecebimento = categoria?.nome?.toLowerCase().includes('recebimento');
+  const isAtendimento = categoria?.nome?.toLowerCase().includes('atendimento');
   const hasChanges = JSON.stringify(localOS?.itens_documento) !== JSON.stringify(os?.itens_documento);
 
   return (
@@ -662,8 +703,8 @@ export default function OSDetailModal({
                 {isRecebimento && os.nfe_itens_conferencia?.length > 0 && (
                   <TabsTrigger value="receb-mat">Materiais</TabsTrigger>
                 )}
-                {isExpedicao && os.itens_documento?.length > 0 && (
-                  <TabsTrigger value="materiais">Materiais</TabsTrigger>
+                {(isExpedicao || isAtendimento) && (
+                  <TabsTrigger value="materiais">Materiais ({localOS.itens_documento?.length || 0})</TabsTrigger>
                 )}
                 {isExpedicao && os.volumes?.length > 0 && (
                   <TabsTrigger value="volumes">Volumes</TabsTrigger>
@@ -1122,13 +1163,22 @@ export default function OSDetailModal({
 
               {/* Materiais Tab */}
               <TabsContent value="materiais" className="space-y-4">
+                {isAtendimento && (
+                  <div className="flex justify-end mb-4">
+                    <Button onClick={handleAddMaterial} size="sm" className="bg-blue-600 hover:bg-blue-700">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Adicionar Material
+                    </Button>
+                  </div>
+                )}
+
                 {localOS.itens_documento?.length > 0 ? (
                   <>
                     <div className="border rounded-xl overflow-hidden">
                       <table className="w-full">
                         <thead className="bg-slate-50 dark:bg-slate-800">
                           <tr>
-                            {isEditing && (
+                            {isEditing && isExpedicao && (
                               <th className="text-center p-3 text-sm font-semibold text-slate-600 dark:text-slate-300 w-12">
                                 <input
                                   type="checkbox"
@@ -1151,6 +1201,9 @@ export default function OSDetailModal({
                             <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Depósito</th>
                             <th className="text-left p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Localização</th>
                             <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">R$ Total</th>
+                            {isAtendimento && (
+                              <th className="text-center p-3 text-sm font-semibold text-slate-600 dark:text-slate-300 w-12"></th>
+                            )}
                           </tr>
                         </thead>
                         <tbody>
@@ -1161,7 +1214,7 @@ export default function OSDetailModal({
                                 item.separado ? 'bg-green-50 dark:bg-green-900/10' : ''
                               }`}
                             >
-                              {isEditing && (
+                              {isEditing && isExpedicao && (
                                 <td className="p-3 text-center">
                                   <input
                                     type="checkbox"
@@ -1171,41 +1224,145 @@ export default function OSDetailModal({
                                   />
                                 </td>
                               )}
-                              <td className={`p-3 font-mono text-sm ${item.separado ? 'line-through text-green-600' : ''}`}>
-                                {item.codigo}
+                              <td className={`p-3 ${item.separado ? 'line-through text-green-600' : ''}`}>
+                                {isAtendimento ? (
+                                  <input
+                                    type="text"
+                                    value={item.codigo || ''}
+                                    onChange={(e) => handleUpdateMaterial(i, 'codigo', e.target.value)}
+                                    className="w-full px-2 py-1 text-sm border rounded"
+                                    placeholder="Código"
+                                  />
+                                ) : (
+                                  <span className="font-mono text-sm">{item.codigo}</span>
+                                )}
                               </td>
                               <td className={`p-3 ${item.separado ? 'line-through text-green-600' : ''}`}>
-                                {item.descricao}
+                                {isAtendimento ? (
+                                  <input
+                                    type="text"
+                                    value={item.descricao || ''}
+                                    onChange={(e) => handleUpdateMaterial(i, 'descricao', e.target.value)}
+                                    className="w-full px-2 py-1 text-sm border rounded"
+                                    placeholder="Descrição"
+                                  />
+                                ) : (
+                                  item.descricao
+                                )}
                               </td>
-                              <td className={`p-3 text-right ${item.separado ? 'line-through text-green-600' : ''}`}>
-                                {item.quantidade} {item.unidade}
+                              <td className={`p-3 ${item.separado ? 'line-through text-green-600' : ''}`}>
+                                {isAtendimento ? (
+                                  <div className="flex items-center gap-1">
+                                    <input
+                                      type="number"
+                                      value={item.quantidade || ''}
+                                      onChange={(e) => handleUpdateMaterial(i, 'quantidade', e.target.value)}
+                                      className="w-16 px-2 py-1 text-sm text-right border rounded"
+                                      min="0"
+                                      step="0.01"
+                                    />
+                                    <input
+                                      type="text"
+                                      value={item.unidade || ''}
+                                      onChange={(e) => handleUpdateMaterial(i, 'unidade', e.target.value)}
+                                      className="w-12 px-2 py-1 text-sm border rounded"
+                                      placeholder="UN"
+                                    />
+                                  </div>
+                                ) : (
+                                  <span className="text-right block">{item.quantidade} {item.unidade}</span>
+                                )}
                               </td>
                               <td className={`p-3 text-sm ${item.separado ? 'line-through text-green-600' : ''}`}>
-                                {item.deposito || '-'}
+                                {isAtendimento ? (
+                                  <input
+                                    type="text"
+                                    value={item.deposito || ''}
+                                    onChange={(e) => handleUpdateMaterial(i, 'deposito', e.target.value)}
+                                    className="w-full px-2 py-1 text-sm border rounded"
+                                    placeholder="Depósito"
+                                  />
+                                ) : (
+                                  item.deposito || '-'
+                                )}
                               </td>
                               <td className={`p-3 text-sm ${item.separado ? 'line-through text-green-600' : ''}`}>
-                                {item.endereco || '-'}
+                                {isAtendimento ? (
+                                  <input
+                                    type="text"
+                                    value={item.endereco || ''}
+                                    onChange={(e) => handleUpdateMaterial(i, 'endereco', e.target.value)}
+                                    className="w-full px-2 py-1 text-sm border rounded"
+                                    placeholder="Localização"
+                                  />
+                                ) : (
+                                  item.endereco || '-'
+                                )}
                               </td>
                               <td className={`p-3 text-right font-medium ${item.separado ? 'line-through text-green-600' : ''}`}>
-                                R$ {(item.r_total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                {isAtendimento ? (
+                                  <input
+                                    type="number"
+                                    value={item.r_total || ''}
+                                    onChange={(e) => handleUpdateMaterial(i, 'r_total', e.target.value)}
+                                    className="w-24 px-2 py-1 text-sm text-right border rounded"
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                  />
+                                ) : (
+                                  `R$ ${(item.r_total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                                )}
                               </td>
+                              {isAtendimento && (
+                                <td className="p-3 text-center">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleRemoveMaterial(i)}
+                                    className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </td>
+                              )}
                             </tr>
                           ))}
                         </tbody>
                         <tfoot className="bg-slate-50 dark:bg-slate-800 border-t-2 border-slate-200 dark:border-slate-700">
                           <tr>
-                            <td colSpan={isEditing ? "6" : "5"} className="p-3 text-right font-semibold text-slate-900 dark:text-white">
+                            <td colSpan={isAtendimento ? "6" : (isEditing && isExpedicao ? "6" : "5")} className="p-3 text-right font-semibold text-slate-900 dark:text-white">
                               Valor Total:
                             </td>
                             <td className="p-3 text-right font-bold text-blue-600 text-lg">
-                              R$ {(localOS.itens_documento || []).reduce((sum, item) => sum + (item.r_total || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                              R$ {(localOS.itens_documento || []).reduce((sum, item) => sum + (parseFloat(item.r_total) || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                             </td>
+                            {isAtendimento && <td></td>}
                           </tr>
                         </tfoot>
                       </table>
                     </div>
 
-                    {isEditing && hasChanges && (
+                    {isAtendimento && hasChanges && (
+                      <div className="flex justify-end gap-2 pt-2">
+                        <Button
+                          variant="outline"
+                          onClick={handleCancelEdit}
+                          disabled={savingSeparacao}
+                        >
+                          Cancelar
+                        </Button>
+                        <Button
+                          onClick={handleSaveSeparacao}
+                          disabled={savingSeparacao}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          {savingSeparacao ? 'Salvando...' : 'Salvar Materiais'}
+                        </Button>
+                      </div>
+                    )}
+
+                    {isEditing && isExpedicao && hasChanges && (
                       <div className="flex justify-end gap-2 pt-2">
                         <Button
                           variant="outline"
@@ -1226,7 +1383,13 @@ export default function OSDetailModal({
                   </>
                 ) : (
                   <div className="text-center py-12 text-slate-400">
-                    Nenhum material cadastrado
+                    <p className="mb-4">Nenhum material cadastrado</p>
+                    {isAtendimento && (
+                      <Button onClick={handleAddMaterial} size="sm">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Adicionar Primeiro Material
+                      </Button>
+                    )}
                   </div>
                 )}
               </TabsContent>
