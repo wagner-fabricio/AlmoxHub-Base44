@@ -167,7 +167,7 @@ export default function OSFilters({
             <PopoverTrigger asChild>
               <Button 
                 variant="outline"
-                className="col-span-2 sm:col-span-1 justify-between bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-sm h-9"
+                className="justify-between bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-sm h-9"
                 disabled={isExpedicaoView || isRecebimentoView}
               >
                 <span className="truncate text-xs sm:text-sm">
