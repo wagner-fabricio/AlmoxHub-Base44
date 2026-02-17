@@ -35,6 +35,7 @@ export default function OrdensServico() {
     categorias: [],
     subcategoria: 'all',
     status: 'all',
+    statusList: [],
     visao: 'todos',
     periodo: 'all',
     dataInicio: '',
@@ -155,8 +156,11 @@ export default function OrdensServico() {
     // Subcategoria filter
     if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
     
-    // Status filter
+    // Status filter (antigo - mantido para compatibilidade)
     if (filters.status !== 'all' && os.status !== filters.status) return false;
+    
+    // Status filter (novo - múltiplos status)
+    if (filters.statusList?.length > 0 && !filters.statusList.includes(os.status)) return false;
     
     // Period filter
     if (filters.periodo === 'hoje') {
