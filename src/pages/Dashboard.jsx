@@ -274,14 +274,14 @@ export default function Dashboard() {
   })).sort((a, b) => b.total - a.total).slice(0, 5);
 
   // Heatmap data: OS de Expedição agrupadas por instalação de origem ou destino
-  const categoriaExpedicao = Array.isArray(categorias) ? categorias.find(c => c?.nome?.toLowerCase().includes('expedi')) : null;
+  const categoriaExpedicaoHeatmap = Array.isArray(categorias) ? categorias.find(c => c?.nome?.toLowerCase().includes('expedi')) : null;
   const campoInstalacao = heatmapInstalacao === 'origem' ? 'instalacao_origem_id' : 'instalacao_destino_id';
-  const osExpedicao = Array.isArray(ordens) ? ordens.filter(os => os?.categoria_id === categoriaExpedicao?.id && os?.[campoInstalacao]) : [];
+  const osExpedicaoHeatmap = Array.isArray(ordens) ? ordens.filter(os => os?.categoria_id === categoriaExpedicaoHeatmap?.id && os?.[campoInstalacao]) : [];
   
   const heatmapData = instalacoes
     .filter(inst => inst.latitude && inst.longitude)
     .map(inst => {
-      const osDestino = osExpedicao.filter(os => os[campoInstalacao] === inst.id);
+      const osDestino = osExpedicaoHeatmap.filter(os => os[campoInstalacao] === inst.id);
       
       let value = 0;
       if (heatmapCriteria === 'quantidade_os') {
