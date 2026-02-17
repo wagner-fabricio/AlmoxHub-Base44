@@ -1106,6 +1106,7 @@ export default function OSFormModal({
                       <Input
                         type="date"
                         value={formData.prazo}
+                        min={formData.data_inicial}
                         onChange={(e) => {
                           const novoPrazo = e.target.value;
                           if (novoPrazo && formData.data_inicial && new Date(novoPrazo) < new Date(formData.data_inicial)) {
