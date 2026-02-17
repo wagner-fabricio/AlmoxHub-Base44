@@ -94,8 +94,12 @@ export default function OSMobileDetail({
   const isRecebimento = categoria?.nome?.toLowerCase().includes('recebimento');
   const StatusIcon = statusConfig[os.status]?.icon || Clock;
   
-  const [volumes, setVolumes] = useState(os.volumes || []);
+  const [volumes, setVolumes] = useState([]);
   const [savingVolumes, setSavingVolumes] = useState(false);
+
+  useEffect(() => {
+    setVolumes(os.volumes || []);
+  }, [os.id]);
 
   // Verificar se o usuário atual está associado à OS
   const isUserAssociated = () => {
