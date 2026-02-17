@@ -239,7 +239,7 @@ export default function Dashboard() {
   );
   
   const numItensExpedidos = osExpedicaoReservas.reduce((sum, os) => {
-    return sum + (os.itens_documento || []).reduce((s, item) => s + (item.quantidade || 0), 0);
+    return sum + (os.itens_documento?.length || 0);
   }, 0);
   
   const valorExpedicaoReservas = osExpedicaoReservas.reduce((sum, os) => {
