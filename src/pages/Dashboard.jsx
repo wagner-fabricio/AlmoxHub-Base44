@@ -401,6 +401,18 @@ export default function Dashboard() {
               ))}
             </SelectContent>
           </Select>
+          <Select value={filters.status} onValueChange={(v) => updateFilters({ ...filters, status: v })}>
+            <SelectTrigger className="w-full bg-white dark:bg-slate-800">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos Status</SelectItem>
+              <SelectItem value="elaboracao">Em Elaboração</SelectItem>
+              <SelectItem value="execucao">Em Execução</SelectItem>
+              <SelectItem value="concluido">Concluído</SelectItem>
+              <SelectItem value="cancelado">Cancelado</SelectItem>
+            </SelectContent>
+          </Select>
           <Select value={filters.periodo} onValueChange={(v) => updateFilters({ ...filters, periodo: v })}>
             <SelectTrigger className="w-full bg-white dark:bg-slate-800">
               <SelectValue />
