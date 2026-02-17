@@ -202,11 +202,11 @@ export default function Dashboard() {
   
   // KPIs Recebimento
   const osRecebimento = filteredOrdens.filter(os => os.categoria_id === categoriaRecebimento?.id);
-  
+
   const numItensNFCompra = filteredOrdens.reduce((sum, os) => {
     return sum + (os.itens_documento?.length || 0) + (os.nfe_itens_conferencia?.length || 0);
   }, 0);
-  
+
   const valorItensNFCompra = filteredOrdens.reduce((sum, os) => {
     const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => {
       return s + ((item.quantidade_esperada || 0) * (item.valor_unitario || 0));
@@ -214,15 +214,15 @@ export default function Dashboard() {
     const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
     return sum + valorRecebimento + valorExpedicao;
   }, 0);
-  
-  const osRecebimentoConcluidas = osRecebimento.filter(os => os.status === 'concluido' && os.data_migo_receb && os.data_recebimento);
-  
-  const tempoMedioRegularizacaoCompra = osRecebimentoConcluidas.length > 0
-    ? osRecebimentoConcluidas.reduce((sum, os) => {
-        const dataMigo = new Date(os.data_migo_receb);
-        const dataReceb = new Date(os.data_recebimento);
-        return sum + differenceInDays(dataMigo, dataReceb);
-      }, 0) / osRecebimentoConcluidas.length
+
+  const osComDatasPrazo = filteredOrdens.filter(os => os.data_inicial && os.prazo);
+
+  const tempoMedioRegularizacaoCompra = osComDatasPrazo.length > 0
+    ? osComDatasPrazo.reduce((sum, os) => {
+        const dataInicial = new Date(os.data_inicial);
+        const dataPrazo = new Date(os.prazo);
+        return sum + differenceInDays(dataPrazo, dataInicial);
+      }, 0) / osComDatasPrazo.length
     : 0;
   
   // KPIs Expedição
