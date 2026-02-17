@@ -194,71 +194,52 @@ export default function Dashboard() {
       }, 0) / completedOS.length)
     : 0;
 
-  // Torre de Controle - KPIs Recebimento
+  // Torre de Controle - KPIs Volumetrias
   const categoriaRecebimento = categorias.find(c => c.nome?.toLowerCase().includes('recebimento'));
-  const subcategoriaCompra = subcategorias.find(s => 
-    s.nome?.toLowerCase().includes('compra') || 
-    s.nome?.toLowerCase().includes('pedido') ||
-    (s.categoria_id === categoriaRecebimento?.id && s.nome?.toLowerCase().includes('com'))
-  );
+  const categoriaExpedicao = categorias.find(c => c.nome?.toLowerCase().includes('expedição'));
   
-  const osRecebimentoCompra = filteredOrdens.filter(os => 
-    os.categoria_id === categoriaRecebimento?.id && 
-    os.status === 'concluido' &&
-    (os.subcategorias_ids?.includes(subcategoriaCompra?.id) || os.subcategorias_ids?.length > 0)
-  );
+  // KPIs Recebimento
+  const osRecebimento = filteredOrdens.filter(os => os.categoria_id === categoriaRecebimento?.id);
   
-  const numItensNFCompra = osRecebimentoCompra.reduce((sum, os) => {
+  const numItensNFCompra = osRecebimento.reduce((sum, os) => {
     return sum + (os.nfe_itens_conferencia?.length || 0);
   }, 0);
   
-  const valorItensNFCompra = osRecebimentoCompra.reduce((sum, os) => {
+  const valorItensNFCompra = osRecebimento.reduce((sum, os) => {
     return sum + (os.nfe_itens_conferencia || []).reduce((s, item) => {
       return s + ((item.quantidade_esperada || 0) * (item.valor_unitario || 0));
     }, 0);
   }, 0);
   
-  const osRecebimentoCompraConcluidas = osRecebimentoCompra.filter(os => os.status === 'concluido');
+  const osRecebimentoConcluidas = osRecebimento.filter(os => os.status === 'concluido' && os.data_migo_receb && os.data_recebimento);
   
-  const tempoMedioRegularizacaoCompra = osRecebimentoCompraConcluidas.length > 0
-    ? osRecebimentoCompraConcluidas.reduce((sum, os) => {
-        if (!os.data_migo_receb || !os.data_recebimento) return sum;
+  const tempoMedioRegularizacaoCompra = osRecebimentoConcluidas.length > 0
+    ? osRecebimentoConcluidas.reduce((sum, os) => {
         const dataMigo = new Date(os.data_migo_receb);
         const dataReceb = new Date(os.data_recebimento);
         return sum + differenceInDays(dataMigo, dataReceb);
-      }, 0) / osRecebimentoCompraConcluidas.filter(os => os.data_migo_receb && os.data_recebimento).length
+      }, 0) / osRecebimentoConcluidas.length
     : 0;
   
-  const osRecebimentoTodas = filteredOrdens.filter(os => os.categoria_id === categoriaRecebimento?.id);
+  // KPIs Expedição
+  const osExpedicao = filteredOrdens.filter(os => os.categoria_id === categoriaExpedicao?.id);
   
-  // Torre de Controle - KPIs Expedição
-  const categoriaExpedicaoTC = categorias.find(c => c.nome?.toLowerCase().includes('expedição'));
-  const subcategoriaComReserva = subcategorias.find(s => s.nome?.toLowerCase().includes('com reserva'));
-  const subcategoriaSemReserva = subcategorias.find(s => s.nome?.toLowerCase().includes('sem reserva'));
-  
-  const osExpedicaoReservas = filteredOrdens.filter(os => 
-    os.categoria_id === categoriaExpedicaoTC?.id && 
-    (os.subcategorias_ids?.includes(subcategoriaComReserva?.id) || os.subcategorias_ids?.includes(subcategoriaSemReserva?.id)) &&
-    os.status === 'concluido'
-  );
-  
-  const numItensExpedidos = osExpedicaoReservas.reduce((sum, os) => {
+  const numItensExpedidos = osExpedicao.reduce((sum, os) => {
     return sum + (os.itens_documento?.length || 0);
   }, 0);
   
-  const valorExpedicaoReservas = osExpedicaoReservas.reduce((sum, os) => {
+  const valorExpedicao = osExpedicao.reduce((sum, os) => {
     return sum + (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
   }, 0);
   
-  const osExpedicaoReservasConcluidas = osExpedicaoReservas.filter(os => os.status === 'concluido');
+  const osExpedicaoConcluidas = osExpedicao.filter(os => os.status === 'concluido' && os.data_migo && os.data_reserva);
   
-  const tempoMedioAtendimentoExpedicao = osExpedicaoReservasConcluidas.length > 0
-    ? osExpedicaoReservasConcluidas.reduce((sum, os) => {
-        if (!os.data_migo || !os.data_reserva) return sum;
+  const tempoMedioAtendimentoExpedicao = osExpedicaoConcluidas.length > 0
+    ? osExpedicaoConcluidas.reduce((sum, os) => {
         const dataMigo = new Date(os.data_migo);
         const dataReserva = new Date(os.data_reserva);
         return sum + differenceInDays(dataMigo, dataReserva);
-      }, 0) / osExpedicaoReservasConcluidas.filter(os => os.data_migo && os.data_reserva).length
+      }, 0) / osExpedicaoConcluidas.length
     : 0;
 
   // Chart data: OS by Regional (com breakdown por status)
@@ -1123,11 +1104,11 @@ export default function Dashboard() {
 
         {/* ABA TORRE DE CONTROLE */}
         <TabsContent value="torre" className="mt-6 space-y-8">
-          {/* Seção Volumetria Recebimento */}
+          {/* Seção Volumetrias */}
           <div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
               <Package className="w-6 h-6 text-blue-600" />
-              Volumetria Recebimento
+              Volumetrias
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Nº Itens NF Compra */}
@@ -1154,7 +1135,7 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              {/* Tempo Médio Regularização Compra */}
+              {/* Tempo Médio Regularização */}
               <Card className="bg-white dark:bg-slate-800 border-l-4 border-amber-500">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-2">
@@ -1167,33 +1148,24 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              {/* Nº OS Categoria Recebimento */}
+              {/* Nº OS Recebimento */}
               <Card className="bg-white dark:bg-slate-800 border-l-4 border-purple-500">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-2">
                     <ClipboardList className="w-8 h-8 text-purple-500" />
                   </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Nº OS Recebimento - Todas</p>
-                  <p className="text-3xl font-bold text-slate-900 dark:text-white">{osRecebimentoTodas.length}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Nº OS Recebimento</p>
+                  <p className="text-3xl font-bold text-slate-900 dark:text-white">{osRecebimento.length}</p>
                 </CardContent>
               </Card>
-            </div>
-          </div>
 
-          {/* Seção Volumetria Expedição */}
-          <div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-              <Zap className="w-6 h-6 text-orange-600" />
-              Volumetria Expedição
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {/* Nº Itens Expedidos */}
               <Card className="bg-white dark:bg-slate-800 border-l-4 border-orange-500">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-2">
                     <Package className="w-8 h-8 text-orange-500" />
                   </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Nº Itens Expedidos (Reservas)</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Nº Itens Expedidos</p>
                   <p className="text-3xl font-bold text-slate-900 dark:text-white">{numItensExpedidos.toLocaleString('pt-BR')}</p>
                 </CardContent>
               </Card>
@@ -1204,9 +1176,9 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between mb-2">
                     <DollarSign className="w-8 h-8 text-emerald-500" />
                   </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Valor Expedição (Reservas)</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Valor Expedição</p>
                   <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                    R$ {valorExpedicaoReservas.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    R$ {valorExpedicao.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </CardContent>
               </Card>
@@ -1221,6 +1193,17 @@ export default function Dashboard() {
                   <p className="text-3xl font-bold text-slate-900 dark:text-white">
                     {Math.abs(tempoMedioAtendimentoExpedicao).toFixed(1)} dias
                   </p>
+                </CardContent>
+              </Card>
+
+              {/* Nº OS Expedição */}
+              <Card className="bg-white dark:bg-slate-800 border-l-4 border-indigo-500">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <ClipboardList className="w-8 h-8 text-indigo-500" />
+                  </div>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Nº OS Expedição</p>
+                  <p className="text-3xl font-bold text-slate-900 dark:text-white">{osExpedicao.length}</p>
                 </CardContent>
               </Card>
             </div>
