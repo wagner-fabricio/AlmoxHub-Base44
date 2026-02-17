@@ -10,34 +10,36 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    // Buscar todas as categorias de Expedição
+    // Buscar TODAS as categorias (sem filtro inicial)
     const categorias = await base44.asServiceRole.entities.Categoria.list();
     const categoriasArray = Array.isArray(categorias) ? categorias : [];
+    
+    console.log('Todas as categorias:', categoriasArray.map(c => ({ id: c.id, nome: c.nome })));
+    
     const categoriasExpedicao = categoriasArray.filter(cat => 
       cat.nome && (cat.nome.toLowerCase().includes('expedição') || cat.nome.toLowerCase().includes('expedicao'))
     );
     const idsCategoriasExpedicao = categoriasExpedicao.map(c => c.id);
 
-    console.log(`Categorias encontradas: ${categoriasArray.length}`);
-    console.log(`Categorias de expedição: ${categoriasExpedicao.length}`, categoriasExpedicao.map(c => c.nome));
+    console.log(`Categorias de expedição:`, categoriasExpedicao.map(c => ({ id: c.id, nome: c.nome })));
 
-    if (idsCategoriasExpedicao.length === 0) {
-      return Response.json({ 
-        message: 'Nenhuma categoria de expedição encontrada',
-        updated: 0 
-      });
-    }
-
-    // Buscar todas as OSs de categoria Expedição
+    // Buscar TODAS as OSs
     const todasOS = await base44.asServiceRole.entities.OrdemServico.list();
     const todasOSArray = Array.isArray(todasOS) ? todasOS : [];
     
     console.log(`Total de OSs no sistema: ${todasOSArray.length}`);
-    console.log(`IDs de categorias de expedição: ${idsCategoriasExpedicao.join(', ')}`);
     
-    const osExpedicao = todasOSArray.filter(os => 
-      os.categoria_id && idsCategoriasExpedicao.includes(os.categoria_id)
-    );
+    // Se não encontrou categorias, tentar atualizar todas as OSs que tenham status_separacao
+    let osExpedicao;
+    if (idsCategoriasExpedicao.length === 0) {
+      console.log('Nenhuma categoria de expedição encontrada, buscando OSs com status_separacao...');
+      osExpedicao = todasOSArray.filter(os => os.status_separacao);
+    } else {
+      console.log(`IDs de categorias de expedição: ${idsCategoriasExpedicao.join(', ')}`);
+      osExpedicao = todasOSArray.filter(os => 
+        os.categoria_id && idsCategoriasExpedicao.includes(os.categoria_id)
+      );
+    }
 
     console.log(`Encontradas ${osExpedicao.length} OSs de expedição para atualizar`);
 
