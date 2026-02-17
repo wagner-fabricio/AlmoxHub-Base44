@@ -1159,53 +1159,7 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              {/* Nº Itens Expedidos */}
-              <Card className="bg-white dark:bg-slate-800 border-l-4 border-orange-500">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <Package className="w-8 h-8 text-orange-500" />
-                  </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Nº Itens Expedidos</p>
-                  <p className="text-3xl font-bold text-slate-900 dark:text-white">{numItensExpedidos.toLocaleString('pt-BR')}</p>
-                </CardContent>
-              </Card>
 
-              {/* Valor Expedição */}
-              <Card className="bg-white dark:bg-slate-800 border-l-4 border-emerald-500">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <DollarSign className="w-8 h-8 text-emerald-500" />
-                  </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Valor Expedição</p>
-                  <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                    R$ {valorExpedicao.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* Tempo Médio Atendimento */}
-              <Card className="bg-white dark:bg-slate-800 border-l-4 border-cyan-500">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <Timer className="w-8 h-8 text-cyan-500" />
-                  </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Tempo Médio Atendimento</p>
-                  <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                    {Math.abs(tempoMedioAtendimentoExpedicao).toFixed(1)} dias
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* Nº OS Expedição */}
-              <Card className="bg-white dark:bg-slate-800 border-l-4 border-indigo-500">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <ClipboardList className="w-8 h-8 text-indigo-500" />
-                  </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Nº OS Expedição</p>
-                  <p className="text-3xl font-bold text-slate-900 dark:text-white">{osExpedicao.length}</p>
-                </CardContent>
-              </Card>
             </div>
           </div>
         </TabsContent>
