@@ -365,7 +365,7 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
                 onClick={() => handleSort('tempo_decorrido')}
                 className="flex items-center gap-1 hover:text-blue-600 transition-colors"
               >
-                Tempo Decorrido
+                Tempo Previsto
                 {sortConfig.column === 'tempo_decorrido' ? (
                   sortConfig.direction === 'asc' ? (
                     <ArrowUp className="w-4 h-4" />
