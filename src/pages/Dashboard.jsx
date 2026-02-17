@@ -5,7 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend, AreaChart, Area } from 'recharts';
-import { ClipboardList, CheckCircle, Clock, AlertTriangle, TrendingUp, Building2, MapPin, Loader2, Zap, Warehouse, Grid, Users } from 'lucide-react';
+import { ClipboardList, CheckCircle, Clock, AlertTriangle, TrendingUp, Building2, MapPin, Loader2, Zap, Warehouse, Grid, Users, Package, DollarSign, Timer } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format, subDays, differenceInDays } from 'date-fns';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import L from 'leaflet';
@@ -41,6 +42,7 @@ export default function Dashboard() {
   const [heatmapCriteria, setHeatmapCriteria] = useState('quantidade_os');
   const [heatmapInstalacao, setHeatmapInstalacao] = useState('destino');
   const [currentUser, setCurrentUser] = useState(null);
+  const [activeTab, setActiveTab] = useState('geral');
   const [filters, setFilters] = useState({
     regional: 'all',
     almoxarifado: 'all',
@@ -190,6 +192,63 @@ export default function Dashboard() {
         const end = new Date(os.data_conclusao);
         return sum + differenceInDays(end, start);
       }, 0) / completedOS.length)
+    : 0;
+
+  // Torre de Controle - KPIs Recebimento
+  const categoriaRecebimento = categorias.find(c => c.nome?.toLowerCase().includes('recebimento'));
+  const subcategoriaCompra = subcategorias.find(s => s.nome?.toLowerCase().includes('compra'));
+  
+  const osRecebimentoCompra = filteredOrdens.filter(os => 
+    os.categoria_id === categoriaRecebimento?.id && 
+    os.subcategorias_ids?.includes(subcategoriaCompra?.id)
+  );
+  
+  const numItensNFCompra = osRecebimentoCompra.reduce((sum, os) => {
+    return sum + (os.nfe_itens_conferencia?.length || 0);
+  }, 0);
+  
+  const valorItensNFCompra = osRecebimentoCompra.reduce((sum, os) => {
+    return sum + (os.nfe_itens_conferencia || []).reduce((s, item) => {
+      return s + ((item.quantidade_esperada || 0) * (item.valor_unitario || 0));
+    }, 0);
+  }, 0);
+  
+  const tempoMedioRegularizacaoCompra = osRecebimentoCompra.length > 0
+    ? osRecebimentoCompra.reduce((sum, os) => {
+        if (!os.data_migo_receb || !os.data_recebimento) return sum;
+        const dataMigo = new Date(os.data_migo_receb);
+        const dataReceb = new Date(os.data_recebimento);
+        return sum + differenceInDays(dataMigo, dataReceb);
+      }, 0) / osRecebimentoCompra.filter(os => os.data_migo_receb && os.data_recebimento).length
+    : 0;
+  
+  const osRecebimentoTodas = filteredOrdens.filter(os => os.categoria_id === categoriaRecebimento?.id);
+  
+  // Torre de Controle - KPIs Expedição
+  const categoriaExpedicaoTC = categorias.find(c => c.nome?.toLowerCase().includes('expedição'));
+  const subcategoriaComReserva = subcategorias.find(s => s.nome?.toLowerCase().includes('com reserva'));
+  const subcategoriaSemReserva = subcategorias.find(s => s.nome?.toLowerCase().includes('sem reserva'));
+  
+  const osExpedicaoReservas = filteredOrdens.filter(os => 
+    os.categoria_id === categoriaExpedicaoTC?.id && 
+    (os.subcategorias_ids?.includes(subcategoriaComReserva?.id) || os.subcategorias_ids?.includes(subcategoriaSemReserva?.id))
+  );
+  
+  const numItensExpedidos = osExpedicaoReservas.reduce((sum, os) => {
+    return sum + (os.itens_documento || []).reduce((s, item) => s + (item.quantidade || 0), 0);
+  }, 0);
+  
+  const valorExpedicaoReservas = osExpedicaoReservas.reduce((sum, os) => {
+    return sum + (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
+  }, 0);
+  
+  const tempoMedioAtendimentoExpedicao = osExpedicaoReservas.length > 0
+    ? osExpedicaoReservas.reduce((sum, os) => {
+        if (!os.data_migo || !os.data_reserva) return sum;
+        const dataMigo = new Date(os.data_migo);
+        const dataReserva = new Date(os.data_reserva);
+        return sum + differenceInDays(dataMigo, dataReserva);
+      }, 0) / osExpedicaoReservas.filter(os => os.data_migo && os.data_reserva).length
     : 0;
 
   // Chart data: OS by Regional (com breakdown por status)
@@ -388,6 +447,31 @@ export default function Dashboard() {
         )}
       </div>
 
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 rounded-none h-auto p-0 space-x-8 w-full justify-start">
+          <TabsTrigger 
+            value="geral" 
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3"
+          >
+            Geral
+          </TabsTrigger>
+          <TabsTrigger 
+            value="mapas" 
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3"
+          >
+            Mapas
+          </TabsTrigger>
+          <TabsTrigger 
+            value="torre" 
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3"
+          >
+            Torre de Controle
+          </TabsTrigger>
+        </TabsList>
+
+        {/* ABA GERAL */}
+        <TabsContent value="geral" className="mt-6 space-y-8">
       {/* KPI Cards - Cores Axia */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="border-0 shadow-lg" style={{ background: 'linear-gradient(135deg, #0000FF 0%, #0A003C 100%)' }}>
@@ -726,7 +810,10 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+        </TabsContent>
 
+        {/* ABA MAPAS */}
+        <TabsContent value="mapas" className="mt-6 space-y-8">
       {/* Maps Row - Mobile First */}
       <div className="grid grid-cols-1 gap-6">
         {/* Heatmap Section */}
@@ -1022,6 +1109,114 @@ export default function Dashboard() {
         </CardContent>
       </Card>
       </div>
+        </TabsContent>
+
+        {/* ABA TORRE DE CONTROLE */}
+        <TabsContent value="torre" className="mt-6 space-y-8">
+          {/* Seção Volumetria Recebimento */}
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <Package className="w-6 h-6 text-blue-600" />
+              Volumetria Recebimento
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Nº Itens NF Compra */}
+              <Card className="bg-white dark:bg-slate-800 border-l-4 border-blue-500">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <Package className="w-8 h-8 text-blue-500" />
+                  </div>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Nº Itens NF Compra</p>
+                  <p className="text-3xl font-bold text-slate-900 dark:text-white">{numItensNFCompra.toLocaleString('pt-BR')}</p>
+                </CardContent>
+              </Card>
+
+              {/* Valor Itens NF Compra */}
+              <Card className="bg-white dark:bg-slate-800 border-l-4 border-green-500">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <DollarSign className="w-8 h-8 text-green-500" />
+                  </div>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Valor Itens NF Compra</p>
+                  <p className="text-3xl font-bold text-slate-900 dark:text-white">
+                    R$ {valorItensNFCompra.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Tempo Médio Regularização Compra */}
+              <Card className="bg-white dark:bg-slate-800 border-l-4 border-amber-500">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <Timer className="w-8 h-8 text-amber-500" />
+                  </div>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Tempo Médio Regularização</p>
+                  <p className="text-3xl font-bold text-slate-900 dark:text-white">
+                    {Math.abs(tempoMedioRegularizacaoCompra).toFixed(1)} dias
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Nº OS Categoria Recebimento */}
+              <Card className="bg-white dark:bg-slate-800 border-l-4 border-purple-500">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <ClipboardList className="w-8 h-8 text-purple-500" />
+                  </div>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Nº OS Recebimento - Todas</p>
+                  <p className="text-3xl font-bold text-slate-900 dark:text-white">{osRecebimentoTodas.length}</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Seção Volumetria Expedição */}
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <Zap className="w-6 h-6 text-orange-600" />
+              Volumetria Expedição
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Nº Itens Expedidos */}
+              <Card className="bg-white dark:bg-slate-800 border-l-4 border-orange-500">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <Package className="w-8 h-8 text-orange-500" />
+                  </div>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Nº Itens Expedidos (Reservas)</p>
+                  <p className="text-3xl font-bold text-slate-900 dark:text-white">{numItensExpedidos.toLocaleString('pt-BR')}</p>
+                </CardContent>
+              </Card>
+
+              {/* Valor Expedição */}
+              <Card className="bg-white dark:bg-slate-800 border-l-4 border-emerald-500">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <DollarSign className="w-8 h-8 text-emerald-500" />
+                  </div>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Valor Expedição (Reservas)</p>
+                  <p className="text-3xl font-bold text-slate-900 dark:text-white">
+                    R$ {valorExpedicaoReservas.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Tempo Médio Atendimento */}
+              <Card className="bg-white dark:bg-slate-800 border-l-4 border-cyan-500">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <Timer className="w-8 h-8 text-cyan-500" />
+                  </div>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Tempo Médio Atendimento</p>
+                  <p className="text-3xl font-bold text-slate-900 dark:text-white">
+                    {Math.abs(tempoMedioAtendimentoExpedicao).toFixed(1)} dias
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
