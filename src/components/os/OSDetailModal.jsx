@@ -811,6 +811,32 @@ export default function OSDetailModal({
                       </div>
                     </div>
                   )}
+
+                  {os.projetos_ids && os.projetos_ids.length > 0 && (
+                    <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 md:col-span-2 lg:col-span-3">
+                      <div className="w-10 h-10 bg-violet-100 dark:bg-violet-900/30 rounded-lg flex items-center justify-center shrink-0">
+                        <Tag className="w-5 h-5 text-violet-600" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Projetos</p>
+                        <div className="flex flex-wrap gap-2">
+                          {os.projetos_ids.map(projId => {
+                            const projeto = Array.isArray(projetos) ? projetos.find(p => p?.id === projId) : null;
+                            return projeto ? (
+                              <Badge 
+                                key={projId} 
+                                variant="outline" 
+                                className="text-xs"
+                                style={projeto.cor ? { borderColor: projeto.cor, color: projeto.cor } : {}}
+                              >
+                                {projeto.nome}
+                              </Badge>
+                            ) : null;
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Description */}
