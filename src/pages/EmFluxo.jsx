@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -160,7 +160,7 @@ export default function EmFluxo() {
       icon: FolderKanban,
       color: '#0A003C',
       bgColor: '#0A003C',
-      count: (projetos || []).length
+      count: (projetosFiltrados || []).length
     },
     {
       id: 'mensagens',
@@ -267,6 +267,28 @@ export default function EmFluxo() {
     
     return format(msgDate, 'dd/MM/yy');
   };
+
+  // Filtrar projetos do usuário
+  const projetosFiltrados = React.useMemo(() => {
+    if (!currentPessoa) return [];
+    
+    return (projetos || []).filter(projeto => {
+      // Verifica se o usuário é líder ou está envolvido no projeto
+      const estaNoTime = 
+        projeto.lider_id === currentPessoa.id ||
+        (projeto.outros_envolvidos_ids || []).includes(currentPessoa.id);
+      
+      if (estaNoTime) return true;
+      
+      // Verifica se há alguma OS do projeto onde o usuário está envolvido
+      const temOSVinculada = (ordens || []).some(os => 
+        (os.projetos_ids || []).includes(projeto.id) &&
+        (os.lider_id === currentPessoa.id || (os.executores_ids || []).includes(currentPessoa.id))
+      );
+      
+      return temOSVinculada;
+    });
+  }, [projetos, currentPessoa, ordens]);
 
   const handleCriarConversa = async (tipo, participantesIds, nomeGrupo) => {
     try {
@@ -576,13 +598,13 @@ export default function EmFluxo() {
 
         {activeModule === 'projetos' && (
           <div className="space-y-3">
-            {(projetos || []).length === 0 ? (
+            {(projetosFiltrados || []).length === 0 ? (
               <div className="text-center py-12 text-slate-500 dark:text-slate-400">
                 <FolderKanban className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p>Nenhum projeto</p>
+                <p>Nenhum projeto vinculado</p>
               </div>
             ) : (
-              (projetos || []).filter(p => p).map((projeto) => {
+              (projetosFiltrados || []).filter(p => p).map((projeto) => {
                 const lider = (pessoas || []).find(p => p && p.id === projeto.lider_id);
                 
                 return (
