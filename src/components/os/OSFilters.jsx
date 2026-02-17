@@ -226,6 +226,22 @@ export default function OSFilters({
           </Select>
 
           <Select
+            value={filters.status}
+            onValueChange={(value) => setFilters({ ...filters, status: value })}
+          >
+            <SelectTrigger className="bg-slate-50 dark:bg-slate-900 text-sm">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos Status</SelectItem>
+              <SelectItem value="elaboracao">Em Elaboração</SelectItem>
+              <SelectItem value="execucao">Em Execução</SelectItem>
+              <SelectItem value="concluido">Concluído</SelectItem>
+              <SelectItem value="cancelado">Cancelado</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
             value={filters.periodo}
             onValueChange={(value) => setFilters({ ...filters, periodo: value })}
           >
