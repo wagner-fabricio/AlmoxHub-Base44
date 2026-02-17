@@ -821,7 +821,7 @@ export default function OSFormModal({
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[calc(90vh-140px)]">
+        <ScrollArea className="max-h-[calc(90vh-200px)]">
           <div className="p-8 bg-slate-50/30 dark:bg-slate-900/30">
             <Tabs defaultValue="geral" className="w-full">
               <TabsList className="mb-8 bg-transparent border-b border-slate-200 dark:border-slate-700 rounded-none h-auto p-0 space-x-8">
