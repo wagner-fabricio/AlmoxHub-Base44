@@ -12,10 +12,14 @@ Deno.serve(async (req) => {
 
     // Buscar todas as categorias de Expedição
     const categorias = await base44.asServiceRole.entities.Categoria.list();
-    const categoriasExpedicao = categorias.filter(cat => 
-      cat.nome && cat.nome.toLowerCase().includes('expedição')
+    const categoriasArray = Array.isArray(categorias) ? categorias : [];
+    const categoriasExpedicao = categoriasArray.filter(cat => 
+      cat.nome && (cat.nome.toLowerCase().includes('expedição') || cat.nome.toLowerCase().includes('expedicao'))
     );
     const idsCategoriasExpedicao = categoriasExpedicao.map(c => c.id);
+
+    console.log(`Categorias encontradas: ${categoriasArray.length}`);
+    console.log(`Categorias de expedição: ${categoriasExpedicao.length}`, categoriasExpedicao.map(c => c.nome));
 
     if (idsCategoriasExpedicao.length === 0) {
       return Response.json({ 
