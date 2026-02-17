@@ -16,7 +16,8 @@ import {
   MapPin,
   Plus,
   Filter,
-  UserCircle
+  UserCircle,
+  BarChart3
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -26,6 +27,7 @@ import NovaConversaModal from '@/components/mensagens/NovaConversaModal';
 import ProjetoMobileDetail from '@/components/projetos/ProjetoMobileDetail';
 import OSFormModal from '@/components/os/OSFormModal';
 import EmFluxoInsights from '@/components/emfluxo/EmFluxoInsights';
+import MeuDesempenhoMobile from '@/components/emfluxo/MeuDesempenhoMobile';
 
 const statusConfig = {
   elaboracao: { icon: Clock, color: 'bg-slate-500', label: 'Em Elaboração' },
@@ -62,6 +64,8 @@ export default function EmFluxo() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [showOSForm, setShowOSForm] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [showDesempenho, setShowDesempenho] = useState(false);
+  const [todasOrdens, setTodasOrdens] = useState([]);
 
   useEffect(() => {
     loadData();
@@ -95,6 +99,8 @@ export default function EmFluxo() {
         base44.entities.Instalacao.list(),
         base44.entities.ParticipanteConversa.list(),
       ]);
+
+      setTodasOrdens(ordensData || []);
 
       setPessoas(pessoasData || []);
       const pessoa = (pessoasData || []).find(p => p.email === user.email);
@@ -163,12 +169,24 @@ export default function EmFluxo() {
       color: '#A0B4D2',
       bgColor: '#A0B4D2',
       count: (conversas || []).length
+    },
+    {
+      id: 'desempenho',
+      name: 'Meu Desempenho',
+      icon: BarChart3,
+      color: '#10B981',
+      bgColor: '#10B981',
+      count: null
     }
   ] || [];
 
   const handleOpenModule = (moduleId) => {
-    setActiveModule(moduleId);
-    setSelectedOS(null);
+    if (moduleId === 'desempenho') {
+      setShowDesempenho(true);
+    } else {
+      setActiveModule(moduleId);
+      setSelectedOS(null);
+    }
   };
 
   const handleCloseModule = () => {
@@ -298,6 +316,22 @@ export default function EmFluxo() {
     );
   }
 
+  // Vista de desempenho
+  if (showDesempenho) {
+    return (
+      <MeuDesempenhoMobile
+        onClose={() => setShowDesempenho(false)}
+        minhasOS={ordens}
+        todasOS={todasOrdens}
+        pessoas={pessoas}
+        categorias={categorias}
+        almoxarifados={almoxarifados}
+        regionais={regionais}
+        currentPessoaId={currentPessoa?.id}
+      />
+    );
+  }
+
   // Vista de módulos (home)
   if (!activeModule && !selectedOS) {
     return (
@@ -351,7 +385,7 @@ export default function EmFluxo() {
                       </div>
                       <div className="text-left">
                         <h3 className="text-xl font-bold text-white">{module.name}</h3>
-                        <p className="text-white/90 text-sm">{module.count} itens</p>
+                        {module.count !== null && <p className="text-white/90 text-sm">{module.count} itens</p>}
                       </div>
                     </div>
                     <ChevronRight className="w-6 h-6 text-white/90" />
