@@ -42,6 +42,15 @@ Deno.serve(async (req) => {
     }
 
     console.log(`Encontradas ${osExpedicao.length} OSs de expedição para atualizar`);
+    
+    // Debug: mostrar algumas OSs encontradas
+    if (osExpedicao.length > 0) {
+      console.log('Primeiras 5 OSs:', osExpedicao.slice(0, 5).map(os => ({
+        codigo: os.codigo,
+        status_separacao: os.status_separacao,
+        progresso_atual: os.progresso
+      })));
+    }
 
     // Mapa de status para progresso
     const statusProgressoMap = {
