@@ -415,19 +415,37 @@ export default function Dashboard() {
               <SelectItem value="cancelado">Cancelado</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={filters.periodo} onValueChange={(v) => updateFilters({ ...filters, periodo: v })}>
-            <SelectTrigger className="w-full bg-white dark:bg-slate-800">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7">Últimos 7 dias</SelectItem>
-              <SelectItem value="30">Últimos 30 dias</SelectItem>
-              <SelectItem value="90">Últimos 90 dias</SelectItem>
-              <SelectItem value="mes_atual">Mês atual</SelectItem>
-              <SelectItem value="customizado">Período customizado</SelectItem>
-              <SelectItem value="all">Todo período</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex gap-2">
+            <Select value={filters.periodo} onValueChange={(v) => updateFilters({ ...filters, periodo: v })}>
+              <SelectTrigger className="w-full bg-white dark:bg-slate-800">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7">Últimos 7 dias</SelectItem>
+                <SelectItem value="30">Últimos 30 dias</SelectItem>
+                <SelectItem value="90">Últimos 90 dias</SelectItem>
+                <SelectItem value="mes_atual">Mês atual</SelectItem>
+                <SelectItem value="customizado">Período customizado</SelectItem>
+                <SelectItem value="all">Todo período</SelectItem>
+              </SelectContent>
+            </Select>
+            <button
+              onClick={() => updateFilters({
+                regional: 'all',
+                almoxarifado: 'all',
+                categoria: 'all',
+                subcategoria: 'all',
+                status: 'all',
+                periodo: '30',
+                dataInicio: '',
+                dataFim: ''
+              })}
+              className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
+              title="Limpar filtros"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
         
         {filters.periodo === 'customizado' && (
