@@ -1037,7 +1037,7 @@ export default function OSMobileDetail({
               </div>
             ) : (
               <>
-                {volumes.map((volume, index) => (
+                {[...volumes].sort((a, b) => (b.id_volume || '').localeCompare(a.id_volume || '')).map((volume, index) => (
                   <div key={index} className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm space-y-3">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
