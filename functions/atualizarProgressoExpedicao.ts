@@ -31,6 +31,10 @@ Deno.serve(async (req) => {
     // Buscar todas as OSs de categoria Expedição
     const todasOS = await base44.asServiceRole.entities.OrdemServico.list();
     const todasOSArray = Array.isArray(todasOS) ? todasOS : [];
+    
+    console.log(`Total de OSs no sistema: ${todasOSArray.length}`);
+    console.log(`IDs de categorias de expedição: ${idsCategoriasExpedicao.join(', ')}`);
+    
     const osExpedicao = todasOSArray.filter(os => 
       os.categoria_id && idsCategoriasExpedicao.includes(os.categoria_id)
     );
