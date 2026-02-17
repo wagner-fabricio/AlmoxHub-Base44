@@ -641,6 +641,7 @@ export default function OrdensServico() {
         categorias={categorias}
         subcategorias={subcategorias}
         instalacoes={instalacoes}
+        projetos={projetos}
         onEdit={handleEditOS}
         onDelete={handleDeleteOS}
         onCreateRelated={handleCreateRelated}
