@@ -224,7 +224,7 @@ export default function OSFilters({
             onValueChange={(value) => setFilters({ ...filters, subcategoria: value })}
             disabled={filters.categorias?.length === 0}
           >
-            <SelectTrigger className="bg-slate-50 dark:bg-slate-900 text-sm col-span-2 sm:col-span-1">
+            <SelectTrigger className="bg-slate-50 dark:bg-slate-900 text-sm">
               <SelectValue placeholder="Subcategoria" />
             </SelectTrigger>
             <SelectContent>
