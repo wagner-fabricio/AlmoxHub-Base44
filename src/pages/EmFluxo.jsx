@@ -439,6 +439,10 @@ export default function EmFluxo() {
         onClose={handleCloseProjeto}
         pessoas={pessoas}
         onRefresh={loadData}
+        onOpenOS={(os) => {
+          setSelectedProjeto(null);
+          setSelectedOS(os);
+        }}
       />
     );
   }

@@ -15,7 +15,7 @@ const statusConfig = {
   cancelado: { icon: AlertTriangle, color: 'text-red-500 bg-red-100', label: 'Cancelado' },
 };
 
-export default function ProjetoMobileDetail({ projeto, onClose, pessoas, onRefresh }) {
+export default function ProjetoMobileDetail({ projeto, onClose, pessoas, onRefresh, onOpenOS }) {
   const [loading, setLoading] = useState(true);
   const [ordensServico, setOrdensServico] = useState([]);
   const [categorias, setCategorias] = useState([]);
@@ -183,7 +183,11 @@ export default function ProjetoMobileDetail({ projeto, onClose, pessoas, onRefre
                   const StatusIcon = statusConfig[os.status]?.icon || Clock;
 
                   return (
-                    <div key={os.id} className="border border-slate-200 dark:border-slate-700 rounded-lg p-3 space-y-2 bg-white dark:bg-slate-800">
+                    <button
+                      key={os.id}
+                      onClick={() => onOpenOS?.(os)}
+                      className="w-full border border-slate-200 dark:border-slate-700 rounded-lg p-3 space-y-2 bg-white dark:bg-slate-800 text-left transition-all active:scale-95 hover:shadow-md"
+                    >
                       {/* Código e Status */}
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
@@ -232,7 +236,7 @@ export default function ProjetoMobileDetail({ projeto, onClose, pessoas, onRefre
                           />
                         </div>
                       </div>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
