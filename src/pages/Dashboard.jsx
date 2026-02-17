@@ -207,9 +207,9 @@ export default function Dashboard() {
     return sum + (os.nfe_itens_conferencia?.length || 0);
   }, 0);
   
-  const valorItensNFCompra = osRecebimento.reduce((sum, os) => {
-    return sum + (os.nfe_itens_conferencia || []).reduce((s, item) => {
-      return s + ((item.quantidade_esperada || 0) * (item.valor_unitario || 0));
+  const valorItensNFCompra = filteredOrdens.reduce((sum, os) => {
+    return sum + (os.itens_documento || []).reduce((s, item) => {
+      return s + (item.r_total || 0);
     }, 0);
   }, 0);
   
@@ -1136,13 +1136,13 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              {/* Valor Itens NF Compra */}
+              {/* Valor dos Itens */}
               <Card className="bg-white dark:bg-slate-800 border-l-4 border-green-500">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-2">
                     <DollarSign className="w-8 h-8 text-green-500" />
                   </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Valor Itens NF Compra</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Valor dos Itens</p>
                   <p className="text-3xl font-bold text-slate-900 dark:text-white">
                     R$ {valorItensNFCompra.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
