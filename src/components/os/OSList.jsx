@@ -577,6 +577,27 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
             );
           })}
         </TableBody>
+        <TableFooter>
+          <TableRow className="bg-slate-100 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700">
+            <TableCell className="font-semibold">
+              {filteredOrdens.length} OS
+            </TableCell>
+            <TableCell colSpan="4"></TableCell>
+            <TableCell></TableCell>
+            <TableCell></TableCell>
+            <TableCell>
+              <span className="font-semibold text-slate-900 dark:text-white">
+                {filteredOrdens.reduce((sum, os) => {
+                  if (os.data_inicial && os.prazo) {
+                    return sum + differenceInDays(new Date(os.prazo), new Date(os.data_inicial));
+                  }
+                  return sum;
+                }, 0)} dias
+              </span>
+            </TableCell>
+            <TableCell></TableCell>
+          </TableRow>
+        </TableFooter>
       </Table>
     </div>
   );
