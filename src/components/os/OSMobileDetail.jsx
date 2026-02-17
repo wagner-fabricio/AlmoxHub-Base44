@@ -94,12 +94,8 @@ export default function OSMobileDetail({
   const isRecebimento = categoria?.nome?.toLowerCase().includes('recebimento');
   const StatusIcon = statusConfig[os.status]?.icon || Clock;
   
-  const [volumes, setVolumes] = useState([]);
+  const [volumes, setVolumes] = useState(os.volumes || []);
   const [savingVolumes, setSavingVolumes] = useState(false);
-
-  useEffect(() => {
-    setVolumes(os.volumes || []);
-  }, [os.id]);
 
   // Verificar se o usuário atual está associado à OS
   const isUserAssociated = () => {
@@ -538,25 +534,39 @@ export default function OSMobileDetail({
       await base44.entities.OrdemServico.update(os.id, {
         volumes: volumes
       });
-      os.volumes = volumes; // Atualizar objeto local
+      
+      // Atualizar objeto local
+      os.volumes = volumes;
       
       // Registrar no histórico
-      await base44.functions.invoke('registrarAuditLog', {
-        action: 'update',
-        entity_type: 'OrdemServico',
-        entity_id: os.id,
-        details: {
-          descricao: `Volumes atualizados: ${volumes.length} volume(s)`
-        }
-      });
+      try {
+        await base44.functions.invoke('registrarAuditLog', {
+          action: 'update',
+          entity_type: 'OrdemServico',
+          entity_id: os.id,
+          details: {
+            descricao: `Volumes atualizados: ${volumes.length} volume(s)`
+          }
+        });
+      } catch (auditError) {
+        console.log('Audit log failed:', auditError);
+      }
+      
+      // Forçar refresh
+      if (onRefresh) {
+        await onRefresh();
+      }
     } catch (error) {
       console.error('Error saving volumes:', error);
+      alert('Erro ao salvar volumes');
     } finally {
       setSavingVolumes(false);
     }
   };
 
-  const hasVolumeChanges = JSON.stringify(volumes) !== JSON.stringify(os.volumes || []);
+  // Detectar mudanças nos volumes
+  const hasVolumeChanges = volumes.length !== (os.volumes || []).length || 
+    JSON.stringify(volumes) !== JSON.stringify(os.volumes || []);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col overflow-hidden">
