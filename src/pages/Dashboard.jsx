@@ -207,10 +207,12 @@ export default function Dashboard() {
     return sum + (os.itens_documento?.length || 0) + (os.nfe_itens_conferencia?.length || 0);
   }, 0);
   
-  const valorItensNFCompra = osRecebimento.reduce((sum, os) => {
-    return sum + (os.nfe_itens_conferencia || []).reduce((s, item) => {
+  const valorItensNFCompra = filteredOrdens.reduce((sum, os) => {
+    const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => {
       return s + ((item.quantidade_esperada || 0) * (item.valor_unitario || 0));
     }, 0);
+    const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
+    return sum + valorRecebimento + valorExpedicao;
   }, 0);
   
   const osRecebimentoConcluidas = osRecebimento.filter(os => os.status === 'concluido' && os.data_migo_receb && os.data_recebimento);
