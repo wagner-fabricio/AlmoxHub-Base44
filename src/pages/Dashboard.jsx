@@ -452,6 +452,22 @@ export default function Dashboard() {
             </div>
           </div>
         )}
+
+        <button
+          onClick={() => updateFilters({
+            regional: 'all',
+            almoxarifado: 'all',
+            categoria: 'all',
+            subcategoria: 'all',
+            status: 'all',
+            periodo: '30',
+            dataInicio: '',
+            dataFim: ''
+          })}
+          className="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300 underline"
+        >
+          Limpar filtros
+        </button>
       </div>
 
       {/* Tabs */}
