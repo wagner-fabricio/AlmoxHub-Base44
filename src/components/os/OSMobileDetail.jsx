@@ -27,7 +27,8 @@ import {
   Send,
   Camera,
   Image as ImageIcon,
-  Upload
+  Upload,
+  Plus
 } from 'lucide-react';
 import { format, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
