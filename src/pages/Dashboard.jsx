@@ -213,13 +213,15 @@ export default function Dashboard() {
     }, 0);
   }, 0);
   
-  const tempoMedioRegularizacaoCompra = osRecebimentoCompra.length > 0
-    ? osRecebimentoCompra.reduce((sum, os) => {
+  const osRecebimentoCompraConcluidas = osRecebimentoCompra.filter(os => os.status === 'concluido');
+  
+  const tempoMedioRegularizacaoCompra = osRecebimentoCompraConcluidas.length > 0
+    ? osRecebimentoCompraConcluidas.reduce((sum, os) => {
         if (!os.data_migo_receb || !os.data_recebimento) return sum;
         const dataMigo = new Date(os.data_migo_receb);
         const dataReceb = new Date(os.data_recebimento);
         return sum + differenceInDays(dataMigo, dataReceb);
-      }, 0) / osRecebimentoCompra.filter(os => os.data_migo_receb && os.data_recebimento).length
+      }, 0) / osRecebimentoCompraConcluidas.filter(os => os.data_migo_receb && os.data_recebimento).length
     : 0;
   
   const osRecebimentoTodas = filteredOrdens.filter(os => os.categoria_id === categoriaRecebimento?.id);
@@ -242,13 +244,15 @@ export default function Dashboard() {
     return sum + (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
   }, 0);
   
-  const tempoMedioAtendimentoExpedicao = osExpedicaoReservas.length > 0
-    ? osExpedicaoReservas.reduce((sum, os) => {
+  const osExpedicaoReservasConcluidas = osExpedicaoReservas.filter(os => os.status === 'concluido');
+  
+  const tempoMedioAtendimentoExpedicao = osExpedicaoReservasConcluidas.length > 0
+    ? osExpedicaoReservasConcluidas.reduce((sum, os) => {
         if (!os.data_migo || !os.data_reserva) return sum;
         const dataMigo = new Date(os.data_migo);
         const dataReserva = new Date(os.data_reserva);
         return sum + differenceInDays(dataMigo, dataReserva);
-      }, 0) / osExpedicaoReservas.filter(os => os.data_migo && os.data_reserva).length
+      }, 0) / osExpedicaoReservasConcluidas.filter(os => os.data_migo && os.data_reserva).length
     : 0;
 
   // Chart data: OS by Regional (com breakdown por status)
