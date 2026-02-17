@@ -1986,33 +1986,35 @@ export default function OSFormModal({
         </ScrollArea>
 
         {/* Footer */}
-        <div className="px-6 py-5 border-t bg-white dark:bg-slate-800 flex items-center justify-between">
-          <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
-            * Campos obrigatórios
-          </p>
-          <div className="flex gap-3">
-            <Button 
-              variant="outline" 
-              onClick={onClose}
-              className="rounded-lg border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700"
-            >
-              Cancelar
-            </Button>
-            <Button 
-              onClick={handleSubmit} 
-              disabled={!isValid || loading}
-              className="rounded-lg shadow-md hover:shadow-lg transition-shadow"
-              style={{ 
-                background: (!isValid || loading) ? undefined : 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)',
-                color: 'white'
-              }}
-            >
-              {loading ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Salvando...</>
-              ) : (
-                <><Save className="w-4 h-4 mr-2" /> Salvar OS</>
-              )}
-            </Button>
+        <div className="border-t bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
+          <div className="px-8 py-6 flex items-center justify-between gap-6">
+            <p className="text-sm text-slate-600 dark:text-slate-400 font-medium flex-shrink-0">
+              * Campos obrigatórios
+            </p>
+            <div className="flex gap-4">
+              <Button 
+                variant="outline" 
+                onClick={onClose}
+                className="rounded-lg px-6 py-2 font-medium border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              >
+                Cancelar
+              </Button>
+              <Button 
+                onClick={handleSubmit} 
+                disabled={!isValid || loading}
+                className="rounded-lg px-6 py-2 font-medium shadow-lg hover:shadow-xl transition-all"
+                style={{ 
+                  background: (!isValid || loading) ? '#cbd5e1' : 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)',
+                  color: 'white'
+                }}
+              >
+                {loading ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Salvando...</>
+                ) : (
+                  <><Save className="w-4 h-4 mr-2" /> Salvar OS</>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>
