@@ -141,7 +141,12 @@ export default function OrdensServico() {
     }
 
     // MIGO filter
-    if (filters.migo && !os.num_migo?.toString().includes(filters.migo)) return false;
+    if (filters.migo) {
+      const migoMatch = 
+        os.num_migo?.toString().includes(filters.migo) ||
+        os.numero_migo_receb?.toString().includes(filters.migo);
+      if (!migoMatch) return false;
+    }
     
     // Regional filter
     if (filters.regional !== 'all' && os.regional_id !== filters.regional) return false;
