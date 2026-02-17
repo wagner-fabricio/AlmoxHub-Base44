@@ -92,6 +92,9 @@ export default function OSMobileDetail({
   const isExpedicao = categoria?.nome?.toLowerCase().includes('expedição');
   const isRecebimento = categoria?.nome?.toLowerCase().includes('recebimento');
   const StatusIcon = statusConfig[os.status]?.icon || Clock;
+  
+  const [volumes, setVolumes] = useState(os.volumes || []);
+  const [savingVolumes, setSavingVolumes] = useState(false);
 
   // Verificar se o usuário atual está associado à OS
   const isUserAssociated = () => {
@@ -478,11 +481,77 @@ export default function OSMobileDetail({
     { id: 'detalhes', label: 'Detalhes', icon: Clock },
     ...(isExpedicao && os.itens_documento?.length > 0 ? [{ id: 'materiais', label: 'Materiais', icon: Package }] : []),
     ...(isRecebimento && os.nfe_itens_conferencia?.length > 0 ? [{ id: 'materiais', label: 'Materiais', icon: Package }] : []),
-    ...(os.volumes?.length > 0 ? [{ id: 'volumes', label: 'Volumes', icon: Package }] : []),
+    ...(isExpedicao ? [{ id: 'volumes', label: 'Volumes', icon: Package }] : []),
     ...(os.detalhamento_expedicao?.length > 0 ? [{ id: 'expedicao', label: 'Expedição', icon: Package }] : []),
     { id: 'comentarios', label: 'Chat', icon: MessageSquare },
     { id: 'anexos', label: 'Anexos', icon: Paperclip }
   ];
+
+  const handleAddVolume = () => {
+    const newVolume = {
+      id_volume: `VOL-${volumes.length + 1}`,
+      quantidade: 1,
+      largura: null,
+      altura: null,
+      comprimento: null,
+      peso_bruto: null,
+      m3: null
+    };
+    setVolumes([...volumes, newVolume]);
+  };
+
+  const handleUpdateVolume = (index, field, value) => {
+    const updatedVolumes = [...volumes];
+    updatedVolumes[index] = {
+      ...updatedVolumes[index],
+      [field]: value
+    };
+    
+    // Calcular m3 automaticamente
+    if (field === 'largura' || field === 'altura' || field === 'comprimento') {
+      const largura = parseFloat(updatedVolumes[index].largura) || 0;
+      const altura = parseFloat(updatedVolumes[index].altura) || 0;
+      const comprimento = parseFloat(updatedVolumes[index].comprimento) || 0;
+      
+      if (largura > 0 && altura > 0 && comprimento > 0) {
+        // Converter cm para metros e calcular m³
+        const m3 = (largura / 100) * (altura / 100) * (comprimento / 100);
+        updatedVolumes[index].m3 = parseFloat(m3.toFixed(4));
+      }
+    }
+    
+    setVolumes(updatedVolumes);
+  };
+
+  const handleRemoveVolume = (index) => {
+    setVolumes(volumes.filter((_, i) => i !== index));
+  };
+
+  const handleSaveVolumes = async () => {
+    setSavingVolumes(true);
+    try {
+      await base44.entities.OrdemServico.update(os.id, {
+        volumes: volumes
+      });
+      os.volumes = volumes; // Atualizar objeto local
+      
+      // Registrar no histórico
+      await base44.functions.invoke('registrarAuditLog', {
+        action: 'update',
+        entity_type: 'OrdemServico',
+        entity_id: os.id,
+        details: {
+          descricao: `Volumes atualizados: ${volumes.length} volume(s)`
+        }
+      });
+    } catch (error) {
+      console.error('Error saving volumes:', error);
+    } finally {
+      setSavingVolumes(false);
+    }
+  };
+
+  const hasVolumeChanges = JSON.stringify(volumes) !== JSON.stringify(os.volumes || []);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col overflow-hidden">
@@ -940,58 +1009,148 @@ export default function OSMobileDetail({
 
         {activeTab === 'volumes' && (
           <div className="space-y-3">
-            {(!os.volumes || os.volumes?.length === 0) ? (
+            {/* Botão Adicionar Volume */}
+            <Button
+              onClick={handleAddVolume}
+              className="w-full py-6 rounded-2xl shadow-md"
+              style={{ backgroundColor: '#0000FF' }}
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Adicionar Volume
+            </Button>
+
+            {volumes.length === 0 ? (
               <div className="text-center py-12 text-slate-500 dark:text-slate-400">
                 <Package className="w-16 h-16 mx-auto mb-4 opacity-50" />
                 <p>Nenhum volume cadastrado</p>
+                <p className="text-sm mt-2">Adicione um volume para começar</p>
               </div>
             ) : (
-              (os.volumes || []).map((volume, index) => (
-                <div key={index} className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Package className="w-5 h-5 text-blue-600" />
-                    <h4 className="text-sm font-medium text-slate-900 dark:text-white">
-                      Volume {volume.id_volume || index + 1}
-                    </h4>
-                    <Badge className="ml-auto" variant="outline">
-                      Qtd: {volume.quantidade || 1}
-                    </Badge>
+              <>
+                {volumes.map((volume, index) => (
+                  <div key={index} className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm space-y-3">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Package className="w-5 h-5 text-blue-600" />
+                        <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                          {volume.id_volume || `VOL-${index + 1}`}
+                        </h4>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleRemoveVolume(index)}
+                        className="text-red-600 hover:bg-red-50 h-8 w-8"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    
+                    {/* Quantidade */}
+                    <div className="space-y-1">
+                      <label className="text-xs text-slate-500 dark:text-slate-400">Quantidade</label>
+                      <Input
+                        type="number"
+                        value={volume.quantidade || ''}
+                        onChange={(e) => handleUpdateVolume(index, 'quantidade', parseInt(e.target.value) || 1)}
+                        min="1"
+                        className="text-base"
+                      />
+                    </div>
+
+                    {/* Dimensões */}
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="space-y-1">
+                        <label className="text-xs text-slate-500 dark:text-slate-400">Largura (cm)</label>
+                        <Input
+                          type="number"
+                          value={volume.largura || ''}
+                          onChange={(e) => handleUpdateVolume(index, 'largura', parseFloat(e.target.value) || null)}
+                          min="0"
+                          step="0.01"
+                          placeholder="0"
+                          className="text-base"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs text-slate-500 dark:text-slate-400">Altura (cm)</label>
+                        <Input
+                          type="number"
+                          value={volume.altura || ''}
+                          onChange={(e) => handleUpdateVolume(index, 'altura', parseFloat(e.target.value) || null)}
+                          min="0"
+                          step="0.01"
+                          placeholder="0"
+                          className="text-base"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs text-slate-500 dark:text-slate-400">Comprimento (cm)</label>
+                        <Input
+                          type="number"
+                          value={volume.comprimento || ''}
+                          onChange={(e) => handleUpdateVolume(index, 'comprimento', parseFloat(e.target.value) || null)}
+                          min="0"
+                          step="0.01"
+                          placeholder="0"
+                          className="text-base"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Peso e Volume */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <label className="text-xs text-slate-500 dark:text-slate-400">Peso (kg)</label>
+                        <Input
+                          type="number"
+                          value={volume.peso_bruto || ''}
+                          onChange={(e) => handleUpdateVolume(index, 'peso_bruto', parseFloat(e.target.value) || null)}
+                          min="0"
+                          step="0.01"
+                          placeholder="0"
+                          className="text-base"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs text-slate-500 dark:text-slate-400">Volume (m³)</label>
+                        <Input
+                          type="number"
+                          value={volume.m3 || ''}
+                          onChange={(e) => handleUpdateVolume(index, 'm3', parseFloat(e.target.value) || null)}
+                          min="0"
+                          step="0.0001"
+                          placeholder="Auto"
+                          className="text-base bg-slate-50"
+                          readOnly
+                        />
+                      </div>
+                    </div>
                   </div>
-                  
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    {volume.largura && (
-                      <div>
-                        <span className="text-slate-500 dark:text-slate-400">Largura:</span>
-                        <p className="font-medium text-slate-900 dark:text-white">{volume.largura} cm</p>
-                      </div>
-                    )}
-                    {volume.altura && (
-                      <div>
-                        <span className="text-slate-500 dark:text-slate-400">Altura:</span>
-                        <p className="font-medium text-slate-900 dark:text-white">{volume.altura} cm</p>
-                      </div>
-                    )}
-                    {volume.comprimento && (
-                      <div>
-                        <span className="text-slate-500 dark:text-slate-400">Comprimento:</span>
-                        <p className="font-medium text-slate-900 dark:text-white">{volume.comprimento} cm</p>
-                      </div>
-                    )}
-                    {volume.peso_bruto && (
-                      <div>
-                        <span className="text-slate-500 dark:text-slate-400">Peso:</span>
-                        <p className="font-medium text-slate-900 dark:text-white">{volume.peso_bruto} kg</p>
-                      </div>
-                    )}
-                    {volume.m3 && (
-                      <div>
-                        <span className="text-slate-500 dark:text-slate-400">Volume:</span>
-                        <p className="font-medium text-slate-900 dark:text-white">{volume.m3} m³</p>
-                      </div>
-                    )}
+                ))}
+
+                {hasVolumeChanges && (
+                  <div className="sticky bottom-4 z-10">
+                    <Button
+                      onClick={handleSaveVolumes}
+                      disabled={savingVolumes}
+                      className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-6 text-lg rounded-2xl shadow-2xl"
+                    >
+                      {savingVolumes ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Salvando...
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-5 h-5 mr-2" />
+                          Salvar Volumes ({volumes.length})
+                        </>
+                      )}
+                    </Button>
                   </div>
-                </div>
-              ))
+                )}
+              </>
             )}
           </div>
         )}
