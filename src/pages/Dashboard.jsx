@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend, AreaChart, Area } from 'recharts';
-import { ClipboardList, CheckCircle, Clock, AlertTriangle, TrendingUp, Building2, MapPin, Loader2, Zap, Warehouse, Grid, Users, Package, DollarSign, Timer } from 'lucide-react';
+import { ClipboardList, CheckCircle, Clock, AlertTriangle, TrendingUp, Building2, MapPin, Loader2, Zap, Warehouse, Grid, Users, Package, DollarSign, Timer, X } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format, subDays, differenceInDays } from 'date-fns';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
@@ -464,9 +464,10 @@ export default function Dashboard() {
             dataInicio: '',
             dataFim: ''
           })}
-          className="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300 underline"
+          className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
+          title="Limpar filtros"
         >
-          Limpar filtros
+          <X className="w-5 h-5" />
         </button>
       </div>
 
