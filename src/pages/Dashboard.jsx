@@ -48,6 +48,7 @@ export default function Dashboard() {
     almoxarifado: 'all',
     categoria: 'all',
     subcategoria: 'all',
+    status: 'all',
     periodo: '30',
     dataInicio: '',
     dataFim: ''
@@ -110,6 +111,7 @@ export default function Dashboard() {
     if (filters.almoxarifado !== 'all' && os.almoxarifado_id !== filters.almoxarifado) return false;
     if (filters.categoria !== 'all' && os.categoria_id !== filters.categoria) return false;
     if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
+    if (filters.status !== 'all' && os.status !== filters.status) return false;
     
     // Period filter
     if (filters.periodo === 'mes_atual') {
