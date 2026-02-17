@@ -200,7 +200,8 @@ export default function Dashboard() {
   
   const osRecebimentoCompra = filteredOrdens.filter(os => 
     os.categoria_id === categoriaRecebimento?.id && 
-    os.subcategorias_ids?.includes(subcategoriaCompra?.id)
+    os.subcategorias_ids?.includes(subcategoriaCompra?.id) &&
+    os.status === 'concluido'
   );
   
   const numItensNFCompra = osRecebimentoCompra.reduce((sum, os) => {
