@@ -941,7 +941,18 @@ export default function OSFormModal({
                     <Label>Líder *</Label>
                     <Select
                       value={formData.lider_id}
-                      onValueChange={(v) => setFormData({ ...formData, lider_id: v })}
+                      onValueChange={(v) => {
+                        // Adicionar líder automaticamente aos executores
+                        const executoresAtualizados = formData.executores_ids?.includes(v) 
+                          ? formData.executores_ids 
+                          : [...(formData.executores_ids || []), v];
+                        
+                        setFormData({ 
+                          ...formData, 
+                          lider_id: v,
+                          executores_ids: executoresAtualizados
+                        });
+                      }}
                       disabled={!formData.almoxarifado_id}
                     >
                       <SelectTrigger>
