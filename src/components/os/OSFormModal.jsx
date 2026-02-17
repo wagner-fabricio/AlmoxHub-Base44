@@ -389,6 +389,9 @@ export default function OSFormModal({
   
   const isRecebimentoCategory = 
     selectedCategoria?.nome?.toLowerCase().includes('recebimento');
+  
+  const isAtendimentoCategory = 
+    selectedCategoria?.nome?.toLowerCase().includes('atendimento');
 
   const calculateProgress = (data) => {
     const isRecebimento = selectedCategoria?.nome?.toLowerCase().includes('recebimento');
@@ -823,6 +826,9 @@ export default function OSFormModal({
             <Tabs defaultValue="geral" className="w-full">
               <TabsList className="mb-6 bg-slate-100 dark:bg-slate-800 p-1">
                 <TabsTrigger value="geral">Dados Gerais</TabsTrigger>
+                {isAtendimentoCategory && (
+                  <TabsTrigger value="materiais">Materiais ({formData.itens_documento?.length || 0})</TabsTrigger>
+                )}
                 {isExpedicaoCategory && (
                   <>
                     <TabsTrigger value="documento">Documento</TabsTrigger>
@@ -858,9 +864,11 @@ export default function OSFormModal({
                         <SelectValue placeholder="Selecione..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {(categorias || []).map(c => (
-                          <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-                        ))}
+                        {(categorias || [])
+                          .sort((a, b) => a.nome.localeCompare(b.nome))
+                          .map(c => (
+                            <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -1367,7 +1375,7 @@ export default function OSFormModal({
               )}
 
               {/* TAB: Materiais */}
-              {isExpedicaoCategory && (
+              {(isExpedicaoCategory || isAtendimentoCategory) && (
                 <TabsContent value="materiais">
                   <OSItensDocumento
                     itens={formData.itens_documento}
