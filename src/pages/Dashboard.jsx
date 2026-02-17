@@ -233,7 +233,8 @@ export default function Dashboard() {
   
   const osExpedicaoReservas = filteredOrdens.filter(os => 
     os.categoria_id === categoriaExpedicaoTC?.id && 
-    (os.subcategorias_ids?.includes(subcategoriaComReserva?.id) || os.subcategorias_ids?.includes(subcategoriaSemReserva?.id))
+    (os.subcategorias_ids?.includes(subcategoriaComReserva?.id) || os.subcategorias_ids?.includes(subcategoriaSemReserva?.id)) &&
+    os.status === 'concluido'
   );
   
   const numItensExpedidos = osExpedicaoReservas.reduce((sum, os) => {
