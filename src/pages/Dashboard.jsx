@@ -1111,13 +1111,13 @@ export default function Dashboard() {
               Volumetrias
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Nº Itens NF Compra */}
+              {/* Nº de Itens */}
               <Card className="bg-white dark:bg-slate-800 border-l-4 border-blue-500">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-2">
                     <Package className="w-8 h-8 text-blue-500" />
                   </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Nº Itens NF Compra</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Nº de Itens</p>
                   <p className="text-3xl font-bold text-slate-900 dark:text-white">{numItensNFCompra.toLocaleString('pt-BR')}</p>
                 </CardContent>
               </Card>
