@@ -249,7 +249,12 @@ export default function Dashboard() {
   const valorItensNFCompra = filteredOrdens.reduce((sum, os) => {
     // Valor de expedição vem dos itens_documento
     const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
-    return sum + valorExpedicao;
+    // Valor de recebimento vem de nfe_itens_conferencia
+    const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => {
+      const valorItem = (item.quantidade_esperada || 0) * (parseFloat(item.valor_unitario) || 0);
+      return s + valorItem;
+    }, 0);
+    return sum + valorExpedicao + valorRecebimento;
   }, 0);
 
   const osComDatasPrazo = filteredOrdens.filter(os => os.data_inicial && os.prazo);
@@ -1798,8 +1803,15 @@ export default function Dashboard() {
                       
                       return new Date(os.prazo) >= hoje;
                     }).reduce((sum, os) => {
+                      // Valor de expedição vem de itens_documento
                       const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
-                      return sum + valorExpedicao;
+                      // Valor de recebimento vem de nfe_itens_conferencia
+                      const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => {
+                        // Cada item tem quantidade_esperada * valor (se existir no item)
+                        const valorItem = (item.quantidade_esperada || 0) * (parseFloat(item.valor_unitario) || 0);
+                        return s + valorItem;
+                      }, 0);
+                      return sum + valorExpedicao + valorRecebimento;
                     }, 0);
                     
                     const valorForaPrazo = osMes.filter(os => {
@@ -1811,8 +1823,15 @@ export default function Dashboard() {
                       
                       return new Date(os.prazo) < hoje;
                     }).reduce((sum, os) => {
+                      // Valor de expedição vem de itens_documento
                       const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
-                      return sum + valorExpedicao;
+                      // Valor de recebimento vem de nfe_itens_conferencia
+                      const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => {
+                        // Cada item tem quantidade_esperada * valor (se existir no item)
+                        const valorItem = (item.quantidade_esperada || 0) * (parseFloat(item.valor_unitario) || 0);
+                        return s + valorItem;
+                      }, 0);
+                      return sum + valorExpedicao + valorRecebimento;
                     }, 0);
                     
                     return {
@@ -1943,8 +1962,14 @@ export default function Dashboard() {
                       
                       return new Date(os.prazo) >= hoje;
                     }).reduce((sum, os) => {
+                      // Valor de expedição vem de itens_documento
                       const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
-                      return sum + valorExpedicao;
+                      // Valor de recebimento vem de nfe_itens_conferencia
+                      const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => {
+                        const valorItem = (item.quantidade_esperada || 0) * (parseFloat(item.valor_unitario) || 0);
+                        return s + valorItem;
+                      }, 0);
+                      return sum + valorExpedicao + valorRecebimento;
                     }, 0);
                     
                     const totalValorForaPrazo = osAnoCorrente.filter(os => {
@@ -1956,8 +1981,14 @@ export default function Dashboard() {
                       
                       return new Date(os.prazo) < hoje;
                     }).reduce((sum, os) => {
+                      // Valor de expedição vem de itens_documento
                       const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
-                      return sum + valorExpedicao;
+                      // Valor de recebimento vem de nfe_itens_conferencia
+                      const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => {
+                        const valorItem = (item.quantidade_esperada || 0) * (parseFloat(item.valor_unitario) || 0);
+                        return s + valorItem;
+                      }, 0);
+                      return sum + valorExpedicao + valorRecebimento;
                     }, 0);
                     
                     const dadosRosca = [
