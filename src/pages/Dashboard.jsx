@@ -1146,24 +1146,20 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              {/* Tempo Médio Previsto */}
+              {/* Valor Total */}
               <Card className="bg-white dark:bg-slate-800 border-l-4 border-green-500">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-2">
-                    <Timer className="w-8 h-8 text-green-500" />
+                    <DollarSign className="w-8 h-8 text-green-500" />
                   </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Tempo Médio Previsto</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Valor Total</p>
                   <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                    {(() => {
-                      const osComDatas = filteredOrdens.filter(os => os.data_inicial && os.prazo);
-                      const tempoMedio = osComDatas.length > 0
-                        ? osComDatas.reduce((sum, os) => {
-                            const dataInicial = new Date(os.data_inicial);
-                            const prazo = new Date(os.prazo);
-                            return sum + differenceInDays(prazo, dataInicial);
-                          }, 0) / osComDatas.length
-                        : 0;
-                      return `${tempoMedio.toFixed(1)} dias`;
+                    R$ {(() => {
+                      const valorTotal = filteredOrdens.reduce((sum, os) => {
+                        const valorItens = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
+                        return sum + valorItens;
+                      }, 0);
+                      return valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                     })()}
                   </p>
                 </CardContent>
