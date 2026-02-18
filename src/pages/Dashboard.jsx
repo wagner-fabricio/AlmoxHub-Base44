@@ -199,13 +199,29 @@ export default function Dashboard() {
 
   // Average resolution time
   const completedOSWithDates = filteredOrdens.filter(os => os.status === 'concluido' && os.data_conclusao);
+  
+  console.log('=== DEBUG TEMPO MÉDIO RESOLUÇÃO ===');
+  console.log('Total de OS concluídas com data:', completedOSWithDates.length);
+  console.log('Primeiras 3 OS:', completedOSWithDates.slice(0, 3).map(os => ({
+    codigo: os.codigo,
+    status: os.status,
+    data_inicial: os.data_inicial,
+    created_date: os.created_date,
+    data_conclusao: os.data_conclusao
+  })));
+  
   const avgResolutionDays = completedOSWithDates.length > 0
     ? Math.round(completedOSWithDates.reduce((sum, os) => {
         const start = new Date(os.data_inicial || os.created_date);
         const end = new Date(os.data_conclusao);
-        return sum + differenceInDays(end, start);
+        const dias = Math.abs(differenceInDays(end, start));
+        console.log(`OS ${os.codigo}: ${dias} dias (${start.toLocaleDateString()} até ${end.toLocaleDateString()})`);
+        return sum + dias;
       }, 0) / completedOSWithDates.length)
     : 0;
+  
+  console.log('Média calculada:', avgResolutionDays, 'dias');
+  console.log('===================================');
 
   // Torre de Controle - KPIs Volumetrias
   const categoriaRecebimento = categorias.find(c => c.nome?.toLowerCase().includes('recebimento'));
