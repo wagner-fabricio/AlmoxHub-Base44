@@ -209,7 +209,7 @@ export default function Dashboard() {
 
   const valorItensNFCompra = filteredOrdens.reduce((sum, os) => {
     const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => {
-      return s + ((item.quantidade_esperada || 0) * (item.valor_unitario || 0));
+      return s + (parseFloat(item.valor_total) || 0);
     }, 0);
     const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
     return sum + valorRecebimento + valorExpedicao;
@@ -1158,7 +1158,7 @@ export default function Dashboard() {
                       const valorTotal = filteredOrdens.reduce((sum, os) => {
                         const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
                         const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => {
-                          return s + ((item.quantidade_esperada || 0) * (item.valor_unitario || 0));
+                          return s + (parseFloat(item.valor_total) || 0);
                         }, 0);
                         return sum + valorExpedicao + valorRecebimento;
                       }, 0);
