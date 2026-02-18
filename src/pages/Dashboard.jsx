@@ -504,24 +504,14 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-3">
               <div className="flex-1">
                 <p className="text-white/80 text-sm font-medium">Total de OS</p>
-                <p className="text-4xl font-bold text-white mt-1">{totalOS}</p>
+                <p className="text-4xl font-bold text-white mt-1">{filteredOrdens.length}</p>
               </div>
               <div className="w-14 h-14 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center">
                 <ClipboardList className="w-7 h-7 text-white" />
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              {percTotalOS >= 0 ? (
-                <>
-                  <div className="text-green-300 text-sm font-semibold">↑ {Math.abs(percTotalOS)}%</div>
-                  <span className="text-white/60 text-xs">vs. ontem</span>
-                </>
-              ) : (
-                <>
-                  <div className="text-red-300 text-sm font-semibold">↓ {Math.abs(percTotalOS)}%</div>
-                  <span className="text-white/60 text-xs">vs. ontem</span>
-                </>
-              )}
+            <div className="flex items-center gap-2 text-white/60 text-xs">
+              Conforme filtros aplicados
             </div>
           </CardContent>
         </Card>
