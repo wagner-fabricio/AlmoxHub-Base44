@@ -247,11 +247,9 @@ export default function Dashboard() {
   }, 0);
 
   const valorItensNFCompra = filteredOrdens.reduce((sum, os) => {
-    const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => {
-      return s + (parseFloat(item.valor_total) || 0);
-    }, 0);
+    // Valor de expedição vem dos itens_documento
     const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
-    return sum + valorRecebimento + valorExpedicao;
+    return sum + valorExpedicao;
   }, 0);
 
   const osComDatasPrazo = filteredOrdens.filter(os => os.data_inicial && os.prazo);
