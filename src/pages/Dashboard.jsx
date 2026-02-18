@@ -1172,14 +1172,14 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              {/* Nº OS Recebimento */}
+              {/* Total de OS */}
               <Card className="bg-white dark:bg-slate-800 border-l-4 border-purple-500">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-2">
                     <ClipboardList className="w-8 h-8 text-purple-500" />
                   </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Nº OS Recebimento</p>
-                  <p className="text-3xl font-bold text-slate-900 dark:text-white">{osRecebimento.length}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Total de OS</p>
+                  <p className="text-3xl font-bold text-slate-900 dark:text-white">{filteredOrdens.length}</p>
                 </CardContent>
               </Card>
 
