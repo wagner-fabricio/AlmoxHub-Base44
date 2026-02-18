@@ -1762,6 +1762,285 @@ export default function Dashboard() {
               </Card>
             </div>
           </div>
+
+          {/* Seção Resultados Mensais - Valores */}
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <DollarSign className="w-6 h-6 text-green-600" />
+              Resultados Mensais - Valores
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Gráfico de Barras Mensais - Valores */}
+              <Card className="bg-white dark:bg-slate-800 lg:col-span-2">
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <DollarSign className="w-5 h-5 text-green-500" />
+                    Valor Total por Prazo - Ano Corrente
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                {(() => {
+                  const currentYear = new Date().getFullYear();
+                  const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+                  
+                  const dadosMensais = meses.map((mes, index) => {
+                    const osMes = filteredOrdens.filter(os => {
+                      const dataCreated = new Date(os.created_date);
+                      return dataCreated.getFullYear() === currentYear && dataCreated.getMonth() === index;
+                    });
+                    
+                    const hoje = new Date();
+                    
+                    const valorNoPrazo = osMes.filter(os => {
+                      if (!os.prazo) return true;
+                      
+                      if (os.status === 'concluido' && os.data_conclusao) {
+                        return new Date(os.data_conclusao) <= new Date(os.prazo);
+                      }
+                      
+                      return new Date(os.prazo) >= hoje;
+                    }).reduce((sum, os) => {
+                      const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
+                      const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => s + (parseFloat(item.valor_total) || 0), 0);
+                      return sum + valorExpedicao + valorRecebimento;
+                    }, 0);
+                    
+                    const valorForaPrazo = osMes.filter(os => {
+                      if (!os.prazo) return false;
+                      
+                      if (os.status === 'concluido' && os.data_conclusao) {
+                        return new Date(os.data_conclusao) > new Date(os.prazo);
+                      }
+                      
+                      return new Date(os.prazo) < hoje;
+                    }).reduce((sum, os) => {
+                      const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
+                      const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => s + (parseFloat(item.valor_total) || 0), 0);
+                      return sum + valorExpedicao + valorRecebimento;
+                    }, 0);
+                    
+                    return {
+                      mes,
+                      'No Prazo': valorNoPrazo,
+                      'Fora do Prazo': valorForaPrazo
+                    };
+                  });
+                  
+                  const temDados = dadosMensais.some(mes => (mes['No Prazo'] + mes['Fora do Prazo']) > 0);
+                  
+                  if (!temDados) {
+                    return (
+                      <div className="h-96 flex items-center justify-center text-slate-400">
+                        Sem dados para exibir
+                      </div>
+                    );
+                  }
+                  
+                  return (
+                    <ResponsiveContainer width="100%" height={400}>
+                      <BarChart data={dadosMensais} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                        <XAxis dataKey="mes" tick={{ fill: '#64748b', fontSize: 12 }} />
+                        <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: '#fff', 
+                            border: '1px solid #e2e8f0',
+                            borderRadius: '8px'
+                          }}
+                          formatter={(value) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                        />
+                        <Legend wrapperStyle={{ fontSize: '12px' }} />
+                        
+                        <Bar 
+                          dataKey="No Prazo" 
+                          stackId="total"
+                          fill="#22c55e" 
+                          name="No Prazo"
+                        >
+                          <LabelList 
+                            dataKey="No Prazo" 
+                            position="center"
+                            content={(props) => {
+                              const { x, y, width, height, value } = props;
+                              const total = dadosMensais[props.index]['No Prazo'] + dadosMensais[props.index]['Fora do Prazo'];
+                              if (total === 0 || value === 0) return null;
+                              const percent = ((value / total) * 100).toFixed(0);
+                              return (
+                                <text 
+                                  x={x + width / 2} 
+                                  y={y + height / 2} 
+                                  fill="#fff" 
+                                  textAnchor="middle" 
+                                  dominantBaseline="middle"
+                                  fontSize="12"
+                                  fontWeight="600"
+                                >
+                                  {percent}%
+                                </text>
+                              );
+                            }}
+                          />
+                        </Bar>
+                        <Bar 
+                          dataKey="Fora do Prazo" 
+                          stackId="total"
+                          fill="#ef4444"
+                          name="Fora do Prazo"
+                          radius={[4, 4, 0, 0]}
+                        >
+                          <LabelList 
+                            dataKey="Fora do Prazo" 
+                            position="center"
+                            content={(props) => {
+                              const { x, y, width, height, value } = props;
+                              const total = dadosMensais[props.index]['No Prazo'] + dadosMensais[props.index]['Fora do Prazo'];
+                              if (total === 0 || value === 0) return null;
+                              const percent = ((value / total) * 100).toFixed(0);
+                              return (
+                                <text 
+                                  x={x + width / 2} 
+                                  y={y + height / 2} 
+                                  fill="#fff" 
+                                  textAnchor="middle" 
+                                  dominantBaseline="middle"
+                                  fontSize="12"
+                                  fontWeight="600"
+                                >
+                                  {percent}%
+                                </text>
+                              );
+                            }}
+                          />
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  );
+                })()}
+                </CardContent>
+              </Card>
+
+              {/* Gráfico de Rosca - Total Anual de Valores */}
+              <Card className="bg-white dark:bg-slate-800">
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <DollarSign className="w-5 h-5 text-green-500" />
+                    Resumo Anual de Valores
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {(() => {
+                    const currentYear = new Date().getFullYear();
+                    const hoje = new Date();
+                    
+                    const osAnoCorrente = filteredOrdens.filter(os => {
+                      const dataCreated = new Date(os.created_date);
+                      return dataCreated.getFullYear() === currentYear;
+                    });
+                    
+                    const totalValorNoPrazo = osAnoCorrente.filter(os => {
+                      if (!os.prazo) return true;
+                      
+                      if (os.status === 'concluido' && os.data_conclusao) {
+                        return new Date(os.data_conclusao) <= new Date(os.prazo);
+                      }
+                      
+                      return new Date(os.prazo) >= hoje;
+                    }).reduce((sum, os) => {
+                      const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
+                      const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => s + (parseFloat(item.valor_total) || 0), 0);
+                      return sum + valorExpedicao + valorRecebimento;
+                    }, 0);
+                    
+                    const totalValorForaPrazo = osAnoCorrente.filter(os => {
+                      if (!os.prazo) return false;
+                      
+                      if (os.status === 'concluido' && os.data_conclusao) {
+                        return new Date(os.data_conclusao) > new Date(os.prazo);
+                      }
+                      
+                      return new Date(os.prazo) < hoje;
+                    }).reduce((sum, os) => {
+                      const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
+                      const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => s + (parseFloat(item.valor_total) || 0), 0);
+                      return sum + valorExpedicao + valorRecebimento;
+                    }, 0);
+                    
+                    const dadosRosca = [
+                      { name: 'No Prazo', value: totalValorNoPrazo, color: '#22c55e' },
+                      { name: 'Fora do Prazo', value: totalValorForaPrazo, color: '#ef4444' }
+                    ].filter(d => d.value > 0);
+                    
+                    const total = totalValorNoPrazo + totalValorForaPrazo;
+                    
+                    if (total === 0) {
+                      return (
+                        <div className="h-96 flex items-center justify-center text-slate-400">
+                          Sem dados para exibir
+                        </div>
+                      );
+                    }
+                    
+                    const percentualNoPrazo = ((totalValorNoPrazo / total) * 100).toFixed(2);
+                    
+                    return (
+                      <div className="flex flex-col items-center justify-center h-full">
+                        <div className="relative">
+                          <ResponsiveContainer width={280} height={280}>
+                            <PieChart>
+                              <Pie
+                                data={dadosRosca}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={85}
+                                outerRadius={110}
+                                paddingAngle={2}
+                                dataKey="value"
+                              >
+                                {dadosRosca.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={entry.color} />
+                                ))}
+                              </Pie>
+                            </PieChart>
+                          </ResponsiveContainer>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center">
+                            <p className="text-4xl font-bold text-slate-900 dark:text-white">
+                              {percentualNoPrazo}%
+                            </p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                              No Prazo
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="mt-6 space-y-2 w-full px-4">
+                          <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                              <span className="text-slate-600 dark:text-slate-400">No Prazo</span>
+                            </div>
+                            <span className="font-semibold text-slate-900 dark:text-white">
+                              R$ {totalValorNoPrazo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                              <span className="text-slate-600 dark:text-slate-400">Fora do Prazo</span>
+                            </div>
+                            <span className="font-semibold text-slate-900 dark:text-white">
+                              R$ {totalValorForaPrazo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
