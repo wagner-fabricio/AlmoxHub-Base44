@@ -1169,13 +1169,13 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              {/* Tempo Médio Regularização */}
+              {/* Tempo Médio Previsto */}
               <Card className="bg-white dark:bg-slate-800 border-l-4 border-amber-500">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-2">
                     <Timer className="w-8 h-8 text-amber-500" />
                   </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Tempo Médio Regularização</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Tempo Médio Previsto</p>
                   <p className="text-3xl font-bold text-slate-900 dark:text-white">
                     {Math.abs(tempoMedioRegularizacaoCompra).toFixed(1)} dias
                   </p>
