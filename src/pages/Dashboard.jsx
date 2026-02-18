@@ -197,24 +197,22 @@ export default function Dashboard() {
   
   const onTimeRate = osComPrazo.length > 0 ? Math.round((onTimeCount / osComPrazo.length) * 100) : 0;
 
-  // Average resolution time - Debug expandido
-  console.log('=== DEBUG COMPLETO ===');
-  console.log('Total de OS filtradas:', filteredOrdens.length);
-  console.log('Status das OS:', filteredOrdens.map(os => os.status));
-  console.log('OS com status concluido:', filteredOrdens.filter(os => os.status === 'concluido').length);
+  // Average resolution time - Identificar status únicos
+  const uniqueStatus = [...new Set(filteredOrdens.map(os => os.status))];
+  console.log('=== STATUS ÚNICOS NAS OS ===');
+  console.log('Status encontrados:', uniqueStatus);
+  console.log('Total de OS:', filteredOrdens.length);
+  
+  // Contar por status
+  uniqueStatus.forEach(status => {
+    const count = filteredOrdens.filter(os => os.status === status).length;
+    console.log(`  - ${status}: ${count} OS`);
+  });
   
   const completedOSWithDates = filteredOrdens.filter(os => os.status === 'concluido' && os.data_conclusao);
   
-  console.log('OS concluídas COM data_conclusao:', completedOSWithDates.length);
-  
-  // Mostrar amostra de TODAS as OS para entender os dados
-  console.log('Amostra de todas as OS:', filteredOrdens.slice(0, 5).map(os => ({
-    codigo: os.codigo,
-    status: os.status,
-    data_inicial: os.data_inicial,
-    data_conclusao: os.data_conclusao,
-    prazo: os.prazo
-  })));
+  console.log('\nOS concluídas COM data_conclusao:', completedOSWithDates.length);
+  console.log('===================================');
   
   const avgResolutionDays = completedOSWithDates.length > 0
     ? Math.round(completedOSWithDates.reduce((sum, os) => {
@@ -224,9 +222,6 @@ export default function Dashboard() {
         return sum + dias;
       }, 0) / completedOSWithDates.length)
     : 0;
-  
-  console.log('Média calculada:', avgResolutionDays, 'dias');
-  console.log('===================================');
 
   // Torre de Controle - KPIs Volumetrias
   const categoriaRecebimento = categorias.find(c => c.nome?.toLowerCase().includes('recebimento'));
