@@ -1202,14 +1202,16 @@ export default function Dashboard() {
               <TrendingUp className="w-6 h-6 text-blue-600" />
               Resultados Mensais
             </h2>
-            <Card className="bg-white dark:bg-slate-800">
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-blue-500" />
-                  Total de OS por Prazo - Ano Corrente
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Gráfico de Barras Mensais */}
+              <Card className="bg-white dark:bg-slate-800">
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-blue-500" />
+                    Total de OS por Prazo - Ano Corrente
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
                 {(() => {
                   const currentYear = new Date().getFullYear();
                   const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
@@ -1339,8 +1341,122 @@ export default function Dashboard() {
                     </ResponsiveContainer>
                   );
                 })()}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+
+              {/* Gráfico de Rosca - Total Anual */}
+              <Card className="bg-white dark:bg-slate-800">
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <ClipboardList className="w-5 h-5 text-green-500" />
+                    Resumo Anual por Prazo
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {(() => {
+                    const currentYear = new Date().getFullYear();
+                    const hoje = new Date();
+                    
+                    const osAnoCorrente = filteredOrdens.filter(os => {
+                      const dataCreated = new Date(os.created_date);
+                      return dataCreated.getFullYear() === currentYear;
+                    });
+                    
+                    const totalNoPrazo = osAnoCorrente.filter(os => {
+                      if (!os.prazo) return true;
+                      
+                      if (os.status === 'concluido' && os.data_conclusao) {
+                        return new Date(os.data_conclusao) <= new Date(os.prazo);
+                      }
+                      
+                      return new Date(os.prazo) >= hoje;
+                    }).length;
+                    
+                    const totalForaPrazo = osAnoCorrente.filter(os => {
+                      if (!os.prazo) return false;
+                      
+                      if (os.status === 'concluido' && os.data_conclusao) {
+                        return new Date(os.data_conclusao) > new Date(os.prazo);
+                      }
+                      
+                      return new Date(os.prazo) < hoje;
+                    }).length;
+                    
+                    const dadosRosca = [
+                      { name: 'No Prazo', value: totalNoPrazo, color: '#22c55e' },
+                      { name: 'Fora do Prazo', value: totalForaPrazo, color: '#ef4444' }
+                    ].filter(d => d.value > 0);
+                    
+                    const total = totalNoPrazo + totalForaPrazo;
+                    
+                    if (total === 0) {
+                      return (
+                        <div className="h-96 flex items-center justify-center text-slate-400">
+                          Sem dados para exibir
+                        </div>
+                      );
+                    }
+                    
+                    return (
+                      <div className="space-y-4">
+                        <ResponsiveContainer width="100%" height={320}>
+                          <PieChart>
+                            <Pie
+                              data={dadosRosca}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={80}
+                              outerRadius={120}
+                              paddingAngle={4}
+                              dataKey="value"
+                            >
+                              {dadosRosca.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} />
+                              ))}
+                            </Pie>
+                            <Tooltip 
+                              contentStyle={{ 
+                                backgroundColor: '#fff', 
+                                border: '1px solid #e2e8f0',
+                                borderRadius: '8px'
+                              }}
+                            />
+                          </PieChart>
+                        </ResponsiveContainer>
+                        
+                        <div className="space-y-3 px-4">
+                          <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                            <div className="flex items-center gap-3">
+                              <div className="w-4 h-4 rounded-full bg-green-500"></div>
+                              <span className="font-medium text-slate-900 dark:text-white">No Prazo</span>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-2xl font-bold text-slate-900 dark:text-white">{totalNoPrazo}</p>
+                              <p className="text-xs text-slate-500 dark:text-slate-400">
+                                {((totalNoPrazo / total) * 100).toFixed(1)}%
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                            <div className="flex items-center gap-3">
+                              <div className="w-4 h-4 rounded-full bg-red-500"></div>
+                              <span className="font-medium text-slate-900 dark:text-white">Fora do Prazo</span>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-2xl font-bold text-slate-900 dark:text-white">{totalForaPrazo}</p>
+                              <p className="text-xs text-slate-500 dark:text-slate-400">
+                                {((totalForaPrazo / total) * 100).toFixed(1)}%
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </TabsContent>
       </Tabs>
