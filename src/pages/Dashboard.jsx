@@ -1799,8 +1799,7 @@ export default function Dashboard() {
                       return new Date(os.prazo) >= hoje;
                     }).reduce((sum, os) => {
                       const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
-                      const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => s + (parseFloat(item.valor_total) || 0), 0);
-                      return sum + valorExpedicao + valorRecebimento;
+                      return sum + valorExpedicao;
                     }, 0);
                     
                     const valorForaPrazo = osMes.filter(os => {
@@ -1813,8 +1812,7 @@ export default function Dashboard() {
                       return new Date(os.prazo) < hoje;
                     }).reduce((sum, os) => {
                       const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
-                      const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => s + (parseFloat(item.valor_total) || 0), 0);
-                      return sum + valorExpedicao + valorRecebimento;
+                      return sum + valorExpedicao;
                     }, 0);
                     
                     return {
@@ -1946,8 +1944,7 @@ export default function Dashboard() {
                       return new Date(os.prazo) >= hoje;
                     }).reduce((sum, os) => {
                       const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
-                      const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => s + (parseFloat(item.valor_total) || 0), 0);
-                      return sum + valorExpedicao + valorRecebimento;
+                      return sum + valorExpedicao;
                     }, 0);
                     
                     const totalValorForaPrazo = osAnoCorrente.filter(os => {
@@ -1960,8 +1957,7 @@ export default function Dashboard() {
                       return new Date(os.prazo) < hoje;
                     }).reduce((sum, os) => {
                       const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
-                      const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => s + (parseFloat(item.valor_total) || 0), 0);
-                      return sum + valorExpedicao + valorRecebimento;
+                      return sum + valorExpedicao;
                     }, 0);
                     
                     const dadosRosca = [
