@@ -1156,8 +1156,11 @@ export default function Dashboard() {
                   <p className="text-3xl font-bold text-slate-900 dark:text-white">
                     R$ {(() => {
                       const valorTotal = filteredOrdens.reduce((sum, os) => {
-                        const valorItens = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
-                        return sum + valorItens;
+                        const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
+                        const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => {
+                          return s + ((item.quantidade_esperada || 0) * (item.valor_unitario || 0));
+                        }, 0);
+                        return sum + valorExpedicao + valorRecebimento;
                       }, 0);
                       return valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                     })()}
