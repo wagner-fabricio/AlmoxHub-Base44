@@ -244,16 +244,8 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData
                           min="0"
                         />
                       </TableCell>
-                      <TableCell className="text-right">
-                        <Input
-                          type="number"
-                          value={item.valor_unitario || 0}
-                          onChange={(e) => handleItemChange(index, 'valor_unitario', parseFloat(e.target.value) || 0)}
-                          placeholder="0,00"
-                          className="w-24 text-right h-8 text-sm font-mono"
-                          min="0"
-                          step="0.01"
-                        />
+                      <TableCell className="text-right font-mono text-sm">
+                        {(item.valor_unitario || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                       </TableCell>
                       <TableCell className="text-right font-mono text-sm">
                         {((item.quantidade_esperada || 0) * (item.valor_unitario || 0)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
