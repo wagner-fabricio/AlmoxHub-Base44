@@ -149,6 +149,7 @@ function parseNFeXML(xmlContent) {
       const descricao = extrairValorRegex(detElement, 'xProd');
       const quantidadeStr = extrairValorRegex(detElement, 'qCom');
       const unidade = extrairValorRegex(detElement, 'uCom');
+      const valorUnitario = extrairValorRegex(detElement, 'vUnCom');
 
       if (codigo && descricao) {
         resultado.nfe_itens_conferencia.push({
@@ -157,6 +158,7 @@ function parseNFeXML(xmlContent) {
           quantidade_esperada: parseFloat(quantidadeStr || '0'),
           quantidade_recebida: 0,
           unidade: unidade.trim() || 'UN',
+          valor_unitario: parseFloat(valorUnitario || '0'),
           status_conferencia: 'pendente',
           endereco_armazenagem: ''
         });
