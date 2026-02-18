@@ -1146,15 +1146,25 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              {/* Valor dos Itens */}
+              {/* Tempo Médio Previsto */}
               <Card className="bg-white dark:bg-slate-800 border-l-4 border-green-500">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-2">
-                    <DollarSign className="w-8 h-8 text-green-500" />
+                    <Timer className="w-8 h-8 text-green-500" />
                   </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Valor dos Itens</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Tempo Médio Previsto</p>
                   <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                    R$ {valorItensNFCompra.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {(() => {
+                      const osComDatas = filteredOrdens.filter(os => os.data_inicial && os.prazo);
+                      const tempoMedio = osComDatas.length > 0
+                        ? osComDatas.reduce((sum, os) => {
+                            const dataInicial = new Date(os.data_inicial);
+                            const prazo = new Date(os.prazo);
+                            return sum + differenceInDays(prazo, dataInicial);
+                          }, 0) / osComDatas.length
+                        : 0;
+                      return `${tempoMedio.toFixed(1)} dias`;
+                    })()}
                   </p>
                 </CardContent>
               </Card>
