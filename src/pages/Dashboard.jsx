@@ -1279,14 +1279,62 @@ export default function Dashboard() {
                           stackId="total"
                           fill="#22c55e" 
                           name="No Prazo"
-                        />
+                        >
+                          <LabelList 
+                            dataKey="No Prazo" 
+                            position="center"
+                            content={(props) => {
+                              const { x, y, width, height, value } = props;
+                              const total = dadosMensais[props.index]['No Prazo'] + dadosMensais[props.index]['Fora do Prazo'];
+                              if (total === 0 || value === 0) return null;
+                              const percent = ((value / total) * 100).toFixed(0);
+                              return (
+                                <text 
+                                  x={x + width / 2} 
+                                  y={y + height / 2} 
+                                  fill="#fff" 
+                                  textAnchor="middle" 
+                                  dominantBaseline="middle"
+                                  fontSize="12"
+                                  fontWeight="600"
+                                >
+                                  {percent}%
+                                </text>
+                              );
+                            }}
+                          />
+                        </Bar>
                         <Bar 
                           dataKey="Fora do Prazo" 
                           stackId="total"
                           fill="#ef4444"
                           name="Fora do Prazo"
                           radius={[4, 4, 0, 0]}
-                        />
+                        >
+                          <LabelList 
+                            dataKey="Fora do Prazo" 
+                            position="center"
+                            content={(props) => {
+                              const { x, y, width, height, value } = props;
+                              const total = dadosMensais[props.index]['No Prazo'] + dadosMensais[props.index]['Fora do Prazo'];
+                              if (total === 0 || value === 0) return null;
+                              const percent = ((value / total) * 100).toFixed(0);
+                              return (
+                                <text 
+                                  x={x + width / 2} 
+                                  y={y + height / 2} 
+                                  fill="#fff" 
+                                  textAnchor="middle" 
+                                  dominantBaseline="middle"
+                                  fontSize="12"
+                                  fontWeight="600"
+                                >
+                                  {percent}%
+                                </text>
+                              );
+                            }}
+                          />
+                        </Bar>
                       </BarChart>
                     </ResponsiveContainer>
                   );
