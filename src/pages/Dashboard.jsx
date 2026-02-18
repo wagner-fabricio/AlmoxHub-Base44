@@ -197,30 +197,42 @@ export default function Dashboard() {
   
   const onTimeRate = osComPrazo.length > 0 ? Math.round((onTimeCount / osComPrazo.length) * 100) : 0;
 
-  // Average resolution time - Identificar status únicos
+  // Average resolution time - Com logs detalhados
   const uniqueStatus = [...new Set(filteredOrdens.map(os => os.status))];
-  console.log('=== STATUS ÚNICOS NAS OS ===');
-  console.log('Status encontrados:', uniqueStatus);
-  console.log('Total de OS:', filteredOrdens.length);
+  console.log('=== DEBUG TEMPO MÉDIO RESOLUÇÃO ===');
+  console.log('Status únicos encontrados:', uniqueStatus);
+  console.log('Total de OS filtradas:', filteredOrdens.length);
   
-  // Contar por status
   uniqueStatus.forEach(status => {
     const count = filteredOrdens.filter(os => os.status === status).length;
-    console.log(`  - ${status}: ${count} OS`);
+    console.log(`  ${status}: ${count} OS`);
   });
   
-  const completedOSWithDates = filteredOrdens.filter(os => os.status === 'concluido' && os.data_conclusao);
+  // Filtrar APENAS OS com status exatamente igual a 'concluido'
+  const osConcluidas = filteredOrdens.filter(os => os.status === 'concluido');
+  const osConcluidasComData = osConcluidas.filter(os => os.data_conclusao);
   
-  console.log('\nOS concluídas COM data_conclusao:', completedOSWithDates.length);
+  console.log('\nOS com status "concluido":', osConcluidas.length);
+  console.log('OS concluídas COM data_conclusao:', osConcluidasComData.length);
+  
+  if (osConcluidas.length > 0 && osConcluidasComData.length === 0) {
+    console.log('⚠️ ATENÇÃO: Existem OS concluídas mas nenhuma tem data_conclusao');
+    console.log('Amostra de OS concluídas:', osConcluidas.slice(0, 3).map(os => ({
+      codigo: os.codigo,
+      status: os.status,
+      data_conclusao: os.data_conclusao,
+      data_inicial: os.data_inicial
+    })));
+  }
   console.log('===================================');
   
-  const avgResolutionDays = completedOSWithDates.length > 0
-    ? Math.round(completedOSWithDates.reduce((sum, os) => {
+  const avgResolutionDays = osConcluidasComData.length > 0
+    ? Math.round(osConcluidasComData.reduce((sum, os) => {
         const start = new Date(os.data_inicial || os.created_date);
         const end = new Date(os.data_conclusao);
         const dias = Math.abs(differenceInDays(end, start));
         return sum + dias;
-      }, 0) / completedOSWithDates.length)
+      }, 0) / osConcluidasComData.length)
     : 0;
 
   // Torre de Controle - KPIs Volumetrias
