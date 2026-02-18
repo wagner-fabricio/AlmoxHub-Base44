@@ -1206,7 +1206,7 @@ export default function Dashboard() {
               <CardHeader>
                 <CardTitle className="text-lg font-semibold flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-blue-500" />
-                  Total de OS por Regional
+                  Total de OS por Prazo - Ano Corrente
                 </CardTitle>
               </CardHeader>
               <CardContent>
