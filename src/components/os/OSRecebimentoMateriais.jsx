@@ -21,7 +21,8 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData
       quantidade_recebida: 0,
       unidade: 'UN',
       status_conferencia: 'pendente',
-      endereco_armazenagem: ''
+      endereco_armazenagem: '',
+      valor_unitario: 0
     };
     onChange({ itens: [...itens, novoItem], fluxo });
   };
@@ -183,6 +184,7 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData
                     <TableHead className="font-semibold">Descrição</TableHead>
                     <TableHead className="font-semibold text-center">Esperado</TableHead>
                     <TableHead className="font-semibold text-center">Recebido</TableHead>
+                    <TableHead className="font-semibold text-right">Valor Unit.</TableHead>
                     <TableHead className="font-semibold text-right">Valor Total</TableHead>
                     <TableHead className="font-semibold text-center">Status</TableHead>
                     <TableHead className="font-semibold">Endereço</TableHead>
@@ -242,8 +244,19 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData
                           min="0"
                         />
                       </TableCell>
+                      <TableCell className="text-right">
+                        <Input
+                          type="number"
+                          value={item.valor_unitario || 0}
+                          onChange={(e) => handleItemChange(index, 'valor_unitario', parseFloat(e.target.value) || 0)}
+                          placeholder="0,00"
+                          className="w-24 text-right h-8 text-sm font-mono"
+                          min="0"
+                          step="0.01"
+                        />
+                      </TableCell>
                       <TableCell className="text-right font-mono text-sm">
-                        {item.valor_total ? `R$ ${parseFloat(item.valor_total).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}
+                        {((item.quantidade_esperada || 0) * (item.valor_unitario || 0)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                       </TableCell>
                       <TableCell className="text-center">
                         {getStatusBadge(item.status_conferencia)}
@@ -285,8 +298,9 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData
                         <TableCell className="text-center text-sm">
                           {itemsComStatus.reduce((sum, item) => sum + (parseFloat(item.quantidade_recebida) || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                         </TableCell>
+                        <TableCell></TableCell>
                         <TableCell className="text-right font-mono text-sm">
-                          R$ {itemsComStatus.reduce((sum, item) => sum + (parseFloat(item.valor_total) || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          {itemsComStatus.reduce((sum, item) => sum + ((item.quantidade_esperada || 0) * (item.valor_unitario || 0)), 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                         </TableCell>
                         <TableCell colSpan="3"></TableCell>
                       </TableRow>
