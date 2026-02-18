@@ -1195,6 +1195,109 @@ export default function Dashboard() {
 
             </div>
           </div>
+
+          {/* Seção Resultados Mensais */}
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <TrendingUp className="w-6 h-6 text-blue-600" />
+              Resultados Mensais
+            </h2>
+            <Card className="bg-white dark:bg-slate-800">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-blue-500" />
+                  Total de OS por Regional
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {(() => {
+                  // Gerar dados mensais por regional
+                  const currentYear = new Date().getFullYear();
+                  const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+                  
+                  const dadosMensais = meses.map((mes, index) => {
+                    const dadosMes = { mes };
+                    
+                    regionais.forEach(regional => {
+                      const osRegional = filteredOrdens.filter(os => {
+                        if (os.regional_id !== regional.id) return false;
+                        if (os.status !== 'concluido') return false;
+                        if (!os.data_conclusao) return false;
+                        
+                        const dataConclusao = new Date(os.data_conclusao);
+                        return dataConclusao.getFullYear() === currentYear && dataConclusao.getMonth() === index;
+                      });
+                      
+                      const noPrazo = osRegional.filter(os => {
+                        if (!os.prazo) return false;
+                        return new Date(os.data_conclusao) <= new Date(os.prazo);
+                      }).length;
+                      
+                      const foraPrazo = osRegional.filter(os => {
+                        if (!os.prazo) return false;
+                        return new Date(os.data_conclusao) > new Date(os.prazo);
+                      }).length;
+                      
+                      dadosMes[`${regional.sigla}_no_prazo`] = noPrazo;
+                      dadosMes[`${regional.sigla}_fora_prazo`] = foraPrazo;
+                    });
+                    
+                    return dadosMes;
+                  });
+                  
+                  const temDados = dadosMensais.some(mes => {
+                    return regionais.some(r => (mes[`${r.sigla}_no_prazo`] || 0) + (mes[`${r.sigla}_fora_prazo`] || 0) > 0);
+                  });
+                  
+                  if (!temDados) {
+                    return (
+                      <div className="h-96 flex items-center justify-center text-slate-400">
+                        Sem dados para exibir
+                      </div>
+                    );
+                  }
+                  
+                  return (
+                    <ResponsiveContainer width="100%" height={400}>
+                      <BarChart data={dadosMensais} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                        <XAxis dataKey="mes" tick={{ fill: '#64748b', fontSize: 12 }} />
+                        <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: '#fff', 
+                            border: '1px solid #e2e8f0',
+                            borderRadius: '8px'
+                          }}
+                        />
+                        <Legend wrapperStyle={{ fontSize: '12px' }} />
+                        
+                        {regionais.map((regional, index) => (
+                          <React.Fragment key={regional.id}>
+                            <Bar 
+                              dataKey={`${regional.sigla}_no_prazo`} 
+                              stackId={regional.sigla}
+                              fill={COLORS[index % COLORS.length]} 
+                              name={`${regional.sigla} - No Prazo`}
+                              radius={[0, 0, 0, 0]}
+                            />
+                            <Bar 
+                              dataKey={`${regional.sigla}_fora_prazo`} 
+                              stackId={regional.sigla}
+                              fill={COLORS[index % COLORS.length]}
+                              fillOpacity={0.5}
+                              name={`${regional.sigla} - Fora do Prazo`}
+                              radius={[4, 4, 0, 0]}
+                            />
+                          </React.Fragment>
+                        ))}
+                      </BarChart>
+                    </ResponsiveContainer>
+                  );
+                })()}
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
