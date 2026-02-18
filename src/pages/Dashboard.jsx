@@ -1221,21 +1221,31 @@ export default function Dashboard() {
                     regionais.forEach(regional => {
                       const osRegional = filteredOrdens.filter(os => {
                         if (os.regional_id !== regional.id) return false;
-                        if (os.status !== 'concluido') return false;
-                        if (!os.data_conclusao) return false;
                         
-                        const dataConclusao = new Date(os.data_conclusao);
-                        return dataConclusao.getFullYear() === currentYear && dataConclusao.getMonth() === index;
+                        const dataCreated = new Date(os.created_date);
+                        return dataCreated.getFullYear() === currentYear && dataCreated.getMonth() === index;
                       });
                       
+                      const hoje = new Date();
+                      
                       const noPrazo = osRegional.filter(os => {
-                        if (!os.prazo) return false;
-                        return new Date(os.data_conclusao) <= new Date(os.prazo);
+                        if (!os.prazo) return true;
+                        
+                        if (os.status === 'concluido' && os.data_conclusao) {
+                          return new Date(os.data_conclusao) <= new Date(os.prazo);
+                        }
+                        
+                        return new Date(os.prazo) >= hoje;
                       }).length;
                       
                       const foraPrazo = osRegional.filter(os => {
                         if (!os.prazo) return false;
-                        return new Date(os.data_conclusao) > new Date(os.prazo);
+                        
+                        if (os.status === 'concluido' && os.data_conclusao) {
+                          return new Date(os.data_conclusao) > new Date(os.prazo);
+                        }
+                        
+                        return new Date(os.prazo) < hoje;
                       }).length;
                       
                       dadosMes[`${regional.sigla}_no_prazo`] = noPrazo;
