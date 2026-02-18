@@ -182,18 +182,29 @@ export default function Dashboard() {
   const diffProgress = avgProgress - avgProgressOntem;
   const percProgress = avgProgressOntem > 0 ? ((diffProgress / avgProgressOntem) * 100).toFixed(1) : 0;
 
-  // On-time completion rate
-  const completedOS = filteredOrdens.filter(os => os.status === 'concluido' && os.data_conclusao && os.prazo);
-  const onTimeCount = completedOS.filter(os => new Date(os.data_conclusao) <= new Date(os.prazo)).length;
-  const onTimeRate = completedOS.length > 0 ? Math.round((onTimeCount / completedOS.length) * 100) : 0;
+  // On-time completion rate - todas as OS com prazo definido
+  const osComPrazo = filteredOrdens.filter(os => os.prazo);
+  const hoje = new Date();
+  
+  const onTimeCount = osComPrazo.filter(os => {
+    // Se concluída, verificar se foi dentro do prazo
+    if (os.status === 'concluido' && os.data_conclusao) {
+      return new Date(os.data_conclusao) <= new Date(os.prazo);
+    }
+    // Se não concluída, verificar se o prazo ainda não passou
+    return new Date(os.prazo) >= hoje;
+  }).length;
+  
+  const onTimeRate = osComPrazo.length > 0 ? Math.round((onTimeCount / osComPrazo.length) * 100) : 0;
 
   // Average resolution time
-  const avgResolutionDays = completedOS.length > 0
-    ? Math.round(completedOS.reduce((sum, os) => {
+  const completedOSWithDates = filteredOrdens.filter(os => os.status === 'concluido' && os.data_conclusao);
+  const avgResolutionDays = completedOSWithDates.length > 0
+    ? Math.round(completedOSWithDates.reduce((sum, os) => {
         const start = new Date(os.data_inicial || os.created_date);
         const end = new Date(os.data_conclusao);
         return sum + differenceInDays(end, start);
-      }, 0) / completedOS.length)
+      }, 0) / completedOSWithDates.length)
     : 0;
 
   // Torre de Controle - KPIs Volumetrias
@@ -612,7 +623,7 @@ export default function Dashboard() {
               <div>
                 <p className="text-sm text-slate-500 dark:text-slate-400">Taxa de Cumprimento</p>
                 <p className="text-2xl font-bold text-slate-900 dark:text-white">{onTimeRate}%</p>
-                <p className="text-xs text-slate-400">OS finalizadas no prazo</p>
+                <p className="text-xs text-slate-400">OS no prazo ou concluídas a tempo</p>
               </div>
             </div>
           </CardContent>
