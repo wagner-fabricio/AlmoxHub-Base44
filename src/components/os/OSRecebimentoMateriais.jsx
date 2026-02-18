@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PackageCheck, AlertCircle, CheckCircle, TrendingDown, Plus, Trash2 } from 'lucide-react';
 
-export default function OSRecebimentoMateriais({ itens, fluxo, onChange }) {
+export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData }) {
   const [editingIndex, setEditingIndex] = useState(null);
   const [allChecked, setAllChecked] = useState(false);
 
@@ -183,6 +183,7 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange }) {
                     <TableHead className="font-semibold">Descrição</TableHead>
                     <TableHead className="font-semibold text-center">Esperado</TableHead>
                     <TableHead className="font-semibold text-center">Recebido</TableHead>
+                    <TableHead className="font-semibold text-right">Valor Total</TableHead>
                     <TableHead className="font-semibold text-center">Status</TableHead>
                     <TableHead className="font-semibold">Endereço</TableHead>
                     <TableHead className="font-semibold w-16"></TableHead>
@@ -241,6 +242,9 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange }) {
                           min="0"
                         />
                       </TableCell>
+                      <TableCell className="text-right font-mono text-sm">
+                        {item.valor_total ? `R$ ${parseFloat(item.valor_total).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}
+                      </TableCell>
                       <TableCell className="text-center">
                         {getStatusBadge(item.status_conferencia)}
                       </TableCell>
@@ -265,6 +269,47 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange }) {
                     </TableRow>
                     );
                   })}
+                  
+                  {/* Linha Totalizadora */}
+                  {itemsComStatus.length > 0 && (
+                    <>
+                      <TableRow className="bg-blue-50 dark:bg-blue-900/20 font-semibold border-t-2">
+                        <TableCell></TableCell>
+                        <TableCell className="text-sm">
+                          Total: {itemsComStatus.length} {itemsComStatus.length === 1 ? 'item' : 'itens'}
+                        </TableCell>
+                        <TableCell></TableCell>
+                        <TableCell className="text-center text-sm">
+                          {itemsComStatus.reduce((sum, item) => sum + (parseFloat(item.quantidade_esperada) || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </TableCell>
+                        <TableCell className="text-center text-sm">
+                          {itemsComStatus.reduce((sum, item) => sum + (parseFloat(item.quantidade_recebida) || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-sm">
+                          R$ {itemsComStatus.reduce((sum, item) => sum + (parseFloat(item.valor_total) || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </TableCell>
+                        <TableCell colSpan="3"></TableCell>
+                      </TableRow>
+                      
+                      {/* Linha Dados da NF */}
+                      {nfeData && (
+                        <TableRow className="bg-slate-50 dark:bg-slate-800/50 text-sm">
+                          <TableCell colSpan="2" className="font-semibold">Dados da NF</TableCell>
+                          <TableCell colSpan="2">
+                            <span className="text-slate-600 dark:text-slate-400">Volumes: </span>
+                            <span className="font-semibold">{nfeData.volumes || '-'}</span>
+                          </TableCell>
+                          <TableCell colSpan="3">
+                            <span className="text-slate-600 dark:text-slate-400">Peso Líquido: </span>
+                            <span className="font-semibold">{nfeData.peso_liquido ? `${parseFloat(nfeData.peso_liquido).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} kg` : '-'}</span>
+                            <span className="text-slate-600 dark:text-slate-400 ml-4">Peso Bruto: </span>
+                            <span className="font-semibold">{nfeData.peso_bruto ? `${parseFloat(nfeData.peso_bruto).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} kg` : '-'}</span>
+                          </TableCell>
+                          <TableCell colSpan="2"></TableCell>
+                        </TableRow>
+                      )}
+                    </>
+                  )}
                 </TableBody>
               </Table>
             </div>
