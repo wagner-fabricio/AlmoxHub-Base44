@@ -1202,9 +1202,9 @@ export default function Dashboard() {
               <TrendingUp className="w-6 h-6 text-blue-600" />
               Resultados Mensais
             </h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Gráfico de Barras Mensais */}
-              <Card className="bg-white dark:bg-slate-800">
+              <Card className="bg-white dark:bg-slate-800 lg:col-span-2">
                 <CardHeader>
                   <CardTitle className="text-lg font-semibold flex items-center gap-2">
                     <MapPin className="w-5 h-5 text-blue-500" />
@@ -1397,58 +1397,53 @@ export default function Dashboard() {
                       );
                     }
                     
+                    const percentualNoPrazo = ((totalNoPrazo / total) * 100).toFixed(2);
+                    
                     return (
-                      <div className="space-y-4">
-                        <ResponsiveContainer width="100%" height={320}>
-                          <PieChart>
-                            <Pie
-                              data={dadosRosca}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={80}
-                              outerRadius={120}
-                              paddingAngle={4}
-                              dataKey="value"
-                            >
-                              {dadosRosca.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
-                              ))}
-                            </Pie>
-                            <Tooltip 
-                              contentStyle={{ 
-                                backgroundColor: '#fff', 
-                                border: '1px solid #e2e8f0',
-                                borderRadius: '8px'
-                              }}
-                            />
-                          </PieChart>
-                        </ResponsiveContainer>
+                      <div className="flex flex-col items-center justify-center h-full">
+                        <div className="relative">
+                          <ResponsiveContainer width={280} height={280}>
+                            <PieChart>
+                              <Pie
+                                data={dadosRosca}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={85}
+                                outerRadius={110}
+                                paddingAngle={2}
+                                dataKey="value"
+                              >
+                                {dadosRosca.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={entry.color} />
+                                ))}
+                              </Pie>
+                            </PieChart>
+                          </ResponsiveContainer>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center">
+                            <p className="text-4xl font-bold text-slate-900 dark:text-white">
+                              {percentualNoPrazo}%
+                            </p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                              No Prazo
+                            </p>
+                          </div>
+                        </div>
                         
-                        <div className="space-y-3 px-4">
-                          <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                            <div className="flex items-center gap-3">
-                              <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                              <span className="font-medium text-slate-900 dark:text-white">No Prazo</span>
+                        <div className="mt-6 space-y-2 w-full px-4">
+                          <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                              <span className="text-slate-600 dark:text-slate-400">No Prazo</span>
                             </div>
-                            <div className="text-right">
-                              <p className="text-2xl font-bold text-slate-900 dark:text-white">{totalNoPrazo}</p>
-                              <p className="text-xs text-slate-500 dark:text-slate-400">
-                                {((totalNoPrazo / total) * 100).toFixed(1)}%
-                              </p>
-                            </div>
+                            <span className="font-semibold text-slate-900 dark:text-white">{totalNoPrazo}</span>
                           </div>
                           
-                          <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                            <div className="flex items-center gap-3">
-                              <div className="w-4 h-4 rounded-full bg-red-500"></div>
-                              <span className="font-medium text-slate-900 dark:text-white">Fora do Prazo</span>
+                          <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                              <span className="text-slate-600 dark:text-slate-400">Fora do Prazo</span>
                             </div>
-                            <div className="text-right">
-                              <p className="text-2xl font-bold text-slate-900 dark:text-white">{totalForaPrazo}</p>
-                              <p className="text-xs text-slate-500 dark:text-slate-400">
-                                {((totalForaPrazo / total) * 100).toFixed(1)}%
-                              </p>
-                            </div>
+                            <span className="font-semibold text-slate-900 dark:text-white">{totalForaPrazo}</span>
                           </div>
                         </div>
                       </div>
