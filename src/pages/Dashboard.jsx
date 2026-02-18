@@ -209,15 +209,15 @@ export default function Dashboard() {
   });
   
   // Filtrar APENAS OS com status exatamente igual a 'concluido'
-  const osConcluidas = filteredOrdens.filter(os => os.status === 'concluido');
-  const osConcluidasComData = osConcluidas.filter(os => os.data_conclusao);
+  const osConcluidasParaCalculo = filteredOrdens.filter(os => os.status === 'concluido');
+  const osConcluidasComData = osConcluidasParaCalculo.filter(os => os.data_conclusao);
   
-  console.log('\nOS com status "concluido":', osConcluidas.length);
+  console.log('\nOS com status "concluido":', osConcluidasParaCalculo.length);
   console.log('OS concluídas COM data_conclusao:', osConcluidasComData.length);
   
-  if (osConcluidas.length > 0 && osConcluidasComData.length === 0) {
+  if (osConcluidasParaCalculo.length > 0 && osConcluidasComData.length === 0) {
     console.log('⚠️ ATENÇÃO: Existem OS concluídas mas nenhuma tem data_conclusao');
-    console.log('Amostra de OS concluídas:', osConcluidas.slice(0, 3).map(os => ({
+    console.log('Amostra de OS concluídas:', osConcluidasParaCalculo.slice(0, 3).map(os => ({
       codigo: os.codigo,
       status: os.status,
       data_conclusao: os.data_conclusao,
