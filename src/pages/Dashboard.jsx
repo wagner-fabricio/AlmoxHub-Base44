@@ -1211,53 +1211,45 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 {(() => {
-                  // Gerar dados mensais por regional
                   const currentYear = new Date().getFullYear();
                   const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
                   
                   const dadosMensais = meses.map((mes, index) => {
-                    const dadosMes = { mes };
-                    
-                    regionais.forEach(regional => {
-                      const osRegional = filteredOrdens.filter(os => {
-                        if (os.regional_id !== regional.id) return false;
-                        
-                        const dataCreated = new Date(os.created_date);
-                        return dataCreated.getFullYear() === currentYear && dataCreated.getMonth() === index;
-                      });
-                      
-                      const hoje = new Date();
-                      
-                      const noPrazo = osRegional.filter(os => {
-                        if (!os.prazo) return true;
-                        
-                        if (os.status === 'concluido' && os.data_conclusao) {
-                          return new Date(os.data_conclusao) <= new Date(os.prazo);
-                        }
-                        
-                        return new Date(os.prazo) >= hoje;
-                      }).length;
-                      
-                      const foraPrazo = osRegional.filter(os => {
-                        if (!os.prazo) return false;
-                        
-                        if (os.status === 'concluido' && os.data_conclusao) {
-                          return new Date(os.data_conclusao) > new Date(os.prazo);
-                        }
-                        
-                        return new Date(os.prazo) < hoje;
-                      }).length;
-                      
-                      dadosMes[`${regional.sigla}_no_prazo`] = noPrazo;
-                      dadosMes[`${regional.sigla}_fora_prazo`] = foraPrazo;
+                    const osMes = filteredOrdens.filter(os => {
+                      const dataCreated = new Date(os.created_date);
+                      return dataCreated.getFullYear() === currentYear && dataCreated.getMonth() === index;
                     });
                     
-                    return dadosMes;
+                    const hoje = new Date();
+                    
+                    const noPrazo = osMes.filter(os => {
+                      if (!os.prazo) return true;
+                      
+                      if (os.status === 'concluido' && os.data_conclusao) {
+                        return new Date(os.data_conclusao) <= new Date(os.prazo);
+                      }
+                      
+                      return new Date(os.prazo) >= hoje;
+                    }).length;
+                    
+                    const foraPrazo = osMes.filter(os => {
+                      if (!os.prazo) return false;
+                      
+                      if (os.status === 'concluido' && os.data_conclusao) {
+                        return new Date(os.data_conclusao) > new Date(os.prazo);
+                      }
+                      
+                      return new Date(os.prazo) < hoje;
+                    }).length;
+                    
+                    return {
+                      mes,
+                      'No Prazo': noPrazo,
+                      'Fora do Prazo': foraPrazo
+                    };
                   });
                   
-                  const temDados = dadosMensais.some(mes => {
-                    return regionais.some(r => (mes[`${r.sigla}_no_prazo`] || 0) + (mes[`${r.sigla}_fora_prazo`] || 0) > 0);
-                  });
+                  const temDados = dadosMensais.some(mes => (mes['No Prazo'] + mes['Fora do Prazo']) > 0);
                   
                   if (!temDados) {
                     return (
@@ -1282,25 +1274,19 @@ export default function Dashboard() {
                         />
                         <Legend wrapperStyle={{ fontSize: '12px' }} />
                         
-                        {regionais.map((regional, index) => (
-                          <React.Fragment key={regional.id}>
-                            <Bar 
-                              dataKey={`${regional.sigla}_no_prazo`} 
-                              stackId={regional.sigla}
-                              fill={COLORS[index % COLORS.length]} 
-                              name={`${regional.sigla} - No Prazo`}
-                              radius={[0, 0, 0, 0]}
-                            />
-                            <Bar 
-                              dataKey={`${regional.sigla}_fora_prazo`} 
-                              stackId={regional.sigla}
-                              fill={COLORS[index % COLORS.length]}
-                              fillOpacity={0.5}
-                              name={`${regional.sigla} - Fora do Prazo`}
-                              radius={[4, 4, 0, 0]}
-                            />
-                          </React.Fragment>
-                        ))}
+                        <Bar 
+                          dataKey="No Prazo" 
+                          stackId="total"
+                          fill="#22c55e" 
+                          name="No Prazo"
+                        />
+                        <Bar 
+                          dataKey="Fora do Prazo" 
+                          stackId="total"
+                          fill="#ef4444"
+                          name="Fora do Prazo"
+                          radius={[4, 4, 0, 0]}
+                        />
                       </BarChart>
                     </ResponsiveContainer>
                   );
