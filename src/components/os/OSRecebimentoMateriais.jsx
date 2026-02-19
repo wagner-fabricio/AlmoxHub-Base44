@@ -12,6 +12,7 @@ import { PackageCheck, AlertCircle, CheckCircle, TrendingDown, Plus, Trash2 } fr
 export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData }) {
   const [editingIndex, setEditingIndex] = useState(null);
   const [allChecked, setAllChecked] = useState(false);
+  const [fillWithNA, setFillWithNA] = useState(false);
 
   const addItem = () => {
     const novoItem = {
