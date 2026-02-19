@@ -108,7 +108,21 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData
       endereco_armazenagem: newFillWithNA ? 'N/A' : ''
     }));
     
-    onChange({ itens: newItens, fluxo });
+    // Verificar se todos os itens conferidos têm endereço preenchido
+    const todosConferidos = newItens.every(item => 
+      item.status_conferencia === 'completo' || item.status_conferencia === 'excedente'
+    );
+    const todosComEndereco = newItens.every(item => item.endereco_armazenagem && item.endereco_armazenagem.trim() !== '');
+    
+    const novoFluxo = { ...fluxo };
+    if (todosConferidos && todosComEndereco) {
+      novoFluxo.armazenagem_completa = true;
+      novoFluxo.etapa_atual = 4;
+    } else {
+      novoFluxo.armazenagem_completa = false;
+    }
+    
+    onChange({ itens: newItens, fluxo: novoFluxo });
   };
 
   const handleItemChange = (index, field, value) => {
