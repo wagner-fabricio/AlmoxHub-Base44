@@ -927,9 +927,11 @@ export default function OSFormModal({
                           <SelectValue placeholder="Selecione..." />
                         </SelectTrigger>
                       <SelectContent>
-                        {(filteredSubcategorias || []).map(s => (
-                          <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
-                        ))}
+                        {(filteredSubcategorias || [])
+                          .sort((a, b) => a.nome.localeCompare(b.nome))
+                          .map(s => (
+                            <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
