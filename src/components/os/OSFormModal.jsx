@@ -406,6 +406,33 @@ export default function OSFormModal({
       if (data.fluxo_recebimento?.conferencia_manual_completa) {
         progress = 50;
       }
+      
+      // Validação automática da etapa 3 (Divergências)
+      if (progress >= 50 && !data.fluxo_recebimento?.validacao_divergencias_completa) {
+        // Se não há problema, avança automaticamente para 75%
+        if (!data.problema_recebimento) {
+          progress = 75;
+          data.fluxo_recebimento = {
+            ...data.fluxo_recebimento,
+            validacao_divergencias_completa: true,
+            etapa_atual: 4
+          };
+        } else {
+          // Se há problema, verifica se foi resolvido
+          const temProblemasSelecionados = data.problemas_recebimento_ids?.length > 0;
+          const temDataSolucao = !!data.data_solucao;
+          
+          if (temProblemasSelecionados && temDataSolucao) {
+            progress = 75;
+            data.fluxo_recebimento = {
+              ...data.fluxo_recebimento,
+              validacao_divergencias_completa: true,
+              etapa_atual: 4
+            };
+          }
+        }
+      }
+      
       if (data.fluxo_recebimento?.validacao_divergencias_completa) {
         progress = 75;
       }
