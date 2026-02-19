@@ -201,7 +201,13 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData
                     <TableHead className="font-semibold text-right">Valor Total</TableHead>
                     <TableHead className="font-semibold text-center">Status</TableHead>
                     <TableHead className="font-semibold">Endereço</TableHead>
-                    <TableHead className="font-semibold w-16"></TableHead>
+                    <TableHead className="font-semibold w-16">
+                      <Checkbox
+                        checked={fillWithNA}
+                        onCheckedChange={handleFillAllNA}
+                        title="Preencher todos os endereços com N/A"
+                      />
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
