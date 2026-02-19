@@ -151,6 +151,17 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData
       novoFluxo.etapa_atual = 3;
     }
 
+    // Verificar se todos os itens conferidos têm endereço preenchido (para armazenagem)
+    if (field === 'endereco_armazenagem') {
+      const todosComEndereco = newItens.every(item => item.endereco_armazenagem && item.endereco_armazenagem.trim() !== '');
+      if (todosCompletos && todosComEndereco) {
+        novoFluxo.armazenagem_completa = true;
+        novoFluxo.etapa_atual = 4;
+      } else {
+        novoFluxo.armazenagem_completa = false;
+      }
+    }
+
     onChange({ itens: newItens, fluxo: novoFluxo });
   };
 
