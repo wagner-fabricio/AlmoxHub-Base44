@@ -99,6 +99,18 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData
     onChange({ itens: newItens, fluxo: novoFluxo });
   };
 
+  const handleFillAllNA = () => {
+    const newFillWithNA = !fillWithNA;
+    setFillWithNA(newFillWithNA);
+    
+    const newItens = itens.map(item => ({
+      ...item,
+      endereco_armazenagem: newFillWithNA ? 'N/A' : ''
+    }));
+    
+    onChange({ itens: newItens, fluxo });
+  };
+
   const handleItemChange = (index, field, value) => {
     const newItens = [...itens];
     newItens[index] = { ...newItens[index], [field]: value };
