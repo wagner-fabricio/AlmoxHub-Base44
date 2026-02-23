@@ -616,188 +616,226 @@ export default function Instalacoes() {
 
       {/* Form Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader className="px-6 py-5 border-b -m-6 mb-0" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
+            <DialogTitle className="text-white">
               {selectedItem ? 'Editar Instalação' : 'Nova Instalação'}
             </DialogTitle>
           </DialogHeader>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-            <div className="md:col-span-2">
-              <Label>Nome *</Label>
-              <Input
-                value={formData.nome}
-                onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                placeholder="Nome da instalação"
-              />
+          <div className="space-y-6 py-6 px-6">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                Localização
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <Label>Nome *</Label>
+                  <Input
+                    value={formData.nome}
+                    onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                    placeholder="Nome da instalação"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <Label>Logradouro *</Label>
+                  <Input
+                    value={formData.logradouro}
+                    onChange={(e) => setFormData({ ...formData, logradouro: e.target.value })}
+                    placeholder="Rua, Avenida, etc"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+                <div>
+                  <Label>Número</Label>
+                  <Input
+                    value={formData.numero}
+                    onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
+                    placeholder="123"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+                <div>
+                  <Label>Complemento</Label>
+                  <Input
+                    value={formData.complemento}
+                    onChange={(e) => setFormData({ ...formData, complemento: e.target.value })}
+                    placeholder="Apto, Bloco, etc"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+                <div>
+                  <Label>Bairro</Label>
+                  <Input
+                    value={formData.bairro}
+                    onChange={(e) => setFormData({ ...formData, bairro: e.target.value })}
+                    placeholder="Centro"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+                <div>
+                  <Label>Cidade *</Label>
+                  <Input
+                    value={formData.cidade}
+                    onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
+                    placeholder="São Paulo"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+                <div>
+                  <Label>Estado (UF) *</Label>
+                  <Input
+                    value={formData.estado}
+                    onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
+                    placeholder="SP"
+                    maxLength={2}
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+                <div>
+                  <Label>CEP</Label>
+                  <Input
+                    value={formData.cep}
+                    onChange={(e) => setFormData({ ...formData, cep: e.target.value })}
+                    placeholder="00000-000"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
             </div>
-            <div className="md:col-span-2">
-              <Label>Logradouro *</Label>
-              <Input
-                value={formData.logradouro}
-                onChange={(e) => setFormData({ ...formData, logradouro: e.target.value })}
-                placeholder="Rua, Avenida, etc"
-              />
             </div>
-            <div>
-              <Label>Número</Label>
-              <Input
-                value={formData.numero}
-                onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
-                placeholder="123"
-              />
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                Classificação e Vinculação
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>Classificação *</Label>
+                  <Select
+                    value={formData.classificacao}
+                    onValueChange={(value) => setFormData({ ...formData, classificacao: value })}
+                  >
+                    <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Usina">Usina</SelectItem>
+                      <SelectItem value="Subestação">Subestação</SelectItem>
+                      <SelectItem value="Almoxarifado">Almoxarifado</SelectItem>
+                      <SelectItem value="Outros">Outros</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Regional</Label>
+                  <Select
+                    value={formData.regional_id}
+                    onValueChange={(value) => setFormData({ ...formData, regional_id: value })}
+                  >
+                    <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg">
+                      <SelectValue placeholder="Selecione a regional" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {regionais.map((r) => (
+                        <SelectItem key={r.id} value={r.id}>
+                          {r.sigla} - {r.descricao}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Região</Label>
+                  <Select
+                    value={formData.regiao}
+                    onValueChange={(value) => setFormData({ ...formData, regiao: value })}
+                  >
+                    <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg">
+                      <SelectValue placeholder="Selecione..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Norte">Norte</SelectItem>
+                      <SelectItem value="Nordeste">Nordeste</SelectItem>
+                      <SelectItem value="Centro Oeste">Centro Oeste</SelectItem>
+                      <SelectItem value="Sudeste">Sudeste</SelectItem>
+                      <SelectItem value="Sul">Sul</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Local de Negócios</Label>
+                  <Input
+                    type="number"
+                    value={formData.local_negocios}
+                    onChange={(e) => setFormData({ ...formData, local_negocios: e.target.value })}
+                    placeholder="Número"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+              </div>
             </div>
-            <div>
-              <Label>Complemento</Label>
-              <Input
-                value={formData.complemento}
-                onChange={(e) => setFormData({ ...formData, complemento: e.target.value })}
-                placeholder="Apto, Bloco, etc"
-              />
-            </div>
-            <div>
-              <Label>Bairro</Label>
-              <Input
-                value={formData.bairro}
-                onChange={(e) => setFormData({ ...formData, bairro: e.target.value })}
-                placeholder="Centro"
-              />
-            </div>
-            <div>
-              <Label>Cidade *</Label>
-              <Input
-                value={formData.cidade}
-                onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
-                placeholder="São Paulo"
-              />
-            </div>
-            <div>
-              <Label>Estado (UF) *</Label>
-              <Input
-                value={formData.estado}
-                onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
-                placeholder="SP"
-                maxLength={2}
-              />
-            </div>
-            <div>
-              <Label>CEP</Label>
-              <Input
-                value={formData.cep}
-                onChange={(e) => setFormData({ ...formData, cep: e.target.value })}
-                placeholder="00000-000"
-              />
-            </div>
-            <div>
-              <Label>Classificação *</Label>
-              <Select
-                value={formData.classificacao}
-                onValueChange={(value) => setFormData({ ...formData, classificacao: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Usina">Usina</SelectItem>
-                  <SelectItem value="Subestação">Subestação</SelectItem>
-                  <SelectItem value="Almoxarifado">Almoxarifado</SelectItem>
-                  <SelectItem value="Outros">Outros</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Regional</Label>
-              <Select
-                value={formData.regional_id}
-                onValueChange={(value) => setFormData({ ...formData, regional_id: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a regional" />
-                </SelectTrigger>
-                <SelectContent>
-                  {regionais.map((r) => (
-                    <SelectItem key={r.id} value={r.id}>
-                      {r.sigla} - {r.descricao}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Local de Negócios</Label>
-              <Input
-                type="number"
-                value={formData.local_negocios}
-                onChange={(e) => setFormData({ ...formData, local_negocios: e.target.value })}
-                placeholder="Número"
-              />
-            </div>
-            <div>
-              <Label>Região</Label>
-              <Select
-                value={formData.regiao}
-                onValueChange={(value) => setFormData({ ...formData, regiao: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Norte">Norte</SelectItem>
-                  <SelectItem value="Nordeste">Nordeste</SelectItem>
-                  <SelectItem value="Centro Oeste">Centro Oeste</SelectItem>
-                  <SelectItem value="Sudeste">Sudeste</SelectItem>
-                  <SelectItem value="Sul">Sul</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Latitude</Label>
-              <Input
-                type="number"
-                step="any"
-                value={formData.latitude}
-                onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
-                placeholder="-23.550520"
-              />
-            </div>
-            <div>
-              <Label>Longitude</Label>
-              <Input
-                type="number"
-                step="any"
-                value={formData.longitude}
-                onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
-                placeholder="-46.633308"
-              />
-            </div>
-            <div>
-              <Label>CNPJ</Label>
-              <Input
-                value={formData.cnpj}
-                onChange={(e) => setFormData({ ...formData, cnpj: e.target.value })}
-                placeholder="00.000.000/0000-00"
-              />
-            </div>
-            <div>
-              <Label>Inscrição Estadual</Label>
-              <Input
-                value={formData.inscricao_estadual}
-                onChange={(e) => setFormData({ ...formData, inscricao_estadual: e.target.value })}
-                placeholder="123.456.789.012"
-              />
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                Coordenadas e Registros
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>Latitude</Label>
+                  <Input
+                    type="number"
+                    step="any"
+                    value={formData.latitude}
+                    onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
+                    placeholder="-23.550520"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+                <div>
+                  <Label>Longitude</Label>
+                  <Input
+                    type="number"
+                    step="any"
+                    value={formData.longitude}
+                    onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
+                    placeholder="-46.633308"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+                <div>
+                  <Label>CNPJ</Label>
+                  <Input
+                    value={formData.cnpj}
+                    onChange={(e) => setFormData({ ...formData, cnpj: e.target.value })}
+                    placeholder="00.000.000/0000-00"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+                <div>
+                  <Label>Inscrição Estadual</Label>
+                  <Input
+                    value={formData.inscricao_estadual}
+                    onChange={(e) => setFormData({ ...formData, inscricao_estadual: e.target.value })}
+                    placeholder="123.456.789.012"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+              </div>
             </div>
           </div>
-          <DialogFooter>
+          <div className="border-t bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 px-6 py-4 flex justify-end gap-3 rounded-b-lg">
             <Button variant="outline" onClick={() => setShowModal(false)}>
               Cancelar
             </Button>
             <Button
               onClick={handleSave}
               disabled={!formData.nome || !formData.logradouro || !formData.cidade || !formData.estado || !formData.classificacao}
+              style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)', color: 'white' }}
             >
               Salvar
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
