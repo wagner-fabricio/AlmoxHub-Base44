@@ -19,7 +19,10 @@ import {
   CheckCircle,
   MoreVertical,
   Trash2,
-  Edit
+  Edit,
+  Paperclip,
+  X,
+  Download
 } from 'lucide-react';
 import { format, isToday, isYesterday, differenceInMinutes } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -59,8 +62,11 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
   const [almoxarifados, setAlmoxarifados] = useState([]);
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingContent, setEditingContent] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [uploadingFiles, setUploadingFiles] = useState(false);
   const textareaRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     loadOSComComentarios();
@@ -158,17 +164,46 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setSelectedFiles(files.slice(0, 5)); // Max 5 arquivos
+    }
+  };
+
+  const handleRemoveFile = (index) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleAddComment = async () => {
-    if (!newComment.trim() || !osSelecionada) return;
+    const textoLimpo = newComment.trim();
+    if (!textoLimpo && selectedFiles.length === 0) return;
+    if (!osSelecionada) return;
     
     setLoadingComment(true);
+    setUploadingFiles(true);
     try {
+      // Upload de arquivos se houver
+      let anexos = [];
+      if (selectedFiles.length > 0) {
+        for (const file of selectedFiles) {
+          const { file_url } = await base44.integrations.Core.UploadFile({ file });
+          anexos.push({
+            file_url,
+            file_name: file.name,
+            file_type: file.type,
+            file_size: file.size
+          });
+        }
+      }
+
       const comentario = await base44.entities.Comentario.create({
         ordem_servico_id: osSelecionada.id,
-        conteudo: newComment,
+        conteudo: textoLimpo || ' ',
         autor_nome: currentPessoa.nome,
         autor_id: currentPessoa.id,
         mencoes_ids: mentionedIds,
+        anexos: anexos,
         is_deleted: false,
         is_edited: false
       });
@@ -206,12 +241,14 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
       
       setNewComment('');
       setMentionedIds([]);
+      setSelectedFiles([]);
       loadComentarios(osSelecionada.id);
       loadOSComComentarios();
     } catch (error) {
       console.error('Erro ao adicionar comentário:', error);
     } finally {
       setLoadingComment(false);
+      setUploadingFiles(false);
     }
   };
 
@@ -617,22 +654,44 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
                               </div>
                             </div>
                           ) : (
-                            <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
-                              {comment.conteudo.split(/(@\S+(?:\s+\S+)*?)(?=\s|$|@)/g).map((part, i) => {
-                                if (part.startsWith('@')) {
-                                  const mentionedName = part.slice(1);
-                                  const isPessoaMentioned = pessoas.some(p => 
-                                    p?.nome?.toLowerCase() === mentionedName.toLowerCase()
-                                  );
-                                  return isPessoaMentioned ? (
-                                    <span key={i} className={`font-semibold ${isOwnMessage ? 'text-blue-100' : 'text-blue-600 dark:text-blue-400'}`}>
-                                      {part}
-                                    </span>
-                                  ) : part;
-                                }
-                                return part;
-                              })}
-                            </p>
+                            <>
+                              <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                                {comment.conteudo.split(/(@\S+(?:\s+\S+)*?)(?=\s|$|@)/g).map((part, i) => {
+                                  if (part.startsWith('@')) {
+                                    const mentionedName = part.slice(1);
+                                    const isPessoaMentioned = pessoas.some(p => 
+                                      p?.nome?.toLowerCase() === mentionedName.toLowerCase()
+                                    );
+                                    return isPessoaMentioned ? (
+                                      <span key={i} className={`font-semibold ${isOwnMessage ? 'text-blue-100' : 'text-blue-600 dark:text-blue-400'}`}>
+                                        {part}
+                                      </span>
+                                    ) : part;
+                                  }
+                                  return part;
+                                })}
+                              </p>
+                              {comment.anexos && comment.anexos.length > 0 && (
+                                <div className="mt-2 space-y-1">
+                                  {comment.anexos.map((anexo, idx) => (
+                                    <a
+                                      key={idx}
+                                      href={anexo.file_url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className={`flex items-center gap-2 px-2 py-1 rounded text-xs ${
+                                        isOwnMessage 
+                                          ? 'bg-blue-500 hover:bg-blue-400' 
+                                          : 'bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600'
+                                      }`}
+                                    >
+                                      <Download className="w-3 h-3" />
+                                      <span className="truncate max-w-[200px]">{anexo.file_name}</span>
+                                    </a>
+                                  ))}
+                                </div>
+                              )}
+                            </>
                           )}
                         </div>
                         
@@ -683,6 +742,22 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
 
         {/* Fixed Input at Bottom */}
         <div className="border-t border-slate-200 dark:border-slate-700 p-4 bg-white dark:bg-slate-800 shrink-0">
+          {selectedFiles.length > 0 && (
+            <div className="mb-3 flex flex-wrap gap-2">
+              {selectedFiles.map((file, index) => (
+                <div key={index} className="flex items-center gap-2 bg-slate-100 dark:bg-slate-700 px-3 py-2 rounded-lg">
+                  <Paperclip className="w-4 h-4" />
+                  <span className="text-sm truncate max-w-[150px]">{file.name}</span>
+                  <button
+                    onClick={() => handleRemoveFile(index)}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
           <div className="flex gap-3 items-end">
             <Avatar className="w-9 h-9 shrink-0">
               {currentPessoa?.foto_perfil && (
@@ -692,6 +767,23 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
                 {currentPessoa?.nome?.charAt(0) || 'U'}
               </AvatarFallback>
             </Avatar>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingFiles}
+              className="shrink-0"
+            >
+              <Paperclip className="w-5 h-5" />
+            </Button>
             <div className="flex-1 relative">
               <MentionInput
                 ref={textareaRef}
@@ -717,11 +809,11 @@ export default function OSComentariosTab({ currentPessoa, pessoas }) {
               />
               <Button 
                 onClick={handleAddComment} 
-                disabled={loadingComment || !newComment.trim()}
+                disabled={loadingComment || (!newComment.trim() && selectedFiles.length === 0) || uploadingFiles}
                 size="icon"
                 className="absolute right-2 bottom-2 h-8 w-8 rounded-full"
               >
-                {loadingComment ? (
+                {loadingComment || uploadingFiles ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <Send className="w-4 h-4" />
