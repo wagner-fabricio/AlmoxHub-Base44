@@ -1522,7 +1522,9 @@ export default function OSFormModal({
                         <Label className="text-sm text-slate-600 dark:text-slate-400">
                           Selecione o(s) problema(s) identificado(s): <span className="text-red-600 font-semibold">*</span>
                         </Label>
-                        <div className="space-y-2 max-h-64 overflow-y-auto border rounded-lg p-4 bg-slate-50 dark:bg-slate-800">
+                        <div className={`space-y-2 max-h-64 overflow-y-auto border rounded-lg p-4 ${
+                          problemasNaoPreenchidos ? 'bg-red-50 dark:bg-red-900/10 border-red-300 dark:border-red-700' : 'bg-slate-50 dark:bg-slate-800'
+                        }`}>
                           {problemasRecebimento.map((problema) => (
                             <div key={problema.id} className="flex items-start gap-2">
                               <Checkbox
@@ -1558,6 +1560,12 @@ export default function OSFormModal({
                             </p>
                           )}
                         </div>
+                        {problemasNaoPreenchidos && (
+                          <p className="text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-2">
+                            <span className="inline-block w-1.5 h-1.5 bg-red-600 rounded-full"></span>
+                            É obrigatório selecionar pelo menos um problema quando "Houve um problema?" é marcado como Sim
+                          </p>
+                        )}
                       </div>
 
                       {/* Campos adicionais quando há problema */}
