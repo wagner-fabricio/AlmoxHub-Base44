@@ -40,14 +40,11 @@ export default function TorreControleRecebimentoProblemas({
     if (os.problemas_recebimento_ids && Array.isArray(os.problemas_recebimento_ids) && os.problemas_recebimento_ids.length > 0) {
       os.problemas_recebimento_ids.forEach(pid => {
         const problema = problemasData[pid];
-        if (problema && problema.nome) {
-          problemasContagem[problema.nome] = (problemasContagem[problema.nome] || 0) + 1;
+        if (problema) {
+          const nomeProblem = problema.descricao_resumida || problema.nome;
+          problemasContagem[nomeProblem] = (problemasContagem[nomeProblem] || 0) + 1;
         }
       });
-    } else {
-      // Se não houver IDs específicos, contar como pendência genérica
-      const categoria = 'Pendências Não Especificadas';
-      problemasContagem[categoria] = (problemasContagem[categoria] || 0) + 1;
     }
   });
   
