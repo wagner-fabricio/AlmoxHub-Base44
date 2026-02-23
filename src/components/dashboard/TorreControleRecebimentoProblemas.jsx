@@ -36,13 +36,18 @@ export default function TorreControleRecebimentoProblemas({
   
   const problemasContagem = {};
   ordensComProblemas.forEach(os => {
-    if (os.problemas_recebimento_ids && Array.isArray(os.problemas_recebimento_ids)) {
+    // Se houver problemas_recebimento_ids, contar por tipo
+    if (os.problemas_recebimento_ids && Array.isArray(os.problemas_recebimento_ids) && os.problemas_recebimento_ids.length > 0) {
       os.problemas_recebimento_ids.forEach(pid => {
         const problema = problemasData[pid];
         if (problema && problema.nome) {
           problemasContagem[problema.nome] = (problemasContagem[problema.nome] || 0) + 1;
         }
       });
+    } else if (os.resumo_pendencias) {
+      // Se não houver IDs específicos mas houver resumo_pendencias, usar como categoria genérica
+      const categoria = 'Pendências Não Especificadas';
+      problemasContagem[categoria] = (problemasContagem[categoria] || 0) + 1;
     }
   });
   
