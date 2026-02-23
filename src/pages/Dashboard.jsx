@@ -16,6 +16,7 @@ import OSPorPessoaChart from '@/components/dashboard/OSPorPessoaChart';
 import ExportDashboardButton from '@/components/dashboard/ExportDashboardButton';
 import DashboardCustomizer from '@/components/dashboard/DashboardCustomizer';
 import TorreControleContent from '@/components/dashboard/TorreControleContent';
+import TorreControleProblemas from '@/components/dashboard/TorreControleProblemass';
 import { isNoPrazo, isForaPrazo } from '@/components/dashboard/prazoHelpers';
 
 const COLORS = ['#0000FF', '#FF6B00', '#10B981', '#A0B4D2', '#0A003C', '#EC4899'];
