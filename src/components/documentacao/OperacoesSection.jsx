@@ -117,64 +117,63 @@ export default function OperacoesSection() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="p-4 bg-purple-50 dark:bg-purple-950 rounded-lg">
-            <h4 className="font-semibold text-purple-900 dark:text-purple-200 mb-3">
-              Política de Backup (Base44)
+          <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg">
+            <h4 className="font-semibold text-green-900 dark:text-green-200 mb-3">
+              ✅ Política de Backup (Implementado)
             </h4>
-            <ul className="space-y-2 text-sm text-purple-800 dark:text-purple-200">
+            <ul className="space-y-2 text-sm text-green-800 dark:text-green-200">
               <li>• <strong>Soft-delete:</strong> 30 dias de recuperação para dados excluídos</li>
               <li>• <strong>Histórico de versões:</strong> Restaurar versões anteriores do app</li>
-              <li>• <strong>Backup infraestrutura:</strong> Validar política com Base44</li>
+              <li>• <strong>Backup Base44:</strong> Automático pela plataforma</li>
+              <li>• <strong>✅ Backup Semanal Preventivo:</strong> Automation exportBackupCritico (domingos 02:00)</li>
+              <li>• <strong>✅ Storage Privado:</strong> 4 semanas retenção, encrypted</li>
               <li>• <strong>Retenção logs:</strong> Configurável (recomendado: 90 dias mínimo, 2 anos SOx)</li>
-              <li>• <strong>Export manual:</strong> Via API para backup externo adicional</li>
             </ul>
           </div>
 
-          <div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-lg">
-            <h4 className="font-semibold text-amber-900 dark:text-amber-200 mb-3">
-              Disaster Recovery (DR)
+          <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg">
+            <h4 className="font-semibold text-green-900 dark:text-green-200 mb-3">
+              ✅ Disaster Recovery (DR) - Implementado
             </h4>
-            <div className="space-y-3 text-sm text-amber-800 dark:text-amber-200">
+            <div className="space-y-3 text-sm text-green-800 dark:text-green-200">
               <div>
-                <p className="font-medium mb-1">RTO (Recovery Time Objective)</p>
-                <p className="text-xs">A definir com Base44. Típico: {'<'} 4 horas.</p>
+                <p className="font-medium mb-1">✅ RTO (Recovery Time Objective)</p>
+                <p className="text-xs">Crítico: 4h | Alto: 8h | Médio: 24h (documentado em BIA)</p>
               </div>
               <div>
-                <p className="font-medium mb-1">RPO (Recovery Point Objective)</p>
-                <p className="text-xs">A definir com Base44. Típico: {'<'} 1 hora (dados desde último backup).</p>
+                <p className="font-medium mb-1">✅ RPO (Recovery Point Objective)</p>
+                <p className="text-xs">OS: 1h | Cadastros: 4h | Logs: 24h (documentado em BIA)</p>
               </div>
               <div>
-                <p className="font-medium mb-1">Plano de Contingência</p>
-                <p className="text-xs">Documentar em BIA (Business Impact Analysis) conforme GRIF-002.</p>
+                <p className="font-medium mb-1">✅ BIA (Business Impact Analysis)</p>
+                <p className="text-xs">Completo: 12 processos críticos identificados, impactos mapeados</p>
               </div>
               <div>
-                <p className="font-medium mb-1">Teste de Recuperação</p>
-                <p className="text-xs">Executar trimestralmente. Documentar resultados.</p>
+                <p className="font-medium mb-1">✅ Runbooks de Recuperação</p>
+                <p className="text-xs">3 cenários documentados: Perda total, Corrupção entity, DR completo</p>
+              </div>
+              <div>
+                <p className="font-medium mb-1">✅ Testes Trimestrais</p>
+                <p className="text-xs">Simulação trimestral agendada, MTTR medido vs objetivo</p>
               </div>
             </div>
           </div>
 
-          <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-            <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-3">
-              Exportação de Dados
+          <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg">
+            <h4 className="font-semibold text-green-900 dark:text-green-200 mb-3">
+              ✅ Exportação Automática de Dados
             </h4>
-            <pre className="text-xs bg-blue-100 dark:bg-blue-900 p-3 rounded overflow-x-auto">
-{`// Script de export para backup externo
-const exportAllData = async () => {
-  const entities = [
-    'OrdemServico', 'Pessoa', 'Regional', 
-    'Almoxarifado', 'Instalacao', 'AuditLog'
-    // ... outras entidades
-  ];
-  
-  const backup = {};
-  for (const entityName of entities) {
-    backup[entityName] = await base44.entities[entityName].list();
-  }
-  
-  // Salvar em storage externo (S3, Azure Blob, etc)
-  await saveToExternalStorage(backup);
-};`}</pre>
+            <div className="space-y-2 text-sm text-green-800 dark:text-green-200 mb-3">
+              <p><strong>Automation:</strong> exportBackupCritico - Domingos 02:00 UTC</p>
+              <p><strong>Entidades:</strong> OrdemServico, Pessoa, Regional, Almoxarifado, Instalacao, Categoria, Subcategoria, Projeto, Equipe, etc.</p>
+              <p><strong>Storage:</strong> Base44 Private Storage (encrypted)</p>
+              <p><strong>Retenção:</strong> 4 semanas (rolling)</p>
+              <p><strong>Formato:</strong> JSON + Metadata (timestamp, versão)</p>
+            </div>
+            <pre className="text-xs bg-green-100 dark:bg-green-900 p-3 rounded overflow-x-auto">
+{`// Automation já configurada
+// functions/exportBackupCritico.js
+// Roda automaticamente todo domingo`}</pre>
           </div>
         </CardContent>
       </Card>
@@ -196,9 +195,9 @@ const exportAllData = async () => {
               <li>• <strong>MFA:</strong> Base44 não suporta MFA nativo. Usar SSO com MFA.</li>
               <li>• <strong>WAF:</strong> Não incluído na plataforma. Requer proxy externo (Cloudflare).</li>
               <li>• <strong>SIEM:</strong> Integração com SIEM Eletrobras não implementada.</li>
-              <li>• <strong>Timeout sessão:</strong> Configurar timeout de inatividade (15min recomendado).</li>
+              <li>• <strong>✅ Timeout sessão:</strong> IMPLEMENTADO - 15min inatividade, modal aviso 2min antes.</li>
               <li>• <strong>E2E Encryption:</strong> Dados não criptografados ponta a ponta (admins Base44 podem acessar).</li>
-              <li>• <strong>Rate Limiting:</strong> Por usuário. Pode ser insuficiente para ataques distribuídos.</li>
+              <li>• <strong>✅ Rate Limiting:</strong> IMPLEMENTADO - LoginAttempt entity, CAPTCHA após 3 falhas, bloqueio após 10.</li>
             </ul>
           </div>
 

@@ -25,13 +25,14 @@ export default function RoadmapImplementacao() {
   const recursos = [
     {
       id: 'alertas_configuraveis',
-      titulo: 'Alertas Configuráveis',
-      descricao: 'Definir thresholds personalizados',
+      titulo: '✅ Alertas Configuráveis',
+      descricao: 'IMPLEMENTADO - Entity, backend function, automation diária',
       icon: AlertCircle,
       prioridade: 'media',
       complexidade: 'media',
       estimativa: '3-5 dias',
       categoria: 'funcionalidades',
+      status: 'implementado',
       dependencias: ['NotificationPreferences entity já existe'],
       stackTecnico: [
         'Nova entity: AlertaConfig',
@@ -90,13 +91,14 @@ export default function RoadmapImplementacao() {
     },
     {
       id: 'anexos_mensagens',
-      titulo: 'Anexos em Mensagens',
-      descricao: 'Enviar arquivos/imagens no chat',
+      titulo: '✅ Anexos em Mensagens',
+      descricao: 'IMPLEMENTADO - Upload arquivos, preview imagens, 5 anexos/msg',
       icon: Paperclip,
       prioridade: 'alta',
       complexidade: 'media',
       estimativa: '2-3 dias',
       categoria: 'funcionalidades',
+      status: 'implementado',
       dependencias: ['MensagemChat entity já existe', 'UploadFile integration disponível'],
       stackTecnico: [
         'Atualizar MensagemChat entity',
@@ -152,13 +154,14 @@ export default function RoadmapImplementacao() {
     },
     {
       id: 'fornecedores',
-      titulo: 'Fornecedores',
-      descricao: 'Cadastro de fornecedores/parceiros',
+      titulo: '✅ Fornecedores',
+      descricao: 'IMPLEMENTADO - CRUD completo, vinculação em OS',
       icon: Building,
       prioridade: 'media',
       complexidade: 'baixa',
       estimativa: '1-2 dias',
       categoria: 'cadastros',
+      status: 'implementado',
       dependencias: [],
       stackTecnico: [
         'Nova entity: Fornecedor',
@@ -225,13 +228,14 @@ export default function RoadmapImplementacao() {
     },
     {
       id: 'centros_custo',
-      titulo: 'Centros de Custo',
-      descricao: 'Vinculação de OS a CC',
+      titulo: '✅ Centros de Custo',
+      descricao: 'IMPLEMENTADO - CRUD, vinculação OS, dashboard consumo',
       icon: DollarSign,
       prioridade: 'alta',
       complexidade: 'baixa',
       estimativa: '1-2 dias',
       categoria: 'cadastros',
+      status: 'implementado',
       dependencias: [],
       stackTecnico: [
         'Nova entity: CentroCusto',
@@ -294,13 +298,14 @@ export default function RoadmapImplementacao() {
     },
     {
       id: 'timeout_sessao',
-      titulo: 'Timeout de Sessão',
-      descricao: 'Configurar 15min inatividade',
+      titulo: '✅ Timeout de Sessão',
+      descricao: 'IMPLEMENTADO - 15min inatividade com modal de aviso',
       icon: Clock,
       prioridade: 'alta',
       complexidade: 'media',
       estimativa: '2-3 dias',
       categoria: 'seguranca',
+      status: 'implementado',
       dependencias: ['Base44 não suporta timeout nativo'],
       stackTecnico: [
         'React hook: useIdleTimer',
@@ -358,13 +363,14 @@ export default function RoadmapImplementacao() {
     },
     {
       id: 'headers_http_seguros',
-      titulo: 'Headers HTTP Seguros',
-      descricao: 'Alguns headers, falta CSP completo',
+      titulo: '✅ Headers HTTP Seguros',
+      descricao: 'IMPLEMENTADO - CSP completo, HSTS, X-Frame-Options, Referrer-Policy',
       icon: Shield,
       prioridade: 'alta',
       complexidade: 'baixa',
       estimativa: '1 dia',
       categoria: 'seguranca',
+      status: 'implementado',
       dependencias: ['Requer configuração no servidor Base44'],
       stackTecnico: [
         'CSP (Content Security Policy)',
@@ -491,13 +497,14 @@ export default function RoadmapImplementacao() {
     },
     {
       id: 'privacy_by_design',
-      titulo: 'Privacy by Design',
-      descricao: 'Documentar princípios aplicados',
+      titulo: '✅ Privacy by Design',
+      descricao: 'IMPLEMENTADO - 7 princípios documentados com evidências',
       icon: Lock,
       prioridade: 'alta',
       complexidade: 'baixa',
       estimativa: '2 dias',
       categoria: 'lgpd',
+      status: 'implementado',
       dependencias: [],
       stackTecnico: [
         'Documentação em Markdown/PDF',
@@ -549,13 +556,14 @@ export default function RoadmapImplementacao() {
     },
     {
       id: 'ripd',
-      titulo: 'RIPD - Relatório de Impacto',
-      descricao: 'Relatório de Impacto (DPO)',
+      titulo: '✅ RIPD - Relatório de Impacto',
+      descricao: 'IMPLEMENTADO - Wizard 10 seções, geração PDF, versionamento',
       icon: FileText,
       prioridade: 'alta',
       complexidade: 'alta',
       estimativa: '5-7 dias',
       categoria: 'lgpd',
+      status: 'implementado',
       dependencias: ['Requer envolvimento do DPO'],
       stackTecnico: [
         'Template RIPD (ANPD)',
@@ -629,13 +637,14 @@ export default function RoadmapImplementacao() {
     },
     {
       id: 'portal_titular',
-      titulo: 'Portal do Titular',
-      descricao: 'Solicitações de cópia/correção/exclusão',
+      titulo: '✅ Portal do Titular',
+      descricao: 'IMPLEMENTADO - Form público, prazo 15 dias, geração de dados',
       icon: UserCheck,
       prioridade: 'alta',
       complexidade: 'alta',
       estimativa: '7-10 dias',
       categoria: 'lgpd',
+      status: 'implementado',
       dependencias: ['RIPD', 'Privacy by Design'],
       stackTecnico: [
         'Entity: SolicitacaoTitular',
@@ -714,13 +723,14 @@ export default function RoadmapImplementacao() {
     },
     {
       id: 'consentimento_explicito',
-      titulo: 'Consentimento Explícito',
-      descricao: 'Registro de consentimentos',
+      titulo: '✅ Consentimento Explícito',
+      descricao: 'IMPLEMENTADO - Registro completo com IP e user-agent',
       icon: CheckCircle2,
       prioridade: 'media',
       complexidade: 'media',
       estimativa: '3-5 dias',
       categoria: 'lgpd',
+      status: 'implementado',
       dependencias: [],
       stackTecnico: [
         'Entity: Consentimento',
@@ -788,13 +798,14 @@ export default function RoadmapImplementacao() {
     },
     {
       id: 'anonimizacao',
-      titulo: 'Anonimização de Dados',
-      descricao: 'Processo de anonimização de dados',
+      titulo: '✅ Anonimização de Dados',
+      descricao: 'IMPLEMENTADO - Backend function com masking, hashing, generalização',
       icon: Database,
       prioridade: 'media',
       complexidade: 'alta',
       estimativa: '5-7 dias',
       categoria: 'lgpd',
+      status: 'implementado',
       dependencias: ['Portal do Titular'],
       stackTecnico: [
         'Backend function: anonimizarDados',
@@ -927,17 +938,17 @@ export default function RoadmapImplementacao() {
                   <p className="text-3xl font-bold text-blue-600">{recursos.length}</p>
                   <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Recursos Totais</p>
                 </div>
-                <div className="bg-white dark:bg-slate-800 rounded-lg p-4 text-center">
-                  <p className="text-3xl font-bold text-red-600">{recursos.filter(r => r.prioridade === 'alta').length}</p>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Alta Prioridade</p>
+                <div className="bg-green-100 dark:bg-green-900 rounded-lg p-4 text-center">
+                  <p className="text-3xl font-bold text-green-600">{recursos.filter(r => r.status === 'implementado').length}</p>
+                  <p className="text-sm text-green-700 dark:text-green-300 mt-1">✅ Implementados</p>
                 </div>
                 <div className="bg-white dark:bg-slate-800 rounded-lg p-4 text-center">
-                  <p className="text-3xl font-bold text-yellow-600">{recursos.filter(r => r.prioridade === 'media').length}</p>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Média Prioridade</p>
+                  <p className="text-3xl font-bold text-yellow-600">{recursos.filter(r => !r.status || r.status !== 'implementado').length}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Pendentes</p>
                 </div>
-                <div className="bg-white dark:bg-slate-800 rounded-lg p-4 text-center">
-                  <p className="text-3xl font-bold text-green-600">{recursos.filter(r => r.prioridade === 'baixa').length}</p>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Baixa Prioridade</p>
+                <div className="bg-purple-100 dark:bg-purple-900 rounded-lg p-4 text-center">
+                  <p className="text-3xl font-bold text-purple-600">{Math.round((recursos.filter(r => r.status === 'implementado').length / recursos.length) * 100)}%</p>
+                  <p className="text-sm text-purple-700 dark:text-purple-300 mt-1">Completude</p>
                 </div>
               </div>
 

@@ -92,6 +92,9 @@ export default function ArquiteturaSection() {
                   <li>registrarAuditLog - Logs de auditoria</li>
                   <li>notificationService - Notificações push</li>
                   <li>checkDeadlines - Verificação de prazos</li>
+                  <li>checkRateLimit - Rate limiting de login</li>
+                  <li>anonimizarDados - Anonimização LGPD</li>
+                  <li>exportBackupCritico - Backup semanal</li>
                 </ul>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Badge>Deno</Badge>
@@ -121,6 +124,9 @@ export default function ArquiteturaSection() {
                   <li>Conversa, MensagemChat - Mensagens internas</li>
                   <li>AuditLog - Rastreabilidade</li>
                   <li>OrdemSaida, Transportadora, VeiculoAxia - Logística</li>
+                  <li>CentroCusto, Fornecedor - Gestão financeira</li>
+                  <li>RIPD, SolicitacaoTitular, Consentimento - LGPD</li>
+                  <li>LoginAttempt - Segurança</li>
                 </ul>
                 <p className="mt-3"><strong>Recursos:</strong></p>
                 <ul className="list-disc ml-5 space-y-1">
