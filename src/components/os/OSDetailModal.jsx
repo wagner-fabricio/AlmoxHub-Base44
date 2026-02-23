@@ -793,6 +793,30 @@ export default function OSDetailModal({
                     </div>
                   </div>
 
+                  <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <div className="w-10 h-10 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg flex items-center justify-center shrink-0">
+                      <Calendar className="w-5 h-5 text-cyan-600" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Data Inicial</p>
+                      <p className="font-medium text-slate-900 dark:text-white text-sm">
+                        {os.data_inicial ? format(new Date(os.data_inicial), "dd/MM/yyyy", { locale: ptBR }) : '-'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center shrink-0">
+                      <Calendar className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Data de Conclusão</p>
+                      <p className="font-medium text-slate-900 dark:text-white text-sm">
+                        {os.data_conclusao ? format(new Date(os.data_conclusao), "dd/MM/yyyy", { locale: ptBR }) : '-'}
+                      </p>
+                    </div>
+                  </div>
+
                   {os.num_reserva && (
                     <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                       <div className="w-10 h-10 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg flex items-center justify-center shrink-0">
