@@ -78,7 +78,7 @@ export default function TorreControleTab({
                     }, 0);
                     return sum + valorExpedicao + valorRecebimento;
                   }, 0);
-                  return valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                  return (valorTotal || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 })()}
               </p>
             </CardContent>
