@@ -161,7 +161,10 @@ export default function SegurancaSection() {
               <ul className="space-y-1 text-sm text-teal-800 dark:text-teal-200">
                 <li>• Rate limiting Base44 (por usuário)</li>
                 <li>• Erro 429 com retry logic</li>
-                <li>• Captcha em funções críticas (parcial)</li>
+                <li>• LoginAttempt entity rastreia tentativas ✅</li>
+                <li>• CAPTCHA após 3 falhas (reCAPTCHA v2) ✅</li>
+                <li>• Bloqueio temporário após 10 falhas ✅</li>
+                <li>• Cleanup automático diário ✅</li>
               </ul>
             </div>
 
@@ -173,7 +176,11 @@ export default function SegurancaSection() {
                 <li>• Cookies seguros (HttpOnly/Secure)</li>
                 <li>• Validações server-side</li>
                 <li>• Compatível com navegadores atuais</li>
-                <li>• Headers HTTP (parcialmente seguros)</li>
+                <li>• CSP completo (XSS protection) ✅</li>
+                <li>• HSTS (force HTTPS) ✅</li>
+                <li>• X-Frame-Options (clickjacking) ✅</li>
+                <li>• Referrer-Policy ✅</li>
+                <li>• Permissions-Policy ✅</li>
               </ul>
             </div>
           </div>
@@ -204,12 +211,12 @@ export default function SegurancaSection() {
                 <span>Cloudflare/AWS WAF com regras OWASP Top 10</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="font-medium min-w-[200px]">Backup Testado:</span>
-                <span>Validar estratégia além de 30 dias soft-delete</span>
+                <span className="font-medium min-w-[200px] text-green-900 dark:text-green-200">✅ Backup Testado:</span>
+                <span className="text-green-700 dark:text-green-300"><strong>IMPLEMENTADO</strong> - Backup semanal automático, BIA, RTO/RPO, runbooks</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="font-medium min-w-[200px]">Rate Limiting Ampliado:</span>
-                <span>CAPTCHA após 3 tentativas de login</span>
+                <span className="font-medium min-w-[200px] text-green-900 dark:text-green-200">✅ Rate Limiting Ampliado:</span>
+                <span className="text-green-700 dark:text-green-300"><strong>IMPLEMENTADO</strong> - CAPTCHA após 3 tentativas, bloqueio após 10</span>
               </li>
             </ul>
           </div>
@@ -233,12 +240,12 @@ export default function SegurancaSection() {
                 <span><strong>IMPLEMENTADO</strong> - 15 minutos de inatividade com aviso</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="font-medium min-w-[200px]">Headers Seguros:</span>
-                <span>CSP, HSTS, X-Frame-Options completos</span>
+                <span className="font-medium min-w-[200px] text-green-900 dark:text-green-200">✅ Headers Seguros:</span>
+                <span className="text-green-700 dark:text-green-300"><strong>IMPLEMENTADO</strong> - CSP completo, HSTS, X-Frame-Options, Referrer-Policy, Permissions-Policy</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="font-medium min-w-[200px]">Plano DR:</span>
-                <span>BIA + RTO/RPO documentados</span>
+                <span className="font-medium min-w-[200px] text-green-900 dark:text-green-200">✅ Plano DR:</span>
+                <span className="text-green-700 dark:text-green-300"><strong>IMPLEMENTADO</strong> - BIA documentado, RTO/RPO por processo, backup semanal, runbooks</span>
               </li>
             </ul>
           </div>
@@ -258,8 +265,8 @@ export default function SegurancaSection() {
                 <span><strong>IMPLEMENTADO</strong> - Form público, prazo 15 dias, geração de dados</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="font-medium min-w-[200px]">Privacy by Design:</span>
-                <span>Documentar princípios e bases legais</span>
+                <span className="font-medium min-w-[200px] text-green-900 dark:text-green-200">✅ Privacy by Design:</span>
+                <span className="text-green-700 dark:text-green-300"><strong>IMPLEMENTADO</strong> - 7 princípios documentados com evidências e bases legais</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-medium min-w-[200px]">✅ Consentimento:</span>
@@ -326,7 +333,7 @@ export default function SegurancaSection() {
           <div className="space-y-4">
             <div className="p-4 bg-white dark:bg-slate-800 rounded-lg">
               <h4 className="font-semibold text-indigo-900 dark:text-indigo-200 mb-2">
-                Sprint 1-2 (30 dias) - CRÍTICO
+                Sprint 1-2 (30 dias) - CRÍTICO (50% Concluído)
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                 <div>
@@ -342,15 +349,15 @@ export default function SegurancaSection() {
                   </p>
                 </div>
                 <div>
-                  <p className="font-medium text-slate-900 dark:text-white mb-1">Backup + DR</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
-                    Validar política com Base44. Testar restore. Documentar runbook.
+                  <p className="font-medium text-green-900 dark:text-green-200 mb-1">✅ Backup + DR</p>
+                  <p className="text-xs text-green-700 dark:text-green-300">
+                    <strong>IMPLEMENTADO</strong> - Backup semanal, BIA completo, RTO/RPO, runbooks documentados.
                   </p>
                 </div>
                 <div>
-                  <p className="font-medium text-slate-900 dark:text-white mb-1">Rate Limiting++</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
-                    CAPTCHA após 3 tentativas. Notificações de login suspeito.
+                  <p className="font-medium text-green-900 dark:text-green-200 mb-1">✅ Rate Limiting++</p>
+                  <p className="text-xs text-green-700 dark:text-green-300">
+                    <strong>IMPLEMENTADO</strong> - CAPTCHA após 3 tentativas, LoginAttempt entity, cleanup automático.
                   </p>
                 </div>
               </div>
@@ -358,7 +365,7 @@ export default function SegurancaSection() {
 
             <div className="p-4 bg-white dark:bg-slate-800 rounded-lg">
               <h4 className="font-semibold text-purple-900 dark:text-purple-200 mb-2">
-                Sprint 3-4 (60 dias) - ALTA
+                Sprint 3-4 (60 dias) - ALTA (67% Concluído)
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                 <div>
@@ -380,9 +387,9 @@ export default function SegurancaSection() {
                   </p>
                 </div>
                 <div>
-                  <p className="font-medium text-slate-900 dark:text-white mb-1">Headers HTTP</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
-                    CSP, HSTS, X-Frame-Options via WAF. Score A+ em securityheaders.com.
+                  <p className="font-medium text-green-900 dark:text-green-200 mb-1">✅ Headers HTTP</p>
+                  <p className="text-xs text-green-700 dark:text-green-300">
+                    <strong>IMPLEMENTADO</strong> - CSP completo, HSTS, X-Frame-Options, Referrer-Policy já aplicados.
                   </p>
                 </div>
               </div>
@@ -390,7 +397,7 @@ export default function SegurancaSection() {
 
             <div className="p-4 bg-white dark:bg-slate-800 rounded-lg">
               <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">
-                Sprint 5-6 (90 dias) - CONFORMIDADE
+                Sprint 5-6 (90 dias) - CONFORMIDADE ✅ 100% Concluído
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                 <div>
