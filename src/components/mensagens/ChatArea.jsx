@@ -370,7 +370,7 @@ export default function ChatArea({
           const mostrarAvatar = conversa.tipo === 'grupo' && !isMinha;
 
           return (
-            <React.Fragment key={mensagem.id}>
+            <div key={mensagem.id}>
               {renderSeparadorData(mensagem, index)}
               <MessageBubble
                 mensagem={mensagem}
@@ -385,7 +385,7 @@ export default function ChatArea({
                 }}
                 onExcluir={onExcluirMensagem}
               />
-            </React.Fragment>
+            </div>
           );
         })}
       </div>
