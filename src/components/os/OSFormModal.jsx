@@ -847,8 +847,11 @@ export default function OSFormModal({
     }
   };
 
+  // Validação adicional: se houve problema de recebimento, deve selecionar pelo menos um problema
+  const problemasNaoPreenchidos = formData.problema_recebimento && (!formData.problemas_recebimento_ids || formData.problemas_recebimento_ids.length === 0);
+  
   const isValid = formData.categoria_id && formData.subcategorias_ids?.length > 0 && 
-    formData.regional_id && formData.almoxarifado_id && formData.lider_id && formData.prazo && !prazoError;
+    formData.regional_id && formData.almoxarifado_id && formData.lider_id && formData.prazo && !prazoError && !problemasNaoPreenchidos;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
