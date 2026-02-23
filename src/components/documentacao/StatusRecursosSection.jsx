@@ -97,9 +97,9 @@ export default function StatusRecursosSection() {
         { nome: 'Página de aprovação', status: 'implementado', obs: 'UserApproval para admin' },
         { nome: 'Perfil completo', status: 'implementado', obs: 'Modal com todas informações' },
         { nome: 'Edição de perfil', status: 'implementado', obs: 'Usuário pode editar próprios dados' },
-        { nome: 'SSO corporativo', status: 'nao_implementado', obs: 'Integração com Azure AD/Okta pendente' },
-        { nome: 'Gestão de equipes', status: 'nao_implementado', obs: 'Organizar pessoas em equipes/times' },
-        { nome: 'Delegação de permissões', status: 'nao_implementado', obs: 'Gestor delegar temporariamente' }
+        { nome: 'Gestão de equipes', status: 'implementado', obs: 'CRUD de equipes, membros, líder, regionais, almoxarifados' },
+        { nome: 'Delegação de permissões', status: 'implementado', obs: 'Gestor delega temporariamente funções, com data início/fim, auto-expiração' },
+        { nome: 'SSO corporativo', status: 'nao_implementado', obs: 'Integração com Azure AD/Okta pendente' }
       ]
     },
     {
@@ -363,6 +363,8 @@ export default function StatusRecursosSection() {
                 <li>✅ Alertas configuráveis - implementado</li>
                 <li>✅ Consentimento explícito - implementado</li>
                 <li>✅ Touch gestures avançados - implementado</li>
+                <li>✅ Gestão de equipes - implementado</li>
+                <li>✅ Delegação de permissões - implementado</li>
               </ul>
             </div>
 
