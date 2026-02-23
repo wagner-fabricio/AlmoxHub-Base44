@@ -1,5 +1,6 @@
 import React from 'react';
 import TorreControleTab from './TorreControleTab';
+import KanbanExecucao from './KanbanExecucao';
 
 export default function TorreControleContent({
   filteredOrdens,
@@ -7,10 +8,13 @@ export default function TorreControleContent({
   numItensNFCompra
 }) {
   return (
-    <TorreControleTab 
-      filteredOrdens={filteredOrdens}
-      tempoMedioRegularizacaoCompra={tempoMedioRegularizacaoCompra}
-      numItensNFCompra={numItensNFCompra}
-    />
+    <div className="space-y-8">
+      <TorreControleTab 
+        filteredOrdens={filteredOrdens}
+        tempoMedioRegularizacaoCompra={tempoMedioRegularizacaoCompra}
+        numItensNFCompra={numItensNFCompra}
+      />
+      <KanbanExecucao ordens={filteredOrdens} />
+    </div>
   );
 }
