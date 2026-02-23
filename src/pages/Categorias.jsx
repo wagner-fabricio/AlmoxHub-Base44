@@ -280,86 +280,110 @@ export default function Categorias() {
 
       {/* Categoria Modal */}
       <Dialog open={showCategoriaModal} onOpenChange={setShowCategoriaModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{selectedCategoria ? 'Editar Categoria' : 'Nova Categoria'}</DialogTitle>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader className="px-6 py-5 border-b -m-6 mb-0" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
+            <DialogTitle className="text-white">
+              {selectedCategoria ? 'Editar Categoria' : 'Nova Categoria'}
+            </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Nome *</Label>
-              <Input
-                value={categoriaForm.nome}
-                onChange={(e) => setCategoriaForm({ ...categoriaForm, nome: e.target.value })}
-                placeholder="Nome da categoria"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Descrição</Label>
-              <Input
-                value={categoriaForm.descricao}
-                onChange={(e) => setCategoriaForm({ ...categoriaForm, descricao: e.target.value })}
-                placeholder="Descrição opcional"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Cor</Label>
-              <div className="flex gap-3">
-                <Input
-                  type="color"
-                  value={categoriaForm.cor}
-                  onChange={(e) => setCategoriaForm({ ...categoriaForm, cor: e.target.value })}
-                  className="w-20 h-10 p-1"
-                />
-                <Input
-                  value={categoriaForm.cor}
-                  onChange={(e) => setCategoriaForm({ ...categoriaForm, cor: e.target.value })}
-                  placeholder="#3B82F6"
-                  className="flex-1"
-                />
+          <div className="space-y-6 py-6 px-6">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                Informações
+              </h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Nome *</Label>
+                  <Input
+                    value={categoriaForm.nome}
+                    onChange={(e) => setCategoriaForm({ ...categoriaForm, nome: e.target.value })}
+                    placeholder="Nome da categoria"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Descrição</Label>
+                  <Input
+                    value={categoriaForm.descricao}
+                    onChange={(e) => setCategoriaForm({ ...categoriaForm, descricao: e.target.value })}
+                    placeholder="Descrição opcional"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Cor</Label>
+                  <div className="flex gap-3">
+                    <Input
+                      type="color"
+                      value={categoriaForm.cor}
+                      onChange={(e) => setCategoriaForm({ ...categoriaForm, cor: e.target.value })}
+                      className="w-20 h-10 p-1 border-slate-300 dark:border-slate-600 rounded-lg"
+                    />
+                    <Input
+                      value={categoriaForm.cor}
+                      onChange={(e) => setCategoriaForm({ ...categoriaForm, cor: e.target.value })}
+                      placeholder="#3B82F6"
+                      className="flex-1 border-slate-300 dark:border-slate-600 rounded-lg"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          <DialogFooter>
+          <div className="border-t bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 px-6 py-4 flex justify-end gap-3 rounded-b-lg">
             <Button variant="outline" onClick={() => setShowCategoriaModal(false)}>Cancelar</Button>
-            <Button onClick={handleSaveCategoria} disabled={!categoriaForm.nome || saving}>
+            <Button onClick={handleSaveCategoria} disabled={!categoriaForm.nome || saving} style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)', color: 'white' }}>
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Salvar
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Subcategoria Modal */}
       <Dialog open={showSubcategoriaModal} onOpenChange={setShowSubcategoriaModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{selectedSubcategoria ? 'Editar Subcategoria' : 'Nova Subcategoria'}</DialogTitle>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader className="px-6 py-5 border-b -m-6 mb-0" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
+            <DialogTitle className="text-white">
+              {selectedSubcategoria ? 'Editar Subcategoria' : 'Nova Subcategoria'}
+            </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Nome *</Label>
-              <Input
-                value={subcategoriaForm.nome}
-                onChange={(e) => setSubcategoriaForm({ ...subcategoriaForm, nome: e.target.value })}
-                placeholder="Nome da subcategoria"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Descrição</Label>
-              <Input
-                value={subcategoriaForm.descricao}
-                onChange={(e) => setSubcategoriaForm({ ...subcategoriaForm, descricao: e.target.value })}
-                placeholder="Descrição opcional"
-              />
+          <div className="space-y-6 py-6 px-6">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                Informações
+              </h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Nome *</Label>
+                  <Input
+                    value={subcategoriaForm.nome}
+                    onChange={(e) => setSubcategoriaForm({ ...subcategoriaForm, nome: e.target.value })}
+                    placeholder="Nome da subcategoria"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Descrição</Label>
+                  <Input
+                    value={subcategoriaForm.descricao}
+                    onChange={(e) => setSubcategoriaForm({ ...subcategoriaForm, descricao: e.target.value })}
+                    placeholder="Descrição opcional"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+              </div>
             </div>
           </div>
-          <DialogFooter>
+          <div className="border-t bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 px-6 py-4 flex justify-end gap-3 rounded-b-lg">
             <Button variant="outline" onClick={() => setShowSubcategoriaModal(false)}>Cancelar</Button>
-            <Button onClick={handleSaveSubcategoria} disabled={!subcategoriaForm.nome || saving}>
+            <Button onClick={handleSaveSubcategoria} disabled={!subcategoriaForm.nome || saving} style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)', color: 'white' }}>
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Salvar
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
