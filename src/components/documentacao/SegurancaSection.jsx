@@ -66,8 +66,16 @@ export default function SegurancaSection() {
                 <span><strong>SIEM:</strong> Integração com SIEM Eletrobras não implementada</span>
               </li>
               <li className="flex items-start gap-2">
-                <XCircle className="w-4 h-4 text-red-600 mt-0.5 shrink-0" />
-                <span><strong>LGPD:</strong> Falta RIPD, portal do titular, processos de consentimento</span>
+                <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 shrink-0" />
+                <span><strong>LGPD:</strong> Sistema de consentimento implementado. Falta RIPD e portal do titular</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 shrink-0" />
+                <span><strong>Timeout Sessão:</strong> 15 minutos de inatividade com aviso de 2 minutos</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 shrink-0" />
+                <span><strong>Delegação de Permissões:</strong> Sistema implementado com controle de vigência</span>
               </li>
             </ul>
           </div>
@@ -96,6 +104,8 @@ export default function SegurancaSection() {
                 <li>• RBAC implementado (5 roles)</li>
                 <li>• RLS em entidades sensíveis</li>
                 <li>• Logout disponível</li>
+                <li>• Timeout 15min com aviso 2min</li>
+                <li>• Delegação de permissões temporária</li>
               </ul>
             </div>
 
@@ -123,6 +133,8 @@ export default function SegurancaSection() {
                 <li>• Queries parametrizadas</li>
                 <li>• Soft-delete (recuperação 30 dias)</li>
                 <li>• Histórico de versões</li>
+                <li>• Modal de consentimento LGPD</li>
+                <li>• Registro de consentimentos</li>
               </ul>
             </div>
 
@@ -215,8 +227,8 @@ export default function SegurancaSection() {
                 <span>Snyk/SonarQube no CI/CD</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="font-medium min-w-[200px]">Timeout Sessão:</span>
-                <span>15 minutos de inatividade</span>
+                <span className="font-medium min-w-[200px]">✅ Timeout Sessão:</span>
+                <span><strong>IMPLEMENTADO</strong> - 15 minutos de inatividade com aviso</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-medium min-w-[200px]">Headers Seguros:</span>
@@ -248,8 +260,8 @@ export default function SegurancaSection() {
                 <span>Documentar princípios e bases legais</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="font-medium min-w-[200px]">Consentimento:</span>
-                <span>Registro de consentimentos e revogações</span>
+                <span className="font-medium min-w-[200px]">✅ Consentimento:</span>
+                <span><strong>IMPLEMENTADO</strong> - Registro completo com IP e user-agent</span>
               </li>
             </ul>
           </div>
@@ -360,9 +372,9 @@ export default function SegurancaSection() {
                   </p>
                 </div>
                 <div>
-                  <p className="font-medium text-slate-900 dark:text-white mb-1">Timeout 15min</p>
+                  <p className="font-medium text-slate-900 dark:text-white mb-1">✅ Timeout 15min</p>
                   <p className="text-xs text-slate-600 dark:text-slate-400">
-                    Configurar via Base44 SSO ou implementar no frontend.
+                    <strong>IMPLEMENTADO</strong> - Sistema detecta inatividade e avisa 2min antes do logout.
                   </p>
                 </div>
                 <div>
