@@ -88,7 +88,8 @@ export default function ChatArea({
   };
 
   const handleEnviar = useCallback(async () => {
-    if (!novaMensagem.trim() && selectedFiles.length === 0) return;
+    const textoLimpo = novaMensagem.trim();
+    if (!textoLimpo && selectedFiles.length === 0) return;
 
     setUploadingFiles(true);
 
@@ -108,13 +109,13 @@ export default function ChatArea({
       }
 
       // Extrair entidades (OSs) do texto
-      const conteudoFormatado = parseMessageContent(novaMensagem);
+      const conteudoFormatado = parseMessageContent(textoLimpo || ' ');
 
       if (mensagemEditando) {
-        onEditarMensagem(mensagemEditando.id, novaMensagem, conteudoFormatado);
+        onEditarMensagem(mensagemEditando.id, textoLimpo, conteudoFormatado);
         setMensagemEditando(null);
       } else {
-        onEnviarMensagem(novaMensagem, mensagemRespondendo, mencoesIds, conteudoFormatado, anexos);
+        onEnviarMensagem(textoLimpo || ' ', mensagemRespondendo, mencoesIds, conteudoFormatado, anexos);
         setMensagemRespondendo(null);
         
         // Criar notificações para pessoas mencionadas
