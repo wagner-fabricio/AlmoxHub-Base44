@@ -472,7 +472,7 @@ export default function Dashboard() {
             </SelectContent>
           </Select>
           <Select 
-            value={filters.categoria} 
+            value={activeTab === 'recebimento' ? categoriaRecebimento?.id : activeTab === 'expedicao' ? categoriaExpedicao?.id : filters.categoria}
             onValueChange={(v) => updateFilters({ ...filters, categoria: v, subcategoria: 'all' })}
             disabled={activeTab === 'recebimento' || activeTab === 'expedicao'}
           >
