@@ -9,6 +9,25 @@ export default function TorreControleRecebimentoProblemas({
   // Filtrar OS com problemas de recebimento
   const ordensComProblemas = filteredOrdens.filter(os => os.problema_recebimento === true);
   
+  // DEBUG
+  console.log('=== TorreControleRecebimentoProblemas DEBUG ===');
+  console.log('Total de ordens filtradas:', filteredOrdens.length);
+  console.log('Ordens com problema_recebimento === true:', ordensComProblemas.length);
+  console.log('Problemas Recebimento cadastrados:', problemasRecebimento.length);
+  if (ordensComProblemas.length > 0) {
+    console.log('Amostra de problemas_recebimento_ids:', ordensComProblemas.slice(0, 3).map(os => ({
+      codigo: os.codigo,
+      problema_recebimento: os.problema_recebimento,
+      problemas_recebimento_ids: os.problemas_recebimento_ids
+    })));
+  }
+  if (problemasRecebimento.length > 0) {
+    console.log('Problemas disponíveis:', problemasRecebimento.slice(0, 3).map(p => ({
+      id: p.id,
+      nome: p.nome
+    })));
+  }
+  
   // Agrupar problemas por tipo
   const problemasData = {};
   problemasRecebimento.forEach(p => {
