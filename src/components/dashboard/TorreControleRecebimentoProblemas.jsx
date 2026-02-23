@@ -1,7 +1,5 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
-import { AlertTriangle, TrendingDown } from 'lucide-react';
 
 export default function TorreControleRecebimentoProblemas({
   filteredOrdens,
@@ -10,7 +8,6 @@ export default function TorreControleRecebimentoProblemas({
 }) {
   // Filtrar OS com problemas de recebimento
   const ordensComProblemas = filteredOrdens.filter(os => os.problema_recebimento === true);
-  const totalProblemas = ordensComProblemas.length;
   
   // Agrupar problemas por tipo
   const problemasData = {};
@@ -30,147 +27,71 @@ export default function TorreControleRecebimentoProblemas({
     }
   });
   
-  const problemasChartData = Object.entries(problemasContagem).map(([nome, count]) => ({
-    nome,
-    quantidade: count
-  })).sort((a, b) => b.quantidade - a.quantidade);
+  // Converter para array e ordenar por quantidade
+  const problemasChartData = Object.entries(problemasContagem)
+    .map(([nome, quantidade]) => ({ nome, quantidade }))
+    .sort((a, b) => b.quantidade - a.quantidade);
   
-  // Problemas por Regional
-  const problemasPorRegional = regionais.map(regional => {
-    const osRegional = ordensComProblemas.filter(os => os.regional_id === regional.id);
-    return {
-      sigla: regional.sigla,
-      quantidade: osRegional.length
-    };
-  }).filter(d => d.quantidade > 0).sort((a, b) => b.quantidade - a.quantidade);
-  
-  // Status de resolução dos problemas
-  const problemasSolucionados = ordensComProblemas.filter(os => os.data_solucao).length;
-  const problemasAbertos = totalProblemas - problemasSolucionados;
-  
-  const statusData = [
-    { nome: 'Solucionados', valor: problemasSolucionados, fill: '#10B981' },
-    { nome: 'Abertos', valor: problemasAbertos, fill: '#EF4444' }
-  ];
-  
-  const COLORS = ['#0000FF', '#FF6B00', '#10B981', '#A0B4D2', '#EC4899', '#6366F1'];
+  const totalProblemasMarcados = problemasChartData.reduce((sum, p) => sum + p.quantidade, 0);
+
+  // Gerar cores que variam de verde claro a verde escuro
+  const getGradientColor = (index, total) => {
+    const hue = 152; // Verde
+    const saturation = 70;
+    const lightness = 80 - (index / total) * 50; // Varia de 80% a 30%
+    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+  };
 
   return (
-    <div className="space-y-8">
-      {/* KPIs de Problemas */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="bg-white dark:bg-slate-800 border-l-4" style={{ borderLeftColor: '#EF4444' }}>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-2">
-              <AlertTriangle className="w-8 h-8 text-red-500" />
-            </div>
-            <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Total de Problemas</p>
-            <p className="text-3xl font-bold text-slate-900 dark:text-white">{totalProblemas}</p>
-            <p className="text-xs text-slate-400 mt-1">OS com problemas registrados</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-white dark:bg-slate-800 border-l-4" style={{ borderLeftColor: '#10B981' }}>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-2">
-              <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                <span className="text-green-600 font-bold">✓</span>
-              </div>
-            </div>
-            <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Solucionados</p>
-            <p className="text-3xl font-bold text-slate-900 dark:text-white">{problemasSolucionados}</p>
-            <p className="text-xs text-slate-400 mt-1">{totalProblemas > 0 ? ((problemasSolucionados / totalProblemas) * 100).toFixed(0) : 0}% dos problemas</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-white dark:bg-slate-800 border-l-4" style={{ borderLeftColor: '#FF6B00' }}>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-2">
-              <TrendingDown className="w-8 h-8 text-orange-500" />
-            </div>
-            <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Abertos</p>
-            <p className="text-3xl font-bold text-slate-900 dark:text-white">{problemasAbertos}</p>
-            <p className="text-xs text-slate-400 mt-1">Aguardando solução</p>
-          </CardContent>
-        </Card>
-      </div>
+    <Card className="bg-white dark:bg-slate-800">
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold">Ranking de Principais Problemas de Regularização</CardTitle>
+        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Principais Causas de Atraso na Regularização</p>
+      </CardHeader>
+      <CardContent>
+        {problemasChartData.length === 0 ? (
+          <div className="h-72 flex items-center justify-center text-slate-400">
+            Sem problemas registrados
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {problemasChartData.map((problema, index) => {
+              const percentual = totalProblemasMarcados > 0 
+                ? ((problema.quantidade / totalProblemasMarcados) * 100).toFixed(0)
+                : 0;
+              const maxWidth = Math.max(...problemasChartData.map(p => p.quantidade));
+              const barWidth = (problema.quantidade / maxWidth) * 100;
+              const barColor = getGradientColor(index, problemasChartData.length);
 
-      {/* Gráficos */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Problemas por Tipo */}
-        {problemasChartData.length > 0 && (
-          <Card className="bg-white dark:bg-slate-800">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold">Tipos de Problemas</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={280}>
-                <BarChart data={problemasChartData} margin={{ top: 20, right: 20, left: 20, bottom: 60 }} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis type="number" tick={{ fill: '#64748b', fontSize: 12 }} />
-                  <YAxis type="category" dataKey="nome" tick={{ fill: '#64748b', fontSize: 11 }} width={120} />
-                  <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0' }} />
-                  <Bar dataKey="quantidade" fill="#0000FF" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+              return (
+                <div key={problema.nome} className="flex items-center gap-4">
+                  <div className="w-32 flex-shrink-0">
+                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
+                      {problema.nome}
+                    </p>
+                  </div>
+                  <div className="flex-1">
+                    <div className="h-10 bg-slate-100 dark:bg-slate-700 rounded-md overflow-hidden">
+                      <div
+                        className="h-full transition-all duration-300"
+                        style={{
+                          width: `${barWidth}%`,
+                          backgroundColor: barColor
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="w-20 text-right flex-shrink-0">
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">
+                      {problema.quantidade} ({percentual}%)
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
-        
-        {/* Status dos Problemas */}
-        <Card className="bg-white dark:bg-slate-800">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold">Status dos Problemas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {totalProblemas === 0 ? (
-              <div className="h-72 flex items-center justify-center text-slate-400">
-                Sem problemas registrados
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={280}>
-                <PieChart>
-                  <Pie
-                    data={statusData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={2}
-                    dataKey="valor"
-                    label={({ nome, valor, percent }) => `${nome} ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {statusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Problemas por Regional */}
-      {problemasPorRegional.length > 0 && (
-        <Card className="bg-white dark:bg-slate-800">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold">Problemas por Regional</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={problemasPorRegional} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="sigla" tick={{ fill: '#64748b', fontSize: 12 }} />
-                <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
-                <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0' }} />
-                <Bar dataKey="quantidade" fill="#FF6B00" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+      </CardContent>
+    </Card>
   );
 }
