@@ -58,7 +58,7 @@ export default function TorreControleTab({
                 <Package className="w-8 h-8" style={{ color: '#0000FF' }} />
               </div>
               <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Nº de Itens</p>
-              <p className="text-3xl font-bold text-slate-900 dark:text-white">{numItensNFCompra.toLocaleString('pt-BR')}</p>
+              <p className="text-3xl font-bold text-slate-900 dark:text-white">{(numItensNFCompra || 0).toLocaleString('pt-BR')}</p>
             </CardContent>
           </Card>
 
