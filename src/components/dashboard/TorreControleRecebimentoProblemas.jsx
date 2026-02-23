@@ -54,7 +54,7 @@ export default function TorreControleRecebimentoProblemas({
             Sem problemas registrados
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {problemasChartData.map((problema, index) => {
               const percentual = totalProblemasMarcados > 0 
                 ? ((problema.quantidade / totalProblemasMarcados) * 100).toFixed(0)
@@ -64,14 +64,14 @@ export default function TorreControleRecebimentoProblemas({
               const barColor = getGradientColor(index, problemasChartData.length);
 
               return (
-                <div key={problema.nome} className="flex items-center gap-4">
-                  <div className="w-32 flex-shrink-0">
+                <div key={problema.nome} className="flex items-center gap-4 py-2">
+                  <div className="w-40 flex-shrink-0">
                     <p className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
                       {problema.nome}
                     </p>
                   </div>
                   <div className="flex-1">
-                    <div className="h-10 bg-slate-100 dark:bg-slate-700 rounded-md overflow-hidden">
+                    <div className="h-8 bg-slate-100 dark:bg-slate-700 rounded overflow-hidden">
                       <div
                         className="h-full transition-all duration-300"
                         style={{
@@ -81,7 +81,7 @@ export default function TorreControleRecebimentoProblemas({
                       />
                     </div>
                   </div>
-                  <div className="w-20 text-right flex-shrink-0">
+                  <div className="w-24 text-right flex-shrink-0">
                     <p className="text-sm font-bold text-slate-900 dark:text-white">
                       {problema.quantidade} ({percentual}%)
                     </p>
