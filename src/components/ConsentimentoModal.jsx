@@ -34,6 +34,9 @@ export default function ConsentimentoModal({ open, onAccept }) {
       const termosAtivos = await base44.entities.TermosUso.filter({ ativo: true });
       const versaoAtual = termosAtivos[0]?.versao || 'v1.0';
 
+      // Obter IP do cliente
+      const ipOrigem = await getClientIP();
+
       // Registrar consentimentos
       const consentimentosArray = Object.entries(consentimentos)
         .filter(([_, aceito]) => aceito)
@@ -43,7 +46,7 @@ export default function ConsentimentoModal({ open, onAccept }) {
           versao_termos: versaoAtual,
           aceito: true,
           data_consentimento: new Date().toISOString(),
-          ip_origem: await getClientIP(),
+          ip_origem: ipOrigem,
           user_agent: navigator.userAgent,
           revogado: false
         }));
