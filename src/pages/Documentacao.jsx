@@ -10,6 +10,7 @@ import OperacoesSection from '@/components/documentacao/OperacoesSection';
 import SegurancaSection from '@/components/documentacao/SegurancaSection';
 import RoadmapImplementacao from '@/components/documentacao/RoadmapImplementacao';
 import PrivacyByDesignSection from '@/components/documentacao/PrivacyByDesignSection';
+import PlanoMelhoriasSeg from '@/components/documentacao/PlanoMelhoriasSeg';
 
 export default function Documentacao() {
   const [activeTab, setActiveTab] = useState('arquitetura');
