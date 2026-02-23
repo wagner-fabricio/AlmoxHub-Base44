@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { base44 } from '@/api/base44Client';
-import { X, Send, Loader2 } from 'lucide-react';
+import { X, Send, Loader2, Paperclip, Download } from 'lucide-react';
 import { format, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import MentionInput from '@/components/notifications/MentionInput';
@@ -22,7 +22,10 @@ export default function ChatMobileSimple({
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
   const [participantes, setParticipantes] = useState([]);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [uploadingFiles, setUploadingFiles] = useState(false);
   const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (conversa) {
@@ -98,8 +101,21 @@ export default function ChatMobileSimple({
     setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
   };
 
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setSelectedFiles(files.slice(0, 5)); // Max 5 arquivos
+    }
+  };
+
+  const handleRemoveFile = (index) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || sending) return;
+    const textoLimpo = newMessage.trim();
+    if (!textoLimpo && selectedFiles.length === 0) return;
+    if (sending) return;
     
     const autorId = currentPessoaId || currentUserId;
     const autorNome = currentUserName || (pessoas || []).find(p => p.id === currentPessoaId)?.nome || 'Usuário';
@@ -107,13 +123,29 @@ export default function ChatMobileSimple({
     if (!autorId) return;
 
     setSending(true);
+    setUploadingFiles(true);
     try {
+      // Upload de arquivos se houver
+      let anexos = [];
+      if (selectedFiles.length > 0) {
+        for (const file of selectedFiles) {
+          const { file_url } = await base44.integrations.Core.UploadFile({ file });
+          anexos.push({
+            file_url,
+            file_name: file.name,
+            file_type: file.type,
+            file_size: file.size
+          });
+        }
+      }
+
       const mensagemCriada = await base44.entities.MensagemChat.create({
         conversa_id: conversa.id,
         autor_id: autorId,
         autor_nome: autorNome,
-        conteudo: newMessage,
+        conteudo: textoLimpo || ' ',
         mencoes_ids: mencoesIds,
+        anexos: anexos,
         status: 'enviada'
       });
 
@@ -140,8 +172,9 @@ export default function ChatMobileSimple({
         }
       }
 
+      const previewMsg = textoLimpo || (anexos.length > 0 ? '📎 Anexo' : '');
       await base44.entities.Conversa.update(conversa.id, {
-        ultima_mensagem: newMessage.substring(0, 50),
+        ultima_mensagem: previewMsg.substring(0, 50),
         ultima_mensagem_data: new Date().toISOString(),
         ultima_mensagem_autor: autorNome
       });
@@ -159,12 +192,14 @@ export default function ChatMobileSimple({
 
       setNewMessage('');
       setMencoesIds([]);
+      setSelectedFiles([]);
       await loadMensagens();
       onRefresh?.();
     } catch (error) {
       console.error('Error sending message:', error);
     } finally {
       setSending(false);
+      setUploadingFiles(false);
     }
   };
 
@@ -330,9 +365,31 @@ export default function ChatMobileSimple({
                     {message.status === 'excluida' ? (
                       <p className="italic text-slate-400">Mensagem removida</p>
                     ) : (
-                      <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
-                        {message.conteudo}
-                      </p>
+                      <>
+                        <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                          {message.conteudo}
+                        </p>
+                        {message.anexos && message.anexos.length > 0 && (
+                          <div className="mt-2 space-y-1">
+                            {message.anexos.map((anexo, idx) => (
+                              <a
+                                key={idx}
+                                href={anexo.file_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`flex items-center gap-2 px-2 py-1 rounded text-xs ${
+                                  isOwnMessage 
+                                    ? 'bg-blue-700 hover:bg-blue-600' 
+                                    : 'bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600'
+                                }`}
+                              >
+                                <Download className="w-3 h-3" />
+                                <span className="truncate max-w-[180px]">{anexo.file_name}</span>
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                   
@@ -349,7 +406,40 @@ export default function ChatMobileSimple({
 
       {/* Input */}
       <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700">
+        {selectedFiles.length > 0 && (
+          <div className="mb-3 flex flex-wrap gap-2">
+            {selectedFiles.map((file, index) => (
+              <div key={index} className="flex items-center gap-2 bg-slate-100 dark:bg-slate-700 px-3 py-2 rounded-lg">
+                <Paperclip className="w-4 h-4" />
+                <span className="text-sm truncate max-w-[120px]">{file.name}</span>
+                <button
+                  onClick={() => handleRemoveFile(index)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
         <div className="flex gap-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadingFiles}
+            className="rounded-full shrink-0"
+          >
+            <Paperclip className="w-5 h-5" />
+          </Button>
           <MentionInput
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
@@ -367,12 +457,12 @@ export default function ChatMobileSimple({
           />
           <Button
             onClick={handleSendMessage}
-            disabled={!newMessage.trim() || sending || (!currentPessoaId && !currentUserId)}
+            disabled={(!newMessage.trim() && selectedFiles.length === 0) || sending || uploadingFiles || (!currentPessoaId && !currentUserId)}
             size="icon"
             className="rounded-full shrink-0"
             style={{ backgroundColor: '#0000FF' }}
           >
-            {sending ? (
+            {sending || uploadingFiles ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
               <Send className="w-5 h-5" />
