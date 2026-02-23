@@ -1249,18 +1249,10 @@ export default function Dashboard() {
 
               {/* ABA RECEBIMENTO */}
               <TabsContent value="recebimento" className="mt-6 space-y-8">
-              <TorreControleRecebimentoProblemas 
-              filteredOrdens={filteredOrdens}
-              regionais={regionais}
-              problemasRecebimento={problemasRecebimento}
-              />
               </TabsContent>
 
               {/* ABA EXPEDIÇÃO */}
               <TabsContent value="expedicao" className="mt-6 space-y-8">
-              <div className="text-center py-12 text-slate-400">
-              <p>Conteúdo de Expedição será adicionado em breve</p>
-              </div>
               </TabsContent>
               </Tabs>
               </div>
