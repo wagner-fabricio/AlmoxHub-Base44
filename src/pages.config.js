@@ -78,6 +78,8 @@ import UserApproval from './pages/UserApproval';
 import VeiculosAxia from './pages/VeiculosAxia';
 import Equipes from './pages/Equipes';
 import DelegacaoPermissoes from './pages/DelegacaoPermissoes';
+import PortalTitular from './pages/PortalTitular';
+import GestaoSolicitacoes from './pages/GestaoSolicitacoes';
 import __Layout from './Layout.jsx';
 
 
@@ -113,6 +115,8 @@ export const PAGES = {
     "VeiculosAxia": VeiculosAxia,
     "Equipes": Equipes,
     "DelegacaoPermissoes": DelegacaoPermissoes,
+    "PortalTitular": PortalTitular,
+    "GestaoSolicitacoes": GestaoSolicitacoes,
 }
 
 export const pagesConfig = {
