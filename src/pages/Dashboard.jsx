@@ -1443,25 +1443,9 @@ export default function Dashboard() {
                       return dataCreated.getFullYear() === currentYear;
                     });
                     
-                    const totalNoPrazo = osAnoCorrente.filter(os => {
-                      if (!os.prazo) return true;
-                      
-                      if (os.status === 'concluido' && os.data_conclusao) {
-                        return new Date(os.data_conclusao) <= new Date(os.prazo);
-                      }
-                      
-                      return new Date(os.prazo) >= hoje;
-                    }).length;
+                    const totalNoPrazo = osAnoCorrente.filter(os => isNoPrazo(os, hoje)).length;
                     
-                    const totalForaPrazo = osAnoCorrente.filter(os => {
-                      if (!os.prazo) return false;
-                      
-                      if (os.status === 'concluido' && os.data_conclusao) {
-                        return new Date(os.data_conclusao) > new Date(os.prazo);
-                      }
-                      
-                      return new Date(os.prazo) < hoje;
-                    }).length;
+                    const totalForaPrazo = osAnoCorrente.filter(os => isForaPrazo(os, hoje)).length;
                     
                     const dadosRosca = [
                       { name: 'No Prazo', value: totalNoPrazo, color: '#22c55e' },
@@ -1707,28 +1691,12 @@ export default function Dashboard() {
                       return dataCreated.getFullYear() === currentYear;
                     });
                     
-                    const totalItensNoPrazo = osAnoCorrente.filter(os => {
-                      if (!os.prazo) return true;
-                      
-                      if (os.status === 'concluido' && os.data_conclusao) {
-                        return new Date(os.data_conclusao) <= new Date(os.prazo);
-                      }
-                      
-                      return new Date(os.prazo) >= hoje;
-                    }).reduce((sum, os) => {
+                    const totalItensNoPrazo = osAnoCorrente.filter(os => isNoPrazo(os, hoje)).reduce((sum, os) => {
                       const qtdItens = (os.itens_documento?.length || 0) + (os.nfe_itens_conferencia?.length || 0);
                       return sum + qtdItens;
                     }, 0);
                     
-                    const totalItensForaPrazo = osAnoCorrente.filter(os => {
-                      if (!os.prazo) return false;
-                      
-                      if (os.status === 'concluido' && os.data_conclusao) {
-                        return new Date(os.data_conclusao) > new Date(os.prazo);
-                      }
-                      
-                      return new Date(os.prazo) < hoje;
-                    }).reduce((sum, os) => {
+                    const totalItensForaPrazo = osAnoCorrente.filter(os => isForaPrazo(os, hoje)).reduce((sum, os) => {
                       const qtdItens = (os.itens_documento?.length || 0) + (os.nfe_itens_conferencia?.length || 0);
                       return sum + qtdItens;
                     }, 0);
@@ -1992,18 +1960,8 @@ export default function Dashboard() {
                       return dataCreated.getFullYear() === currentYear;
                     });
                     
-                    const totalValorNoPrazo = osAnoCorrente.filter(os => {
-                      if (!os.prazo) return true;
-                      
-                      if (os.status === 'concluido' && os.data_conclusao) {
-                        return new Date(os.data_conclusao) <= new Date(os.prazo);
-                      }
-                      
-                      return new Date(os.prazo) >= hoje;
-                    }).reduce((sum, os) => {
-                      // Valor de expedição vem de itens_documento
+                    const totalValorNoPrazo = osAnoCorrente.filter(os => isNoPrazo(os, hoje)).reduce((sum, os) => {
                       const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
-                      // Valor de recebimento vem de nfe_itens_conferencia
                       const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => {
                         const valorItem = (item.quantidade_esperada || 0) * (parseFloat(item.valor_unitario) || 0);
                         return s + valorItem;
@@ -2011,18 +1969,8 @@ export default function Dashboard() {
                       return sum + valorExpedicao + valorRecebimento;
                     }, 0);
                     
-                    const totalValorForaPrazo = osAnoCorrente.filter(os => {
-                      if (!os.prazo) return false;
-                      
-                      if (os.status === 'concluido' && os.data_conclusao) {
-                        return new Date(os.data_conclusao) > new Date(os.prazo);
-                      }
-                      
-                      return new Date(os.prazo) < hoje;
-                    }).reduce((sum, os) => {
-                      // Valor de expedição vem de itens_documento
+                    const totalValorForaPrazo = osAnoCorrente.filter(os => isForaPrazo(os, hoje)).reduce((sum, os) => {
                       const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
-                      // Valor de recebimento vem de nfe_itens_conferencia
                       const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => {
                         const valorItem = (item.quantidade_esperada || 0) * (parseFloat(item.valor_unitario) || 0);
                         return s + valorItem;
