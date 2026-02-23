@@ -47,12 +47,16 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import AlertasConfig from './pages/AlertasConfig';
 import Almoxarifados from './pages/Almoxarifados';
 import AuditLogs from './pages/AuditLogs';
 import Categorias from './pages/Categorias';
+import CentrosCusto from './pages/CentrosCusto';
+import ConsentimentosPage from './pages/ConsentimentosPage';
 import Dashboard from './pages/Dashboard';
 import Documentacao from './pages/Documentacao';
 import EmFluxo from './pages/EmFluxo';
+import Fornecedores from './pages/Fornecedores';
 import Home from './pages/Home';
 import Instalacoes from './pages/Instalacoes';
 import Mensagens from './pages/Mensagens';
@@ -72,20 +76,22 @@ import ThankYou from './pages/ThankYou';
 import Transportadoras from './pages/Transportadoras';
 import UserApproval from './pages/UserApproval';
 import VeiculosAxia from './pages/VeiculosAxia';
-import CentrosCusto from './pages/CentrosCusto';
-import Fornecedores from './pages/Fornecedores';
-import AlertasConfig from './pages/AlertasConfig';
-import ConsentimentosPage from './pages/ConsentimentosPage';
+import Equipes from './pages/Equipes';
+import DelegacaoPermissoes from './pages/DelegacaoPermissoes';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AlertasConfig": AlertasConfig,
     "Almoxarifados": Almoxarifados,
     "AuditLogs": AuditLogs,
     "Categorias": Categorias,
+    "CentrosCusto": CentrosCusto,
+    "ConsentimentosPage": ConsentimentosPage,
     "Dashboard": Dashboard,
     "Documentacao": Documentacao,
     "EmFluxo": EmFluxo,
+    "Fornecedores": Fornecedores,
     "Home": Home,
     "Instalacoes": Instalacoes,
     "Mensagens": Mensagens,
@@ -105,10 +111,8 @@ export const PAGES = {
     "Transportadoras": Transportadoras,
     "UserApproval": UserApproval,
     "VeiculosAxia": VeiculosAxia,
-    "CentrosCusto": CentrosCusto,
-    "Fornecedores": Fornecedores,
-    "AlertasConfig": AlertasConfig,
-    "ConsentimentosPage": ConsentimentosPage,
+    "Equipes": Equipes,
+    "DelegacaoPermissoes": DelegacaoPermissoes,
 }
 
 export const pagesConfig = {
