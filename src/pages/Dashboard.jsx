@@ -471,15 +471,27 @@ export default function Dashboard() {
                 ))}
             </SelectContent>
           </Select>
-          <Select value={filters.categoria} onValueChange={(v) => updateFilters({ ...filters, categoria: v, subcategoria: 'all' })}>
+          <Select 
+            value={filters.categoria} 
+            onValueChange={(v) => updateFilters({ ...filters, categoria: v, subcategoria: 'all' })}
+            disabled={activeTab === 'recebimento' || activeTab === 'expedicao'}
+          >
             <SelectTrigger className="w-full bg-white dark:bg-slate-800">
               <SelectValue placeholder="Categoria" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todas Categorias</SelectItem>
-              {categorias.map(c => (
-                <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-              ))}
+              {activeTab === 'recebimento' ? (
+                <SelectItem value={categoriaRecebimento?.id}>{categoriaRecebimento?.nome}</SelectItem>
+              ) : activeTab === 'expedicao' ? (
+                <SelectItem value={categoriaExpedicao?.id}>{categoriaExpedicao?.nome}</SelectItem>
+              ) : (
+                <>
+                  <SelectItem value="all">Todas Categorias</SelectItem>
+                  {categorias.map(c => (
+                    <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                  ))}
+                </>
+              )}
             </SelectContent>
           </Select>
           <Select 
