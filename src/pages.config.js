@@ -74,6 +74,7 @@ import UserApproval from './pages/UserApproval';
 import VeiculosAxia from './pages/VeiculosAxia';
 import CentrosCusto from './pages/CentrosCusto';
 import Fornecedores from './pages/Fornecedores';
+import AlertasConfig from './pages/AlertasConfig';
 import __Layout from './Layout.jsx';
 
 
@@ -105,6 +106,7 @@ export const PAGES = {
     "VeiculosAxia": VeiculosAxia,
     "CentrosCusto": CentrosCusto,
     "Fornecedores": Fornecedores,
+    "AlertasConfig": AlertasConfig,
 }
 
 export const pagesConfig = {
