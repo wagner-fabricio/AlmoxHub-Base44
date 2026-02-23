@@ -17,7 +17,7 @@ export default function SegurancaSection() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-3 gap-4 mb-4">
             <div className="text-center p-4 bg-green-100 dark:bg-green-900 rounded-lg">
-              <p className="text-3xl font-bold text-green-600">82%</p>
+              <p className="text-3xl font-bold text-green-600">89%</p>
               <p className="text-sm text-green-700 dark:text-green-300 mt-1">Conformidade Geral</p>
             </div>
             <div className="text-center p-4 bg-green-100 dark:bg-green-900 rounded-lg">
@@ -67,7 +67,7 @@ export default function SegurancaSection() {
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 shrink-0" />
-                <span><strong>LGPD:</strong> Sistema de consentimento implementado. Falta RIPD e portal do titular</span>
+                <span><strong>LGPD:</strong> Conformidade completa - RIPD, Portal do Titular, Anonimização</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 shrink-0" />
@@ -135,6 +135,8 @@ export default function SegurancaSection() {
                 <li>• Histórico de versões</li>
                 <li>• Modal de consentimento LGPD</li>
                 <li>• Registro de consentimentos</li>
+                <li>• Portal do Titular LGPD</li>
+                <li>• Anonimização de dados</li>
               </ul>
             </div>
 
@@ -248,12 +250,12 @@ export default function SegurancaSection() {
             </div>
             <ul className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
               <li className="flex items-start gap-2">
-                <span className="font-medium min-w-[200px]">RIPD:</span>
-                <span>Relatório de Impacto com DPO</span>
+                <span className="font-medium min-w-[200px]">✅ RIPD:</span>
+                <span><strong>IMPLEMENTADO</strong> - Wizard 10 seções, geração PDF, versionamento</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="font-medium min-w-[200px]">Portal do Titular:</span>
-                <span>Solicitações de cópia/correção/exclusão</span>
+                <span className="font-medium min-w-[200px]">✅ Portal do Titular:</span>
+                <span><strong>IMPLEMENTADO</strong> - Form público, prazo 15 dias, geração de dados</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-medium min-w-[200px]">Privacy by Design:</span>
@@ -392,15 +394,21 @@ export default function SegurancaSection() {
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                 <div>
-                  <p className="font-medium text-slate-900 dark:text-white mb-1">RIPD + DPO</p>
+                  <p className="font-medium text-slate-900 dark:text-white mb-1">✅ RIPD + DPO</p>
                   <p className="text-xs text-slate-600 dark:text-slate-400">
-                    Realizar análise de impacto. Documentar bases legais e finalidades.
+                    <strong>IMPLEMENTADO</strong> - Entity completa, wizard 10 seções, PDF profissional.
                   </p>
                 </div>
                 <div>
-                  <p className="font-medium text-slate-900 dark:text-white mb-1">Portal Titular</p>
+                  <p className="font-medium text-slate-900 dark:text-white mb-1">✅ Portal Titular</p>
                   <p className="text-xs text-slate-600 dark:text-slate-400">
-                    Interface para solicitações LGPD. Processo de atendimento em 15 dias.
+                    <strong>IMPLEMENTADO</strong> - Form público, gestão admin, geração automática de dados.
+                  </p>
+                </div>
+                <div>
+                  <p className="font-medium text-slate-900 dark:text-white mb-1">✅ Anonimização</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                    <strong>IMPLEMENTADO</strong> - Backend function, masking/hashing/generalização.
                   </p>
                 </div>
                 <div>

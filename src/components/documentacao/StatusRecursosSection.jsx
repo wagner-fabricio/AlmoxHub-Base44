@@ -196,10 +196,11 @@ export default function StatusRecursosSection() {
         { nome: 'Logs de auditoria', status: 'implementado', obs: 'AuditLog com IP e user-agent' },
         { nome: 'Soft-delete', status: 'implementado', obs: 'is_deleted flag, recuperação 30 dias' },
         { nome: 'Privacy by Design', status: 'implementado', obs: 'Documentação completa com 7 princípios e evidências' },
-        { nome: 'RIPD', status: 'nao_implementado', obs: 'Relatório de Impacto (DPO)' },
-        { nome: 'Portal do titular', status: 'nao_implementado', obs: 'Solicitações de cópia/correção/exclusão' },
+        { nome: 'RIPD', status: 'implementado', obs: 'Entity com wizard 10 seções, geração PDF, versionamento' },
+        { nome: 'Portal do titular', status: 'implementado', obs: 'Form público, tracking, geração automática de dados, prazo 15 dias' },
+        { nome: 'Gestão de solicitações', status: 'implementado', obs: 'Dashboard admin/DPO, aprovar/rejeitar, envio automático de emails' },
         { nome: 'Consentimento explícito', status: 'implementado', obs: 'Modal no primeiro login, gestão de consentimentos' },
-        { nome: 'Anonimização', status: 'nao_implementado', obs: 'Processo de anonimização de dados' }
+        { nome: 'Anonimização', status: 'implementado', obs: 'Backend function com masking/hashing/generalização, auditoria' }
       ]
     }
   ];
@@ -370,12 +371,13 @@ export default function StatusRecursosSection() {
 
             <div className="p-4 bg-white dark:bg-slate-800 rounded-lg">
               <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">
-                📋 Sprint 2-3 (LGPD Avançado)
+                📋 Sprint 2-3 (LGPD Avançado) ✅ CONCLUÍDO
               </h4>
               <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
-                <li>• RIPD (Relatório de Impacto) - 5-7 dias</li>
-                <li>• Portal do Titular LGPD - 7-10 dias</li>
-                <li>• Anonimização de dados - 5-7 dias</li>
+                <li>✅ RIPD (Relatório de Impacto) - implementado</li>
+                <li>✅ Portal do Titular LGPD - implementado</li>
+                <li>✅ Gestão de Solicitações (Admin/DPO) - implementado</li>
+                <li>✅ Anonimização de dados - implementado</li>
                 <li>• SSO corporativo - em planejamento</li>
                 <li>• WAF via Cloudflare - em planejamento</li>
               </ul>
