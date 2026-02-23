@@ -1249,9 +1249,8 @@ export default function Dashboard() {
 
               {/* ABA RECEBIMENTO */}
               <TabsContent value="recebimento" className="mt-6 space-y-8">
-              <TorreControleProblemas 
+              <TorreControleRecebimentoProblemas 
               filteredOrdens={filteredOrdens}
-              categorias={categorias}
               regionais={regionais}
               problemasRecebimento={problemasRecebimento}
               />
