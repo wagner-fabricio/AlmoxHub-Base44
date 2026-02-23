@@ -34,6 +34,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import NotificationBell from '@/components/notifications/NotificationBell';
+import useIdleTimer from '@/components/hooks/useIdleTimer';
+import IdleWarningModal from '@/components/IdleWarningModal';
 
 const menuItems = [
   { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
@@ -61,6 +63,15 @@ export default function Layout({ children, currentPageName }) {
   const [isLoadingUserStatus, setIsLoadingUserStatus] = useState(true);
   const [regional, setRegional] = useState(null);
   const [almoxarifados, setAlmoxarifados] = useState([]);
+
+  // Idle Timer (15 minutes)
+  const { showWarning, remainingTime, resetTimer } = useIdleTimer({
+    timeout: 15 * 60 * 1000, // 15 minutes
+    warningTime: 2 * 60 * 1000, // 2 minutes warning
+    onIdle: () => {
+      base44.auth.logout(createPageUrl('ThankYou'));
+    }
+  });
 
   useEffect(() => {
     // Detectar mobile e redirecionar para EmFluxo
@@ -532,7 +543,15 @@ export default function Layout({ children, currentPageName }) {
             {children}
           </main>
         </div>
-      </div>
-    </div>
-  );
-}
+        </div>
+
+        {/* Idle Warning Modal */}
+        <IdleWarningModal
+        open={showWarning}
+        remainingTime={remainingTime}
+        onContinue={resetTimer}
+        onLogout={() => base44.auth.logout(createPageUrl('ThankYou'))}
+        />
+        </div>
+        );
+        }
