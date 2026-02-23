@@ -314,163 +314,192 @@ export default function EquipesPage() {
       )}
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="px-6 py-5 border-b -m-6 mb-0" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
+            <DialogTitle className="text-white">
               {editingEquipe ? 'Editar Equipe' : 'Nova Equipe'}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Nome da Equipe *</label>
-              <Input
-                value={formData.nome}
-                onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                placeholder="Ex: Equipe Nordeste"
-              />
-            </div>
+          <div className="space-y-6 py-6 px-6">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                Informações Básicas
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Nome da Equipe *</label>
+                  <Input
+                    value={formData.nome}
+                    onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                    placeholder="Ex: Equipe Nordeste"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
 
-            <div>
-              <label className="text-sm font-medium mb-2 block">Descrição</label>
-              <Textarea
-                value={formData.descricao}
-                onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-                placeholder="Descreva a equipe..."
-                rows={3}
-              />
-            </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Descrição</label>
+                  <Textarea
+                    value={formData.descricao}
+                    onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                    placeholder="Descreva a equipe..."
+                    rows={3}
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
 
-            <div>
-              <label className="text-sm font-medium mb-2 block">Regional</label>
-              <Select
-                value={formData.regional_id}
-                onValueChange={(value) => setFormData({ ...formData, regional_id: value, almoxarifados_ids: [] })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a regional" />
-                </SelectTrigger>
-                <SelectContent>
-                  {regionais.map((regional) => (
-                    <SelectItem key={regional.id} value={regional.id}>
-                      {regional.sigla} - {regional.descricao}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium mb-2 block">Almoxarifados</label>
-              <div className="border rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
-                {almoxarifados
-                  .filter(almox => !formData.regional_id || almox.regional_id === formData.regional_id)
-                  .map((almox) => (
-                  <label key={almox.id} className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.almoxarifados_ids.includes(almox.id)}
-                      onChange={() => handleToggleAlmoxarifado(almox.id)}
-                      className="rounded"
-                    />
-                    <span className="text-sm">{almox.nome}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium mb-2 block">Líder *</label>
-              <Select
-                value={formData.lider_id}
-                onValueChange={(value) => setFormData({ ...formData, lider_id: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o líder" />
-                </SelectTrigger>
-                <SelectContent>
-                  {pessoas
-                    .filter(p => {
-                      const hasFuncao = p.funcoes?.includes('lider') || p.funcoes?.includes('gestor');
-                      if (!formData.almoxarifados_ids.length) return hasFuncao;
-                      return hasFuncao && formData.almoxarifados_ids.some(almoxId =>
-                        p.almoxarifados_ids?.includes(almoxId)
-                      );
-                    })
-                    .map((pessoa) => (
-                    <SelectItem key={pessoa.id} value={pessoa.id}>
-                      {pessoa.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium mb-2 block">Membros da Equipe</label>
-              <div className="border rounded-lg p-3 max-h-60 overflow-y-auto space-y-2">
-                {pessoas
-                  .filter(p => {
-                    if (!formData.almoxarifados_ids.length) return true;
-                    return formData.almoxarifados_ids.some(almoxId =>
-                      p.almoxarifados_ids?.includes(almoxId)
-                    );
-                  })
-                  .map((pessoa) => (
-                  <label key={pessoa.id} className="flex items-center gap-2 cursor-pointer p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded">
-                    <input
-                      type="checkbox"
-                      checked={formData.membros_ids.includes(pessoa.id)}
-                      onChange={() => handleToggleMembro(pessoa.id)}
-                      className="rounded"
-                    />
-                    <Avatar className="w-8 h-8">
-                      {pessoa.foto_perfil && <AvatarImage src={pessoa.foto_perfil} />}
-                      <AvatarFallback className="text-xs">{pessoa.nome.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{pessoa.nome}</p>
-                      <p className="text-xs text-slate-500">{pessoa.funcao}</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Cor</label>
+                    <div className="flex gap-2 items-center">
+                      <input
+                        type="color"
+                        value={formData.cor}
+                        onChange={(e) => setFormData({ ...formData, cor: e.target.value })}
+                        className="w-12 h-12 rounded cursor-pointer border border-slate-300 dark:border-slate-600"
+                      />
+                      <Input
+                        value={formData.cor}
+                        onChange={(e) => setFormData({ ...formData, cor: e.target.value })}
+                        placeholder="#3b82f6"
+                        className="flex-1 border-slate-300 dark:border-slate-600 rounded-lg"
+                      />
                     </div>
-                  </label>
-                ))}
+                  </div>
+                  <div className="flex items-end">
+                    <label className="flex items-center gap-2 cursor-pointer w-full">
+                      <input
+                        type="checkbox"
+                        checked={formData.ativa}
+                        onChange={(e) => setFormData({ ...formData, ativa: e.target.checked })}
+                        className="rounded"
+                      />
+                      <span className="text-sm font-medium">Equipe ativa</span>
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div>
-              <label className="text-sm font-medium mb-2 block">Cor</label>
-              <div className="flex gap-2 items-center">
-                <input
-                  type="color"
-                  value={formData.cor}
-                  onChange={(e) => setFormData({ ...formData, cor: e.target.value })}
-                  className="w-12 h-12 rounded cursor-pointer"
-                />
-                <Input
-                  value={formData.cor}
-                  onChange={(e) => setFormData({ ...formData, cor: e.target.value })}
-                  placeholder="#3b82f6"
-                  className="flex-1"
-                />
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                Localização e Almoxarifados
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Regional</label>
+                  <Select
+                    value={formData.regional_id}
+                    onValueChange={(value) => setFormData({ ...formData, regional_id: value, almoxarifados_ids: [] })}
+                  >
+                    <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg">
+                      <SelectValue placeholder="Selecione a regional" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {regionais.map((regional) => (
+                        <SelectItem key={regional.id} value={regional.id}>
+                          {regional.sigla} - {regional.descricao}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Almoxarifados</label>
+                  <div className="border border-slate-300 dark:border-slate-600 rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
+                    {almoxarifados
+                      .filter(almox => !formData.regional_id || almox.regional_id === formData.regional_id)
+                      .map((almox) => (
+                      <label key={almox.id} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.almoxarifados_ids.includes(almox.id)}
+                          onChange={() => handleToggleAlmoxarifado(almox.id)}
+                          className="rounded"
+                        />
+                        <span className="text-sm">{almox.nome}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={formData.ativa}
-                onChange={(e) => setFormData({ ...formData, ativa: e.target.checked })}
-                className="rounded"
-              />
-              <label className="text-sm font-medium">Equipe ativa</label>
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                Membros
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Líder *</label>
+                  <Select
+                    value={formData.lider_id}
+                    onValueChange={(value) => setFormData({ ...formData, lider_id: value })}
+                  >
+                    <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg">
+                      <SelectValue placeholder="Selecione o líder" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {pessoas
+                        .filter(p => {
+                          const hasFuncao = p.funcoes?.includes('lider') || p.funcoes?.includes('gestor');
+                          if (!formData.almoxarifados_ids.length) return hasFuncao;
+                          return hasFuncao && formData.almoxarifados_ids.some(almoxId =>
+                            p.almoxarifados_ids?.includes(almoxId)
+                          );
+                        })
+                        .map((pessoa) => (
+                        <SelectItem key={pessoa.id} value={pessoa.id}>
+                          {pessoa.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Membros da Equipe</label>
+                  <div className="border border-slate-300 dark:border-slate-600 rounded-lg p-3 max-h-60 overflow-y-auto space-y-2">
+                    {pessoas
+                      .filter(p => {
+                        if (!formData.almoxarifados_ids.length) return true;
+                        return formData.almoxarifados_ids.some(almoxId =>
+                          p.almoxarifados_ids?.includes(almoxId)
+                        );
+                      })
+                      .map((pessoa) => (
+                      <label key={pessoa.id} className="flex items-center gap-2 cursor-pointer p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded">
+                        <input
+                          type="checkbox"
+                          checked={formData.membros_ids.includes(pessoa.id)}
+                          onChange={() => handleToggleMembro(pessoa.id)}
+                          className="rounded"
+                        />
+                        <Avatar className="w-8 h-8">
+                          {pessoa.foto_perfil && <AvatarImage src={pessoa.foto_perfil} />}
+                          <AvatarFallback className="text-xs">{pessoa.nome.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{pessoa.nome}</p>
+                          <p className="text-xs text-slate-500">{pessoa.funcao}</p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="flex justify-end gap-3">
+          <div className="border-t bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 px-6 py-4 flex justify-end gap-3 rounded-b-lg">
             <Button variant="outline" onClick={() => setModalOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleSave} disabled={saving}>
+            <Button onClick={handleSave} disabled={saving} style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)', color: 'white' }}>
               {saving ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
