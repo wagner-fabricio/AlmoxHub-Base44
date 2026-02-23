@@ -280,6 +280,35 @@ export default function RecursosSection() {
       }
     },
     {
+      modulo: 'DR/BCP - Disaster Recovery',
+      icon: Shield,
+      color: 'red',
+      descricao: 'Continuidade de negócio e recuperação de desastres',
+      funcionalidades: [
+        '✅ BIA - Business Impact Analysis documentado',
+        'Processos críticos identificados com RTO/RPO',
+        'RTO: 4h (crítico), 8h (alto), 24h (médio)',
+        'RPO: 1h (OS), 4h (cadastros), 24h (logs)',
+        '✅ Backup Semanal Automático',
+        'exportBackupCritico function (domingos 02:00 UTC)',
+        'Entities: OrdemServico, Pessoa, Regional, Almoxarifado, etc',
+        'Storage privado encrypted (retenção 4 semanas)',
+        '✅ Runbooks de Recuperação',
+        '3 cenários: Perda total, Corrupção entity, DR completo',
+        'Procedimentos passo-a-passo documentados',
+        'Checklist de validação pós-restore',
+        'Contatos de emergência 24/7',
+        '✅ Testes Periódicos',
+        'Simulação trimestral de restore',
+        'Medição de MTTR real vs objetivo',
+        'Documentação de lições aprendidas'
+      ],
+      permissoes: {
+        admin: 'Executar backups e restores, gerenciar DR',
+        outros: 'Sem acesso'
+      }
+    },
+    {
       modulo: 'LGPD e Privacidade',
       icon: Shield,
       color: 'emerald',

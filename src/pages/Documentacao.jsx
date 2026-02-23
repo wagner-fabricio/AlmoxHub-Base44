@@ -11,6 +11,7 @@ import SegurancaSection from '@/components/documentacao/SegurancaSection';
 import RoadmapImplementacao from '@/components/documentacao/RoadmapImplementacao';
 import PrivacyByDesignSection from '@/components/documentacao/PrivacyByDesignSection';
 import PlanoMelhoriasSeg from '@/components/documentacao/PlanoMelhoriasSeg';
+import PlanoDRSection from '@/components/documentacao/PlanoDRSection';
 
 export default function Documentacao() {
   const [activeTab, setActiveTab] = useState('arquitetura');
@@ -59,7 +60,7 @@ export default function Documentacao() {
 
         {/* Main Content - Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-9 gap-2 bg-white dark:bg-slate-800 p-2 rounded-xl">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-10 gap-2 bg-white dark:bg-slate-800 p-2 rounded-xl">
             <TabsTrigger value="arquitetura" className="flex items-center gap-2">
               <Code className="w-4 h-4" />
               <span className="hidden sm:inline">Arquitetura</span>
@@ -95,6 +96,10 @@ export default function Documentacao() {
             <TabsTrigger value="melhorias" className="flex items-center gap-2">
               <Shield className="w-4 h-4" />
               <span className="hidden sm:inline">Melhorias</span>
+            </TabsTrigger>
+            <TabsTrigger value="dr" className="flex items-center gap-2">
+              <Shield className="w-4 h-4" />
+              <span className="hidden sm:inline">DR/BCP</span>
             </TabsTrigger>
             </TabsList>
 
@@ -132,6 +137,10 @@ export default function Documentacao() {
 
           <TabsContent value="melhorias" className="mt-6">
             <PlanoMelhoriasSeg />
+          </TabsContent>
+
+          <TabsContent value="dr" className="mt-6">
+            <PlanoDRSection />
           </TabsContent>
           </Tabs>
           </div>

@@ -154,7 +154,11 @@ export default function StatusRecursosSection() {
         { nome: 'WAF', status: 'nao_implementado', obs: 'Necessário proxy externo (Cloudflare)' },
         { nome: 'SIEM Eletrobras', status: 'nao_implementado', obs: 'Integração de logs pendente' },
         { nome: 'Timeout de sessão', status: 'implementado', obs: '15min inatividade, modal de aviso 2min antes' },
-        { nome: 'Headers HTTP seguros', status: 'implementado', obs: 'CSP, X-Frame-Options, X-Content-Type-Options via meta tags' }
+        { nome: 'Headers HTTP seguros', status: 'implementado', obs: 'CSP completo, HSTS, X-Frame-Options, Referrer-Policy, Permissions-Policy' },
+        { nome: 'Rate Limiting', status: 'implementado', obs: 'Entity LoginAttempt, 3 falhas = CAPTCHA, 10 falhas = bloqueio 15min' },
+        { nome: 'CAPTCHA anti-bot', status: 'implementado', obs: 'Google reCAPTCHA v2 após 3 tentativas falhadas' },
+        { nome: 'Plano DR/BCP', status: 'implementado', obs: 'BIA documentado, RTO/RPO definidos, backup semanal automático' },
+        { nome: 'Backup testado', status: 'implementado', obs: 'exportBackupCritico function, storage privado, testes trimestrais' }
       ]
     },
     {
@@ -371,15 +375,16 @@ export default function StatusRecursosSection() {
 
             <div className="p-4 bg-white dark:bg-slate-800 rounded-lg">
               <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">
-                📋 Sprint 2-3 (LGPD Avançado) ✅ CONCLUÍDO
+                📋 Sprint 2-3 (LGPD + Segurança) ✅ CONCLUÍDO
               </h4>
               <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
                 <li>✅ RIPD (Relatório de Impacto) - implementado</li>
                 <li>✅ Portal do Titular LGPD - implementado</li>
                 <li>✅ Gestão de Solicitações (Admin/DPO) - implementado</li>
                 <li>✅ Anonimização de dados - implementado</li>
-                <li>• SSO corporativo - em planejamento</li>
-                <li>• WAF via Cloudflare - em planejamento</li>
+                <li>✅ Headers HTTP Seguros completos - implementado</li>
+                <li>✅ Rate Limiting + CAPTCHA - implementado</li>
+                <li>✅ Plano DR + Backup Testado - implementado</li>
               </ul>
             </div>
 

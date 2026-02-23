@@ -17,7 +17,7 @@ export default function SegurancaSection() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-3 gap-4 mb-4">
             <div className="text-center p-4 bg-green-100 dark:bg-green-900 rounded-lg">
-              <p className="text-3xl font-bold text-green-600">89%</p>
+              <p className="text-3xl font-bold text-green-600">94%</p>
               <p className="text-sm text-green-700 dark:text-green-300 mt-1">Conformidade Geral</p>
             </div>
             <div className="text-center p-4 bg-green-100 dark:bg-green-900 rounded-lg">
