@@ -262,10 +262,6 @@ export default function Dashboard() {
         return sum + dias;
       }, 0) / osConcluidasComData.length)
     : 0;
-
-  // Torre de Controle - KPIs Volumetrias
-  const categoriaRecebimento = categorias.find(c => c.nome?.toLowerCase().includes('recebimento'));
-  const categoriaExpedicao = categorias.find(c => c.nome?.toLowerCase().includes('expedição'));
   
   // KPIs Recebimento
   const osRecebimento = filteredOrdens.filter(os => os.categoria_id === categoriaRecebimento?.id);
