@@ -598,55 +598,56 @@ export default function EmFluxo() {
                     onSwipeRight={() => handleOpenOS(os)}
                     onLongPress={() => handleOpenOS(os)}
                   >
-                    <button
+                    <div
                       onClick={() => handleOpenOS(os)}
-                      className="w-full bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-md border-l-4 text-left transition-all active:scale-95"
+                      className="w-full bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-md border-l-4 text-left transition-all active:scale-95 cursor-pointer"
                       style={{ borderLeftColor: categoria?.cor || '#3b82f6' }}
                     >
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <p className="text-xs font-mono text-slate-500 dark:text-slate-400">{os.codigo}</p>
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">{categoria?.nome || 'OS'}</h3>
-                      </div>
-                      <div className={`w-10 h-10 ${prioridadeConfig[os.prioridade]?.color} rounded-xl flex items-center justify-center`}>
-                        <span className="text-white text-xs font-bold">
-                          {os.prioridade === 'urgente' ? '!!' : os.prioridade === 'alta' ? '!' : ''}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <Badge className={`${statusConfig[os.status]?.color} text-white text-xs`}>
-                        <StatusIcon className="w-3 h-3 mr-1" />
-                        {statusConfig[os.status]?.label}
-                      </Badge>
-                      {regional && (
-                        <Badge variant="outline" className="text-xs">
-                          <MapPin className="w-3 h-3 mr-1" />
-                          {regional.sigla}
-                        </Badge>
-                      )}
-                    </div>
-
-                    {os.descricao_resumida && (
-                      <p className="text-sm text-slate-600 dark:text-slate-300 line-clamp-2">{os.descricao_resumida}</p>
-                    )}
-
-                    <div className="mt-3 flex items-center justify-between">
-                      <div className="text-xs text-slate-500 dark:text-slate-400">
-                        Prazo: {os.prazo ? format(new Date(os.prazo), 'dd/MM/yyyy') : '-'}
-                      </div>
-                      <div className="flex items-center gap-1 text-xs">
-                        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 w-16">
-                          <div 
-                            className="bg-blue-500 h-2 rounded-full"
-                            style={{ width: `${os.progresso || 0}%` }}
-                          />
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <p className="text-xs font-mono text-slate-500 dark:text-slate-400">{os.codigo}</p>
+                          <h3 className="text-lg font-bold text-slate-900 dark:text-white">{categoria?.nome || 'OS'}</h3>
                         </div>
-                        <span className="text-slate-600 dark:text-slate-300 font-medium">{os.progresso || 0}%</span>
+                        <div className={`w-10 h-10 ${prioridadeConfig[os.prioridade]?.color} rounded-xl flex items-center justify-center`}>
+                          <span className="text-white text-xs font-bold">
+                            {os.prioridade === 'urgente' ? '!!' : os.prioridade === 'alta' ? '!' : ''}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 flex-wrap mb-3">
+                        <Badge className={`${statusConfig[os.status]?.color} text-white text-xs`}>
+                          <StatusIcon className="w-3 h-3 mr-1" />
+                          {statusConfig[os.status]?.label}
+                        </Badge>
+                        {regional && (
+                          <Badge variant="outline" className="text-xs">
+                            <MapPin className="w-3 h-3 mr-1" />
+                            {regional.sigla}
+                          </Badge>
+                        )}
+                      </div>
+
+                      {os.descricao_resumida && (
+                        <p className="text-sm text-slate-600 dark:text-slate-300 line-clamp-2">{os.descricao_resumida}</p>
+                      )}
+
+                      <div className="mt-3 flex items-center justify-between">
+                        <div className="text-xs text-slate-500 dark:text-slate-400">
+                          Prazo: {os.prazo ? format(new Date(os.prazo), 'dd/MM/yyyy') : '-'}
+                        </div>
+                        <div className="flex items-center gap-1 text-xs">
+                          <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 w-16">
+                            <div 
+                              className="bg-blue-500 h-2 rounded-full"
+                              style={{ width: `${os.progresso || 0}%` }}
+                            />
+                          </div>
+                          <span className="text-slate-600 dark:text-slate-300 font-medium">{os.progresso || 0}%</span>
+                        </div>
                       </div>
                     </div>
-                  </button>
+                  </TouchGestures>
                 );
               })
             )}
