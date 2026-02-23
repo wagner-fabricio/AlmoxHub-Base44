@@ -412,142 +412,163 @@ export default function DelegacaoPermissoesPage() {
       )}
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="px-6 py-5 border-b -m-6 mb-0" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
+            <DialogTitle className="text-white">
               {editingDelegacao ? 'Editar Delegação' : 'Nova Delegação'}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Delegar para *</label>
-              <Select
-                value={formData.delegado_id}
-                onValueChange={(value) => setFormData({ ...formData, delegado_id: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a pessoa" />
-                </SelectTrigger>
-                <SelectContent>
-                  {pessoas.filter(p => p.id !== currentUserPessoa?.id).map((pessoa) => (
-                    <SelectItem key={pessoa.id} value={pessoa.id}>
-                      {pessoa.nome} - {pessoa.funcao}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          <div className="space-y-6 py-6 px-6">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                Pessoa e Funções
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Delegar para *</label>
+                  <Select
+                    value={formData.delegado_id}
+                    onValueChange={(value) => setFormData({ ...formData, delegado_id: value })}
+                  >
+                    <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg">
+                      <SelectValue placeholder="Selecione a pessoa" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {pessoas.filter(p => p.id !== currentUserPessoa?.id).map((pessoa) => (
+                        <SelectItem key={pessoa.id} value={pessoa.id}>
+                          {pessoa.nome} - {pessoa.funcao}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Funções Delegadas *</label>
+                  <div className="border border-slate-300 dark:border-slate-600 rounded-lg p-3 space-y-2">
+                    {['gestor', 'lider', 'almoxarife'].map((funcao) => (
+                      <label key={funcao} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.funcoes_delegadas.includes(funcao)}
+                          onChange={() => handleToggleFuncao(funcao)}
+                          className="rounded"
+                        />
+                        <span className="text-sm">
+                          {funcao === 'gestor' ? 'Gestor' : funcao === 'lider' ? 'Líder' : 'Almoxarife'}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div>
-              <label className="text-sm font-medium mb-2 block">Funções Delegadas *</label>
-              <div className="border rounded-lg p-3 space-y-2">
-                {['gestor', 'lider', 'almoxarife'].map((funcao) => (
-                  <label key={funcao} className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.funcoes_delegadas.includes(funcao)}
-                      onChange={() => handleToggleFuncao(funcao)}
-                      className="rounded"
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                Período e Localização
+              </h3>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Data Início *</label>
+                    <Input
+                      type="date"
+                      value={formData.data_inicio}
+                      onChange={(e) => setFormData({ ...formData, data_inicio: e.target.value })}
+                      className="border-slate-300 dark:border-slate-600 rounded-lg"
                     />
-                    <span className="text-sm">
-                      {funcao === 'gestor' ? 'Gestor' : funcao === 'lider' ? 'Líder' : 'Almoxarife'}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block">Data Início *</label>
-                <Input
-                  type="date"
-                  value={formData.data_inicio}
-                  onChange={(e) => setFormData({ ...formData, data_inicio: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">Data Término *</label>
-                <Input
-                  type="date"
-                  value={formData.data_fim}
-                  onChange={(e) => setFormData({ ...formData, data_fim: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium mb-2 block">Motivo</label>
-              <Select
-                value={formData.motivo}
-                onValueChange={(value) => setFormData({ ...formData, motivo: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o motivo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Férias">Férias</SelectItem>
-                  <SelectItem value="Afastamento">Afastamento</SelectItem>
-                  <SelectItem value="Viagem">Viagem</SelectItem>
-                  <SelectItem value="Licença">Licença</SelectItem>
-                  <SelectItem value="Outro">Outro</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium mb-2 block">Regional</label>
-              <Select
-                value={formData.regional_id}
-                onValueChange={(value) => setFormData({ ...formData, regional_id: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a regional" />
-                </SelectTrigger>
-                <SelectContent>
-                  {regionais.map((regional) => (
-                    <SelectItem key={regional.id} value={regional.id}>
-                      {regional.sigla} - {regional.descricao}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium mb-2 block">Almoxarifados</label>
-              <div className="border rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
-                {almoxarifados.map((almox) => (
-                  <label key={almox.id} className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.almoxarifados_ids.includes(almox.id)}
-                      onChange={() => handleToggleAlmoxarifado(almox.id)}
-                      className="rounded"
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Data Término *</label>
+                    <Input
+                      type="date"
+                      value={formData.data_fim}
+                      onChange={(e) => setFormData({ ...formData, data_fim: e.target.value })}
+                      className="border-slate-300 dark:border-slate-600 rounded-lg"
                     />
-                    <span className="text-sm">{almox.nome}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
+                  </div>
+                </div>
 
-            <div>
-              <label className="text-sm font-medium mb-2 block">Observações</label>
-              <Textarea
-                value={formData.observacoes}
-                onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
-                placeholder="Informações adicionais..."
-                rows={3}
-              />
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Motivo</label>
+                  <Select
+                    value={formData.motivo}
+                    onValueChange={(value) => setFormData({ ...formData, motivo: value })}
+                  >
+                    <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg">
+                      <SelectValue placeholder="Selecione o motivo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Férias">Férias</SelectItem>
+                      <SelectItem value="Afastamento">Afastamento</SelectItem>
+                      <SelectItem value="Viagem">Viagem</SelectItem>
+                      <SelectItem value="Licença">Licença</SelectItem>
+                      <SelectItem value="Outro">Outro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Regional</label>
+                  <Select
+                    value={formData.regional_id}
+                    onValueChange={(value) => setFormData({ ...formData, regional_id: value })}
+                  >
+                    <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg">
+                      <SelectValue placeholder="Selecione a regional" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {regionais.map((regional) => (
+                        <SelectItem key={regional.id} value={regional.id}>
+                          {regional.sigla} - {regional.descricao}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Almoxarifados</label>
+                  <div className="border border-slate-300 dark:border-slate-600 rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
+                    {almoxarifados.map((almox) => (
+                      <label key={almox.id} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.almoxarifados_ids.includes(almox.id)}
+                          onChange={() => handleToggleAlmoxarifado(almox.id)}
+                          className="rounded"
+                        />
+                        <span className="text-sm">{almox.nome}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Observações</label>
+                  <Textarea
+                    value={formData.observacoes}
+                    onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
+                    placeholder="Informações adicionais..."
+                    rows={3}
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+          </div>
+
+              </div>
             </div>
           </div>
 
-          <div className="flex justify-end gap-3">
+          <div className="border-t bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 px-6 py-4 flex justify-end gap-3 rounded-b-lg">
             <Button variant="outline" onClick={() => setModalOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleSave} disabled={saving}>
+            <Button onClick={handleSave} disabled={saving} style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)', color: 'white' }}>
               {saving ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />

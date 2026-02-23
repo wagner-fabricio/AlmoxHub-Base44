@@ -350,104 +350,120 @@ export default function CentrosCusto() {
       {/* Modal de Form */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{editingCC ? 'Editar' : 'Novo'} Centro de Custo</DialogTitle>
+          <DialogHeader className="px-6 py-5 border-b -m-6 mb-0" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
+            <DialogTitle className="text-white">
+              {editingCC ? 'Editar' : 'Novo'} Centro de Custo
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
-            <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-6 py-6 px-6">
+              <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                  <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                  Informações
+                </h3>
+                <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Código *</Label>
+                    <Input
+                      value={formData.codigo}
+                      onChange={(e) => setFormData({ ...formData, codigo: e.target.value })}
+                      placeholder="CC-001"
+                      required
+                      className="border-slate-300 dark:border-slate-600 rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <Label>Tipo *</Label>
+                    <Select value={formData.tipo} onValueChange={(v) => setFormData({ ...formData, tipo: v })}>
+                      <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="operacional">Operacional</SelectItem>
+                        <SelectItem value="investimento">Investimento</SelectItem>
+                        <SelectItem value="administrativo">Administrativo</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
                 <div>
-                  <Label>Código *</Label>
+                  <Label>Nome *</Label>
                   <Input
-                    value={formData.codigo}
-                    onChange={(e) => setFormData({ ...formData, codigo: e.target.value })}
-                    placeholder="CC-001"
+                    value={formData.nome}
+                    onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                    placeholder="Nome do centro de custo"
                     required
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
                   />
                 </div>
+
                 <div>
-                  <Label>Tipo *</Label>
-                  <Select value={formData.tipo} onValueChange={(v) => setFormData({ ...formData, tipo: v })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="operacional">Operacional</SelectItem>
-                      <SelectItem value="investimento">Investimento</SelectItem>
-                      <SelectItem value="administrativo">Administrativo</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>Descrição</Label>
+                  <Textarea
+                    value={formData.descricao}
+                    onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                    placeholder="Descrição detalhada..."
+                    rows={3}
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
                 </div>
-              </div>
 
-              <div>
-                <Label>Nome *</Label>
-                <Input
-                  value={formData.nome}
-                  onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                  placeholder="Nome do centro de custo"
-                  required
-                />
-              </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Regional</Label>
+                    <Select value={formData.regional_id} onValueChange={(v) => setFormData({ ...formData, regional_id: v })}>
+                      <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg">
+                        <SelectValue placeholder="Selecione..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {regionais.map(r => (
+                          <SelectItem key={r.id} value={r.id}>{r.sigla} - {r.descricao}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Gestor</Label>
+                    <Select value={formData.gestor_id} onValueChange={(v) => setFormData({ ...formData, gestor_id: v })}>
+                      <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg">
+                        <SelectValue placeholder="Selecione..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {pessoas.filter(p => p.funcoes?.includes('gestor')).map(p => (
+                          <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
-              <div>
-                <Label>Descrição</Label>
-                <Textarea
-                  value={formData.descricao}
-                  onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-                  placeholder="Descrição detalhada..."
-                  rows={3}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Regional</Label>
-                  <Select value={formData.regional_id} onValueChange={(v) => setFormData({ ...formData, regional_id: v })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {regionais.map(r => (
-                        <SelectItem key={r.id} value={r.id}>{r.sigla} - {r.descricao}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label>Orçamento Anual (R$)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={formData.orcamento_anual}
+                    onChange={(e) => setFormData({ ...formData, orcamento_anual: parseFloat(e.target.value) || 0 })}
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
                 </div>
-                <div>
-                  <Label>Gestor</Label>
-                  <Select value={formData.gestor_id} onValueChange={(v) => setFormData({ ...formData, gestor_id: v })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {pessoas.filter(p => p.funcoes?.includes('gestor')).map(p => (
-                        <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+            </div>
 
-              <div>
-                <Label>Orçamento Anual (R$)</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={formData.orcamento_anual}
-                  onChange={(e) => setFormData({ ...formData, orcamento_anual: parseFloat(e.target.value) || 0 })}
-                />
+                </div>
               </div>
             </div>
 
-            <DialogFooter>
+            <div className="border-t bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 px-6 py-4 flex justify-end gap-3 rounded-b-lg">
               <Button type="button" variant="outline" onClick={() => { setShowModal(false); resetForm(); }}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
+              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)', color: 'white' }}>
                 {editingCC ? 'Atualizar' : 'Criar'}
               </Button>
-            </DialogFooter>
+            </div>
           </form>
         </DialogContent>
       </Dialog>

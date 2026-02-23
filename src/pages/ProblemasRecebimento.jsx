@@ -232,35 +232,45 @@ export default function ProblemasRecebimento() {
       {/* Modal de Cadastro/Edição */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>
+          <DialogHeader className="px-6 py-5 border-b -m-6 mb-0" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
+            <DialogTitle className="text-white">
               {editingProblema ? 'Editar Problema' : 'Novo Problema'}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Descrição Resumida *</Label>
-              <Input
-                value={formData.descricao_resumida}
-                onChange={(e) => setFormData({ ...formData, descricao_resumida: e.target.value })}
-                placeholder="Ex: Cadastro do Pedido - Pedido não liberado"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Explicação *</Label>
-              <Textarea
-                value={formData.explicacao}
-                onChange={(e) => setFormData({ ...formData, explicacao: e.target.value })}
-                placeholder="Descreva o problema em detalhes..."
-                rows={6}
-              />
+          <div className="space-y-6 py-6 px-6">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                Informações do Problema
+              </h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Descrição Resumida *</Label>
+                  <Input
+                    value={formData.descricao_resumida}
+                    onChange={(e) => setFormData({ ...formData, descricao_resumida: e.target.value })}
+                    placeholder="Ex: Cadastro do Pedido - Pedido não liberado"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Explicação *</Label>
+                  <Textarea
+                    value={formData.explicacao}
+                    onChange={(e) => setFormData({ ...formData, explicacao: e.target.value })}
+                    placeholder="Descreva o problema em detalhes..."
+                    rows={6}
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+              </div>
             </div>
           </div>
-          <div className="flex justify-end gap-3">
+          <div className="border-t bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 px-6 py-4 flex justify-end gap-3 rounded-b-lg">
             <Button variant="outline" onClick={handleCloseModal}>
               Cancelar
             </Button>
-            <Button onClick={handleSave} disabled={saving} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={handleSave} disabled={saving} style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)', color: 'white' }}>
               {saving ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Salvando...</>
               ) : (

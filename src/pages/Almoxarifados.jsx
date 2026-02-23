@@ -499,140 +499,159 @@ export default function Almoxarifados() {
       {/* Form Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>{selectedItem ? 'Editar Almoxarifado' : 'Novo Almoxarifado'}</DialogTitle>
+          <DialogHeader className="px-6 py-5 border-b -m-6 mb-0" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
+            <DialogTitle className="text-white">
+              {selectedItem ? 'Editar Almoxarifado' : 'Novo Almoxarifado'}
+            </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Nome *</Label>
-              <Input
-                value={formData.nome}
-                onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                placeholder="Nome do almoxarifado"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Regional *</Label>
-              <Select
-                value={formData.regional_id}
-                onValueChange={(v) => setFormData({ ...formData, regional_id: v })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {regionais.map(r => (
-                    <SelectItem key={r.id} value={r.id}>{r.sigla} - {r.descricao}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Endereço</Label>
-              <Input
-                value={formData.endereco}
-                disabled
-                placeholder="Endereço completo"
-                className="bg-slate-100 dark:bg-slate-800"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Região</Label>
-              <Input
-                value={formData.regiao}
-                disabled
-                placeholder="Região"
-                className="bg-slate-100 dark:bg-slate-800"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Tipo Almoxarifado</Label>
-                <Input
-                  value={formData.tipo_almoxarifado}
-                  onChange={(e) => setFormData({ ...formData, tipo_almoxarifado: e.target.value })}
-                  placeholder="Tipo do almoxarifado"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Instalação</Label>
-                <Select
-                  value={formData.instalacao_id}
-                  onValueChange={(v) => {
-                    const instalacao = instalacoes.find(i => i.id === v);
-                    const enderecoCompleto = instalacao 
-                      ? [
-                          instalacao.logradouro,
-                          instalacao.numero,
-                          instalacao.bairro,
-                          instalacao.cidade,
-                          instalacao.estado
-                        ].filter(Boolean).join(', ')
-                      : '';
-                    setFormData({ 
-                      ...formData, 
-                      instalacao_id: v,
-                      local_negocios: instalacao?.local_negocios || '',
-                      latitude: instalacao?.latitude || '',
-                      longitude: instalacao?.longitude || '',
-                      regiao: instalacao?.regiao || '',
-                      endereco: enderecoCompleto
-                    });
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {instalacoes.map(i => (
-                      <SelectItem key={i.id} value={i.id}>{i.nome}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Local de Negócios</Label>
-                <Input
-                  type="number"
-                  value={formData.local_negocios}
-                  disabled
-                  placeholder="Número"
-                  className="bg-slate-100 dark:bg-slate-800"
-                />
+          <div className="space-y-6 py-6 px-6">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                Informações
+              </h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Nome *</Label>
+                  <Input
+                    value={formData.nome}
+                    onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                    placeholder="Nome do almoxarifado"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Regional *</Label>
+                  <Select
+                    value={formData.regional_id}
+                    onValueChange={(v) => setFormData({ ...formData, regional_id: v })}
+                  >
+                    <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg">
+                      <SelectValue placeholder="Selecione..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {regionais.map(r => (
+                        <SelectItem key={r.id} value={r.id}>{r.sigla} - {r.descricao}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Tipo Almoxarifado</Label>
+                  <Input
+                    value={formData.tipo_almoxarifado}
+                    onChange={(e) => setFormData({ ...formData, tipo_almoxarifado: e.target.value })}
+                    placeholder="Tipo do almoxarifado"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Instalação</Label>
+                  <Select
+                    value={formData.instalacao_id}
+                    onValueChange={(v) => {
+                      const instalacao = instalacoes.find(i => i.id === v);
+                      const enderecoCompleto = instalacao 
+                        ? [
+                            instalacao.logradouro,
+                            instalacao.numero,
+                            instalacao.bairro,
+                            instalacao.cidade,
+                            instalacao.estado
+                          ].filter(Boolean).join(', ')
+                        : '';
+                      setFormData({ 
+                        ...formData, 
+                        instalacao_id: v,
+                        local_negocios: instalacao?.local_negocios || '',
+                        latitude: instalacao?.latitude || '',
+                        longitude: instalacao?.longitude || '',
+                        regiao: instalacao?.regiao || '',
+                        endereco: enderecoCompleto
+                      });
+                    }}
+                  >
+                    <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg">
+                      <SelectValue placeholder="Selecione..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {instalacoes.map(i => (
+                        <SelectItem key={i.id} value={i.id}>{i.nome}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Latitude</Label>
-                <Input
-                  type="number"
-                  step="any"
-                  value={formData.latitude}
-                  disabled
-                  placeholder="-23.5505"
-                  className="bg-slate-100 dark:bg-slate-800"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Longitude</Label>
-                <Input
-                  type="number"
-                  step="any"
-                  value={formData.longitude}
-                  disabled
-                  placeholder="-46.6333"
-                  className="bg-slate-100 dark:bg-slate-800"
-                />
+
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                Dados Adicionais
+              </h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Endereço</Label>
+                  <Input
+                    value={formData.endereco}
+                    disabled
+                    placeholder="Endereço completo"
+                    className="bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Região</Label>
+                  <Input
+                    value={formData.regiao}
+                    disabled
+                    placeholder="Região"
+                    className="bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Local de Negócios</Label>
+                    <Input
+                      type="number"
+                      value={formData.local_negocios}
+                      disabled
+                      placeholder="Número"
+                      className="bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded-lg"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Latitude</Label>
+                    <Input
+                      type="number"
+                      step="any"
+                      value={formData.latitude}
+                      disabled
+                      placeholder="-23.5505"
+                      className="bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded-lg"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Longitude</Label>
+                  <Input
+                    type="number"
+                    step="any"
+                    value={formData.longitude}
+                    disabled
+                    placeholder="-46.6333"
+                    className="bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
               </div>
             </div>
           </div>
-          <DialogFooter>
+          <div className="border-t bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 px-6 py-4 flex justify-end gap-3 rounded-b-lg">
             <Button variant="outline" onClick={() => setShowModal(false)}>Cancelar</Button>
-            <Button onClick={handleSave} disabled={!formData.nome || !formData.regional_id || saving}>
+            <Button onClick={handleSave} disabled={!formData.nome || !formData.regional_id || saving} style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)', color: 'white' }}>
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Salvar
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
