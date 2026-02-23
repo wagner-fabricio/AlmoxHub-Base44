@@ -56,7 +56,7 @@ const menuItems = [
   { name: 'Delegação Permissões', icon: Shield, page: 'DelegacaoPermissoes', gestorOnly: true },
   { name: 'Problemas Recebimento', icon: Shield, page: 'ProblemasRecebimento', gestorOnly: true },
   { name: 'Documentação', icon: BookOpen, page: 'Documentacao', gestorOnly: true },
-  { name: 'Centros de Custo', icon: DollarSign, page: 'CentrosCusto', gestorOnly: true },
+
   { name: 'Fornecedores', icon: Building2, page: 'Fornecedores', gestorOnly: true },
   ];
 
@@ -337,6 +337,10 @@ export default function Layout({ children, currentPageName }) {
                   if (user?.role === 'admin') return true;
                   if (pessoa?.funcoes?.includes('gestor')) return true;
                   return false;
+                }
+                // Filtrar itens restritos a admins
+                if (item.adminOnly) {
+                  return user?.role === 'admin';
                 }
                 return true;
               }).map((item) => {

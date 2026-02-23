@@ -54,9 +54,12 @@ import Categorias from './pages/Categorias';
 import CentrosCusto from './pages/CentrosCusto';
 import ConsentimentosPage from './pages/ConsentimentosPage';
 import Dashboard from './pages/Dashboard';
+import DelegacaoPermissoes from './pages/DelegacaoPermissoes';
 import Documentacao from './pages/Documentacao';
 import EmFluxo from './pages/EmFluxo';
+import Equipes from './pages/Equipes';
 import Fornecedores from './pages/Fornecedores';
+import GestaoSolicitacoes from './pages/GestaoSolicitacoes';
 import Home from './pages/Home';
 import Instalacoes from './pages/Instalacoes';
 import Mensagens from './pages/Mensagens';
@@ -69,6 +72,7 @@ import NotificationsMobile from './pages/NotificationsMobile';
 import OrdensServico from './pages/OrdensServico';
 import PendingApproval from './pages/PendingApproval';
 import Pessoas from './pages/Pessoas';
+import PortalTitular from './pages/PortalTitular';
 import ProblemasRecebimento from './pages/ProblemasRecebimento';
 import Projetos from './pages/Projetos';
 import Regionais from './pages/Regionais';
@@ -76,10 +80,6 @@ import ThankYou from './pages/ThankYou';
 import Transportadoras from './pages/Transportadoras';
 import UserApproval from './pages/UserApproval';
 import VeiculosAxia from './pages/VeiculosAxia';
-import Equipes from './pages/Equipes';
-import DelegacaoPermissoes from './pages/DelegacaoPermissoes';
-import PortalTitular from './pages/PortalTitular';
-import GestaoSolicitacoes from './pages/GestaoSolicitacoes';
 import __Layout from './Layout.jsx';
 
 
@@ -91,9 +91,12 @@ export const PAGES = {
     "CentrosCusto": CentrosCusto,
     "ConsentimentosPage": ConsentimentosPage,
     "Dashboard": Dashboard,
+    "DelegacaoPermissoes": DelegacaoPermissoes,
     "Documentacao": Documentacao,
     "EmFluxo": EmFluxo,
+    "Equipes": Equipes,
     "Fornecedores": Fornecedores,
+    "GestaoSolicitacoes": GestaoSolicitacoes,
     "Home": Home,
     "Instalacoes": Instalacoes,
     "Mensagens": Mensagens,
@@ -106,6 +109,7 @@ export const PAGES = {
     "OrdensServico": OrdensServico,
     "PendingApproval": PendingApproval,
     "Pessoas": Pessoas,
+    "PortalTitular": PortalTitular,
     "ProblemasRecebimento": ProblemasRecebimento,
     "Projetos": Projetos,
     "Regionais": Regionais,
@@ -113,10 +117,6 @@ export const PAGES = {
     "Transportadoras": Transportadoras,
     "UserApproval": UserApproval,
     "VeiculosAxia": VeiculosAxia,
-    "Equipes": Equipes,
-    "DelegacaoPermissoes": DelegacaoPermissoes,
-    "PortalTitular": PortalTitular,
-    "GestaoSolicitacoes": GestaoSolicitacoes,
 }
 
 export const pagesConfig = {
