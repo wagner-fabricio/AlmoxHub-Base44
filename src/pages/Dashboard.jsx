@@ -79,15 +79,6 @@ export default function Dashboard() {
     loadData();
   }, []);
 
-  useEffect(() => {
-    // Atualizar categoria ao mudar de aba
-    if (activeTab === 'recebimento' && categoriaRecebimento?.id && filters.categoria !== categoriaRecebimento.id) {
-      updateFilters({ ...filters, categoria: categoriaRecebimento.id });
-    } else if (activeTab === 'expedicao' && categoriaExpedicao?.id && filters.categoria !== categoriaExpedicao.id) {
-      updateFilters({ ...filters, categoria: categoriaExpedicao.id });
-    }
-  }, [activeTab, categoriaRecebimento?.id, categoriaExpedicao?.id]);
-
   const loadData = async () => {
     setLoading(true);
     try {
