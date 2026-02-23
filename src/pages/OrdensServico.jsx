@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Plus, Loader2, Maximize2, Minimize2 } from 'lucide-react';
+import ExportOSButton from '@/components/os/ExportOSButton';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import OSFilters from '@/components/os/OSFilters.jsx';
 import OSKanban from '@/components/os/OSKanban.jsx';
@@ -541,6 +542,15 @@ export default function OrdensServico() {
           <p className="text-slate-500 dark:text-slate-400 mt-1">Gerencie as OS do almoxarifado</p>
         </div>
         <div className="flex gap-2">
+          <ExportOSButton
+            ordens={filteredOrdens}
+            pessoas={pessoas}
+            categorias={categorias}
+            regionais={regionais}
+            almoxarifados={almoxarifados}
+            instalacoes={instalacoes}
+            subcategorias={subcategorias}
+          />
           <Button 
             onClick={() => setFullscreenMode(true)} 
             variant="outline"
