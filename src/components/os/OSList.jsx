@@ -129,6 +129,9 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
       } else if (sortConfig.column === 'prazo') {
         aValue = a.prazo ? new Date(a.prazo).getTime() : 0;
         bValue = b.prazo ? new Date(b.prazo).getTime() : 0;
+      } else if (sortConfig.column === 'data_conclusao') {
+        aValue = a.data_conclusao ? new Date(a.data_conclusao).getTime() : 0;
+        bValue = b.data_conclusao ? new Date(b.data_conclusao).getTime() : 0;
       } else if (sortConfig.column === 'tempo_decorrido') {
         const aDays = a.data_inicial && a.prazo ? differenceInDays(new Date(a.prazo), new Date(a.data_inicial)) : 0;
         const bDays = b.data_inicial && b.prazo ? differenceInDays(new Date(b.prazo), new Date(b.data_inicial)) : 0;
@@ -362,6 +365,23 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
             </TableHead>
             <TableHead className="font-semibold">
               <button
+                onClick={() => handleSort('data_conclusao')}
+                className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+              >
+                Data Conclusão
+                {sortConfig.column === 'data_conclusao' ? (
+                  sortConfig.direction === 'asc' ? (
+                    <ArrowUp className="w-4 h-4" />
+                  ) : (
+                    <ArrowDown className="w-4 h-4" />
+                  )
+                ) : (
+                  <ArrowUpDown className="w-4 h-4 opacity-30" />
+                )}
+              </button>
+            </TableHead>
+            <TableHead className="font-semibold">
+              <button
                 onClick={() => handleSort('tempo_decorrido')}
                 className="flex items-center gap-1 hover:text-blue-600 transition-colors"
               >
@@ -542,6 +562,11 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
                 <TableCell>
                   <span className="text-sm text-slate-600 dark:text-slate-400">
                     {os.prazo ? format(new Date(os.prazo), 'dd/MM/yyyy', { locale: ptBR }) : '-'}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <span className="text-sm text-slate-600 dark:text-slate-400">
+                    {os.data_conclusao ? format(new Date(os.data_conclusao), 'dd/MM/yyyy', { locale: ptBR }) : '-'}
                   </span>
                 </TableCell>
                 <TableCell>
