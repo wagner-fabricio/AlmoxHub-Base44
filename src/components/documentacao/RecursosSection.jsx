@@ -114,7 +114,14 @@ export default function RecursosSection() {
         'Resultados mensais: OS, Itens, Valores (no prazo vs fora do prazo)',
         'Problemas de recebimento por regional',
         'Filtros persistidos por usuário (filtros_preferidos)',
-        'Insights automáticos (DashboardInsights component)'
+        'Insights automáticos (DashboardInsights component)',
+        '✨ Exportação de PDF profissional (KPIs, gráficos, tabelas)',
+        '✨ Configuração de seções para exportar (KPIs, Gráficos)',
+        '✨ Orientação configurável (retrato/paisagem)',
+        '✨ Dashboard customizável (show/hide widgets)',
+        '✨ 8 widgets disponíveis: KPIs, Insights, KPIs Secundários, Esforço, Regionais, Status, Categorias, Almoxarifados',
+        '✨ Persistência de configuração por usuário (dashboard_visible_widgets)',
+        '✨ Botão resetar para configuração padrão'
       ],
       permissoes: {
         admin: 'Acesso total incluindo Torre de Controle',
