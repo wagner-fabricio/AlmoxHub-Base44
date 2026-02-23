@@ -351,39 +351,46 @@ export default function StatusRecursosSection() {
           <div className="space-y-4">
             <div className="p-4 bg-white dark:bg-slate-800 rounded-lg">
               <h4 className="font-semibold text-purple-900 dark:text-purple-200 mb-2">
-                🚀 Sprint 1-2 (Alta Prioridade)
+                🚀 Sprint 1-2 (Alta Prioridade - Segurança)
               </h4>
               <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
-                <li>• SSO corporativo (Azure AD/Okta)</li>
-                <li>• WAF via Cloudflare</li>
-                <li>• Timeout de sessão (15min)</li>
-                <li>• Headers HTTP seguros (CSP)</li>
+                <li>• Timeout de sessão (15min) - 2-3 dias</li>
+                <li>• Headers HTTP seguros (CSP) - 1 dia</li>
+                <li>• Centros de Custo - 1-2 dias</li>
+                <li>• Anexos em mensagens - 2-3 dias</li>
               </ul>
             </div>
 
             <div className="p-4 bg-white dark:bg-slate-800 rounded-lg">
               <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">
-                📋 Sprint 3-4 (Média Prioridade)
+                📋 Sprint 3-4 (LGPD & Cadastros)
               </h4>
               <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
-                <li>• Portal do titular LGPD</li>
-                <li>• Integração SIEM Eletrobras</li>
-                <li>• Exportação avançada PDF/Excel</li>
-                <li>• Anexos em mensagens</li>
+                <li>• Privacy by Design (doc) - 2 dias</li>
+                <li>• RIPD - 5-7 dias</li>
+                <li>• Fornecedores - 1-2 dias</li>
+                <li>• Consentimento explícito - 3-5 dias</li>
+                <li>• Alertas configuráveis - 3-5 dias</li>
               </ul>
             </div>
 
             <div className="p-4 bg-white dark:bg-slate-800 rounded-lg">
               <h4 className="font-semibold text-green-900 dark:text-green-200 mb-2">
-                🎯 Sprint 5-6 (Features)
+                🎯 Sprint 5-6 (LGPD Avançado & UX)
               </h4>
               <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
+                <li>• Portal do titular - 7-10 dias</li>
+                <li>• Anonimização de dados - 5-7 dias</li>
+                <li>• Touch gestures avançados - 2-3 dias</li>
                 <li>• Templates de OS</li>
                 <li>• Recorrência de OS</li>
-                <li>• Dashboard com drag & drop (react-grid-layout)</li>
-                <li>• Integração SAP automática</li>
-                <li>• Exportação de gráficos em PDF (html2canvas)</li>
               </ul>
+            </div>
+
+            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <p className="text-sm text-blue-900 dark:text-blue-200">
+                💡 <strong>Plano detalhado disponível:</strong> Acesse a aba "Implementação" na Documentação para ver o roadmap completo com etapas, stack técnico e critérios de aceitação.
+              </p>
             </div>
           </div>
         </CardContent>
