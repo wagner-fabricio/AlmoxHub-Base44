@@ -148,6 +148,11 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
       } else if (sortConfig.column === 'progresso') {
         aValue = a.progresso || 0;
         bValue = b.progresso || 0;
+      } else if (sortConfig.column === 'tempo_decorrido') {
+        const aDataFinal = a.status === 'concluido' ? (a.data_conclusao || a.prazo) : new Date().toISOString().split('T')[0];
+        const bDataFinal = b.status === 'concluido' ? (b.data_conclusao || b.prazo) : new Date().toISOString().split('T')[0];
+        aValue = a.data_inicial && aDataFinal ? differenceInDays(new Date(aDataFinal), new Date(a.data_inicial)) : 0;
+        bValue = b.data_inicial && bDataFinal ? differenceInDays(new Date(bDataFinal), new Date(b.data_inicial)) : 0;
       }
       
       if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
@@ -580,12 +585,30 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-2">
-                    <StatusIcon className={`w-4 h-4 ${statusConfig[os.status]?.color}`} />
-                    <span className="text-sm">{statusConfig[os.status]?.label}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-right">
+                   <div className="flex items-center gap-2">
+                     <StatusIcon className={`w-4 h-4 ${statusConfig[os.status]?.color}`} />
+                     <span className="text-sm">{statusConfig[os.status]?.label}</span>
+                   </div>
+                 </TableCell>
+                 <TableCell>
+                   <span className="text-sm text-slate-600 dark:text-slate-400">
+                     {(() => {
+                       let dataFinal;
+                       if (os.status === 'concluido') {
+                         dataFinal = os.data_conclusao || os.prazo;
+                       } else {
+                         dataFinal = new Date().toISOString().split('T')[0];
+                       }
+
+                       if (os.data_inicial && dataFinal) {
+                         const dias = differenceInDays(new Date(dataFinal), new Date(os.data_inicial));
+                         return `${dias} dia${dias !== 1 ? 's' : ''}`;
+                       }
+                       return '-';
+                     })()}
+                   </span>
+                 </TableCell>
+                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">
                     <div className="w-20 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                       <div 
