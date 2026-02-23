@@ -409,7 +409,14 @@ export default function EquipesPage() {
             <div>
               <label className="text-sm font-medium mb-2 block">Membros da Equipe</label>
               <div className="border rounded-lg p-3 max-h-60 overflow-y-auto space-y-2">
-                {pessoas.map((pessoa) => (
+                {pessoas
+                  .filter(p => {
+                    if (!formData.almoxarifados_ids.length) return true;
+                    return formData.almoxarifados_ids.some(almoxId =>
+                      p.almoxarifados_ids?.includes(almoxId)
+                    );
+                  })
+                  .map((pessoa) => (
                   <label key={pessoa.id} className="flex items-center gap-2 cursor-pointer p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded">
                     <input
                       type="checkbox"
