@@ -342,29 +342,10 @@ export default function EquipesPage() {
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Líder *</label>
-              <Select
-                value={formData.lider_id}
-                onValueChange={(value) => setFormData({ ...formData, lider_id: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o líder" />
-                </SelectTrigger>
-                <SelectContent>
-                  {pessoas.filter(p => p.funcoes?.includes('lider') || p.funcoes?.includes('gestor')).map((pessoa) => (
-                    <SelectItem key={pessoa.id} value={pessoa.id}>
-                      {pessoa.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
               <label className="text-sm font-medium mb-2 block">Regional</label>
               <Select
                 value={formData.regional_id}
-                onValueChange={(value) => setFormData({ ...formData, regional_id: value })}
+                onValueChange={(value) => setFormData({ ...formData, regional_id: value, almoxarifados_ids: [] })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione a regional" />
@@ -382,7 +363,9 @@ export default function EquipesPage() {
             <div>
               <label className="text-sm font-medium mb-2 block">Almoxarifados</label>
               <div className="border rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
-                {almoxarifados.map((almox) => (
+                {almoxarifados
+                  .filter(almox => !formData.regional_id || almox.regional_id === formData.regional_id)
+                  .map((almox) => (
                   <label key={almox.id} className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
@@ -394,6 +377,33 @@ export default function EquipesPage() {
                   </label>
                 ))}
               </div>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">Líder *</label>
+              <Select
+                value={formData.lider_id}
+                onValueChange={(value) => setFormData({ ...formData, lider_id: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o líder" />
+                </SelectTrigger>
+                <SelectContent>
+                  {pessoas
+                    .filter(p => {
+                      const hasFuncao = p.funcoes?.includes('lider') || p.funcoes?.includes('gestor');
+                      if (!formData.almoxarifados_ids.length) return hasFuncao;
+                      return hasFuncao && formData.almoxarifados_ids.some(almoxId =>
+                        p.almoxarifados_ids?.includes(almoxId)
+                      );
+                    })
+                    .map((pessoa) => (
+                    <SelectItem key={pessoa.id} value={pessoa.id}>
+                      {pessoa.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
