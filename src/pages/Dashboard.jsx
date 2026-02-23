@@ -13,6 +13,8 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import DashboardInsights from '@/components/dashboard/DashboardInsights';
 import OSPorPessoaChart from '@/components/dashboard/OSPorPessoaChart';
+import ExportDashboardButton from '@/components/dashboard/ExportDashboardButton';
+import DashboardCustomizer from '@/components/dashboard/DashboardCustomizer';
 
 const COLORS = ['#0000FF', '#FF6B00', '#10B981', '#A0B4D2', '#0A003C', '#EC4899'];
 
@@ -106,6 +108,12 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const isWidgetVisible = (widgetId) => {
+    const saved = currentUser?.dashboard_visible_widgets;
+    if (!saved || !Array.isArray(saved)) return true;
+    return saved.includes(widgetId);
   };
 
   // Filter data
@@ -394,6 +402,34 @@ export default function Dashboard() {
             <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">Dashboard</h1>
             <p className="text-slate-500 dark:text-slate-400 mt-1">Visão geral das operações</p>
           </div>
+          <div className="flex gap-2">
+            <ExportDashboardButton 
+              dashboardData={{
+                kpis: {
+                  totalOS,
+                  percTotalOS,
+                  emExecucao: osEmExecucao,
+                  percExecucao,
+                  concluidas: osConcluidas,
+                  percConcluidas,
+                  avgProgress,
+                  percProgress
+                },
+                charts: {
+                  osByRegional,
+                  osByCategoria,
+                  osByStatus
+                }
+              }}
+              filters={filters}
+              regionais={regionais}
+              categorias={categorias}
+            />
+            <DashboardCustomizer 
+              currentUser={currentUser}
+              onUpdate={loadData}
+            />
+          </div>
         </div>
         
         {/* Filtros - Mobile First */}
@@ -543,6 +579,7 @@ export default function Dashboard() {
         {/* ABA GERAL */}
         <TabsContent value="geral" className="mt-6 space-y-8">
       {/* KPI Cards - Cores Axia */}
+      {isWidgetVisible('kpis') && (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="border-0 shadow-lg" style={{ background: 'linear-gradient(135deg, #0000FF 0%, #0A003C 100%)' }}>
           <CardContent className="p-6">
@@ -642,11 +679,15 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+      )}
 
       {/* Observações Section */}
-      <DashboardInsights ordens={filteredOrdens} pessoas={[]} categorias={categorias} />
+      {isWidgetVisible('insights') && (
+        <DashboardInsights ordens={filteredOrdens} pessoas={[]} categorias={categorias} />
+      )}
 
       {/* Secondary KPIs */}
+      {isWidgetVisible('kpis-secondary') && (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card className="bg-white dark:bg-slate-800">
           <CardContent className="p-6">
@@ -693,8 +734,10 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+      )}
 
       {/* Gráfico de Esforço por Pessoa */}
+      {isWidgetVisible('esforco-pessoa') && (
       <Card className="bg-white dark:bg-slate-800">
         <CardHeader>
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
@@ -711,10 +754,12 @@ export default function Dashboard() {
           />
         </CardContent>
       </Card>
+      )}
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* OS by Regional */}
+        {isWidgetVisible('os-regional') && (
         <Card className="bg-white dark:bg-slate-800">
           <CardHeader>
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
@@ -754,8 +799,10 @@ export default function Dashboard() {
             )}
           </CardContent>
         </Card>
+        )}
 
         {/* OS by Status */}
+        {isWidgetVisible('os-status') && (
         <Card className="bg-white dark:bg-slate-800">
           <CardHeader>
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
@@ -792,11 +839,13 @@ export default function Dashboard() {
             )}
           </CardContent>
         </Card>
+        )}
       </div>
 
       {/* More Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* OS by Category */}
+        {isWidgetVisible('os-categoria') && (
         <Card className="bg-white dark:bg-slate-800">
           <CardHeader>
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
@@ -822,8 +871,10 @@ export default function Dashboard() {
             )}
           </CardContent>
         </Card>
+        )}
 
         {/* Top Almoxarifados */}
+        {isWidgetVisible('top-almoxarifados') && (
         <Card className="bg-white dark:bg-slate-800">
           <CardHeader>
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
@@ -869,6 +920,7 @@ export default function Dashboard() {
             )}
           </CardContent>
         </Card>
+        )}
       </div>
         </TabsContent>
 
