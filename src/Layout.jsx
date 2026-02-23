@@ -261,7 +261,6 @@ export default function Layout({ children, currentPageName }) {
           --input: 217 33% 20%;
         }
       `}</style>
-      <meta httpEquiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https: blob:; font-src 'self' data: https:; connect-src 'self' https:; frame-src 'self' https:;" />
       
       <div className="flex h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden">
         {/* Sidebar Mobile Overlay */}
