@@ -558,8 +558,6 @@ export default function DelegacaoPermissoesPage() {
                     className="border-slate-300 dark:border-slate-600 rounded-lg"
                   />
                 </div>
-          </div>
-
               </div>
             </div>
           </div>
