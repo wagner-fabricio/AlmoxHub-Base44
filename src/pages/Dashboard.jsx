@@ -1244,9 +1244,6 @@ export default function Dashboard() {
             filteredOrdens={filteredOrdens}
             tempoMedioRegularizacaoCompra={tempoMedioRegularizacaoCompra}
             numItensNFCompra={numItensNFCompra}
-            categorias={categorias}
-            regionais={regionais}
-            problemasRecebimento={problemasRecebimento}
           />
               </TabsContent>
 
