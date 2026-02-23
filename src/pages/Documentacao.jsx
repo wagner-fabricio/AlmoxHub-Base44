@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BookOpen, Code, Workflow, CheckSquare, Settings, Shield } from 'lucide-react';
-import ArquiteturaSection from '@/components/documentacao/ArquiteturaSection';
-import RecursosSection from '@/components/documentacao/RecursosSection';
-import StatusRecursosSection from '@/components/documentacao/StatusRecursosSection';
-import ImplementacaoSection from '@/components/documentacao/ImplementacaoSection';
-import OperacoesSection from '@/components/documentacao/OperacoesSection';
-import SegurancaSection from '@/components/documentacao/SegurancaSection';
+import ArquiteturaSection from '@/components/documentacao/ArquiteturaSection.js';
+import RecursosSection from '@/components/documentacao/RecursosSection.js';
+import StatusRecursosSection from '@/components/documentacao/StatusRecursosSection.js';
+import ImplementacaoSection from '@/components/documentacao/ImplementacaoSection.js';
+import OperacoesSection from '@/components/documentacao/OperacoesSection.js';
+import SegurancaSection from '@/components/documentacao/SegurancaSection.js';
 
 export default function Documentacao() {
   const [activeTab, setActiveTab] = useState('arquitetura');
