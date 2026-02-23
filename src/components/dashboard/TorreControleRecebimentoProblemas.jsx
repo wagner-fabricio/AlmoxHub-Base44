@@ -44,8 +44,8 @@ export default function TorreControleRecebimentoProblemas({
           problemasContagem[problema.nome] = (problemasContagem[problema.nome] || 0) + 1;
         }
       });
-    } else if (os.resumo_pendencias) {
-      // Se não houver IDs específicos mas houver resumo_pendencias, usar como categoria genérica
+    } else {
+      // Se não houver IDs específicos, contar como pendência genérica
       const categoria = 'Pendências Não Especificadas';
       problemasContagem[categoria] = (problemasContagem[categoria] || 0) + 1;
     }
