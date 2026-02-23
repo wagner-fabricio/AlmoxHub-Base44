@@ -28,7 +28,8 @@ import {
   Camera,
   Image as ImageIcon,
   Upload,
-  Plus
+  Plus,
+  Download
 } from 'lucide-react';
 import { format, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -78,10 +79,13 @@ export default function OSMobileDetail({
   const [wmsMode, setWmsMode] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [selectedCommentFiles, setSelectedCommentFiles] = useState([]);
+  const [uploadingCommentFiles, setUploadingCommentFiles] = useState(false);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
   const commentInputRef = useRef(null);
+  const commentFileInputRef = useRef(null);
   const scrollContainerRef = useRef(null);
 
   const categoria = categorias.find(c => c.id === os.categoria_id);
@@ -207,17 +211,45 @@ export default function OSMobileDetail({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleCommentFileSelect = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setSelectedCommentFiles(files.slice(0, 5));
+    }
+  };
+
+  const handleRemoveCommentFile = (index) => {
+    setSelectedCommentFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleAddComment = async () => {
-    if (!newComment.trim() || !currentUserPessoa) return;
+    const textoLimpo = newComment.trim();
+    if (!textoLimpo && selectedCommentFiles.length === 0) return;
+    if (!currentUserPessoa) return;
     
     setLoadingComment(true);
+    setUploadingCommentFiles(true);
     try {
+      let anexos = [];
+      if (selectedCommentFiles.length > 0) {
+        for (const file of selectedCommentFiles) {
+          const { file_url } = await base44.integrations.Core.UploadFile({ file });
+          anexos.push({
+            file_url,
+            file_name: file.name,
+            file_type: file.type,
+            file_size: file.size
+          });
+        }
+      }
+
       const comentario = await base44.entities.Comentario.create({
         ordem_servico_id: os.id,
-        conteudo: newComment,
+        conteudo: textoLimpo || ' ',
         autor_nome: currentUser?.full_name || 'Usuário',
         autor_id: currentUserPessoa.id,
         mencoes_ids: mentionedIds,
+        anexos: anexos,
         is_deleted: false,
         is_edited: false
       });
@@ -257,11 +289,13 @@ export default function OSMobileDetail({
       
       setNewComment('');
       setMentionedIds([]);
+      setSelectedCommentFiles([]);
       loadComentarios();
     } catch (e) {
       console.error('Error adding comment:', e);
     } finally {
       setLoadingComment(false);
+      setUploadingCommentFiles(false);
     }
   };
 
@@ -964,9 +998,31 @@ export default function OSMobileDetail({
                           {comment.is_deleted ? (
                             <p className="italic text-slate-400">Mensagem removida</p>
                           ) : (
-                            <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
-                              {comment.conteudo}
-                            </p>
+                            <>
+                              <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                                {comment.conteudo}
+                              </p>
+                              {comment.anexos && comment.anexos.length > 0 && (
+                                <div className="mt-2 space-y-1">
+                                  {comment.anexos.map((anexo, idx) => (
+                                    <a
+                                      key={idx}
+                                      href={anexo.file_url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className={`flex items-center gap-2 px-2 py-1 rounded text-xs ${
+                                        isOwnMessage 
+                                          ? 'bg-blue-700 hover:bg-blue-600' 
+                                          : 'bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600'
+                                      }`}
+                                    >
+                                      <Download className="w-3 h-3" />
+                                      <span className="truncate max-w-[180px]">{anexo.file_name}</span>
+                                    </a>
+                                  ))}
+                                </div>
+                              )}
+                            </>
                           )}
                         </div>
                         
@@ -983,7 +1039,40 @@ export default function OSMobileDetail({
 
             {/* Fixed Input at Bottom */}
             <div className="border-t border-slate-200 dark:border-slate-700 pt-3 mt-3 bg-white dark:bg-slate-900">
+              {selectedCommentFiles.length > 0 && (
+                <div className="mb-3 flex flex-wrap gap-2">
+                  {selectedCommentFiles.map((file, index) => (
+                    <div key={index} className="flex items-center gap-2 bg-slate-100 dark:bg-slate-700 px-3 py-2 rounded-lg">
+                      <Paperclip className="w-4 h-4" />
+                      <span className="text-sm truncate max-w-[120px]">{file.name}</span>
+                      <button
+                        onClick={() => handleRemoveCommentFile(index)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div className="flex gap-2">
+                <input
+                  ref={commentFileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+                  onChange={handleCommentFileSelect}
+                  className="hidden"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => commentFileInputRef.current?.click()}
+                  disabled={uploadingCommentFiles}
+                  className="rounded-full shrink-0 bg-white dark:bg-slate-800"
+                >
+                  <Paperclip className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+                </Button>
                 <MentionInput
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
@@ -1001,12 +1090,12 @@ export default function OSMobileDetail({
                 />
                 <Button
                   onClick={handleAddComment}
-                  disabled={!newComment.trim() || loadingComment || !currentUserPessoa}
+                  disabled={(!newComment.trim() && selectedCommentFiles.length === 0) || loadingComment || uploadingCommentFiles || !currentUserPessoa}
                   size="icon"
                   className="rounded-full shrink-0"
                   style={{ backgroundColor: '#0000FF' }}
                 >
-                  {loadingComment ? (
+                  {loadingComment || uploadingCommentFiles ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
                     <Send className="w-5 h-5" />
