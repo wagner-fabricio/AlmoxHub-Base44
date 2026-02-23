@@ -257,6 +257,7 @@ export default function OSFormModal({
         orgao: '',
         data_migo: '',
         num_migo: '',
+        data_conclusao: '',
         vinculacao: '',
         instalacao_origem_id: '',
         instalacao_destino_id: '',
