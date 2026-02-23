@@ -373,133 +373,165 @@ export default function Fornecedores() {
       {/* Modal de Form */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editingFornecedor ? 'Editar' : 'Novo'} Fornecedor</DialogTitle>
+          <DialogHeader className="px-6 py-5 border-b -m-6 mb-0" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
+            <DialogTitle className="text-white">
+              {editingFornecedor ? 'Editar' : 'Novo'} Fornecedor
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
-            <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Razão Social *</Label>
-                  <Input
-                    value={formData.razao_social}
-                    onChange={(e) => setFormData({ ...formData, razao_social: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label>Nome Fantasia</Label>
-                  <Input
-                    value={formData.nome_fantasia}
-                    onChange={(e) => setFormData({ ...formData, nome_fantasia: e.target.value })}
-                  />
-                </div>
-              </div>
+            <div className="space-y-6 py-6 px-6">
+              <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                  <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                  Dados Principais
+                </h3>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Razão Social *</Label>
+                      <Input
+                        value={formData.razao_social}
+                        onChange={(e) => setFormData({ ...formData, razao_social: e.target.value })}
+                        required
+                        className="border-slate-300 dark:border-slate-600 rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <Label>Nome Fantasia</Label>
+                      <Input
+                        value={formData.nome_fantasia}
+                        onChange={(e) => setFormData({ ...formData, nome_fantasia: e.target.value })}
+                        className="border-slate-300 dark:border-slate-600 rounded-lg"
+                      />
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label>CNPJ *</Label>
-                  <Input
-                    value={formData.cnpj}
-                    onChange={(e) => setFormData({ ...formData, cnpj: e.target.value })}
-                    placeholder="00.000.000/0000-00"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label>Inscrição Estadual</Label>
-                  <Input
-                    value={formData.inscricao_estadual}
-                    onChange={(e) => setFormData({ ...formData, inscricao_estadual: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label>Código SAP</Label>
-                  <Input
-                    value={formData.codigo_sap}
-                    onChange={(e) => setFormData({ ...formData, codigo_sap: e.target.value })}
-                  />
-                </div>
-              </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <Label>CNPJ *</Label>
+                      <Input
+                        value={formData.cnpj}
+                        onChange={(e) => setFormData({ ...formData, cnpj: e.target.value })}
+                        placeholder="00.000.000/0000-00"
+                        required
+                        className="border-slate-300 dark:border-slate-600 rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <Label>Inscrição Estadual</Label>
+                      <Input
+                        value={formData.inscricao_estadual}
+                        onChange={(e) => setFormData({ ...formData, inscricao_estadual: e.target.value })}
+                        className="border-slate-300 dark:border-slate-600 rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <Label>Código SAP</Label>
+                      <Input
+                        value={formData.codigo_sap}
+                        onChange={(e) => setFormData({ ...formData, codigo_sap: e.target.value })}
+                        className="border-slate-300 dark:border-slate-600 rounded-lg"
+                      />
+                    </div>
+                  </div>
 
-              <div>
-                <Label>Categoria *</Label>
-                <Select value={formData.categoria} onValueChange={(v) => setFormData({ ...formData, categoria: v })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="materiais">Materiais</SelectItem>
-                    <SelectItem value="servicos">Serviços</SelectItem>
-                    <SelectItem value="transporte">Transporte</SelectItem>
-                    <SelectItem value="equipamentos">Equipamentos</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="border-t pt-4">
-                <h4 className="font-medium mb-3">Endereço</h4>
-                <div className="grid grid-cols-4 gap-4">
-                  <div className="col-span-3">
-                    <Label>Logradouro</Label>
-                    <Input
-                      value={formData.endereco.logradouro}
-                      onChange={(e) => setFormData({ ...formData, endereco: { ...formData.endereco, logradouro: e.target.value }})}
-                    />
-                  </div>
                   <div>
-                    <Label>Número</Label>
-                    <Input
-                      value={formData.endereco.numero}
-                      onChange={(e) => setFormData({ ...formData, endereco: { ...formData.endereco, numero: e.target.value }})}
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-4 mt-3">
-                  <div>
-                    <Label>Bairro</Label>
-                    <Input
-                      value={formData.endereco.bairro}
-                      onChange={(e) => setFormData({ ...formData, endereco: { ...formData.endereco, bairro: e.target.value }})}
-                    />
-                  </div>
-                  <div>
-                    <Label>Cidade</Label>
-                    <Input
-                      value={formData.endereco.cidade}
-                      onChange={(e) => setFormData({ ...formData, endereco: { ...formData.endereco, cidade: e.target.value }})}
-                    />
-                  </div>
-                  <div>
-                    <Label>Estado</Label>
-                    <Input
-                      value={formData.endereco.estado}
-                      onChange={(e) => setFormData({ ...formData, endereco: { ...formData.endereco, estado: e.target.value }})}
-                      placeholder="UF"
-                      maxLength={2}
-                    />
+                    <Label>Categoria *</Label>
+                    <Select value={formData.categoria} onValueChange={(v) => setFormData({ ...formData, categoria: v })}>
+                      <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="materiais">Materiais</SelectItem>
+                        <SelectItem value="servicos">Serviços</SelectItem>
+                        <SelectItem value="transporte">Transporte</SelectItem>
+                        <SelectItem value="equipamentos">Equipamentos</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>
 
-              <div>
-                <Label>Observações</Label>
-                <Textarea
-                  value={formData.observacoes}
-                  onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
-                  rows={3}
-                />
+              <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                  <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                  Endereço
+                </h3>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-4 gap-4">
+                    <div className="col-span-3">
+                      <Label>Logradouro</Label>
+                      <Input
+                        value={formData.endereco.logradouro}
+                        onChange={(e) => setFormData({ ...formData, endereco: { ...formData.endereco, logradouro: e.target.value }})}
+                        className="border-slate-300 dark:border-slate-600 rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <Label>Número</Label>
+                      <Input
+                        value={formData.endereco.numero}
+                        onChange={(e) => setFormData({ ...formData, endereco: { ...formData.endereco, numero: e.target.value }})}
+                        className="border-slate-300 dark:border-slate-600 rounded-lg"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <Label>Bairro</Label>
+                      <Input
+                        value={formData.endereco.bairro}
+                        onChange={(e) => setFormData({ ...formData, endereco: { ...formData.endereco, bairro: e.target.value }})}
+                        className="border-slate-300 dark:border-slate-600 rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <Label>Cidade</Label>
+                      <Input
+                        value={formData.endereco.cidade}
+                        onChange={(e) => setFormData({ ...formData, endereco: { ...formData.endereco, cidade: e.target.value }})}
+                        className="border-slate-300 dark:border-slate-600 rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <Label>Estado</Label>
+                      <Input
+                        value={formData.endereco.estado}
+                        onChange={(e) => setFormData({ ...formData, endereco: { ...formData.endereco, estado: e.target.value }})}
+                        placeholder="UF"
+                        maxLength={2}
+                        className="border-slate-300 dark:border-slate-600 rounded-lg"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                  <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                  Observações
+                </h3>
+                <div>
+                  <Label>Observações</Label>
+                  <Textarea
+                    value={formData.observacoes}
+                    onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
+                    rows={3}
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
               </div>
             </div>
 
-            <DialogFooter>
+            <div className="border-t bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 px-6 py-4 flex justify-end gap-3 rounded-b-lg">
               <Button type="button" variant="outline" onClick={() => { setShowModal(false); resetForm(); }}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
+              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)', color: 'white' }}>
                 {editingFornecedor ? 'Atualizar' : 'Criar'}
               </Button>
-            </DialogFooter>
+            </div>
           </form>
         </DialogContent>
       </Dialog>
