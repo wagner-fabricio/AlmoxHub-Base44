@@ -262,9 +262,9 @@ export default function Dashboard() {
         return sum + dias;
       }, 0) / osConcluidasComData.length)
     : 0;
-  
-  // KPIs Recebimento
-  const osRecebimento = filteredOrdens.filter(os => os.categoria_id === categoriaRecebimento?.id);
+
+    // KPIs Recebimento
+    const osRecebimento = filteredOrdens.filter(os => os.categoria_id === categoriaRecebimento?.id);
 
   const numItensNFCompra = filteredOrdens.reduce((sum, os) => {
     return sum + (os.itens_documento?.length || 0) + (os.nfe_itens_conferencia?.length || 0);
