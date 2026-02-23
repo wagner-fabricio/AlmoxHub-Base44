@@ -995,38 +995,39 @@ export default function OSFormModal({
                     Atribuição e Responsáveis
                   </h3>
                   
+                  {/* Seleção de Equipe */}
+                  <div className="space-y-2 mb-6">
+                    <Label className="text-slate-700 dark:text-slate-300 font-medium">Equipe (Opcional)</Label>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                      Selecione uma equipe para preencher automaticamente líder e executores
+                    </p>
+                    <Select
+                      value=""
+                      onValueChange={(equipeId) => {
+                        const equipe = equipes.find(e => e.id === equipeId);
+                        if (equipe) {
+                          setFormData(prev => ({
+                            ...prev,
+                            lider_id: equipe.lider_id,
+                            executores_ids: equipe.membros_ids || []
+                          }));
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600">
+                        <SelectValue placeholder="Selecione uma equipe..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {equipes.map(e => (
+                          <SelectItem key={e.id} value={e.id}>
+                            {e.nome} ({e.membros_ids?.length || 0} membros)
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    {/* Seleção de Equipe */}
-                    <div className="space-y-2 md:col-span-2">
-                      <Label className="text-slate-700 dark:text-slate-300 font-medium">Equipe (Opcional)</Label>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
-                        Selecione uma equipe para preencher automaticamente líder e executores
-                      </p>
-                      <Select
-                        value=""
-                        onValueChange={(equipeId) => {
-                          const equipe = equipes.find(e => e.id === equipeId);
-                          if (equipe) {
-                            setFormData(prev => ({
-                              ...prev,
-                              lider_id: equipe.lider_id,
-                              executores_ids: equipe.membros_ids || []
-                            }));
-                          }
-                        }}
-                      >
-                        <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600">
-                          <SelectValue placeholder="Selecione uma equipe..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {equipes.map(e => (
-                            <SelectItem key={e.id} value={e.id}>
-                              {e.nome} ({e.membros_ids?.length || 0} membros)
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
                     {/* Almoxarifado */}
                     <div className="space-y-2">
                       <Label className="text-slate-700 dark:text-slate-300 font-medium">Almoxarifado *</Label>
