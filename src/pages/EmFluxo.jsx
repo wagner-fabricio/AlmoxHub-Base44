@@ -31,6 +31,7 @@ import ProjetoMobileDetail from '@/components/projetos/ProjetoMobileDetail';
 import OSFormModal from '@/components/os/OSFormModal';
 import EmFluxoInsights from '@/components/emfluxo/EmFluxoInsights';
 import MeuDesempenhoMobile from '@/components/emfluxo/MeuDesempenhoMobile';
+import TouchGestures from '@/components/emfluxo/TouchGestures';
 
 const statusConfig = {
   elaboracao: { icon: Clock, color: 'bg-slate-500', label: 'Em Elaboração' },
@@ -592,12 +593,16 @@ export default function EmFluxo() {
                 const StatusIcon = statusConfig[os.status]?.icon || Clock;
 
                 return (
-                  <button
+                  <TouchGestures
                     key={os.id}
-                    onClick={() => handleOpenOS(os)}
-                    className="w-full bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-md border-l-4 text-left transition-all active:scale-95"
-                    style={{ borderLeftColor: categoria?.cor || '#3b82f6' }}
+                    onSwipeRight={() => handleOpenOS(os)}
+                    onLongPress={() => handleOpenOS(os)}
                   >
+                    <button
+                      onClick={() => handleOpenOS(os)}
+                      className="w-full bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-md border-l-4 text-left transition-all active:scale-95"
+                      style={{ borderLeftColor: categoria?.cor || '#3b82f6' }}
+                    >
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <p className="text-xs font-mono text-slate-500 dark:text-slate-400">{os.codigo}</p>

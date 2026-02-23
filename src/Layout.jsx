@@ -56,7 +56,6 @@ const menuItems = [
   { name: 'Documentação', icon: BookOpen, page: 'Documentacao', gestorOnly: true },
   { name: 'Centros de Custo', icon: DollarSign, page: 'CentrosCusto', gestorOnly: true },
   { name: 'Fornecedores', icon: Building2, page: 'Fornecedores', gestorOnly: true },
-  { name: 'Alertas', icon: Bell, page: 'AlertasConfig', gestorOnly: true },
   ];
 
 export default function Layout({ children, currentPageName }) {
