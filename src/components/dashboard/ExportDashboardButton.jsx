@@ -220,7 +220,7 @@ export default function ExportDashboardButton({
   };
 
   return (
-    <Dialog open={open} onValueChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="gap-2">
           <FileDown className="w-4 h-4" />

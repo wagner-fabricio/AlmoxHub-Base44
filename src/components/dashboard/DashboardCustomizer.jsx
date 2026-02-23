@@ -58,7 +58,7 @@ export default function DashboardCustomizer({ currentUser, onUpdate }) {
   const categorias = [...new Set(AVAILABLE_WIDGETS.map(w => w.category))];
 
   return (
-    <Dialog open={open} onValueChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="gap-2">
           <Settings className="w-4 h-4" />
