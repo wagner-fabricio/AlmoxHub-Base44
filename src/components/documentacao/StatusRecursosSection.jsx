@@ -82,7 +82,7 @@ export default function StatusRecursosSection() {
         { nome: 'Widgets configuráveis', status: 'implementado', obs: 'KPIs, Insights, Gráficos, persistência por usuário' },
         { nome: 'Orientação PDF', status: 'implementado', obs: 'Retrato ou paisagem configurável' },
         { nome: 'Seções de exportação', status: 'implementado', obs: 'Escolher KPIs, Gráficos, Mapas, Torre' },
-        { nome: 'Alertas configuráveis', status: 'nao_implementado', obs: 'Definir thresholds personalizados' }
+        { nome: 'Alertas configuráveis', status: 'parcial', obs: 'Entity AlertaConfig criada, falta backend function e UI' }
       ]
     },
     {
@@ -117,7 +117,7 @@ export default function StatusRecursosSection() {
         { nome: 'Push notifications', status: 'implementado', obs: 'PushSubscription + service worker' },
         { nome: 'Preferências de notificação', status: 'implementado', obs: 'NotificationPreferences entity' },
         { nome: 'Mobile chat', status: 'implementado', obs: 'ChatMobileSimple component' },
-        { nome: 'Anexos em mensagens', status: 'nao_implementado', obs: 'Enviar arquivos/imagens no chat' },
+        { nome: 'Anexos em mensagens', status: 'parcial', obs: 'Entity atualizada com campo anexos, falta UI' },
         { nome: 'Chamadas de voz/vídeo', status: 'nao_implementado', obs: 'WebRTC para comunicação' },
         { nome: 'Tradução automática', status: 'nao_implementado', obs: 'Mensagens em múltiplos idiomas' }
       ]
@@ -134,8 +134,8 @@ export default function StatusRecursosSection() {
         { nome: 'Transportadoras', status: 'implementado', obs: 'CRUD, CNPJ, código SAP' },
         { nome: 'Veículos Axia', status: 'implementado', obs: 'CRUD, placa, tipo, carroceria' },
         { nome: 'Problemas Recebimento', status: 'implementado', obs: 'CRUD, descrição, gravidade (admin only)' },
-        { nome: 'Fornecedores', status: 'nao_implementado', obs: 'Cadastro de fornecedores/parceiros' },
-        { nome: 'Centros de Custo', status: 'nao_implementado', obs: 'Vinculação de OS a CC' }
+        { nome: 'Fornecedores', status: 'implementado', obs: 'CRUD completo, categoria, contatos, endereço' },
+        { nome: 'Centros de Custo', status: 'implementado', obs: 'CRUD, orçamento, consumo, alertas' }
       ]
     },
     {
@@ -153,8 +153,8 @@ export default function StatusRecursosSection() {
         { nome: 'MFA', status: 'nao_implementado', obs: 'Base44 não suporta MFA nativo' },
         { nome: 'WAF', status: 'nao_implementado', obs: 'Necessário proxy externo (Cloudflare)' },
         { nome: 'SIEM Eletrobras', status: 'nao_implementado', obs: 'Integração de logs pendente' },
-        { nome: 'Timeout de sessão', status: 'nao_implementado', obs: 'Configurar 15min inatividade' },
-        { nome: 'Headers HTTP seguros', status: 'parcial', obs: 'Alguns headers, falta CSP completo' }
+        { nome: 'Timeout de sessão', status: 'implementado', obs: '15min inatividade, modal de aviso 2min antes' },
+        { nome: 'Headers HTTP seguros', status: 'implementado', obs: 'CSP, X-Frame-Options, X-Content-Type-Options via meta tags' }
       ]
     },
     {
@@ -195,10 +195,10 @@ export default function StatusRecursosSection() {
         { nome: 'Criptografia de dados', status: 'implementado', obs: 'DB criptografado (Base44)' },
         { nome: 'Logs de auditoria', status: 'implementado', obs: 'AuditLog com IP e user-agent' },
         { nome: 'Soft-delete', status: 'implementado', obs: 'is_deleted flag, recuperação 30 dias' },
-        { nome: 'Privacy by Design', status: 'nao_implementado', obs: 'Documentar princípios aplicados' },
+        { nome: 'Privacy by Design', status: 'implementado', obs: 'Documentação completa com 7 princípios e evidências' },
         { nome: 'RIPD', status: 'nao_implementado', obs: 'Relatório de Impacto (DPO)' },
         { nome: 'Portal do titular', status: 'nao_implementado', obs: 'Solicitações de cópia/correção/exclusão' },
-        { nome: 'Consentimento explícito', status: 'nao_implementado', obs: 'Registro de consentimentos' },
+        { nome: 'Consentimento explícito', status: 'parcial', obs: 'Entity Consentimento criada, falta modal de aceite' },
         { nome: 'Anonimização', status: 'nao_implementado', obs: 'Processo de anonimização de dados' }
       ]
     }
@@ -351,39 +351,42 @@ export default function StatusRecursosSection() {
           <div className="space-y-4">
             <div className="p-4 bg-white dark:bg-slate-800 rounded-lg">
               <h4 className="font-semibold text-purple-900 dark:text-purple-200 mb-2">
-                🚀 Sprint 1-2 (Alta Prioridade - Segurança)
+                🚀 Sprint 1-2 (Alta Prioridade) ✅ CONCLUÍDO
               </h4>
               <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
-                <li>• Timeout de sessão (15min) - 2-3 dias</li>
-                <li>• Headers HTTP seguros (CSP) - 1 dia</li>
-                <li>• Centros de Custo - 1-2 dias</li>
-                <li>• Anexos em mensagens - 2-3 dias</li>
+                <li>✅ Timeout de sessão (15min) - implementado</li>
+                <li>✅ Headers HTTP seguros (CSP) - implementado</li>
+                <li>✅ Centros de Custo - implementado</li>
+                <li>✅ Fornecedores - implementado</li>
+                <li>✅ Privacy by Design (doc) - implementado</li>
+                <li>⚠️ Anexos em mensagens - parcial (entity pronta)</li>
               </ul>
             </div>
 
             <div className="p-4 bg-white dark:bg-slate-800 rounded-lg">
               <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">
-                📋 Sprint 3-4 (LGPD & Cadastros)
+                📋 Sprint 2-3 (LGPD & Features)
               </h4>
               <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
-                <li>• Privacy by Design (doc) - 2 dias</li>
+                <li>• Anexos em mensagens (UI) - 2-3 dias</li>
+                <li>• Alertas configuráveis (backend + UI) - 3-5 dias</li>
+                <li>• Consentimento explícito (modal) - 3-5 dias</li>
                 <li>• RIPD - 5-7 dias</li>
-                <li>• Fornecedores - 1-2 dias</li>
-                <li>• Consentimento explícito - 3-5 dias</li>
-                <li>• Alertas configuráveis - 3-5 dias</li>
+                <li>• SSO corporativo - em planejamento</li>
               </ul>
             </div>
 
             <div className="p-4 bg-white dark:bg-slate-800 rounded-lg">
               <h4 className="font-semibold text-green-900 dark:text-green-200 mb-2">
-                🎯 Sprint 5-6 (LGPD Avançado & UX)
+                🎯 Sprint 4-5 (LGPD Avançado & UX)
               </h4>
               <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
                 <li>• Portal do titular - 7-10 dias</li>
                 <li>• Anonimização de dados - 5-7 dias</li>
                 <li>• Touch gestures avançados - 2-3 dias</li>
-                <li>• Templates de OS</li>
-                <li>• Recorrência de OS</li>
+                <li>• Templates de OS - 3-5 dias</li>
+                <li>• Recorrência de OS - 3-5 dias</li>
+                <li>• WAF via Cloudflare - em planejamento</li>
               </ul>
             </div>
 
