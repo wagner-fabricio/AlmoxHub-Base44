@@ -1520,7 +1520,7 @@ export default function OSFormModal({
                     <div className="border-t pt-6 mt-6">
                       <div className="space-y-3">
                         <Label className="text-sm text-slate-600 dark:text-slate-400">
-                          Selecione o(s) problema(s) identificado(s):
+                          Selecione o(s) problema(s) identificado(s): <span className="text-red-600 font-semibold">*</span>
                         </Label>
                         <div className="space-y-2 max-h-64 overflow-y-auto border rounded-lg p-4 bg-slate-50 dark:bg-slate-800">
                           {problemasRecebimento.map((problema) => (
