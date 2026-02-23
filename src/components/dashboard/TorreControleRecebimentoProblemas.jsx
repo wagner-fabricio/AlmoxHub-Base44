@@ -20,7 +20,7 @@ export default function TorreControleRecebimentoProblemas({
     if (os.problemas_recebimento_ids && Array.isArray(os.problemas_recebimento_ids)) {
       os.problemas_recebimento_ids.forEach(pid => {
         const problema = problemasData[pid];
-        if (problema) {
+        if (problema && problema.nome) {
           problemasContagem[problema.nome] = (problemasContagem[problema.nome] || 0) + 1;
         }
       });
@@ -29,6 +29,7 @@ export default function TorreControleRecebimentoProblemas({
   
   // Converter para array e ordenar por quantidade
   const problemasChartData = Object.entries(problemasContagem)
+    .filter(([nome]) => nome && nome !== 'undefined')
     .map(([nome, quantidade]) => ({ nome, quantidade }))
     .sort((a, b) => b.quantidade - a.quantidade);
   
