@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
-import { MoreVertical, Reply, Edit2, Trash2 } from 'lucide-react';
+import { MoreVertical, Reply, Edit2, Trash2, Download, FileText, Image } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -118,6 +118,55 @@ const MessageBubble = memo(function MessageBubble({
                     </div>
                   ))
               }
+
+              {/* Renderizar anexos */}
+              {mensagem.anexos && mensagem.anexos.length > 0 && (
+                <div className="mt-2 space-y-2">
+                  {mensagem.anexos.map((anexo, idx) => {
+                    const isImage = anexo.file_type?.startsWith('image/');
+                    
+                    if (isImage) {
+                      return (
+                        <div key={idx} className="rounded-lg overflow-hidden max-w-sm">
+                          <a href={anexo.file_url} target="_blank" rel="noopener noreferrer">
+                            <img 
+                              src={anexo.file_url} 
+                              alt={anexo.file_name}
+                              className="w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
+                            />
+                          </a>
+                        </div>
+                      );
+                    }
+                    
+                    return (
+                      <a
+                        key={idx}
+                        href={anexo.file_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`
+                          flex items-center gap-2 p-2 rounded-lg border
+                          ${isMinha 
+                            ? 'bg-blue-700 border-white/20 hover:bg-blue-800' 
+                            : 'bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-600'
+                          }
+                          transition-colors
+                        `}
+                      >
+                        <FileText className="w-4 h-4" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium truncate">{anexo.file_name}</p>
+                          <p className="text-xs opacity-70">
+                            {(anexo.file_size / 1024).toFixed(0)} KB
+                          </p>
+                        </div>
+                        <Download className="w-4 h-4" />
+                      </a>
+                    );
+                  })}
+                </div>
+              )}
             </>
           )}
           
