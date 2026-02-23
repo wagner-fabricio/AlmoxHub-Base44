@@ -308,107 +308,119 @@ export default function VeiculosAxia() {
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{editingVeiculo ? 'Editar Veículo' : 'Novo Veículo'}</DialogTitle>
+          <DialogHeader className="px-6 py-5 border-b -m-6 mb-0" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
+            <DialogTitle className="text-white">
+              {editingVeiculo ? 'Editar Veículo' : 'Novo Veículo'}
+            </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4 mt-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Placa *</Label>
-                <Input
-                  value={formData.placa}
-                  onChange={(e) => setFormData({ ...formData, placa: e.target.value.toUpperCase() })}
-                  placeholder="ABC-1234"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Estado (UF) *</Label>
-                <Select
-                  value={formData.estado}
-                  onValueChange={(v) => setFormData({ ...formData, estado: v })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {estadosBrasil.map(uf => (
-                      <SelectItem key={uf} value={uf}>{uf}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Tipo</Label>
-                <Select
-                  value={formData.tipo}
-                  onValueChange={(v) => setFormData({ ...formData, tipo: v })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Automóvel">Automóvel</SelectItem>
-                    <SelectItem value="Toco">Toco</SelectItem>
-                    <SelectItem value="Truck">Truck</SelectItem>
-                    <SelectItem value="Utilitário">Utilitário</SelectItem>
-                    <SelectItem value="Ônibus">Ônibus</SelectItem>
-                    <SelectItem value="Motocicleta">Motocicleta</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Carroceria</Label>
-                <Select
-                  value={formData.carroceria}
-                  onValueChange={(v) => setFormData({ ...formData, carroceria: v })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Aberta">Aberta</SelectItem>
-                    <SelectItem value="Baú">Baú</SelectItem>
-                    <SelectItem value="Furgão">Furgão</SelectItem>
-                    <SelectItem value="Munck">Munck</SelectItem>
-                    <SelectItem value="Sem Carroceria">Sem Carroceria</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>RENAVAM</Label>
-                <Input
-                  value={formData.renavam}
-                  onChange={(e) => setFormData({ ...formData, renavam: e.target.value })}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Tara (kg)</Label>
-                <Input
-                  type="number"
-                  value={formData.tara}
-                  onChange={(e) => setFormData({ ...formData, tara: parseFloat(e.target.value) || 0 })}
-                />
-              </div>
-
-              <div className="space-y-2 col-span-2">
-                <Label>Proprietário</Label>
-                <Input
-                  value={formData.proprietario}
-                  onChange={(e) => setFormData({ ...formData, proprietario: e.target.value })}
-                />
+          <div className="space-y-6 py-6 px-6">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                Informações do Veículo
+              </h3>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Placa *</Label>
+                    <Input
+                      value={formData.placa}
+                      onChange={(e) => setFormData({ ...formData, placa: e.target.value.toUpperCase() })}
+                      placeholder="ABC-1234"
+                      className="border-slate-300 dark:border-slate-600 rounded-lg"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Estado (UF) *</Label>
+                    <Select
+                      value={formData.estado}
+                      onValueChange={(v) => setFormData({ ...formData, estado: v })}
+                    >
+                      <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg">
+                        <SelectValue placeholder="Selecione..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {estadosBrasil.map(uf => (
+                          <SelectItem key={uf} value={uf}>{uf}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Tipo</Label>
+                    <Select
+                      value={formData.tipo}
+                      onValueChange={(v) => setFormData({ ...formData, tipo: v })}
+                    >
+                      <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg">
+                        <SelectValue placeholder="Selecione..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Automóvel">Automóvel</SelectItem>
+                        <SelectItem value="Toco">Toco</SelectItem>
+                        <SelectItem value="Truck">Truck</SelectItem>
+                        <SelectItem value="Utilitário">Utilitário</SelectItem>
+                        <SelectItem value="Ônibus">Ônibus</SelectItem>
+                        <SelectItem value="Motocicleta">Motocicleta</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Carroceria</Label>
+                    <Select
+                      value={formData.carroceria}
+                      onValueChange={(v) => setFormData({ ...formData, carroceria: v })}
+                    >
+                      <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg">
+                        <SelectValue placeholder="Selecione..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Aberta">Aberta</SelectItem>
+                        <SelectItem value="Baú">Baú</SelectItem>
+                        <SelectItem value="Furgão">Furgão</SelectItem>
+                        <SelectItem value="Munck">Munck</SelectItem>
+                        <SelectItem value="Sem Carroceria">Sem Carroceria</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>RENAVAM</Label>
+                    <Input
+                      value={formData.renavam}
+                      onChange={(e) => setFormData({ ...formData, renavam: e.target.value })}
+                      className="border-slate-300 dark:border-slate-600 rounded-lg"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Tara (kg)</Label>
+                    <Input
+                      type="number"
+                      value={formData.tara}
+                      onChange={(e) => setFormData({ ...formData, tara: parseFloat(e.target.value) || 0 })}
+                      className="border-slate-300 dark:border-slate-600 rounded-lg"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Proprietário</Label>
+                  <Input
+                    value={formData.proprietario}
+                    onChange={(e) => setFormData({ ...formData, proprietario: e.target.value })}
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 mt-6">
+          <div className="border-t bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 px-6 py-4 flex justify-end gap-3 rounded-b-lg">
             <Button variant="outline" onClick={handleClose}>Cancelar</Button>
-            <Button onClick={handleSave} disabled={!isValid}>Salvar</Button>
+            <Button onClick={handleSave} disabled={!isValid} style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)', color: 'white' }}>Salvar</Button>
           </div>
         </DialogContent>
       </Dialog>

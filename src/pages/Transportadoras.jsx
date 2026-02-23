@@ -262,55 +262,66 @@ export default function Transportadoras() {
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{editingTransportadora ? 'Editar Transportadora' : 'Nova Transportadora'}</DialogTitle>
+          <DialogHeader className="px-6 py-5 border-b -m-6 mb-0" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
+            <DialogTitle className="text-white">
+              {editingTransportadora ? 'Editar Transportadora' : 'Nova Transportadora'}
+            </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4 mt-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>CNPJ *</Label>
-                <Input
-                  value={formData.cnpj}
-                  onChange={(e) => setFormData({ ...formData, cnpj: e.target.value.replace(/\D/g, '') })}
-                  placeholder="00000000000000"
-                  maxLength={14}
-                />
-                {formData.cnpj && (
-                  <p className="text-xs text-slate-500">{formatCNPJ(formData.cnpj)}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label>Código SAP</Label>
-                <Input
-                  value={formData.codigo_sap}
-                  onChange={(e) => setFormData({ ...formData, codigo_sap: e.target.value })}
-                />
-              </div>
-
-              <div className="space-y-2 col-span-2">
-                <Label>Razão Social *</Label>
-                <Input
-                  value={formData.razao_social}
-                  onChange={(e) => setFormData({ ...formData, razao_social: e.target.value })}
-                />
-              </div>
-
-              <div className="space-y-2 col-span-2">
-                <Label>Telefones</Label>
-                <Input
-                  value={formData.telefones}
-                  onChange={(e) => setFormData({ ...formData, telefones: e.target.value })}
-                  placeholder="(00) 0000-0000, (00) 00000-0000"
-                />
+          <div className="space-y-6 py-6 px-6">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                Dados da Empresa
+              </h3>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>CNPJ *</Label>
+                    <Input
+                      value={formData.cnpj}
+                      onChange={(e) => setFormData({ ...formData, cnpj: e.target.value.replace(/\D/g, '') })}
+                      placeholder="00000000000000"
+                      maxLength={14}
+                      className="border-slate-300 dark:border-slate-600 rounded-lg"
+                    />
+                    {formData.cnpj && (
+                      <p className="text-xs text-slate-500">{formatCNPJ(formData.cnpj)}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Código SAP</Label>
+                    <Input
+                      value={formData.codigo_sap}
+                      onChange={(e) => setFormData({ ...formData, codigo_sap: e.target.value })}
+                      className="border-slate-300 dark:border-slate-600 rounded-lg"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Razão Social *</Label>
+                  <Input
+                    value={formData.razao_social}
+                    onChange={(e) => setFormData({ ...formData, razao_social: e.target.value })}
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Telefones</Label>
+                  <Input
+                    value={formData.telefones}
+                    onChange={(e) => setFormData({ ...formData, telefones: e.target.value })}
+                    placeholder="(00) 0000-0000, (00) 00000-0000"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 mt-6">
+          <div className="border-t bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 px-6 py-4 flex justify-end gap-3 rounded-b-lg">
             <Button variant="outline" onClick={handleClose}>Cancelar</Button>
-            <Button onClick={handleSave} disabled={!isValid}>Salvar</Button>
+            <Button onClick={handleSave} disabled={!isValid} style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)', color: 'white' }}>Salvar</Button>
           </div>
         </DialogContent>
       </Dialog>

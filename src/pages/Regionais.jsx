@@ -224,93 +224,119 @@ export default function Regionais() {
 
       {/* Form Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{selectedRegional ? 'Editar Regional' : 'Nova Regional'}</DialogTitle>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader className="px-6 py-5 border-b -m-6 mb-0" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
+            <DialogTitle className="text-white">
+              {selectedRegional ? 'Editar Regional' : 'Nova Regional'}
+            </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Sigla *</Label>
-              <Input
-                value={formData.sigla}
-                onChange={(e) => setFormData({ ...formData, sigla: e.target.value.toUpperCase() })}
-                placeholder="Ex: NE, SE, SUL"
-                maxLength={10}
-              />
+          <div className="space-y-6 py-6 px-6">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                Informações da Regional
+              </h3>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Sigla *</Label>
+                    <Input
+                      value={formData.sigla}
+                      onChange={(e) => setFormData({ ...formData, sigla: e.target.value.toUpperCase() })}
+                      placeholder="Ex: NE, SE, SUL"
+                      maxLength={10}
+                      className="border-slate-300 dark:border-slate-600 rounded-lg"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Gerência</Label>
+                    <Select value={formData.gerencia} onValueChange={(v) => setFormData({ ...formData, gerencia: v })}>
+                      <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg">
+                        <SelectValue placeholder="Selecione..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="GLOA">GLOA</SelectItem>
+                        <SelectItem value="GLAO">GLAO</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Descrição *</Label>
+                  <Input
+                    value={formData.descricao}
+                    onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                    placeholder="Ex: Regional Nordeste"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Cidade Sede</Label>
+                  <Input
+                    value={formData.cidade_sede}
+                    onChange={(e) => setFormData({ ...formData, cidade_sede: e.target.value })}
+                    placeholder="Ex: São Paulo"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Área de Abrangência</Label>
+                  <Textarea
+                    value={formData.area_abrangencia}
+                    onChange={(e) => setFormData({ ...formData, area_abrangencia: e.target.value })}
+                    placeholder="Estados e municípios cobertos..."
+                    rows={3}
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>Descrição *</Label>
-              <Input
-                value={formData.descricao}
-                onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-                placeholder="Ex: Regional Nordeste"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Gerência</Label>
-              <Select
-                value={formData.gerencia}
-                onValueChange={(v) => setFormData({ ...formData, gerencia: v })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="GLOA">GLOA</SelectItem>
-                  <SelectItem value="GLAO">GLAO</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Cidade Sede</Label>
-              <Input
-                value={formData.cidade_sede}
-                onChange={(e) => setFormData({ ...formData, cidade_sede: e.target.value })}
-                placeholder="Ex: São Paulo"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Nome do Gestor</Label>
-              <Input
-                value={formData.gestor_nome}
-                onChange={(e) => setFormData({ ...formData, gestor_nome: e.target.value })}
-                placeholder="Nome completo do gestor"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>E-mail do Gestor</Label>
-              <Input
-                type="email"
-                value={formData.gestor_email}
-                onChange={(e) => setFormData({ ...formData, gestor_email: e.target.value })}
-                placeholder="email@exemplo.com"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Telefone do Gestor</Label>
-              <Input
-                value={formData.gestor_telefone}
-                onChange={(e) => setFormData({ ...formData, gestor_telefone: e.target.value })}
-                placeholder="(00) 00000-0000"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Área de Abrangência</Label>
-              <Textarea
-                value={formData.area_abrangencia}
-                onChange={(e) => setFormData({ ...formData, area_abrangencia: e.target.value })}
-                placeholder="Estados e municípios cobertos..."
-                rows={3}
-              />
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                Gestor Responsável
+              </h3>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Nome do Gestor</Label>
+                    <Input
+                      value={formData.gestor_nome}
+                      onChange={(e) => setFormData({ ...formData, gestor_nome: e.target.value })}
+                      placeholder="Nome completo"
+                      className="border-slate-300 dark:border-slate-600 rounded-lg"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>E-mail</Label>
+                    <Input
+                      type="email"
+                      value={formData.gestor_email}
+                      onChange={(e) => setFormData({ ...formData, gestor_email: e.target.value })}
+                      placeholder="email@exemplo.com"
+                      className="border-slate-300 dark:border-slate-600 rounded-lg"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Telefone</Label>
+                  <Input
+                    value={formData.gestor_telefone}
+                    onChange={(e) => setFormData({ ...formData, gestor_telefone: e.target.value })}
+                    placeholder="(00) 00000-0000"
+                    className="border-slate-300 dark:border-slate-600 rounded-lg"
+                  />
+                </div>
+              </div>
             </div>
           </div>
-          <DialogFooter>
+          <div className="border-t bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 px-6 py-4 flex justify-end gap-3 rounded-b-lg">
             <Button variant="outline" onClick={() => setShowModal(false)}>Cancelar</Button>
-            <Button onClick={handleSave} disabled={!formData.sigla || !formData.descricao || saving}>
+            <Button onClick={handleSave} disabled={!formData.sigla || !formData.descricao || saving} style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)', color: 'white' }}>
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Salvar
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
