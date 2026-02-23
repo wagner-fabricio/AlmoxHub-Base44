@@ -119,6 +119,10 @@ export default function Dashboard() {
     return saved.includes(widgetId);
   };
 
+  // Torre de Controle - KPIs Volumetrias (definir antes de usar nos filtros)
+  const categoriaRecebimento = categorias.find(c => c.nome?.toLowerCase().includes('recebimento'));
+  const categoriaExpedicao = categorias.find(c => c.nome?.toLowerCase().includes('expedição'));
+
   // Filter data
   const filteredOrdens = ordens.filter(os => {
     if (filters.regional !== 'all' && os.regional_id !== filters.regional) return false;
