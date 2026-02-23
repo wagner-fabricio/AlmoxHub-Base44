@@ -234,12 +234,7 @@ export default function OSMobileDetail({
       if (selectedCommentFiles.length > 0) {
         for (const file of selectedCommentFiles) {
           const { file_url } = await base44.integrations.Core.UploadFile({ file });
-          anexos.push({
-            file_url,
-            file_name: file.name,
-            file_type: file.type,
-            file_size: file.size
-          });
+          anexos.push(file_url);
         }
       }
 
@@ -1004,22 +999,25 @@ export default function OSMobileDetail({
                               </p>
                               {comment.anexos && comment.anexos.length > 0 && (
                                 <div className="mt-2 space-y-1">
-                                  {comment.anexos.map((anexo, idx) => (
-                                    <a
-                                      key={idx}
-                                      href={anexo.file_url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className={`flex items-center gap-2 px-2 py-1 rounded text-xs ${
-                                        isOwnMessage 
-                                          ? 'bg-blue-700 hover:bg-blue-600' 
-                                          : 'bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600'
-                                      }`}
-                                    >
-                                      <Download className="w-3 h-3" />
-                                      <span className="truncate max-w-[180px]">{anexo.file_name}</span>
-                                    </a>
-                                  ))}
+                                  {comment.anexos.map((anexoUrl, idx) => {
+                                    const fileName = anexoUrl.split('/').pop()?.split('?')[0] || `Arquivo ${idx + 1}`;
+                                    return (
+                                      <a
+                                        key={idx}
+                                        href={anexoUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={`flex items-center gap-2 px-2 py-1 rounded text-xs ${
+                                          isOwnMessage 
+                                            ? 'bg-blue-700 hover:bg-blue-600' 
+                                            : 'bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600'
+                                        }`}
+                                      >
+                                        <Download className="w-3 h-3" />
+                                        <span className="truncate max-w-[180px]">{fileName}</span>
+                                      </a>
+                                    );
+                                  })}
                                 </div>
                               )}
                             </>
