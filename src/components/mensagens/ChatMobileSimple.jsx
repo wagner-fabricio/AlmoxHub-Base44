@@ -432,13 +432,13 @@ export default function ChatMobileSimple({
             className="hidden"
           />
           <Button
-            variant="ghost"
+            variant="outline"
             size="icon"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploadingFiles}
-            className="rounded-full shrink-0"
+            className="rounded-full shrink-0 bg-white dark:bg-slate-800"
           >
-            <Paperclip className="w-5 h-5" />
+            <Paperclip className="w-5 h-5 text-slate-700 dark:text-slate-300" />
           </Button>
           <MentionInput
             value={newMessage}
