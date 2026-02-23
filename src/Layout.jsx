@@ -37,6 +37,7 @@ import {
 import NotificationBell from '@/components/notifications/NotificationBell';
 import useIdleTimer from '@/components/hooks/useIdleTimer';
 import IdleWarningModal from '@/components/IdleWarningModal';
+import ConsentimentoModal from '@/components/ConsentimentoModal';
 
 const menuItems = [
   { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
@@ -67,6 +68,7 @@ export default function Layout({ children, currentPageName }) {
   const [isLoadingUserStatus, setIsLoadingUserStatus] = useState(true);
   const [regional, setRegional] = useState(null);
   const [almoxarifados, setAlmoxarifados] = useState([]);
+  const [showConsentimento, setShowConsentimento] = useState(false);
 
   // Idle Timer (15 minutes)
   const { showWarning, remainingTime, resetTimer } = useIdleTimer({
@@ -120,6 +122,20 @@ export default function Layout({ children, currentPageName }) {
           redirected = true;
           window.location.href = createPageUrl('PendingApproval');
           return;
+        }
+
+        // Verificar se usuário já aceitou termos de uso
+        if (pessoaData && pessoaData.status_aprovacao === 'aprovado') {
+          const consentimentos = await base44.entities.Consentimento.filter({ 
+            user_id: userData.id,
+            finalidade: 'uso_basico',
+            aceito: true,
+            revogado: false
+          });
+
+          if (!consentimentos || consentimentos.length === 0) {
+            setShowConsentimento(true);
+          }
         }
       } catch (e) {
         console.log('User not logged in');
@@ -551,10 +567,16 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Idle Warning Modal */}
         <IdleWarningModal
-        open={showWarning}
-        remainingTime={remainingTime}
-        onContinue={resetTimer}
-        onLogout={() => base44.auth.logout(createPageUrl('ThankYou'))}
+          open={showWarning}
+          remainingTime={remainingTime}
+          onContinue={resetTimer}
+          onLogout={() => base44.auth.logout(createPageUrl('ThankYou'))}
+        />
+
+        {/* Consentimento Modal */}
+        <ConsentimentoModal
+          open={showConsentimento}
+          onAccept={() => setShowConsentimento(false)}
         />
         </div>
         );

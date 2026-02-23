@@ -280,7 +280,7 @@ export default function MensagensPage() {
     }).filter(Boolean);
   };
 
-  const handleEnviarMensagem = async (conteudo, mensagemRespondendo, mencoesIds = [], conteudoFormatado = null) => {
+  const handleEnviarMensagem = async (conteudo, mensagemRespondendo, mencoesIds = [], conteudoFormatado = null, anexos = []) => {
     if (!conversaSelecionada?.conversa || !currentPessoa) return;
 
     try {
@@ -298,6 +298,7 @@ export default function MensagensPage() {
         mensagem_citada_id: mensagemRespondendo?.id || null,
         mensagem_citada_conteudo: mensagemRespondendo?.conteudo || null,
         mensagem_citada_autor: mensagemRespondendo?.autor_nome || null,
+        anexos: anexos,
         status: 'enviada'
       });
 
