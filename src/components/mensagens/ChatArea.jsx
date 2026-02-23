@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { format, isToday, isYesterday, isSameDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { X, Send, Users, Settings, ArrowLeft, Trash2 } from 'lucide-react';
+import { X, Send, Users, Settings, ArrowLeft, Trash2, Paperclip } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,8 +40,11 @@ export default function ChatArea({
   const [mencoesIds, setMencoesIds] = useState([]);
   const [showGrupoDetalhes, setShowGrupoDetalhes] = useState(false);
   const [osDetailModal, setOsDetailModal] = useState(null);
+  const [uploadingFiles, setUploadingFiles] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const scrollRef = useRef(null);
   const mentionInputRef = useRef(null);
+  const fileInputRef = useRef(null);
   const isUserScrollingRef = useRef(false);
   const lastMessageCountRef = useRef(0);
 
@@ -72,41 +76,76 @@ export default function ChatArea({
     return () => scrollContainer.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setSelectedFiles(files.slice(0, 5)); // Max 5 arquivos
+    }
+  };
+
+  const handleRemoveFile = (index) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleEnviar = useCallback(async () => {
-    if (!novaMensagem.trim()) return;
+    if (!novaMensagem.trim() && selectedFiles.length === 0) return;
 
-    // Extrair entidades (OSs) do texto
-    const conteudoFormatado = parseMessageContent(novaMensagem);
+    setUploadingFiles(true);
 
-    if (mensagemEditando) {
-      onEditarMensagem(mensagemEditando.id, novaMensagem, conteudoFormatado);
-      setMensagemEditando(null);
-    } else {
-      onEnviarMensagem(novaMensagem, mensagemRespondendo, mencoesIds, conteudoFormatado);
-      setMensagemRespondendo(null);
-      
-      // Criar notificações para pessoas mencionadas
-      if (mencoesIds && mencoesIds.length > 0) {
-        try {
-          const notificacoes = mencoesIds.map(destinatarioId => ({
-            destinatario_id: destinatarioId,
-            remetente_id: currentPessoaId,
-            tipo: 'mencao',
-            referencia_id: conversa.id,
-            referencia_tipo: 'conversa',
-            mensagem: `Você foi mencionado(a) na conversa "${conversa.nome_grupo || 'privada'}"`,
-            lida: false
-          }));
-          
-          await base44.entities.Notificacao.bulkCreate(notificacoes);
-        } catch (notifError) {
-          console.error('Erro ao criar notificações de menção:', notifError);
+    try {
+      // Upload de arquivos se houver
+      let anexos = [];
+      if (selectedFiles.length > 0) {
+        for (const file of selectedFiles) {
+          const { file_url } = await base44.integrations.Core.UploadFile({ file });
+          anexos.push({
+            file_url,
+            file_name: file.name,
+            file_type: file.type,
+            file_size: file.size
+          });
         }
       }
+
+      // Extrair entidades (OSs) do texto
+      const conteudoFormatado = parseMessageContent(novaMensagem);
+
+      if (mensagemEditando) {
+        onEditarMensagem(mensagemEditando.id, novaMensagem, conteudoFormatado);
+        setMensagemEditando(null);
+      } else {
+        onEnviarMensagem(novaMensagem, mensagemRespondendo, mencoesIds, conteudoFormatado, anexos);
+        setMensagemRespondendo(null);
+        
+        // Criar notificações para pessoas mencionadas
+        if (mencoesIds && mencoesIds.length > 0) {
+          try {
+            const notificacoes = mencoesIds.map(destinatarioId => ({
+              destinatario_id: destinatarioId,
+              remetente_id: currentPessoaId,
+              tipo: 'mencao',
+              referencia_id: conversa.id,
+              referencia_tipo: 'conversa',
+              mensagem: `Você foi mencionado(a) na conversa "${conversa.nome_grupo || 'privada'}"`,
+              lida: false
+            }));
+            
+            await base44.entities.Notificacao.bulkCreate(notificacoes);
+          } catch (notifError) {
+            console.error('Erro ao criar notificações de menção:', notifError);
+          }
+        }
+      }
+      
+      setNovaMensagem('');
+      setMencoesIds([]);
+      setSelectedFiles([]);
+    } catch (error) {
+      console.error('Erro ao enviar mensagem:', error);
+    } finally {
+      setUploadingFiles(false);
     }
-    setNovaMensagem('');
-    setMencoesIds([]);
-  }, [novaMensagem, mensagemEditando, mensagemRespondendo, mencoesIds, onEditarMensagem, onEnviarMensagem, currentPessoaId, conversa]);
+  }, [novaMensagem, selectedFiles, mensagemEditando, mensagemRespondendo, mencoesIds, onEditarMensagem, onEnviarMensagem, currentPessoaId, conversa]);
 
   const parseMessageContent = (text) => {
     if (!text) return { text: '', entities: [] };
@@ -376,7 +415,41 @@ export default function ChatArea({
           </div>
         )}
 
+        {selectedFiles.length > 0 && (
+          <div className="mb-3 flex flex-wrap gap-2">
+            {selectedFiles.map((file, index) => (
+              <div key={index} className="flex items-center gap-2 bg-slate-100 dark:bg-slate-700 px-3 py-2 rounded-lg">
+                <Paperclip className="w-4 h-4" />
+                <span className="text-sm truncate max-w-[150px]">{file.name}</span>
+                <button
+                  onClick={() => handleRemoveFile(index)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="flex gap-2 items-start">
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadingFiles}
+            className="shrink-0"
+          >
+            <Paperclip className="w-5 h-5" />
+          </Button>
           {conversa.tipo === 'grupo' ? (
             <div className="flex-1">
               <MentionInput
@@ -401,10 +474,10 @@ export default function ChatArea({
           )}
           <Button
             onClick={handleEnviar}
-            disabled={!novaMensagem.trim()}
-            className="shrink-0 mt-10"
+            disabled={(!novaMensagem.trim() && selectedFiles.length === 0) || uploadingFiles}
+            className="shrink-0"
           >
-            <Send className="w-4 h-4" />
+            {uploadingFiles ? '...' : <Send className="w-4 h-4" />}
           </Button>
         </div>
       </div>
