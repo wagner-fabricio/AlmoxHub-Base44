@@ -20,7 +20,7 @@ export default function StatusRecursosSection() {
         { nome: 'Kanban de Expedição', status: 'implementado', obs: 'Workflow específico de separação' },
         { nome: 'Kanban de Recebimento', status: 'implementado', obs: 'Workflow específico de conferência' },
         { nome: 'Bulk update', status: 'implementado', obs: 'Atualização em lote de OS selecionadas' },
-        { nome: 'Exportação de dados', status: 'parcial', obs: 'Exportação básica, falta PDF/Excel avançado' },
+        { nome: 'Exportação de dados', status: 'implementado', obs: 'Export PDF/Excel avançado com seleção de campos' },
         { nome: 'Templates de OS', status: 'nao_implementado', obs: 'Criar OS a partir de templates pré-definidos' },
         { nome: 'Recorrência de OS', status: 'nao_implementado', obs: 'OS automáticas periódicas' }
       ]
@@ -82,7 +82,7 @@ export default function StatusRecursosSection() {
         { nome: 'Widgets configuráveis', status: 'implementado', obs: 'KPIs, Insights, Gráficos, persistência por usuário' },
         { nome: 'Orientação PDF', status: 'implementado', obs: 'Retrato ou paisagem configurável' },
         { nome: 'Seções de exportação', status: 'implementado', obs: 'Escolher KPIs, Gráficos, Mapas, Torre' },
-        { nome: 'Alertas configuráveis', status: 'parcial', obs: 'Entity AlertaConfig criada, falta backend function e UI' }
+        { nome: 'Alertas configuráveis', status: 'implementado', obs: 'CRUD de alertas, backend function, automation diária' }
       ]
     },
     {
@@ -117,7 +117,7 @@ export default function StatusRecursosSection() {
         { nome: 'Push notifications', status: 'implementado', obs: 'PushSubscription + service worker' },
         { nome: 'Preferências de notificação', status: 'implementado', obs: 'NotificationPreferences entity' },
         { nome: 'Mobile chat', status: 'implementado', obs: 'ChatMobileSimple component' },
-        { nome: 'Anexos em mensagens', status: 'parcial', obs: 'Entity atualizada com campo anexos, falta UI' },
+        { nome: 'Anexos em mensagens', status: 'implementado', obs: 'Upload, preview de imagens, download de arquivos' },
         { nome: 'Chamadas de voz/vídeo', status: 'nao_implementado', obs: 'WebRTC para comunicação' },
         { nome: 'Tradução automática', status: 'nao_implementado', obs: 'Mensagens em múltiplos idiomas' }
       ]
@@ -166,7 +166,7 @@ export default function StatusRecursosSection() {
         { nome: 'Compressão de imagens', status: 'implementado', obs: 'imageCompression utility' },
         { nome: 'Geração de PDF', status: 'implementado', obs: 'jsPDF (Ordem de Saída)' },
         { nome: 'Mapas Leaflet', status: 'implementado', obs: 'react-leaflet' },
-        { nome: 'Excel export', status: 'parcial', obs: 'xlsx instalado, falta implementação completa' },
+        { nome: 'Excel export', status: 'implementado', obs: 'Exportação Excel com campos configuráveis' },
         { nome: 'SAP MIGO', status: 'nao_implementado', obs: 'Integração automática pendente' },
         { nome: 'SAP pedidos', status: 'nao_implementado', obs: 'Buscar pedidos de compra' },
         { nome: 'Email via Resend', status: 'nao_implementado', obs: 'Base44 Core.SendEmail disponível' },
@@ -183,7 +183,7 @@ export default function StatusRecursosSection() {
         { nome: 'Chat Mobile', status: 'implementado', obs: 'ChatMobileSimple component' },
         { nome: 'OS Detail Mobile', status: 'implementado', obs: 'OSMobileDetail component' },
         { nome: 'Projeto Detail Mobile', status: 'implementado', obs: 'ProjetoMobileDetail component' },
-        { nome: 'Touch gestures', status: 'parcial', obs: 'Swipe básico, falta gestures avançados' },
+        { nome: 'Touch gestures', status: 'implementado', obs: 'Swipe, long-press, haptic feedback implementados' },
         { nome: 'Offline mode', status: 'nao_implementado', obs: 'Service worker para cache offline' },
         { nome: 'App nativo (PWA)', status: 'nao_implementado', obs: 'Manifest e instalação PWA' }
       ]
@@ -198,7 +198,7 @@ export default function StatusRecursosSection() {
         { nome: 'Privacy by Design', status: 'implementado', obs: 'Documentação completa com 7 princípios e evidências' },
         { nome: 'RIPD', status: 'nao_implementado', obs: 'Relatório de Impacto (DPO)' },
         { nome: 'Portal do titular', status: 'nao_implementado', obs: 'Solicitações de cópia/correção/exclusão' },
-        { nome: 'Consentimento explícito', status: 'parcial', obs: 'Entity Consentimento criada, falta modal de aceite' },
+        { nome: 'Consentimento explícito', status: 'implementado', obs: 'Modal no primeiro login, gestão de consentimentos' },
         { nome: 'Anonimização', status: 'nao_implementado', obs: 'Processo de anonimização de dados' }
       ]
     }
@@ -359,34 +359,36 @@ export default function StatusRecursosSection() {
                 <li>✅ Centros de Custo - implementado</li>
                 <li>✅ Fornecedores - implementado</li>
                 <li>✅ Privacy by Design (doc) - implementado</li>
-                <li>⚠️ Anexos em mensagens - parcial (entity pronta)</li>
+                <li>✅ Anexos em mensagens - implementado</li>
+                <li>✅ Alertas configuráveis - implementado</li>
+                <li>✅ Consentimento explícito - implementado</li>
+                <li>✅ Touch gestures avançados - implementado</li>
               </ul>
             </div>
 
             <div className="p-4 bg-white dark:bg-slate-800 rounded-lg">
               <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">
-                📋 Sprint 2-3 (LGPD & Features)
+                📋 Sprint 2-3 (LGPD Avançado)
               </h4>
               <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
-                <li>• Anexos em mensagens (UI) - 2-3 dias</li>
-                <li>• Alertas configuráveis (backend + UI) - 3-5 dias</li>
-                <li>• Consentimento explícito (modal) - 3-5 dias</li>
-                <li>• RIPD - 5-7 dias</li>
+                <li>• RIPD (Relatório de Impacto) - 5-7 dias</li>
+                <li>• Portal do Titular LGPD - 7-10 dias</li>
+                <li>• Anonimização de dados - 5-7 dias</li>
                 <li>• SSO corporativo - em planejamento</li>
+                <li>• WAF via Cloudflare - em planejamento</li>
               </ul>
             </div>
 
             <div className="p-4 bg-white dark:bg-slate-800 rounded-lg">
               <h4 className="font-semibold text-green-900 dark:text-green-200 mb-2">
-                🎯 Sprint 4-5 (LGPD Avançado & UX)
+                🎯 Sprint 3-4 (Features & Integrações)
               </h4>
               <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
-                <li>• Portal do titular - 7-10 dias</li>
-                <li>• Anonimização de dados - 5-7 dias</li>
-                <li>• Touch gestures avançados - 2-3 dias</li>
                 <li>• Templates de OS - 3-5 dias</li>
                 <li>• Recorrência de OS - 3-5 dias</li>
-                <li>• WAF via Cloudflare - em planejamento</li>
+                <li>• Integração SAP automática - em planejamento</li>
+                <li>• Rastreamento de transporte - em planejamento</li>
+                <li>• PWA (Progressive Web App) - 2-3 dias</li>
               </ul>
             </div>
 

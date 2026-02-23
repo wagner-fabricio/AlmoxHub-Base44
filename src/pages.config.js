@@ -75,6 +75,7 @@ import VeiculosAxia from './pages/VeiculosAxia';
 import CentrosCusto from './pages/CentrosCusto';
 import Fornecedores from './pages/Fornecedores';
 import AlertasConfig from './pages/AlertasConfig';
+import ConsentimentosPage from './pages/ConsentimentosPage';
 import __Layout from './Layout.jsx';
 
 
@@ -107,6 +108,7 @@ export const PAGES = {
     "CentrosCusto": CentrosCusto,
     "Fornecedores": Fornecedores,
     "AlertasConfig": AlertasConfig,
+    "ConsentimentosPage": ConsentimentosPage,
 }
 
 export const pagesConfig = {
