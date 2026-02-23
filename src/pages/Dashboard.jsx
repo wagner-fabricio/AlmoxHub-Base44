@@ -1229,15 +1229,15 @@ export default function Dashboard() {
           {/* Seção Volumetrias */}
           <div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-              <Package className="w-6 h-6 text-blue-600" />
+              <Package className="w-6 h-6" style={{ color: '#0000FF' }} />
               Volumetrias
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Nº de Itens */}
-              <Card className="bg-white dark:bg-slate-800 border-l-4 border-blue-500">
+              <Card className="bg-white dark:bg-slate-800 border-l-4" style={{ borderLeftColor: '#0000FF' }}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-2">
-                    <Package className="w-8 h-8 text-blue-500" />
+                    <Package className="w-8 h-8" style={{ color: '#0000FF' }} />
                   </div>
                   <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Nº de Itens</p>
                   <p className="text-3xl font-bold text-slate-900 dark:text-white">{numItensNFCompra.toLocaleString('pt-BR')}</p>
@@ -1245,10 +1245,10 @@ export default function Dashboard() {
               </Card>
 
               {/* Valor Total */}
-              <Card className="bg-white dark:bg-slate-800 border-l-4 border-green-500">
+              <Card className="bg-white dark:bg-slate-800 border-l-4" style={{ borderLeftColor: '#FF6B00' }}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-2">
-                    <DollarSign className="w-8 h-8 text-green-500" />
+                    <DollarSign className="w-8 h-8" style={{ color: '#FF6B00' }} />
                   </div>
                   <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Valor Total</p>
                   <p className="text-3xl font-bold text-slate-900 dark:text-white">
@@ -1267,10 +1267,10 @@ export default function Dashboard() {
               </Card>
 
               {/* Tempo Médio Previsto */}
-              <Card className="bg-white dark:bg-slate-800 border-l-4 border-amber-500">
+              <Card className="bg-white dark:bg-slate-800 border-l-4" style={{ borderLeftColor: '#10B981' }}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-2">
-                    <Timer className="w-8 h-8 text-amber-500" />
+                    <Timer className="w-8 h-8" style={{ color: '#10B981' }} />
                   </div>
                   <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Tempo Médio Previsto</p>
                   <p className="text-3xl font-bold text-slate-900 dark:text-white">
@@ -1280,10 +1280,10 @@ export default function Dashboard() {
               </Card>
 
               {/* Total de OS */}
-              <Card className="bg-white dark:bg-slate-800 border-l-4 border-purple-500">
+              <Card className="bg-white dark:bg-slate-800 border-l-4" style={{ borderLeftColor: '#A0B4D2' }}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-2">
-                    <ClipboardList className="w-8 h-8 text-purple-500" />
+                    <ClipboardList className="w-8 h-8" style={{ color: '#A0B4D2' }} />
                   </div>
                   <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mb-1">Total de OS</p>
                   <p className="text-3xl font-bold text-slate-900 dark:text-white">{filteredOrdens.length}</p>
@@ -1297,7 +1297,7 @@ export default function Dashboard() {
           {/* Seção Resultados Mensais - OS */}
           <div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-              <TrendingUp className="w-6 h-6 text-blue-600" />
+              <TrendingUp className="w-6 h-6" style={{ color: '#0000FF' }} />
               Resultados Mensais - Ordens de Serviço
             </h2>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1522,7 +1522,7 @@ export default function Dashboard() {
           {/* Seção Resultados Mensais - Itens */}
           <div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-              <Package className="w-6 h-6 text-purple-600" />
+              <Package className="w-6 h-6" style={{ color: '#FF6B00' }} />
               Resultados Mensais - Itens de Material
             </h2>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1760,7 +1760,7 @@ export default function Dashboard() {
           {/* Seção Resultados Mensais - Valores */}
           <div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-              <DollarSign className="w-6 h-6 text-green-600" />
+              <DollarSign className="w-6 h-6" style={{ color: '#10B981' }} />
               Resultados Mensais - Valores
             </h2>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -2019,7 +2019,7 @@ export default function Dashboard() {
               {/* Seção Problemas Recebimento */}
               <div>
               <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-              <AlertTriangle className="w-6 h-6 text-red-600" />
+              <AlertTriangle className="w-6 h-6" style={{ color: '#A0B4D2' }} />
               Problemas Recebimento
               </h2>
               <Card className="bg-white dark:bg-slate-800">
