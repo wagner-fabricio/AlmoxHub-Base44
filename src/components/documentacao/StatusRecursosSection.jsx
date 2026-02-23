@@ -77,8 +77,11 @@ export default function StatusRecursosSection() {
         { nome: 'Insights automáticos', status: 'implementado', obs: 'DashboardInsights component com alertas' },
         { nome: 'Esforço por pessoa', status: 'implementado', obs: 'Gráfico de OS por pessoa' },
         { nome: 'Filtros persistidos', status: 'implementado', obs: 'Salvos em user.filtros_preferidos' },
-        { nome: 'Exportação de dashboards', status: 'parcial', obs: 'Print screen ok, falta export PDF profissional' },
-        { nome: 'Dashboard customizável', status: 'nao_implementado', obs: 'Usuário escolher widgets e layout' },
+        { nome: 'Exportação de dashboards', status: 'implementado', obs: 'PDF profissional com KPIs, gráficos e tabelas' },
+        { nome: 'Dashboard customizável', status: 'implementado', obs: 'Show/hide widgets, 8 widgets disponíveis' },
+        { nome: 'Widgets configuráveis', status: 'implementado', obs: 'KPIs, Insights, Gráficos, persistência por usuário' },
+        { nome: 'Orientação PDF', status: 'implementado', obs: 'Retrato ou paisagem configurável' },
+        { nome: 'Seções de exportação', status: 'implementado', obs: 'Escolher KPIs, Gráficos, Mapas, Torre' },
         { nome: 'Alertas configuráveis', status: 'nao_implementado', obs: 'Definir thresholds personalizados' }
       ]
     },
@@ -377,8 +380,9 @@ export default function StatusRecursosSection() {
               <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
                 <li>• Templates de OS</li>
                 <li>• Recorrência de OS</li>
-                <li>• Dashboard customizável</li>
+                <li>• Dashboard com drag & drop (react-grid-layout)</li>
                 <li>• Integração SAP automática</li>
+                <li>• Exportação de gráficos em PDF (html2canvas)</li>
               </ul>
             </div>
           </div>
