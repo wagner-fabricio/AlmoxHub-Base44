@@ -123,7 +123,17 @@ export default function Dashboard() {
   const filteredOrdens = ordens.filter(os => {
     if (filters.regional !== 'all' && os.regional_id !== filters.regional) return false;
     if (filters.almoxarifado !== 'all' && os.almoxarifado_id !== filters.almoxarifado) return false;
-    if (filters.categoria !== 'all' && os.categoria_id !== filters.categoria) return false;
+    
+    // Filtrar por categoria conforme a aba selecionada
+    if (activeTab === 'recebimento') {
+      if (os.categoria_id !== categoriaRecebimento?.id) return false;
+    } else if (activeTab === 'expedicao') {
+      if (os.categoria_id !== categoriaExpedicao?.id) return false;
+    } else {
+      // Aba geral, mapas e torre usam o filtro de categoria normal
+      if (filters.categoria !== 'all' && os.categoria_id !== filters.categoria) return false;
+    }
+    
     if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
     if (filters.status !== 'all' && os.status !== filters.status) return false;
     
