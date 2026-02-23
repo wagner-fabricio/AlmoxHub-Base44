@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
+import { motion, useMotionValue, useTransform } from 'framer-motion';
 
 export default function TouchGestures({ 
   children, 
