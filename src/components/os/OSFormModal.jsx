@@ -959,6 +959,32 @@ export default function OSFormModal({
                         </SelectContent>
                       </Select>
                     </div>
+
+                    {/* Projetos/Tags */}
+                    <div className="space-y-2">
+                      <Label className="text-slate-700 dark:text-slate-300 font-medium">Projetos/Tags</Label>
+                      <Select
+                        value={formData.projetos_ids?.[0] || ''}
+                        onValueChange={(v) => setFormData({ ...formData, projetos_ids: v ? [v] : [] })}
+                      >
+                        <SelectTrigger
+                          className="border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
+                          onKeyDown={(e) => {
+                            if ((e.key === 'Delete' || e.key === 'Backspace') && formData.projetos_ids?.[0]) {
+                              e.preventDefault();
+                              setFormData({ ...formData, projetos_ids: [] });
+                            }
+                          }}
+                        >
+                          <SelectValue placeholder="Selecione..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(projetos || []).map(p => (
+                            <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
 
