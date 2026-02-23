@@ -46,6 +46,7 @@ export default function OSFormModal({
   const [prazoError, setPrazoError] = useState('');
   const [importingXML, setImportingXML] = useState(false);
   const [problemasRecebimento, setProblemasRecebimento] = useState([]);
+  const [equipes, setEquipes] = useState([]);
   const isMountedRef = React.useRef(true);
   const [formData, setFormData] = useState({
     categoria_id: '',
@@ -127,18 +128,22 @@ export default function OSFormModal({
   useEffect(() => {
     isMountedRef.current = true;
 
-    // Carregar problemas de recebimento
-    const loadProblemas = async () => {
+    // Carregar problemas de recebimento e equipes
+    const loadData = async () => {
       try {
-        const problemas = await base44.entities.ProblemaRecebimento.list('-descricao_resumida');
+        const [problemas, equipesData] = await Promise.all([
+          base44.entities.ProblemaRecebimento.list('-descricao_resumida'),
+          base44.entities.Equipe.filter({ ativa: true })
+        ]);
         if (isMountedRef.current) {
           setProblemasRecebimento(problemas);
+          setEquipes(equipesData);
         }
       } catch (error) {
-        console.error('Erro ao carregar problemas:', error);
+        console.error('Erro ao carregar dados:', error);
       }
     };
-    loadProblemas();
+    loadData();
 
     if (os && os.id) {
       // Spread os data first, then override dates
@@ -1053,11 +1058,43 @@ export default function OSFormModal({
                     </div>
                   </div>
 
+                  {/* Seleção de Equipe */}
+                  <div className="space-y-2 col-span-full">
+                    <Label className="text-slate-700 dark:text-slate-300 font-medium">Equipe (Opcional)</Label>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                      Selecione uma equipe para preencher automaticamente líder e executores
+                    </p>
+                    <Select
+                      value=""
+                      onValueChange={(equipeId) => {
+                        const equipe = equipes.find(e => e.id === equipeId);
+                        if (equipe) {
+                          setFormData(prev => ({
+                            ...prev,
+                            lider_id: equipe.lider_id,
+                            executores_ids: equipe.membros_ids || []
+                          }));
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600">
+                        <SelectValue placeholder="Selecione uma equipe..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {equipes.map(e => (
+                          <SelectItem key={e.id} value={e.id}>
+                            {e.nome} ({e.membros_ids?.length || 0} membros)
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   {/* Executores - Largura Total */}
                   <div className="space-y-3 col-span-full">
                     <Label className="text-slate-700 dark:text-slate-300 font-medium">Executores</Label>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                      Selecione os usuários que irão executar esta tarefa
+                      Selecione os usuários que irão executar esta tarefa (ou use uma equipe acima)
                     </p>
                     <div className="border border-slate-300 dark:border-slate-600 rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto bg-slate-50/50 dark:bg-slate-800/50">
                     {formData.almoxarifado_id ? (
