@@ -15,6 +15,7 @@ import DashboardInsights from '@/components/dashboard/DashboardInsights';
 import OSPorPessoaChart from '@/components/dashboard/OSPorPessoaChart';
 import ExportDashboardButton from '@/components/dashboard/ExportDashboardButton';
 import DashboardCustomizer from '@/components/dashboard/DashboardCustomizer';
+import { isNoPrazo, isForaPrazo } from '@/components/dashboard/prazoHelpers';
 
 const COLORS = ['#0000FF', '#FF6B00', '#10B981', '#A0B4D2', '#0A003C', '#EC4899'];
 
@@ -1321,25 +1322,8 @@ export default function Dashboard() {
                     
                     const hoje = new Date();
                     
-                    const noPrazo = osMes.filter(os => {
-                      if (!os.prazo) return true;
-                      
-                      if (os.status === 'concluido' && os.data_conclusao) {
-                        return new Date(os.data_conclusao) <= new Date(os.prazo);
-                      }
-                      
-                      return new Date(os.prazo) >= hoje;
-                    }).length;
-                    
-                    const foraPrazo = osMes.filter(os => {
-                      if (!os.prazo) return false;
-                      
-                      if (os.status === 'concluido' && os.data_conclusao) {
-                        return new Date(os.data_conclusao) > new Date(os.prazo);
-                      }
-                      
-                      return new Date(os.prazo) < hoje;
-                    }).length;
+                    const noPrazo = osMes.filter(os => isNoPrazo(os, hoje)).length;
+                    const foraPrazo = osMes.filter(os => isForaPrazo(os, hoje)).length;
                     
                     return {
                       mes,
