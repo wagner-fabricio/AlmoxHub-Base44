@@ -280,6 +280,47 @@ export default function RecursosSection() {
       }
     },
     {
+      modulo: 'LGPD e Privacidade',
+      icon: Shield,
+      color: 'emerald',
+      descricao: 'Conformidade total com LGPD - Portal do Titular, RIPD e Anonimização',
+      funcionalidades: [
+        '✅ Portal do Titular público (sem login)',
+        'Solicitações: acesso, correção, exclusão, portabilidade, oposição',
+        'Protocolo automático LGPD-timestamp-random',
+        'Prazo legal de 15 dias (alerta automático)',
+        'Upload de comprovante de identidade',
+        'Email de confirmação ao titular',
+        'Tracking de solicitação (protocolo + email)',
+        '✅ Dashboard de Gestão (Admin/DPO)',
+        'Aprovar/rejeitar solicitações',
+        'Geração automática de dados do titular (acesso/portabilidade)',
+        'Resposta automática por email',
+        'Alertas de prazos próximos (5 dias)',
+        '✅ RIPD - Relatório de Impacto',
+        'Wizard 10 seções conforme ANPD',
+        'Identificação, tratamento, finalidade, riscos, mitigação',
+        'Versionamento e aprovação pelo DPO',
+        'Geração de PDF profissional',
+        '✅ Anonimização de Dados',
+        'Backend function anonimizarDados',
+        'Técnicas: masking, hashing SHA-256, generalização',
+        'Registro em AuditLog',
+        'Irreversibilidade garantida',
+        '✅ Consentimento Explícito',
+        'Modal no primeiro login',
+        'Gestão de consentimentos (aceitar/revogar)',
+        'Registro com IP e user-agent',
+        'Versionamento de termos'
+      ],
+      permissoes: {
+        publico: 'Portal do Titular (sem autenticação)',
+        admin: 'Gestão de solicitações, RIPD, anonimização',
+        dpo: 'Aprovar RIPD, gerenciar solicitações',
+        user: 'Gerenciar próprios consentimentos'
+      }
+    },
+    {
       modulo: 'Em Fluxo (Mobile)',
       icon: ClipboardList,
       color: 'lime',
