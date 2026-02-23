@@ -23,7 +23,8 @@ import {
   MessageSquare,
   Truck,
   Shield,
-  Bell
+  Bell,
+  BookOpen
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -48,6 +49,7 @@ const menuItems = [
   { name: 'Veículos Axia', icon: Truck, page: 'VeiculosAxia' },
   { name: 'Transportadoras', icon: Building2, page: 'Transportadoras' },
   { name: 'Problemas Recebimento', icon: Shield, page: 'ProblemasRecebimento', gestorOnly: true },
+  { name: 'Documentação', icon: BookOpen, page: 'Documentacao', gestorOnly: true },
 ];
 
 export default function Layout({ children, currentPageName }) {
