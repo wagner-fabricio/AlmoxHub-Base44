@@ -577,6 +577,18 @@ export default function Dashboard() {
           >
             Torre de Controle
           </TabsTrigger>
+          <TabsTrigger 
+            value="recebimento" 
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3"
+          >
+            Recebimento
+          </TabsTrigger>
+          <TabsTrigger 
+            value="expedicao" 
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3"
+          >
+            Expedição
+          </TabsTrigger>
         </TabsList>
 
         {/* ABA GERAL */}
