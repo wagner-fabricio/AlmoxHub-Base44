@@ -1547,28 +1547,12 @@ export default function Dashboard() {
                     
                     const hoje = new Date();
                     
-                    const itensNoPrazo = osMes.filter(os => {
-                      if (!os.prazo) return true;
-                      
-                      if (os.status === 'concluido' && os.data_conclusao) {
-                        return new Date(os.data_conclusao) <= new Date(os.prazo);
-                      }
-                      
-                      return new Date(os.prazo) >= hoje;
-                    }).reduce((sum, os) => {
+                    const itensNoPrazo = osMes.filter(os => isNoPrazo(os, hoje)).reduce((sum, os) => {
                       const qtdItens = (os.itens_documento?.length || 0) + (os.nfe_itens_conferencia?.length || 0);
                       return sum + qtdItens;
                     }, 0);
-                    
-                    const itensForaPrazo = osMes.filter(os => {
-                      if (!os.prazo) return false;
-                      
-                      if (os.status === 'concluido' && os.data_conclusao) {
-                        return new Date(os.data_conclusao) > new Date(os.prazo);
-                      }
-                      
-                      return new Date(os.prazo) < hoje;
-                    }).reduce((sum, os) => {
+
+                    const itensForaPrazo = osMes.filter(os => isForaPrazo(os, hoje)).reduce((sum, os) => {
                       const qtdItens = (os.itens_documento?.length || 0) + (os.nfe_itens_conferencia?.length || 0);
                       return sum + qtdItens;
                     }, 0);
@@ -1801,40 +1785,18 @@ export default function Dashboard() {
                     
                     const hoje = new Date();
                     
-                    const valorNoPrazo = osMes.filter(os => {
-                      if (!os.prazo) return true;
-                      
-                      if (os.status === 'concluido' && os.data_conclusao) {
-                        return new Date(os.data_conclusao) <= new Date(os.prazo);
-                      }
-                      
-                      return new Date(os.prazo) >= hoje;
-                    }).reduce((sum, os) => {
-                      // Valor de expedição vem de itens_documento
+                    const valorNoPrazo = osMes.filter(os => isNoPrazo(os, hoje)).reduce((sum, os) => {
                       const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
-                      // Valor de recebimento vem de nfe_itens_conferencia
                       const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => {
-                        // Cada item tem quantidade_esperada * valor (se existir no item)
                         const valorItem = (item.quantidade_esperada || 0) * (parseFloat(item.valor_unitario) || 0);
                         return s + valorItem;
                       }, 0);
                       return sum + valorExpedicao + valorRecebimento;
                     }, 0);
-                    
-                    const valorForaPrazo = osMes.filter(os => {
-                      if (!os.prazo) return false;
-                      
-                      if (os.status === 'concluido' && os.data_conclusao) {
-                        return new Date(os.data_conclusao) > new Date(os.prazo);
-                      }
-                      
-                      return new Date(os.prazo) < hoje;
-                    }).reduce((sum, os) => {
-                      // Valor de expedição vem de itens_documento
+
+                    const valorForaPrazo = osMes.filter(os => isForaPrazo(os, hoje)).reduce((sum, os) => {
                       const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
-                      // Valor de recebimento vem de nfe_itens_conferencia
                       const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => {
-                        // Cada item tem quantidade_esperada * valor (se existir no item)
                         const valorItem = (item.quantidade_esperada || 0) * (parseFloat(item.valor_unitario) || 0);
                         return s + valorItem;
                       }, 0);
