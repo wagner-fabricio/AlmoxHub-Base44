@@ -24,7 +24,8 @@ import {
   Truck,
   Shield,
   Bell,
-  BookOpen
+  BookOpen,
+  DollarSign
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -52,7 +53,9 @@ const menuItems = [
   { name: 'Transportadoras', icon: Building2, page: 'Transportadoras' },
   { name: 'Problemas Recebimento', icon: Shield, page: 'ProblemasRecebimento', gestorOnly: true },
   { name: 'Documentação', icon: BookOpen, page: 'Documentacao', gestorOnly: true },
-];
+  { name: 'Centros de Custo', icon: DollarSign, page: 'CentrosCusto', gestorOnly: true },
+  { name: 'Fornecedores', icon: Building2, page: 'Fornecedores', gestorOnly: true },
+  ];
 
 export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);

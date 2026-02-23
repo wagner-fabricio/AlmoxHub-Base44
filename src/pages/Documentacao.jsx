@@ -9,6 +9,7 @@ import ImplementacaoSection from '@/components/documentacao/ImplementacaoSection
 import OperacoesSection from '@/components/documentacao/OperacoesSection';
 import SegurancaSection from '@/components/documentacao/SegurancaSection';
 import RoadmapImplementacao from '@/components/documentacao/RoadmapImplementacao';
+import PrivacyByDesignSection from '@/components/documentacao/PrivacyByDesignSection';
 
 export default function Documentacao() {
   const [activeTab, setActiveTab] = useState('arquitetura');
@@ -57,7 +58,7 @@ export default function Documentacao() {
 
         {/* Main Content - Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7 gap-2 bg-white dark:bg-slate-800 p-2 rounded-xl">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-8 gap-2 bg-white dark:bg-slate-800 p-2 rounded-xl">
             <TabsTrigger value="arquitetura" className="flex items-center gap-2">
               <Code className="w-4 h-4" />
               <span className="hidden sm:inline">Arquitetura</span>
@@ -86,7 +87,11 @@ export default function Documentacao() {
               <Workflow className="w-4 h-4" />
               <span className="hidden sm:inline">Roadmap</span>
             </TabsTrigger>
-          </TabsList>
+            <TabsTrigger value="privacy" className="flex items-center gap-2">
+              <Shield className="w-4 h-4" />
+              <span className="hidden sm:inline">Privacy</span>
+            </TabsTrigger>
+            </TabsList>
 
           <TabsContent value="arquitetura" className="mt-6">
             <ArquiteturaSection />
@@ -114,6 +119,10 @@ export default function Documentacao() {
 
           <TabsContent value="roadmap" className="mt-6">
             <RoadmapImplementacao />
+          </TabsContent>
+
+          <TabsContent value="privacy" className="mt-6">
+            <PrivacyByDesignSection />
           </TabsContent>
           </Tabs>
           </div>
