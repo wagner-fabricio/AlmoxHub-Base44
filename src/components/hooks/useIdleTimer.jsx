@@ -58,15 +58,18 @@ export default function useIdleTimer(options = {}) {
   };
 
   useEffect(() => {
-    // Check last activity on mount
+    // Não inicializar timer durante autenticação (evita logout automático durante SSO)
+    if (window.location.pathname.includes('auth') || window.location.search.includes('code=')) {
+      return;
+    }
+
+    // Check last activity on mount - reseta o contador ao invés de fazer logout
     const lastActivity = localStorage.getItem('last_activity');
     if (lastActivity) {
       const timeSinceLastActivity = Date.now() - parseInt(lastActivity);
       if (timeSinceLastActivity >= timeout) {
-        // User was idle for too long, trigger idle immediately
-        setIsIdle(true);
-        if (onIdle) onIdle();
-        return;
+        // Limpar last_activity e resetar timer (não fazer logout automático)
+        localStorage.removeItem('last_activity');
       }
     }
 
