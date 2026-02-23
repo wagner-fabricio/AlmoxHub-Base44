@@ -49,11 +49,11 @@ const menuItems = [
   { name: 'Almoxarifados', icon: Warehouse, page: 'Almoxarifados' },
   { name: 'Instalações', icon: Building2, page: 'Instalacoes' },
   { name: 'Pessoas', icon: Users, page: 'Pessoas' },
-  { name: 'Equipes', icon: Users, page: 'Equipes', gestorOnly: true },
+  { name: 'Equipes', icon: Users, page: 'Equipes' },
   { name: 'Categorias', icon: Tags, page: 'Categorias' },
   { name: 'Veículos Axia', icon: Truck, page: 'VeiculosAxia' },
   { name: 'Transportadoras', icon: Building2, page: 'Transportadoras' },
-  { name: 'Delegação Permissões', icon: Shield, page: 'DelegacaoPermissoes', gestorOnly: true },
+  { name: 'Delegação Permissões', icon: Shield, page: 'DelegacaoPermissoes' },
   { name: 'Problemas Recebimento', icon: Shield, page: 'ProblemasRecebimento', gestorOnly: true },
   { name: 'Documentação', icon: BookOpen, page: 'Documentacao', gestorOnly: true },
 
