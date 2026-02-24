@@ -9,12 +9,12 @@ export default function TorreControleContent({
 }) {
   return (
     <div className="space-y-8">
-      <KanbanExecucao ordens={filteredOrdens} />
       <TorreControleTab 
         filteredOrdens={filteredOrdens}
         tempoMedioRegularizacaoCompra={tempoMedioRegularizacaoCompra}
         numItensNFCompra={numItensNFCompra}
       />
+      <KanbanExecucao ordens={filteredOrdens} />
     </div>
   );
 }
