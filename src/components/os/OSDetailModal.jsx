@@ -929,9 +929,9 @@ export default function OSDetailModal({
                       <thead className="bg-slate-50 dark:bg-slate-800">
                         <tr>
                           <th className="text-center p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Quantidade</th>
+                          <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Comp. (cm)</th>
                           <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Largura (cm)</th>
                           <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Altura (cm)</th>
-                          <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Comprimento (cm)</th>
                           <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Peso (kg)</th>
                           <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Volume (m³)</th>
                         </tr>
@@ -940,9 +940,9 @@ export default function OSDetailModal({
                         {os.volumes.map((volume, i) => (
                           <tr key={i} className="border-t border-slate-100 dark:border-slate-700">
                             <td className="p-3 text-center">{volume.quantidade || 1}</td>
+                            <td className="p-3 text-right">{volume.comprimento || '-'}</td>
                             <td className="p-3 text-right">{volume.largura || '-'}</td>
                             <td className="p-3 text-right">{volume.altura || '-'}</td>
-                            <td className="p-3 text-right">{volume.comprimento || '-'}</td>
                             <td className="p-3 text-right">{volume.peso_bruto || '-'}</td>
                             <td className="p-3 text-right">{volume.m3 || '-'}</td>
                           </tr>
