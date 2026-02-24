@@ -61,9 +61,9 @@ export default function OSVolumes({ volumes = [], onChange }) {
           <TableHeader>
             <TableRow className="bg-slate-50 dark:bg-slate-800">
               <TableHead className="w-24">Qtd</TableHead>
+              <TableHead>Comp. (cm)</TableHead>
               <TableHead>Largura (cm)</TableHead>
               <TableHead>Altura (cm)</TableHead>
-              <TableHead>Comp. (cm)</TableHead>
               <TableHead>Peso (kg)</TableHead>
               <TableHead>M³</TableHead>
               <TableHead className="w-12"></TableHead>
@@ -91,6 +91,14 @@ export default function OSVolumes({ volumes = [], onChange }) {
                   <TableCell>
                     <Input
                       type="number"
+                      value={vol.comprimento}
+                      onChange={(e) => updateVolume(index, 'comprimento', parseFloat(e.target.value) || 0)}
+                      className="h-8"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
                       value={vol.largura}
                       onChange={(e) => updateVolume(index, 'largura', parseFloat(e.target.value) || 0)}
                       className="h-8"
@@ -101,14 +109,6 @@ export default function OSVolumes({ volumes = [], onChange }) {
                       type="number"
                       value={vol.altura}
                       onChange={(e) => updateVolume(index, 'altura', parseFloat(e.target.value) || 0)}
-                      className="h-8"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      type="number"
-                      value={vol.comprimento}
-                      onChange={(e) => updateVolume(index, 'comprimento', parseFloat(e.target.value) || 0)}
                       className="h-8"
                     />
                   </TableCell>
