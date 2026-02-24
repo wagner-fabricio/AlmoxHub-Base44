@@ -1,8 +1,8 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LabelList } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Package, TrendingUp, DollarSign, ClipboardList, Timer } from 'lucide-react';
-import { format } from 'date-fns';
+import { Package, TrendingUp, DollarSign, ClipboardList, Timer, ArrowUp, ArrowDown } from 'lucide-react';
+import { format, subDays, startOfDay } from 'date-fns';
 import { isNoPrazo, isForaPrazo } from '@/components/dashboard/prazoHelpers';
 
 export default function TorreControleTab({ 
@@ -12,7 +12,42 @@ export default function TorreControleTab({
 }) {
   const currentYear = new Date().getFullYear();
   const hoje = new Date();
+  const ontem = subDays(hoje, 1);
   const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  
+  // Calcular dados de hoje e ontem para comparações
+  const ordensHoje = filteredOrdens.filter(os => {
+    const dataCreated = new Date(os.created_date);
+    return startOfDay(dataCreated).getTime() === startOfDay(hoje).getTime();
+  });
+  
+  const ordensOntem = filteredOrdens.filter(os => {
+    const dataCreated = new Date(os.created_date);
+    return startOfDay(dataCreated).getTime() === startOfDay(ontem).getTime();
+  });
+  
+  // Calcular comparativos
+  const totalOSHoje = ordensHoje.length;
+  const totalOSOntem = ordensOntem.length;
+  const variacaoOS = totalOSOntem > 0 ? (((totalOSHoje - totalOSOntem) / totalOSOntem) * 100).toFixed(1) : 0;
+  
+  const itensHoje = ordensHoje.reduce((sum, os) => sum + ((os.nfe_itens_conferencia || []).length + (os.itens_documento || []).length), 0);
+  const itensOntem = ordensOntem.reduce((sum, os) => sum + ((os.nfe_itens_conferencia || []).length + (os.itens_documento || []).length), 0);
+  const variacaoItens = itensOntem > 0 ? (((itensHoje - itensOntem) / itensOntem) * 100).toFixed(1) : 0;
+  
+  const valorHoje = ordensHoje.reduce((sum, os) => {
+    const valorExp = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
+    const valorRec = (os.nfe_itens_conferencia || []).reduce((s, item) => s + (parseFloat(item.valor_total) || 0), 0);
+    return sum + valorExp + valorRec;
+  }, 0);
+  
+  const valorOntem = ordensOntem.reduce((sum, os) => {
+    const valorExp = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
+    const valorRec = (os.nfe_itens_conferencia || []).reduce((s, item) => s + (parseFloat(item.valor_total) || 0), 0);
+    return sum + valorExp + valorRec;
+  }, 0);
+  
+  const variacaoValor = valorOntem > 0 ? (((valorHoje - valorOntem) / valorOntem) * 100).toFixed(1) : 0;
   
   // Dados mensais para OS
   const dadosMensaisOS = meses.map((mes, index) => {
