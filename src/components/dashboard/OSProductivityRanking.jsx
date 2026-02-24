@@ -139,7 +139,7 @@ export default function OSProductivityRanking({ ordens, pessoas }) {
                 {podiumRanking[1] && (
                   <div className="flex flex-col items-center" style={{ marginBottom: '40px' }}>
                     <div className="relative mb-3">
-                      <Avatar className="w-20 h-20 border-4" style={{ borderColor: '#A0B4D2' }}>
+                      <Avatar style={{ width: '80px', height: '80px', borderWidth: '4px', borderColor: '#A0B4D2' }}>
                         <AvatarImage src={podiumRanking[1].foto} />
                         <AvatarFallback className="text-white font-bold text-xl" style={{ background: '#A0B4D2' }}>
                           {podiumRanking[1].nome.charAt(0)}
@@ -163,7 +163,7 @@ export default function OSProductivityRanking({ ordens, pessoas }) {
                 {podiumRanking[0] && (
                   <div className="flex flex-col items-center">
                     <div className="relative mb-3">
-                      <Avatar className="w-24 h-24 border-4 border-amber-400">
+                      <Avatar style={{ width: '96px', height: '96px', borderWidth: '4px', borderColor: '#fbbf24' }}>
                         <AvatarImage src={podiumRanking[0].foto} />
                         <AvatarFallback className="bg-amber-400 text-white font-bold text-2xl">
                           {podiumRanking[0].nome.charAt(0)}
@@ -191,7 +191,7 @@ export default function OSProductivityRanking({ ordens, pessoas }) {
                 {podiumRanking[2] && (
                   <div className="flex flex-col items-center" style={{ marginBottom: '80px' }}>
                     <div className="relative mb-3">
-                      <Avatar className="w-18 h-18 border-4" style={{ borderColor: '#FF6B00' }}>
+                      <Avatar style={{ width: '72px', height: '72px', borderWidth: '4px', borderColor: '#FF6B00' }}>
                         <AvatarImage src={podiumRanking[2].foto} />
                         <AvatarFallback className="text-white font-bold text-lg" style={{ background: '#FF6B00' }}>
                           {podiumRanking[2].nome.charAt(0)}
@@ -261,7 +261,7 @@ export default function OSProductivityRanking({ ordens, pessoas }) {
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-3">
-                            <Avatar className="w-10 h-10">
+                            <Avatar style={{ width: '40px', height: '40px', minWidth: '40px' }}>
                               <AvatarImage src={pessoa.foto} />
                               <AvatarFallback className="text-sm">
                                 {pessoa.nome.charAt(0)}
