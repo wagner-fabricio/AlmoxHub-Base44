@@ -616,7 +616,7 @@ export default function Dashboard() {
             value="produtividade" 
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3"
           >
-            Produtividade
+            Painel Produtividade
           </TabsTrigger>
         </TabsList>
 
