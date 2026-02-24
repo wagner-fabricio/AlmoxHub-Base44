@@ -105,6 +105,22 @@ export default function TorreControleTab({
   const totalForaPrazo = osAnoCorrente.filter(os => isForaPrazo(os, hoje)).length;
   const totalOS = totalNoPrazo + totalForaPrazo;
   const percentualNoPrazoOS = totalOS > 0 ? ((totalNoPrazo / totalOS) * 100).toFixed(2) : 0;
+  
+  // Valores totais anuais para gráfico de rosca
+  const valorTotalNoPrazo = osAnoCorrente.filter(os => isNoPrazo(os, hoje)).reduce((sum, os) => {
+    const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
+    const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => s + (parseFloat(item.valor_total) || 0), 0);
+    return sum + valorExpedicao + valorRecebimento;
+  }, 0);
+  
+  const valorTotalForaPrazo = osAnoCorrente.filter(os => isForaPrazo(os, hoje)).reduce((sum, os) => {
+    const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
+    const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => s + (parseFloat(item.valor_total) || 0), 0);
+    return sum + valorExpedicao + valorRecebimento;
+  }, 0);
+  
+  const valorTotalAnual = valorTotalNoPrazo + valorTotalForaPrazo;
+  const percentualValorNoPrazo = valorTotalAnual > 0 ? ((valorTotalNoPrazo / valorTotalAnual) * 100).toFixed(2) : 0;
 
   return (
     <div className="space-y-6">
