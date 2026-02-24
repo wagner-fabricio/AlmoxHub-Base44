@@ -69,20 +69,29 @@ export default function TorreControleTab({
   // KPI: Tempo Médio Previsto (apenas informativo, sem comparação histórica confiável)
   const variacaoTempo = 0; // Não há dados históricos suficientes para comparação confiável
   
-  // Dados mensais para OS
+  // Dados mensais para OS (valores totais)
   const dadosMensaisOS = meses.map((mes, index) => {
     const osMes = filteredOrdens.filter(os => {
       const dataCreated = new Date(os.created_date);
       return dataCreated.getFullYear() === currentYear && dataCreated.getMonth() === index;
     });
     
-    const noPrazo = osMes.filter(os => isNoPrazo(os, hoje)).length;
-    const foraPrazo = osMes.filter(os => isForaPrazo(os, hoje)).length;
+    const valorNoPrazo = osMes.filter(os => isNoPrazo(os, hoje)).reduce((sum, os) => {
+      const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
+      const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => s + (parseFloat(item.valor_total) || 0), 0);
+      return sum + valorExpedicao + valorRecebimento;
+    }, 0);
+    
+    const valorForaPrazo = osMes.filter(os => isForaPrazo(os, hoje)).reduce((sum, os) => {
+      const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
+      const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => s + (parseFloat(item.valor_total) || 0), 0);
+      return sum + valorExpedicao + valorRecebimento;
+    }, 0);
     
     return {
       mes,
-      'No Prazo': noPrazo,
-      'Fora do Prazo': foraPrazo
+      'No Prazo': valorNoPrazo,
+      'Fora do Prazo': valorForaPrazo
     };
   });
 
