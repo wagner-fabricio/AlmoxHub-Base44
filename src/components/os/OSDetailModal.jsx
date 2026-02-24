@@ -928,12 +928,12 @@ export default function OSDetailModal({
                     <table className="w-full">
                       <thead className="bg-slate-50 dark:bg-slate-800">
                         <tr>
-                          <th className="text-center p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Quantidade</th>
+                          <th className="text-center p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Qtd</th>
                           <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Comp. (cm)</th>
                           <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Largura (cm)</th>
                           <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Altura (cm)</th>
                           <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Peso (kg)</th>
-                          <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Volume (m³)</th>
+                          <th className="text-right p-3 text-sm font-semibold text-slate-600 dark:text-slate-300">M³</th>
                         </tr>
                       </thead>
                       <tbody>
