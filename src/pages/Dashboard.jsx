@@ -17,6 +17,7 @@ import ExportDashboardButton from '@/components/dashboard/ExportDashboardButton'
 import DashboardCustomizer from '@/components/dashboard/DashboardCustomizer';
 import TorreControleContent from '@/components/dashboard/TorreControleContent';
 import TorreControleRecebimentoProblemas from '@/components/dashboard/TorreControleRecebimentoProblemas';
+import OSProductivityRanking from '@/components/dashboard/OSProductivityRanking';
 import { isNoPrazo, isForaPrazo } from '@/components/dashboard/prazoHelpers';
 
 const COLORS = ['#0000FF', '#FF6B00', '#10B981', '#A0B4D2', '#0A003C', '#EC4899'];
@@ -610,6 +611,12 @@ export default function Dashboard() {
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3"
           >
             Painel Expedição
+          </TabsTrigger>
+          <TabsTrigger 
+            value="produtividade" 
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3"
+          >
+            Produtividade
           </TabsTrigger>
         </TabsList>
 
@@ -1313,6 +1320,14 @@ export default function Dashboard() {
                 <div className="text-center py-12 text-slate-400">
                   <p>Conteúdo específico de expedição será adicionado em breve</p>
                 </div>
+              </TabsContent>
+
+              {/* ABA PRODUTIVIDADE */}
+              <TabsContent value="produtividade" className="mt-6 space-y-8">
+                <OSProductivityRanking
+                  ordens={filteredOrdens}
+                  pessoas={pessoas}
+                />
               </TabsContent>
               </Tabs>
               </div>
