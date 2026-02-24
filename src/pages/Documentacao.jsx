@@ -12,6 +12,7 @@ import RoadmapImplementacao from '@/components/documentacao/RoadmapImplementacao
 import PrivacyByDesignSection from '@/components/documentacao/PrivacyByDesignSection';
 import PlanoMelhoriasSeg from '@/components/documentacao/PlanoMelhoriasSeg';
 import PlanoDRSection from '@/components/documentacao/PlanoDRSection';
+import ExportDocumentacaoButton from '@/components/documentacao/ExportDocumentacaoButton';
 
 export default function Documentacao() {
   const [activeTab, setActiveTab] = useState('arquitetura');
@@ -20,18 +21,21 @@ export default function Documentacao() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center">
-            <BookOpen className="w-8 h-8 text-white" />
+        <div className="flex items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center">
+              <BookOpen className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+                Documentação Técnica - AlmoxHub
+              </h1>
+              <p className="text-slate-600 dark:text-slate-400 mt-1">
+                Single Source of Truth para desenvolvedores e stakeholders técnicos
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-              Documentação Técnica - AlmoxHub
-            </h1>
-            <p className="text-slate-600 dark:text-slate-400 mt-1">
-              Single Source of Truth para desenvolvedores e stakeholders técnicos
-            </p>
-          </div>
+          <ExportDocumentacaoButton />
         </div>
 
         {/* Version Badge */}
