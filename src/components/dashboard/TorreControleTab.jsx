@@ -14,6 +14,61 @@ export default function TorreControleTab({
   const hoje = new Date();
   const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
   
+  // Cálculo de período anterior (30 dias atrás)
+  const mesAtual = hoje.getMonth();
+  const mesAnterior = mesAtual === 0 ? 11 : mesAtual - 1;
+  const anoMesAnterior = mesAtual === 0 ? currentYear - 1 : currentYear;
+  
+  // Filtrar OS do mês atual
+  const osAtual = filteredOrdens.filter(os => {
+    const dataCreated = new Date(os.created_date);
+    return dataCreated.getFullYear() === currentYear && dataCreated.getMonth() === mesAtual;
+  });
+  
+  // Filtrar OS do mês anterior
+  const osAnterior = filteredOrdens.filter(os => {
+    const dataCreated = new Date(os.created_date);
+    return dataCreated.getFullYear() === anoMesAnterior && dataCreated.getMonth() === mesAnterior;
+  });
+  
+  // KPI: Total de OS
+  const totalOSAtual = osAtual.length;
+  const totalOSAnterior = osAnterior.length;
+  const variacaoTotalOS = totalOSAnterior > 0 ? (((totalOSAtual - totalOSAnterior) / totalOSAnterior) * 100).toFixed(1) : 0;
+  
+  // KPI: Nº de Itens
+  const numItensAtual = osAtual.reduce((sum, os) => {
+    const itensExpedicao = (os.itens_documento || []).length;
+    const itensRecebimento = (os.nfe_itens_conferencia || []).length;
+    return sum + itensExpedicao + itensRecebimento;
+  }, 0);
+  
+  const numItensAnterior = osAnterior.reduce((sum, os) => {
+    const itensExpedicao = (os.itens_documento || []).length;
+    const itensRecebimento = (os.nfe_itens_conferencia || []).length;
+    return sum + itensExpedicao + itensRecebimento;
+  }, 0);
+  
+  const variacaoItens = numItensAnterior > 0 ? (((numItensAtual - numItensAnterior) / numItensAnterior) * 100).toFixed(1) : 0;
+  
+  // KPI: Valor Total
+  const valorTotalAtual = osAtual.reduce((sum, os) => {
+    const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
+    const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => s + (parseFloat(item.valor_total) || 0), 0);
+    return sum + valorExpedicao + valorRecebimento;
+  }, 0);
+  
+  const valorTotalAnterior = osAnterior.reduce((sum, os) => {
+    const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
+    const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => s + (parseFloat(item.valor_total) || 0), 0);
+    return sum + valorExpedicao + valorRecebimento;
+  }, 0);
+  
+  const variacaoValor = valorTotalAnterior > 0 ? (((valorTotalAtual - valorTotalAnterior) / valorTotalAnterior) * 100).toFixed(1) : 0;
+  
+  // KPI: Tempo Médio Previsto (apenas informativo, sem comparação histórica confiável)
+  const variacaoTempo = 0; // Não há dados históricos suficientes para comparação confiável
+  
   // Dados mensais para OS
   const dadosMensaisOS = meses.map((mes, index) => {
     const osMes = filteredOrdens.filter(os => {
