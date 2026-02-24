@@ -278,9 +278,9 @@ export default function Layout({ children, currentPageName }) {
         <aside className={`
           fixed lg:static inset-y-0 left-0 z-50
           bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700
-          transform transition-all duration-300 ease-in-out
+          transform transition-all duration-300 ease-in-out flex-shrink-0
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          ${sidebarCollapsed ? 'w-20' : 'w-72'}
+          ${sidebarCollapsed ? 'lg:w-20' : 'w-72'}
         `}>
           <div className="flex flex-col h-full">
             {/* Logo */}
@@ -331,7 +331,7 @@ export default function Layout({ children, currentPageName }) {
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+            <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto overflow-x-hidden">
               {(menuItems || []).filter(item => {
                 // Filtrar itens restritos a gestores
                 if (item.gestorOnly) {
@@ -353,7 +353,7 @@ export default function Layout({ children, currentPageName }) {
                     to={createPageUrl(item.page)}
                     className={`
                       flex items-center gap-3 rounded-xl transition-all duration-200
-                      ${sidebarCollapsed ? 'px-4 py-3 justify-center' : 'px-4 py-3'}
+                      ${sidebarCollapsed ? 'lg:px-4 px-4 py-3 lg:justify-center' : 'px-4 py-3'}
                       ${isActive 
                         ? 'font-medium shadow-sm' 
                         : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50'
@@ -366,8 +366,8 @@ export default function Layout({ children, currentPageName }) {
                     onClick={() => setSidebarOpen(false)}
                     title={sidebarCollapsed ? item.name : ''}
                   >
-                    <Icon className={`w-5 h-5 ${sidebarCollapsed ? '' : 'shrink-0'}`} style={isActive ? { color: '#0000FF' } : {}} />
-                    {!sidebarCollapsed && <span>{item.name}</span>}
+                    <Icon className="w-5 h-5 shrink-0" style={isActive ? { color: '#0000FF' } : {}} />
+                    <span className={sidebarCollapsed ? 'lg:hidden' : ''}>{item.name}</span>
                   </Link>
                 );
               })}
