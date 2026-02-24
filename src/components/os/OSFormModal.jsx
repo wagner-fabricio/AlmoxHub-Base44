@@ -530,6 +530,7 @@ export default function OSFormModal({
 
       console.log('Dados a serem salvos:', dataToSave);
       console.log('Itens documento:', dataToSave.itens_documento);
+      console.log('NFe Itens Conferência:', dataToSave.nfe_itens_conferencia);
 
       let savedOS;
       if (os?.id) {

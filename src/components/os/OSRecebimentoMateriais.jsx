@@ -129,6 +129,8 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData
     const newItens = [...itens];
     newItens[index] = { ...newItens[index], [field]: value };
     
+    console.log('Item atualizado:', { index, field, value, item: newItens[index] });
+    
     // Atualizar status baseado na comparação
     const qtdEsperada = newItens[index].quantidade_esperada;
     const qtdRecebida = newItens[index].quantidade_recebida;
