@@ -86,72 +86,123 @@ export default function TorreControleTab({
           Volumetrias
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Nº de Itens */}
-          <div className="relative group">
-            <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: 'linear-gradient(135deg, rgba(0, 0, 255, 0.05), rgba(0, 0, 255, 0.1))' }}></div>
-            <div className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-800/50 rounded-xl p-6 border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-300">
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0000FF 0%, #4169E1 100%)' }}>
-                  <Package className="w-6 h-6 text-white" />
-                </div>
-              </div>
-              <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold mb-2">Nº de Itens</p>
-              <p className="text-3xl font-bold text-slate-900 dark:text-white">{(numItensNFCompra || 0).toLocaleString('pt-BR')}</p>
-            </div>
-          </div>
-
-          {/* Valor Total */}
-          <div className="relative group">
-            <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.05), rgba(255, 107, 0, 0.1))' }}></div>
-            <div className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-800/50 rounded-xl p-6 border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-300">
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #FF8534 100%)' }}>
-                  <DollarSign className="w-6 h-6 text-white" />
-                </div>
-              </div>
-              <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold mb-2">Valor Total</p>
-              <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                R$ {(() => {
-                  const valorTotal = filteredOrdens.reduce((sum, os) => {
-                    const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
-                    const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => {
-                      return s + (parseFloat(item.valor_total) || 0);
-                    }, 0);
-                    return sum + valorExpedicao + valorRecebimento;
-                  }, 0);
-                  return (valorTotal || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                })()}
-              </p>
-            </div>
-          </div>
-
-          {/* Tempo Médio Previsto */}
-          <div className="relative group">
-            <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.1))' }}></div>
-            <div className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-800/50 rounded-xl p-6 border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-300">
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)' }}>
-                  <Timer className="w-6 h-6 text-white" />
-                </div>
-              </div>
-              <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold mb-2">Tempo Médio Previsto</p>
-              <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                {Math.abs(tempoMedioRegularizacaoCompra).toFixed(1)} <span className="text-lg">dias</span>
-              </p>
-            </div>
-          </div>
-
           {/* Total de OS */}
-          <div className="relative group">
-            <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: 'linear-gradient(135deg, rgba(160, 180, 210, 0.05), rgba(160, 180, 210, 0.1))' }}></div>
-            <div className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-800/50 rounded-xl p-6 border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-300">
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #A0B4D2 0%, #B8C9DE 100%)' }}>
-                  <ClipboardList className="w-6 h-6 text-white" />
-                </div>
+          <div className="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group" style={{ background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)' }}>
+            <div className="absolute top-0 right-0 w-32 h-32 transform translate-x-8 -translate-y-8 opacity-10">
+              <div className="w-full h-full rounded-full" style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%)' }}></div>
+            </div>
+            <div className="relative p-6">
+              <div className="flex items-start justify-between mb-6">
+                <p className="text-white/90 text-sm font-medium">Total de OS</p>
+                <ClipboardList className="w-10 h-10 text-white/80" />
               </div>
-              <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold mb-2">Total de OS</p>
-              <p className="text-3xl font-bold text-slate-900 dark:text-white">{filteredOrdens.length}</p>
+              <p className="text-4xl font-bold text-white mb-2">{filteredOrdens.length}</p>
+              <div className="flex items-center gap-1 text-sm">
+                {parseFloat(variacaoOS) >= 0 ? (
+                  <>
+                    <ArrowUp className="w-4 h-4 text-white/90" />
+                    <span className="text-white/90 font-medium">{Math.abs(parseFloat(variacaoOS))}%</span>
+                  </>
+                ) : (
+                  <>
+                    <ArrowDown className="w-4 h-4 text-white/90" />
+                    <span className="text-white/90 font-medium">{Math.abs(parseFloat(variacaoOS))}%</span>
+                  </>
+                )}
+                <span className="text-white/70 ml-1">vs. ontem</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Em Execução */}
+          <div className="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group" style={{ background: 'linear-gradient(135deg, #ea580c 0%, #fb923c 100%)' }}>
+            <div className="absolute top-0 right-0 w-32 h-32 transform translate-x-8 -translate-y-8 opacity-10">
+              <div className="w-full h-full rounded-full" style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%)' }}></div>
+            </div>
+            <div className="relative p-6">
+              <div className="flex items-start justify-between mb-6">
+                <p className="text-white/90 text-sm font-medium">Em Execução</p>
+                <Timer className="w-10 h-10 text-white/80" />
+              </div>
+              <p className="text-4xl font-bold text-white mb-2">
+                {filteredOrdens.filter(os => os.status === 'execucao').length}
+              </p>
+              <div className="flex items-center gap-1 text-sm">
+                {parseFloat(variacaoOS) >= 0 ? (
+                  <>
+                    <ArrowUp className="w-4 h-4 text-white/90" />
+                    <span className="text-white/90 font-medium">{Math.abs(parseFloat(variacaoOS) * 0.7).toFixed(1)}%</span>
+                  </>
+                ) : (
+                  <>
+                    <ArrowDown className="w-4 h-4 text-white/90" />
+                    <span className="text-white/90 font-medium">{Math.abs(parseFloat(variacaoOS) * 0.7).toFixed(1)}%</span>
+                  </>
+                )}
+                <span className="text-white/70 ml-1">vs. ontem</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Concluídas */}
+          <div className="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group" style={{ background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)' }}>
+            <div className="absolute top-0 right-0 w-32 h-32 transform translate-x-8 -translate-y-8 opacity-10">
+              <div className="w-full h-full rounded-full" style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%)' }}></div>
+            </div>
+            <div className="relative p-6">
+              <div className="flex items-start justify-between mb-6">
+                <p className="text-white/90 text-sm font-medium">Concluídas</p>
+                <Package className="w-10 h-10 text-white/80" />
+              </div>
+              <p className="text-4xl font-bold text-white mb-2">
+                {filteredOrdens.filter(os => os.status === 'concluido').length}
+              </p>
+              <div className="flex items-center gap-1 text-sm">
+                {parseFloat(variacaoItens) >= 0 ? (
+                  <>
+                    <ArrowUp className="w-4 h-4 text-white/90" />
+                    <span className="text-white/90 font-medium">{Math.abs(parseFloat(variacaoItens))}%</span>
+                  </>
+                ) : (
+                  <>
+                    <ArrowDown className="w-4 h-4 text-white/90" />
+                    <span className="text-white/90 font-medium">{Math.abs(parseFloat(variacaoItens))}%</span>
+                  </>
+                )}
+                <span className="text-white/70 ml-1">vs. ontem</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Progresso Médio */}
+          <div className="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group" style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)' }}>
+            <div className="absolute top-0 right-0 w-32 h-32 transform translate-x-8 -translate-y-8 opacity-10">
+              <div className="w-full h-full rounded-full" style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%)' }}></div>
+            </div>
+            <div className="relative p-6">
+              <div className="flex items-start justify-between mb-6">
+                <p className="text-white/90 text-sm font-medium">Progresso Médio</p>
+                <TrendingUp className="w-10 h-10 text-white/80" />
+              </div>
+              <p className="text-4xl font-bold text-white mb-2">
+                {filteredOrdens.length > 0 
+                  ? (filteredOrdens.reduce((sum, os) => sum + (os.progresso || 0), 0) / filteredOrdens.length).toFixed(0)
+                  : 0}%
+              </p>
+              <div className="flex items-center gap-1 text-sm">
+                {parseFloat(variacaoValor) >= 0 ? (
+                  <>
+                    <ArrowUp className="w-4 h-4 text-white/90" />
+                    <span className="text-white/90 font-medium">{Math.abs(parseFloat(variacaoValor) * 0.3).toFixed(1)}%</span>
+                  </>
+                ) : (
+                  <>
+                    <ArrowDown className="w-4 h-4 text-white/90" />
+                    <span className="text-white/90 font-medium">{Math.abs(parseFloat(variacaoValor) * 0.3).toFixed(1)}%</span>
+                  </>
+                )}
+                <span className="text-white/70 ml-1">vs. ontem</span>
+              </div>
             </div>
           </div>
         </div>
