@@ -105,74 +105,86 @@ export default function TorreControleTab({
           <div className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(to bottom, #0000FF, #4169E1)' }}></div>
           Volumetrias
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Nº de Itens */}
-          <div className="relative group">
-            <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: 'linear-gradient(135deg, rgba(0, 0, 255, 0.05), rgba(0, 0, 255, 0.1))' }}></div>
-            <div className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-800/50 rounded-xl p-6 border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-300">
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0000FF 0%, #4169E1 100%)' }}>
-                  <Package className="w-6 h-6 text-white" />
-                </div>
+          <div 
+            className="relative rounded-2xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105" 
+            style={{ background: 'linear-gradient(135deg, #5B21B6 0%, #7C3AED 100%)' }}
+          >
+            <div className="flex items-start justify-between mb-6">
+              <p className="text-sm font-medium text-white/90">Nº de Itens</p>
+              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <Package className="w-5 h-5 text-white" />
               </div>
-              <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold mb-2">Nº de Itens</p>
-              <p className="text-3xl font-bold text-slate-900 dark:text-white">{(numItensNFCompra || 0).toLocaleString('pt-BR')}</p>
             </div>
+            <p className="text-4xl font-bold text-white mb-2">{(numItensNFCompra || 0).toLocaleString('pt-BR')}</p>
+            <p className="text-xs text-white/80">
+              {variacaoItens >= 0 ? '↑' : '↓'} {Math.abs(variacaoItens)}% vs. ontem
+            </p>
           </div>
 
           {/* Valor Total */}
-          <div className="relative group">
-            <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.05), rgba(255, 107, 0, 0.1))' }}></div>
-            <div className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-800/50 rounded-xl p-6 border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-300">
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #FF8534 100%)' }}>
-                  <DollarSign className="w-6 h-6 text-white" />
-                </div>
+          <div 
+            className="relative rounded-2xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105" 
+            style={{ background: 'linear-gradient(135deg, #EA580C 0%, #F97316 100%)' }}
+          >
+            <div className="flex items-start justify-between mb-6">
+              <p className="text-sm font-medium text-white/90">Valor Total</p>
+              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <DollarSign className="w-5 h-5 text-white" />
               </div>
-              <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold mb-2">Valor Total</p>
-              <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                R$ {(() => {
-                  const valorTotal = filteredOrdens.reduce((sum, os) => {
-                    const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
-                    const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => {
-                      return s + (parseFloat(item.valor_total) || 0);
-                    }, 0);
-                    return sum + valorExpedicao + valorRecebimento;
-                  }, 0);
-                  return (valorTotal || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                })()}
-              </p>
             </div>
+            <p className="text-4xl font-bold text-white mb-2">
+              R$ {(() => {
+                const valorTotal = filteredOrdens.reduce((sum, os) => {
+                  const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
+                  const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => {
+                    return s + (parseFloat(item.valor_total) || 0);
+                  }, 0);
+                  return sum + valorExpedicao + valorRecebimento;
+                }, 0);
+                return (valorTotal || 0).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+              })()}
+            </p>
+            <p className="text-xs text-white/80">
+              {variacaoValor >= 0 ? '↑' : '↓'} {Math.abs(variacaoValor)}% vs. ontem
+            </p>
           </div>
 
           {/* Tempo Médio Previsto */}
-          <div className="relative group">
-            <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.1))' }}></div>
-            <div className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-800/50 rounded-xl p-6 border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-300">
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)' }}>
-                  <Timer className="w-6 h-6 text-white" />
-                </div>
+          <div 
+            className="relative rounded-2xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105" 
+            style={{ background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)' }}
+          >
+            <div className="flex items-start justify-between mb-6">
+              <p className="text-sm font-medium text-white/90">Tempo Médio Previsto</p>
+              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <Timer className="w-5 h-5 text-white" />
               </div>
-              <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold mb-2">Tempo Médio Previsto</p>
-              <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                {Math.abs(tempoMedioRegularizacaoCompra).toFixed(1)} <span className="text-lg">dias</span>
-              </p>
             </div>
+            <p className="text-4xl font-bold text-white mb-2">
+              {Math.abs(tempoMedioRegularizacaoCompra).toFixed(1)} dias
+            </p>
+            <p className="text-xs text-white/80">
+              Conforme filtros aplicados
+            </p>
           </div>
 
           {/* Total de OS */}
-          <div className="relative group">
-            <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: 'linear-gradient(135deg, rgba(160, 180, 210, 0.05), rgba(160, 180, 210, 0.1))' }}></div>
-            <div className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-800/50 rounded-xl p-6 border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-300">
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #A0B4D2 0%, #B8C9DE 100%)' }}>
-                  <ClipboardList className="w-6 h-6 text-white" />
-                </div>
+          <div 
+            className="relative rounded-2xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105" 
+            style={{ background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)' }}
+          >
+            <div className="flex items-start justify-between mb-6">
+              <p className="text-sm font-medium text-white/90">Total de OS</p>
+              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <ClipboardList className="w-5 h-5 text-white" />
               </div>
-              <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold mb-2">Total de OS</p>
-              <p className="text-3xl font-bold text-slate-900 dark:text-white">{filteredOrdens.length}</p>
             </div>
+            <p className="text-4xl font-bold text-white mb-2">{filteredOrdens.length}</p>
+            <p className="text-xs text-white/80">
+              {variacaoTotalOS >= 0 ? '↑' : '↓'} {Math.abs(variacaoTotalOS)}% vs. ontem
+            </p>
           </div>
         </div>
       </div>
