@@ -275,16 +275,16 @@ export default function Layout({ children, currentPageName }) {
         )}
 
         {/* Sidebar */}
-        <aside className={`
+        <aside style={{ minWidth: sidebarCollapsed ? '80px' : undefined }} className={`
           fixed lg:static inset-y-0 left-0 z-50
           bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700
           transform transition-all duration-300 ease-in-out flex-shrink-0
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          ${sidebarCollapsed ? 'lg:w-20' : 'w-72'}
+          ${sidebarCollapsed ? 'w-20' : 'w-72'}
         `}>
           <div className="flex flex-col h-full">
             {/* Logo */}
-            <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-700">
+            <div className={`h-16 flex items-center justify-between border-b border-slate-200 dark:border-slate-700 ${sidebarCollapsed ? 'px-2' : 'px-6'}`}>
               {!sidebarCollapsed ? (
                 <>
                   <Link to={createPageUrl('Dashboard')} className="flex items-center gap-3">
@@ -313,7 +313,7 @@ export default function Layout({ children, currentPageName }) {
                   </div>
                 </>
               ) : (
-                <>
+                <div className="w-full flex flex-col items-center gap-2">
                   <Link to={createPageUrl('Dashboard')} className="flex justify-center">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#0000FF' }}>
                       <Zap className="w-6 h-6 text-white" />
@@ -321,17 +321,17 @@ export default function Layout({ children, currentPageName }) {
                   </Link>
                   <button
                     onClick={toggleSidebarCollapse}
-                    className="hidden lg:block p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all"
+                    className="hidden lg:block p-1 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all"
                     title="Expandir menu"
                   >
-                    <span className="font-bold text-lg">»</span>
+                    <span className="font-bold text-sm">»</span>
                   </button>
-                </>
+                </div>
               )}
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto overflow-x-hidden">
+            <nav className={`flex-1 py-6 space-y-1 overflow-y-auto overflow-x-hidden ${sidebarCollapsed ? 'px-2' : 'px-4'}`}>
               {(menuItems || []).filter(item => {
                 // Filtrar itens restritos a gestores
                 if (item.gestorOnly) {
@@ -352,8 +352,8 @@ export default function Layout({ children, currentPageName }) {
                     key={item.page}
                     to={createPageUrl(item.page)}
                     className={`
-                      flex items-center gap-3 rounded-xl transition-all duration-200
-                      ${sidebarCollapsed ? 'lg:px-4 px-4 py-3 lg:justify-center' : 'px-4 py-3'}
+                      flex items-center rounded-xl transition-all duration-200
+                      ${sidebarCollapsed ? 'justify-center p-3' : 'gap-3 px-4 py-3'}
                       ${isActive 
                         ? 'font-medium shadow-sm' 
                         : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50'
@@ -367,14 +367,14 @@ export default function Layout({ children, currentPageName }) {
                     title={sidebarCollapsed ? item.name : ''}
                   >
                     <Icon className="w-5 h-5 shrink-0" style={isActive ? { color: '#0000FF' } : {}} />
-                    <span className={sidebarCollapsed ? 'lg:hidden' : ''}>{item.name}</span>
+                    {!sidebarCollapsed && <span>{item.name}</span>}
                   </Link>
                 );
               })}
             </nav>
 
             {/* User Section */}
-            <div className="p-4 border-t border-slate-200 dark:border-slate-700">
+            <div className={`border-t border-slate-200 dark:border-slate-700 ${sidebarCollapsed ? 'p-2' : 'p-4'}`}>
               {!sidebarCollapsed ? (
                 <div className="flex items-center gap-3 px-3 py-2">
                   {pessoa?.foto_perfil ? (
@@ -460,7 +460,7 @@ export default function Layout({ children, currentPageName }) {
               ) : (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="w-full flex justify-center">
+                    <button className="w-full flex justify-center py-2">
                       {pessoa?.foto_perfil ? (
                         <img
                           src={pessoa.foto_perfil}
