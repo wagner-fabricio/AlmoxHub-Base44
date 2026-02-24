@@ -1152,6 +1152,8 @@ export default function OSDetailModal({
                             <th className="text-left p-3 font-semibold text-slate-600 dark:text-slate-300">Descrição</th>
                             <th className="text-center p-3 font-semibold text-slate-600 dark:text-slate-300">Esperada</th>
                             <th className="text-center p-3 font-semibold text-slate-600 dark:text-slate-300">Recebida</th>
+                            <th className="text-right p-3 font-semibold text-slate-600 dark:text-slate-300">Valor Unit.</th>
+                            <th className="text-right p-3 font-semibold text-slate-600 dark:text-slate-300">Valor Total</th>
                             <th className="text-left p-3 font-semibold text-slate-600 dark:text-slate-300">Status</th>
                           </tr>
                         </thead>
@@ -1162,6 +1164,12 @@ export default function OSDetailModal({
                               <td className="p-3">{item.descricao}</td>
                               <td className="p-3 text-center">{item.quantidade_esperada} {item.unidade}</td>
                               <td className="p-3 text-center font-medium">{item.quantidade_recebida || '-'}</td>
+                              <td className="p-3 text-right font-mono text-sm">
+                                {(item.valor_unitario || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                              </td>
+                              <td className="p-3 text-right font-mono text-sm">
+                                {((item.quantidade_esperada || 0) * (item.valor_unitario || 0)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                              </td>
                               <td className="p-3">
                                 <span className={`text-xs px-2 py-1 rounded-full ${
                                   item.status_conferencia === 'completo' ? 'bg-green-100 text-green-700' :
