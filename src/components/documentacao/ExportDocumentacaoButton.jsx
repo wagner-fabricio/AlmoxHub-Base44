@@ -257,6 +257,8 @@ export default function ExportDocumentacaoButton() {
       addText('• Revisar e aprovar solicitações de acesso diariamente', 11);
       addText('• Configurar alertas personalizados por regional', 11);
       addText('• Exportar dados regularmente para backup externo', 11);
+      addText('• Gerar documentação técnica em PDF para auditoria', 11);
+      addText('• Timeout de sessão configurado em 1h para equilíbrio segurança/usabilidade', 11);
 
       // 5. OPERAÇÕES
       addNewPage();
@@ -278,6 +280,7 @@ export default function ExportDocumentacaoButton() {
 
       addText('5.3 Suporte e Troubleshooting', 16, true);
       addText('• Documentação inline no sistema', 11);
+      addText('• Exportação completa de documentação técnica em PDF', 11);
       addText('• Logs detalhados para debugging', 11);
       addText('• Sistema de notificação de erros', 11);
 
@@ -312,8 +315,11 @@ export default function ExportDocumentacaoButton() {
       yPos += 5;
 
       addText('Q1 2026 (Atual)', 16, true);
-      addText('• [DONE] Dashboard Analytics completo', 11);
-      addText('• [DONE] Sistema de mensagens e notificações', 11);
+      addText('✓ Dashboard Analytics completo', 11);
+      addText('✓ Sistema de mensagens e notificações', 11);
+      addText('✓ Exportação completa de documentação em PDF', 11);
+      addText('✓ Correção de timezone em formulários de datas', 11);
+      addText('✓ Ajuste de timeout de sessão para 1 hora', 11);
       addText('• [EM PROGRESSO] Integração SAP', 11);
       yPos += 3;
 
@@ -367,6 +373,8 @@ export default function ExportDocumentacaoButton() {
       addText('✓ Validação de entrada em todos os formulários', 11);
       addText('✓ Sanitização de dados para prevenir XSS', 11);
       addText('✓ Headers de segurança (CSP, HSTS)', 11);
+      addText('✓ Timeout de sessão ajustado para 1 hora (segurança + usabilidade)', 11);
+      addText('✓ Correção de timezone para garantir consistência de datas', 11);
       yPos += 3;
 
       addText('9.2 Próximas Melhorias', 16, true);
