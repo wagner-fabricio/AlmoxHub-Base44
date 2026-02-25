@@ -1304,6 +1304,11 @@ export default function Dashboard() {
 
               {/* ABA PRODUTIVIDADE */}
               <TabsContent value="produtividade" className="mt-6 space-y-8">
+                <OSProductivityRanking
+                  ordens={filteredOrdens}
+                  pessoas={pessoas}
+                />
+
                 {/* Gráfico de Esforço por Pessoa */}
                 {isWidgetVisible('esforco-pessoa') && (
                 <Card className="bg-white dark:bg-slate-800">
@@ -1323,11 +1328,6 @@ export default function Dashboard() {
                   </CardContent>
                 </Card>
                 )}
-
-                <OSProductivityRanking
-                  ordens={filteredOrdens}
-                  pessoas={pessoas}
-                />
               </TabsContent>
               </Tabs>
               </div>
