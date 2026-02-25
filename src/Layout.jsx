@@ -72,9 +72,9 @@ export default function Layout({ children, currentPageName }) {
   const [almoxarifados, setAlmoxarifados] = useState([]);
   const [showConsentimento, setShowConsentimento] = useState(false);
 
-  // Idle Timer (15 minutes)
+  // Idle Timer (1 hour)
   const { showWarning, remainingTime, resetTimer } = useIdleTimer({
-    timeout: 15 * 60 * 1000, // 15 minutes
+    timeout: 60 * 60 * 1000, // 1 hour
     warningTime: 2 * 60 * 1000, // 2 minutes warning
     onIdle: () => {
       base44.auth.logout(createPageUrl('ThankYou'));
