@@ -148,6 +148,15 @@ export default function OSFormModal({
     loadData();
 
     if (os && os.id) {
+      // Helper para converter data do banco para formato do input date (sem conversão de timezone)
+      const formatDateForInput = (dateString) => {
+        if (!dateString) return '';
+        // Se já está no formato YYYY-MM-DD, retorna direto
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) return dateString;
+        // Se tem hora/timezone, pega apenas a data sem converter timezone
+        return dateString.split('T')[0];
+      };
+
       // Spread os data first, then override dates
       const newFormData = {
         categoria_id: os.categoria_id || '',
@@ -158,20 +167,20 @@ export default function OSFormModal({
         atendente_nome: os.atendente_nome || '',
         executores_ids: os.executores_ids || [],
         outros_envolvidos_ids: os.outros_envolvidos_ids || [],
-        prazo: os.prazo ? os.prazo.split('T')[0] : '',
-        data_inicial: os.data_inicial ? os.data_inicial.split('T')[0] : '',
-        data_conclusao: os.data_conclusao ? os.data_conclusao.split('T')[0] : '',
+        prazo: formatDateForInput(os.prazo),
+        data_inicial: formatDateForInput(os.data_inicial),
+        data_conclusao: formatDateForInput(os.data_conclusao),
         prioridade: os.prioridade || 'media',
         status: os.status || 'elaboracao',
         anotacoes: os.anotacoes || '',
         projetos_ids: os.projetos_ids || [],
         descricao_resumida: os.descricao_resumida || '',
         num_reserva: os.num_reserva || '',
-        data_reserva: os.data_reserva ? os.data_reserva.split('T')[0] : '',
+        data_reserva: formatDateForInput(os.data_reserva),
         usuario_reserva: os.usuario_reserva || '',
         usuario_reserva_email: os.usuario_reserva_email || '',
         orgao: os.orgao || '',
-        data_migo: os.data_migo ? os.data_migo.split('T')[0] : '',
+        data_migo: formatDateForInput(os.data_migo),
         num_migo: os.num_migo || '',
         vinculacao: os.vinculacao || '',
         instalacao_origem_id: os.instalacao_origem_id || '',
@@ -181,8 +190,8 @@ export default function OSFormModal({
         detalhamento_expedicao: os.detalhamento_expedicao || [],
         status_separacao: os.status_separacao || 'pendente',
         responsavel_separacao: os.responsavel_separacao || '',
-        data_separacao: os.data_separacao ? os.data_separacao.split('T')[0] : '',
-        data_entrega: os.data_entrega ? os.data_entrega.split('T')[0] : '',
+        data_separacao: formatDateForInput(os.data_separacao),
+        data_entrega: formatDateForInput(os.data_entrega),
         anexos: os.anexos || [],
         imagens: os.imagens || [],
         nfe_numero: os.nfe_numero || '',
@@ -198,16 +207,16 @@ export default function OSFormModal({
         nfe_numero_receb: os.nfe_numero_receb || '',
         nfe_data_receb: os.nfe_data_receb || '',
         numero_migo_receb: os.numero_migo_receb || '',
-        data_migo_receb: os.data_migo_receb ? os.data_migo_receb.split('T')[0] : '',
+        data_migo_receb: formatDateForInput(os.data_migo_receb),
         numero_v360: os.numero_v360 || '',
         doc_referencia: os.doc_referencia || '',
-        data_recebimento: os.data_recebimento ? os.data_recebimento.split('T')[0] : '',
+        data_recebimento: formatDateForInput(os.data_recebimento),
         problema_recebimento: os.problema_recebimento || false,
         problemas_recebimento_ids: os.problemas_recebimento_ids || [],
         resumo_pendencias: os.resumo_pendencias || '',
         acoes_acompanhamento: os.acoes_acompanhamento || '',
         como_foi_solucionado: os.como_foi_solucionado || '',
-        data_solucao: os.data_solucao ? os.data_solucao.split('T')[0] : '',
+        data_solucao: formatDateForInput(os.data_solucao),
         problemas_anexos: os.problemas_anexos || [],
         fluxo_recebimento: os.fluxo_recebimento || {
           etapa_atual: 1,
