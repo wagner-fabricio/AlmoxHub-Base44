@@ -780,26 +780,6 @@ export default function Dashboard() {
       </div>
       )}
 
-      {/* Gráfico de Esforço por Pessoa */}
-      {isWidgetVisible('esforco-pessoa') && (
-      <Card className="bg-white dark:bg-slate-800">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <Users className="w-5 h-5 text-blue-500" />
-            Esforço por Pessoa
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <OSPorPessoaChart 
-            ordens={filteredOrdens} 
-            pessoas={pessoas}
-            regionais={regionais}
-            almoxarifados={almoxarifados}
-          />
-        </CardContent>
-      </Card>
-      )}
-
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* OS by Regional */}
@@ -1324,6 +1304,26 @@ export default function Dashboard() {
 
               {/* ABA PRODUTIVIDADE */}
               <TabsContent value="produtividade" className="mt-6 space-y-8">
+                {/* Gráfico de Esforço por Pessoa */}
+                {isWidgetVisible('esforco-pessoa') && (
+                <Card className="bg-white dark:bg-slate-800">
+                  <CardHeader>
+                    <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                      <Users className="w-5 h-5 text-blue-500" />
+                      Esforço por Pessoa
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <OSPorPessoaChart 
+                      ordens={filteredOrdens} 
+                      pessoas={pessoas}
+                      regionais={regionais}
+                      almoxarifados={almoxarifados}
+                    />
+                  </CardContent>
+                </Card>
+                )}
+
                 <OSProductivityRanking
                   ordens={filteredOrdens}
                   pessoas={pessoas}
