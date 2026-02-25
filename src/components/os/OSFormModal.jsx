@@ -830,7 +830,8 @@ export default function OSFormModal({
         // Mapear campos principais
         const updates = {
           num_reserva: data.itens?.[0]?.reserva || '',
-          data_migo: data.data_documento ? format(new Date(data.data_documento.split('.').reverse().join('-')), 'yyyy-MM-dd') : '',
+          // Converter data DD.MM.YYYY para YYYY-MM-DD sem conversão de timezone
+          data_migo: data.data_documento ? data.data_documento.split('.').reverse().join('-') : '',
           atendente_nome: data.processado_por_nome ? `${data.processado_por_nome} (${data.processado_por_matricula || ''})`.trim() : '',
           descricao_resumida: data.itens?.[0]?.observacao || '',
           anotacoes: `Centro de estoque: ${data.centro_estoque || ''}, Local Entrega: ${data.nome_local_entrega || ''}, Centro de custo: ${data.centro_custo || ''}, Tipo de movimento: ${data.tipo_movimento || ''}`,
