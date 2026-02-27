@@ -94,7 +94,9 @@ function addTotalizadorRow(ws, data, colsNumericas) {
   return totalRow;
 }
 
-export default function ExportTorreControleButton({ filteredOrdens }) {
+export default function ExportTorreControleButton({ filteredOrdens, pessoas = [], categorias = [], regionais = [], almoxarifados = [] }) {
+  const getNome = (arr, id, campo = 'nome') => arr.find(i => i.id === id)?.[campo] || '';
+  const getLiderNome = (id) => pessoas.find(p => p.id === id)?.nome || id || '';
   const [loading, setLoading] = useState(false);
 
   const handleExport = () => {
