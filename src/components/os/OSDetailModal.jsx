@@ -103,6 +103,9 @@ export default function OSDetailModal({
       loadUser();
       loadAuditLogs();
       setLocalOS(os);
+      if (os.rotulos_ids?.length > 0) {
+        base44.entities.Rotulo.filter({ ativo: true }).then(setRotulos).catch(() => {});
+      }
     }
   }, [open, os]);
 
