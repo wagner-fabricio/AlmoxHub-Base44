@@ -95,6 +95,7 @@ export default function OSDetailModal({
   const [savingSeparacao, setSavingSeparacao] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [auditLogs, setAuditLogs] = useState([]);
+  const [rotulos, setRotulos] = useState([]);
 
   useEffect(() => {
     if (open && os) {
