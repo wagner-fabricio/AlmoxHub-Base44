@@ -74,7 +74,7 @@ export default function OrdensServico() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [user, ordensData, regionaisData, almoxarifadosData, pessoasData, categoriasData, subcategoriasData, projetosData, instalacoesData] = await Promise.all([
+      const [user, ordensData, regionaisData, almoxarifadosData, pessoasData, categoriasData, subcategoriasData, projetosData, instalacoesData, rotulosData] = await Promise.all([
         base44.auth.me(),
         base44.entities.OrdemServico.list(),
         base44.entities.Regional.list(),
@@ -83,7 +83,8 @@ export default function OrdensServico() {
         base44.entities.Categoria.list(),
         base44.entities.Subcategoria.list(),
         base44.entities.Projeto.list(),
-        base44.entities.Instalacao.list()
+        base44.entities.Instalacao.list(),
+        base44.entities.Rotulo.filter({ ativo: true })
       ]);
       
       setCurrentUser(user);
