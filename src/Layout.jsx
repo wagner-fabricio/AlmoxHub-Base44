@@ -57,6 +57,7 @@ const menuItems = [
   { name: 'Problemas Recebimento', icon: Shield, page: 'ProblemasRecebimento', gestorOnly: true },
   { name: 'Documentação', icon: BookOpen, page: 'Documentacao', gestorOnly: true },
 
+  { name: 'Rótulos', icon: Tags, page: 'Rotulos', gestorOnly: true },
   { name: 'Fornecedores', icon: Building2, page: 'Fornecedores', adminOnly: true },
   { name: 'Centros de Custo', icon: DollarSign, page: 'CentrosCusto', adminOnly: true },
 ];
