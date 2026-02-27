@@ -903,6 +903,18 @@ export default function OSDetailModal({
                       </div>
                     </div>
                   )}
+
+                  {os.rotulos_ids && os.rotulos_ids.length > 0 && (
+                    <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 md:col-span-2 lg:col-span-3">
+                      <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center shrink-0">
+                        <Tag className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Rótulos</p>
+                        <RotuloBadges rotulosIds={os.rotulos_ids} maxVisible={10} />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Description */}
