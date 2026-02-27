@@ -1310,7 +1310,7 @@ export default function Dashboard() {
                   pessoas={pessoas}
                 />
 
-                {/* Gráfico de Esforço por Pessoa */}
+                {/* Gráfico de Ranking de Líderes */}
                 {isWidgetVisible('esforco-pessoa') && (
                 <Card className="bg-white dark:bg-slate-800">
                   <CardHeader>
@@ -1329,6 +1329,22 @@ export default function Dashboard() {
                   </CardContent>
                 </Card>
                 )}
+
+                {/* Gráfico de Ranking de Atendentes */}
+                <Card className="bg-white dark:bg-slate-800">
+                  <CardHeader>
+                    <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                      <Users className="w-5 h-5 text-emerald-500" />
+                      Ranking de Atendentes
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <OSPorAtendenteChart 
+                      ordens={filteredOrdens} 
+                      pessoas={pessoas}
+                    />
+                  </CardContent>
+                </Card>
               </TabsContent>
               </Tabs>
               </div>
