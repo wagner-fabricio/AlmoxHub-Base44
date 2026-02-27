@@ -110,7 +110,7 @@ export default function ExportTorreControleButton({ filteredOrdens, pessoas = []
         const colsNumericas = ['Nº Itens', 'Valor Expedição (R$)', 'Valor Recebimento (R$)', 'Valor Total (R$)', 'Progresso (%)'];
 
         // ======= ABA 1: Todas as OS (base completa para drilldown) =======
-        const todasRows = filteredOrdens.map(os => buildOSRow(os, hoje, currentYear));
+        const todasRows = filteredOrdens.map(os => buildOSRow(os, hoje, currentYear, pessoas, categorias, regionais, almoxarifados));
         const totalGeralRow = addTotalizadorRow(null, todasRows, colsNumericas);
         const wsAll = XLSX.utils.json_to_sheet([...todasRows, totalGeralRow]);
         // Destacar linha totalizadora (última linha)
