@@ -415,6 +415,15 @@ export default function OSFormModal({
                         <SelectContent>{(projetos || []).map(p => (<SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>))}</SelectContent>
                       </Select>
                     </div>
+                    <div className="space-y-2">
+                      <Label className="text-slate-700 dark:text-slate-300 font-medium">Rótulos</Label>
+                      <RotuloSelector
+                        selectedIds={formData.rotulos_ids || []}
+                        onChange={(ids) => setFormData({ ...formData, rotulos_ids: ids })}
+                        regionalId={formData.regional_id}
+                        currentUserFuncoes={currentPessoa?.funcoes || []}
+                      />
+                    </div>
                   </div>
                 </div>
 
