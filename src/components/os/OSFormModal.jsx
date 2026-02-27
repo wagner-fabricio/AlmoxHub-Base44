@@ -24,6 +24,7 @@ import OSRecebimentoTransportador from './OSRecebimentoTransportador.jsx';
 import OSRecebimentoMateriais from './OSRecebimentoMateriais.jsx';
 import OSFluxoRecebimento from './OSFluxoRecebimento.jsx';
 import OSPrazosControle from './OSPrazosControle.jsx';
+import RotuloSelector from '@/components/rotulos/RotuloSelector';
 
 export default function OSFormModal({
   open,
@@ -64,6 +65,7 @@ export default function OSFormModal({
     status: 'elaboracao',
     anotacoes: '',
     projetos_ids: [],
+    rotulos_ids: [],
     descricao_resumida: '',
     num_reserva: '',
     data_reserva: '',
