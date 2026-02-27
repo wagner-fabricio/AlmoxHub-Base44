@@ -76,11 +76,11 @@ import PortalTitular from './pages/PortalTitular';
 import ProblemasRecebimento from './pages/ProblemasRecebimento';
 import Projetos from './pages/Projetos';
 import Regionais from './pages/Regionais';
+import Rotulos from './pages/Rotulos';
 import ThankYou from './pages/ThankYou';
 import Transportadoras from './pages/Transportadoras';
 import UserApproval from './pages/UserApproval';
 import VeiculosAxia from './pages/VeiculosAxia';
-import Rotulos from './pages/Rotulos';
 import __Layout from './Layout.jsx';
 
 
@@ -114,11 +114,11 @@ export const PAGES = {
     "ProblemasRecebimento": ProblemasRecebimento,
     "Projetos": Projetos,
     "Regionais": Regionais,
+    "Rotulos": Rotulos,
     "ThankYou": ThankYou,
     "Transportadoras": Transportadoras,
     "UserApproval": UserApproval,
     "VeiculosAxia": VeiculosAxia,
-    "Rotulos": Rotulos,
 }
 
 export const pagesConfig = {

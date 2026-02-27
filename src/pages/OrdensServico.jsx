@@ -25,6 +25,7 @@ export default function OrdensServico() {
   const [subcategorias, setSubcategorias] = useState([]);
   const [projetos, setProjetos] = useState([]);
   const [instalacoes, setInstalacoes] = useState([]);
+  const [rotulos, setRotulos] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [currentPessoa, setCurrentPessoa] = useState(null);
   
