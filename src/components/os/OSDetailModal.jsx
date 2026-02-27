@@ -914,7 +914,20 @@ export default function OSDetailModal({
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Rótulos</p>
-                        <RotuloBadges rotulosIds={os.rotulos_ids} maxVisible={10} />
+                        <div className="flex flex-wrap gap-1.5">
+                          {os.rotulos_ids.map(id => {
+                            const r = rotulos.find(x => x.id === id);
+                            if (!r) return null;
+                            const hex = (r.cor || '000000').replace('#', '');
+                            const lum = (0.299 * parseInt(hex.substr(0,2),16) + 0.587 * parseInt(hex.substr(2,2),16) + 0.114 * parseInt(hex.substr(4,2),16)) / 255;
+                            const textColor = lum > 0.5 ? '#000000' : '#ffffff';
+                            return (
+                              <span key={id} className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: r.cor, color: textColor }}>
+                                {r.nome}
+                              </span>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
                   )}
