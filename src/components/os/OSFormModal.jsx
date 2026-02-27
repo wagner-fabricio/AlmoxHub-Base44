@@ -485,20 +485,6 @@ export default function OSFormModal({
                   </div>
                 </div>
 
-                {/* Seção: Rótulos */}
-                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-                  <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
-                    <div className="w-1 h-4 bg-gradient-to-b from-[#3b82f6] to-[#0000FF] rounded-full"></div>
-                    Rótulos
-                  </h3>
-                  <RotuloSelector
-                    selectedIds={formData.rotulos_ids || []}
-                    onChange={(ids) => setFormData({ ...formData, rotulos_ids: ids })}
-                    regionalId={formData.regional_id}
-                    currentUserFuncoes={currentPessoa?.funcoes || []}
-                  />
-                </div>
-
                 {/* Seção 3: Prazos e Controle */}
                 <OSPrazosControle formData={formData} setFormData={setFormData} prazoError={prazoError} setPrazoError={setPrazoError} projetos={projetos} isExpedicaoCategory={isExpedicaoCategory} isRecebimentoCategory={isRecebimentoCategory} />
 
