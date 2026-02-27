@@ -238,6 +238,27 @@ export default function OSFormModal({
           for (const [campo, valores] of Object.entries(camposAlterados)) {
             await base44.functions.invoke('registrarAuditLog', { action: 'update', entity_type: 'OrdemServico', entity_id: os.id, details: { campo, ...valores } });
           }
+
+          // Registrar mudança de rótulos separadamente com nomes legíveis
+          const rotulosAntes = os.rotulos_ids || [];
+          const rotulosDepois = dataToSave.rotulos_ids || [];
+          if (JSON.stringify([...rotulosAntes].sort()) !== JSON.stringify([...rotulosDepois].sort())) {
+            try {
+              const todosRotulos = await base44.entities.Rotulo.filter({ ativo: true });
+              const nomesAntes = rotulosAntes.map(id => todosRotulos.find(r => r.id === id)?.nome).filter(Boolean);
+              const nomesDepois = rotulosDepois.map(id => todosRotulos.find(r => r.id === id)?.nome).filter(Boolean);
+              await base44.functions.invoke('registrarAuditLog', {
+                action: 'update',
+                entity_type: 'OrdemServico',
+                entity_id: os.id,
+                details: {
+                  campo: 'rotulos_ids',
+                  valor_anterior: nomesAntes.length > 0 ? nomesAntes.join(', ') : '(nenhum)',
+                  valor_novo: nomesDepois.length > 0 ? nomesDepois.join(', ') : '(nenhum)'
+                }
+              });
+            } catch (e) {}
+          }
         } catch (e) {}
       } else {
         savedOS = await base44.entities.OrdemServico.create(dataToSave);
