@@ -6,12 +6,22 @@ import ExportTorreControleButton from './ExportTorreControleButton';
 export default function TorreControleContent({
   filteredOrdens,
   tempoMedioRegularizacaoCompra,
-  numItensNFCompra
+  numItensNFCompra,
+  pessoas = [],
+  categorias = [],
+  regionais = [],
+  almoxarifados = []
 }) {
   return (
     <div className="space-y-8">
       <div className="flex justify-end">
-        <ExportTorreControleButton filteredOrdens={filteredOrdens} />
+        <ExportTorreControleButton
+          filteredOrdens={filteredOrdens}
+          pessoas={pessoas}
+          categorias={categorias}
+          regionais={regionais}
+          almoxarifados={almoxarifados}
+        />
       </div>
       <TorreControleTab 
         filteredOrdens={filteredOrdens}
