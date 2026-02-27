@@ -80,6 +80,7 @@ import ThankYou from './pages/ThankYou';
 import Transportadoras from './pages/Transportadoras';
 import UserApproval from './pages/UserApproval';
 import VeiculosAxia from './pages/VeiculosAxia';
+import Rotulos from './pages/Rotulos';
 import __Layout from './Layout.jsx';
 
 
@@ -117,6 +118,7 @@ export const PAGES = {
     "Transportadoras": Transportadoras,
     "UserApproval": UserApproval,
     "VeiculosAxia": VeiculosAxia,
+    "Rotulos": Rotulos,
 }
 
 export const pagesConfig = {
