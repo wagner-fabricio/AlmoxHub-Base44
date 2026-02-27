@@ -221,7 +221,7 @@ export default function OSProductivityRanking({ ordens, pessoas }) {
         <div className="lg:col-span-3">
           <Card className="bg-white dark:bg-slate-800 h-full">
             <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-semibold">Ranking Completo</CardTitle>
+              <CardTitle className="text-lg font-semibold">Ranking de Executores</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="overflow-auto max-h-[500px]">
