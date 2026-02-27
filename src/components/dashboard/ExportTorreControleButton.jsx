@@ -41,7 +41,7 @@ function formatCurrency(val) {
   return parseFloat(val.toFixed(2));
 }
 
-function buildOSRow(os, hoje, currentYear) {
+function buildOSRow(os, hoje, currentYear, pessoas, categorias, regionais, almoxarifados) {
   const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
   const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => s + (parseFloat(item.valor_total) || 0), 0);
   const valorTotal = valorExpedicao + valorRecebimento;
