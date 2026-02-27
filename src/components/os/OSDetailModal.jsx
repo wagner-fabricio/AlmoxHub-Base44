@@ -39,7 +39,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import RelatorioSeparacao from './RelatorioSeparacao';
-import RotuloBadges from '@/components/rotulos/RotuloBadges';
 import RelatorioConferencia from './RelatorioConferencia';
 import ExpedicaoProgressTracker from './ExpedicaoProgressTracker';
 import OSFluxoRecebimento from './OSFluxoRecebimento';
