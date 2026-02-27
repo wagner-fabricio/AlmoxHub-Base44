@@ -4,26 +4,28 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Trophy, TrendingUp, Target, Medal } from 'lucide-react';
 
 export default function OSProductivityRanking({ ordens, pessoas }) {
-  // Calcular métricas por pessoa (líder)
+  // Calcular métricas por pessoa (executor)
   const rankingData = useMemo(() => {
     const pessoasMap = new Map();
 
-    // Agrupar OS por lider_id
+    // Agrupar OS por executores_ids
     ordens.forEach(os => {
-      if (!os.lider_id) return;
+      if (!os.executores_ids?.length) return;
       
-      if (!pessoasMap.has(os.lider_id)) {
-        pessoasMap.set(os.lider_id, {
-          totalOS: 0,
-          concluidas: 0,
-          emExecucao: 0
-        });
-      }
-      
-      const metrics = pessoasMap.get(os.lider_id);
-      metrics.totalOS += 1;
-      if (os.status === 'concluido') metrics.concluidas += 1;
-      if (os.status === 'execucao') metrics.emExecucao += 1;
+      os.executores_ids.forEach(executorId => {
+        if (!pessoasMap.has(executorId)) {
+          pessoasMap.set(executorId, {
+            totalOS: 0,
+            concluidas: 0,
+            emExecucao: 0
+          });
+        }
+        
+        const metrics = pessoasMap.get(executorId);
+        metrics.totalOS += 1;
+        if (os.status === 'concluido') metrics.concluidas += 1;
+        if (os.status === 'execucao') metrics.emExecucao += 1;
+      });
     });
 
     // Criar ranking com dados das pessoas
@@ -227,7 +229,7 @@ export default function OSProductivityRanking({ ordens, pessoas }) {
                   <thead className="sticky top-0 z-10" style={{ background: 'linear-gradient(135deg, #0000FF 0%, #0A003C 100%)' }}>
                     <tr>
                       <th className="text-left py-3 px-4 text-white text-sm font-semibold">Rank</th>
-                      <th className="text-left py-3 px-4 text-white text-sm font-semibold">Líder</th>
+                      <th className="text-left py-3 px-4 text-white text-sm font-semibold">Executor</th>
                       <th className="text-right py-3 px-4 text-white text-sm font-semibold">Total OS</th>
                       <th className="text-right py-3 px-4 text-white text-sm font-semibold hidden sm:table-cell">Concluídas</th>
                       <th className="text-right py-3 px-4 text-white text-sm font-semibold hidden md:table-cell">Em Execução</th>
