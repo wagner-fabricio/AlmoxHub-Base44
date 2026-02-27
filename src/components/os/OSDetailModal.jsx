@@ -1693,7 +1693,8 @@ export default function OSDetailModal({
                         data_inicial: 'Data Inicial',
                         data_conclusao: 'Data de Conclusão',
                         anotacoes: 'Anotações',
-                        descricao_resumida: 'Descrição'
+                        descricao_resumida: 'Descrição',
+                        rotulos_ids: 'Rótulos'
                       };
 
                       return (
