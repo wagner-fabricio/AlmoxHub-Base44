@@ -516,6 +516,7 @@ export default function OrdensServico() {
                   regionais={regionais}
                   instalacoes={instalacoes}
                   onOSClick={handleOSClick}
+                  rotulos={rotulos}
                 />
               )}
               {viewMode === 'responsavel' && (
