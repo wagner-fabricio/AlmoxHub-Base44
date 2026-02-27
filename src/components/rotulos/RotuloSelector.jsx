@@ -154,7 +154,7 @@ export default function RotuloSelector({ selectedIds = [], onChange, regionalId,
 
       {/* Dropdown Planner-style */}
       {open && (
-        <div className="absolute z-50 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl w-72 overflow-hidden">
+        <div className="relative z-50 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl w-72 overflow-hidden">
           {/* Busca */}
           <div className="p-3 border-b border-slate-100 dark:border-slate-700 flex items-center gap-2">
             <Search className="w-4 h-4 text-slate-400 shrink-0" />
