@@ -113,6 +113,7 @@ export default function OrdensServico() {
       setSubcategorias(subcategoriasData);
       setProjetos(projetosData);
       setInstalacoes(instalacoesData);
+      setRotulos(rotulosData);
 
       // Check for OS ID in URL params (from notification or external link)
       const urlParams = new URLSearchParams(window.location.search);
