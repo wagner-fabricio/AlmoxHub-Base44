@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Calendar, User, Paperclip, MessageSquare, AlertTriangle, Clock, PackageCheck, MapPin } from 'lucide-react';
 import { format, isPast, isToday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import RotuloBadges from '@/components/rotulos/RotuloBadges';
 
 const prioridadeConfig = {
   baixa: { color: 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300', label: 'Baixa' },
@@ -20,7 +21,7 @@ const statusConfig = {
   cancelado: { color: 'bg-red-500', label: 'Cancelado' },
 };
 
-export default function OSCard({ os, onClick, lider, categoria, regional, instalacoes }) {
+export default function OSCard({ os, onClick, lider, categoria, regional, instalacoes, rotulos = [] }) {
   const prazoDate = os.prazo ? new Date(os.prazo) : null;
   const isOverdue = prazoDate && isPast(prazoDate) && os.status !== 'concluido';
   const isDueToday = prazoDate && isToday(prazoDate);
@@ -39,6 +40,13 @@ export default function OSCard({ os, onClick, lider, categoria, regional, instal
       style={{ borderColor: getBorderColor() }}
       onClick={() => onClick?.(os)}
     >
+      {/* Rótulos */}
+      {os.rotulos_ids?.length > 0 && rotulos.length > 0 && (
+        <div className="mb-2">
+          <RotuloBadges rotulos={rotulos.filter(r => os.rotulos_ids?.includes(r.id))} max={4} />
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-start justify-between gap-2 mb-3">
         <div className="flex-1 min-w-0">
