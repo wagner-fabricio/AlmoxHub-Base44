@@ -99,6 +99,8 @@ export default function Projetos() {
       nome: item.nome || '',
       descricao: item.descricao || '',
       cor: item.cor || '#3B82F6',
+      regional_id: item.regional_id || '',
+      almoxarifado_id: item.almoxarifado_id || '',
       lider_id: item.lider_id || '',
       outros_envolvidos_ids: item.outros_envolvidos_ids || [],
       ativo: item.ativo !== false
