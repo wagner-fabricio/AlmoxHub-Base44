@@ -48,6 +48,7 @@ export default function OSAtendimentoMateriais({ itens = [], onChange }) {
                   <TableRow className="bg-slate-50 dark:bg-slate-800">
                     <TableHead className="font-semibold">Código</TableHead>
                     <TableHead className="font-semibold">Descrição</TableHead>
+                    <TableHead className="font-semibold w-28">Quantidade</TableHead>
                     <TableHead className="font-semibold">Endereço</TableHead>
                     <TableHead className="w-12"></TableHead>
                   </TableRow>
