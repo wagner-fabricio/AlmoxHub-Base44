@@ -27,6 +27,7 @@ export default function Projetos() {
   const [projetos, setProjetos] = useState([]);
   const [ordens, setOrdens] = useState([]);
   const [pessoas, setPessoas] = useState([]);
+  const [regionais, setRegionais] = useState([]);
   const [almoxarifados, setAlmoxarifados] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [expandedProjetoId, setExpandedProjetoId] = useState(null);
