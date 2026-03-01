@@ -206,8 +206,8 @@ export default function Projetos() {
 
       {/* Search and View Toggle */}
       <Card className="p-4 mb-6">
-        <div className="flex gap-3">
-          <div className="relative flex-1">
+        <div className="flex flex-wrap gap-3">
+          <div className="relative flex-1 min-w-48">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input
               placeholder="Buscar projetos..."
@@ -216,6 +216,28 @@ export default function Projetos() {
               className="pl-10"
             />
           </div>
+          <Select value={filterRegional} onValueChange={(v) => { setFilterRegional(v === 'all' ? '' : v); setFilterAlmoxarifado(''); }}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Todas as regionais" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as regionais</SelectItem>
+              {regionais.map(r => (
+                <SelectItem key={r.id} value={r.id}>{r.sigla} - {r.descricao}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={filterAlmoxarifado} onValueChange={(v) => setFilterAlmoxarifado(v === 'all' ? '' : v)} disabled={!filterRegional}>
+            <SelectTrigger className="w-52">
+              <SelectValue placeholder={filterRegional ? "Todos os almoxarifados" : "Selecione a regional"} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os almoxarifados</SelectItem>
+              {filteredAlmoxarifadosByFilterRegional.map(a => (
+                <SelectItem key={a.id} value={a.id}>{a.nome}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <div className="flex border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
             <Button
               variant={viewMode === 'cards' ? 'default' : 'ghost'}
