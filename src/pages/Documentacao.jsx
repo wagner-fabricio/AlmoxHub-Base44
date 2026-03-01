@@ -115,47 +115,5 @@ export default function Documentacao() {
   );
 }
 
-          <TabsContent value="arquitetura" className="mt-6">
-            <ArquiteturaSection />
-          </TabsContent>
 
-          <TabsContent value="recursos" className="mt-6">
-            <RecursosSection />
-          </TabsContent>
-
-          <TabsContent value="status" className="mt-6">
-            <StatusRecursosSection />
-          </TabsContent>
-
-          <TabsContent value="implementacao" className="mt-6">
-            <ImplementacaoSection />
-          </TabsContent>
-
-          <TabsContent value="operacoes" className="mt-6">
-            <OperacoesSection />
-          </TabsContent>
-
-          <TabsContent value="seguranca" className="mt-6">
-            <SegurancaSection />
-          </TabsContent>
-
-          <TabsContent value="roadmap" className="mt-6">
-            <RoadmapImplementacao />
-          </TabsContent>
-
-          <TabsContent value="privacy" className="mt-6">
-            <PrivacyByDesignSection />
-          </TabsContent>
-
-          <TabsContent value="melhorias" className="mt-6">
-            <PlanoMelhoriasSeg />
-          </TabsContent>
-
-          <TabsContent value="dr" className="mt-6">
-            <PlanoDRSection />
-          </TabsContent>
-          </Tabs>
-          </div>
-          </div>
-          );
           }
