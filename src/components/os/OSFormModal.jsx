@@ -428,6 +428,13 @@ export default function OSFormModal({
                       </Select>
                     </div>
                     <div className="space-y-2">
+                      <Label className="text-slate-700 dark:text-slate-300 font-medium">Almoxarifado *</Label>
+                      <Select value={formData.almoxarifado_id} onValueChange={(v) => { const selectedAlmox = (filteredAlmoxarifados || []).find(a => a.id === v); setFormData({ ...formData, almoxarifado_id: v, executores_ids: [], atendente_nome: '', instalacao_origem_id: selectedAlmox?.instalacao_id || '' }); }}>
+                        <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg"><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                        <SelectContent>{(filteredAlmoxarifados || []).map(a => (<SelectItem key={a.id} value={a.id}>{a.nome}</SelectItem>))}</SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
                       <Label className="text-slate-700 dark:text-slate-300 font-medium">Projetos/Tags</Label>
                       <Select value={formData.projetos_ids?.[0] || ''} onValueChange={(v) => setFormData({ ...formData, projetos_ids: v ? [v] : [] })}>
                         <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg" onKeyDown={(e) => { if ((e.key === 'Delete' || e.key === 'Backspace') && formData.projetos_ids?.[0]) { e.preventDefault(); setFormData({ ...formData, projetos_ids: [] }); } }}>
