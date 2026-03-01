@@ -290,8 +290,10 @@ export default function OSFormModal({
         onSave?.(isNew, { ...dataToSave, id: savedOS.id || os?.id });
         toast.success(`OS ${codigo || savedOS.codigo} salva com sucesso!`);
       }
-      await new Promise(resolve => setTimeout(resolve, 100));
-      if (isMountedRef.current) onClose();
+      if (closeAfter) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        if (isMountedRef.current) onClose();
+      }
     } catch (error) {
       console.error('Error saving OS:', error);
       if (isMountedRef.current) toast.error('Erro ao salvar OS', { description: error.message });
