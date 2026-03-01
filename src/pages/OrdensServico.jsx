@@ -681,7 +681,7 @@ export default function OrdensServico() {
       {/* Form Modal */}
       <OSFormModal
         open={showFormModal}
-        onClose={() => setShowFormModal(false)}
+        onClose={handleFormClose}
         os={selectedOS}
         regionais={regionais}
         almoxarifados={almoxarifados}
