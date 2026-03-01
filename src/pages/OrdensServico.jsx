@@ -153,11 +153,11 @@ export default function OrdensServico() {
       if (!migoMatch) return false;
     }
     
-    // Regional filter
-    if (filters.regional !== 'all' && os.regional_id !== filters.regional) return false;
+    // Regional filter - OS Global sempre passa
+    if (filters.regional !== 'all' && !os.is_global && os.regional_id !== filters.regional) return false;
     
-    // Almoxarifado filter
-    if (filters.almoxarifado !== 'all' && os.almoxarifado_id !== filters.almoxarifado) return false;
+    // Almoxarifado filter - OS Global sempre passa
+    if (filters.almoxarifado !== 'all' && !os.is_global && os.almoxarifado_id !== filters.almoxarifado) return false;
     
     // Categoria filter (múltiplas)
     const categorias = filters.categorias || [];

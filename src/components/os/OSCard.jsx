@@ -2,7 +2,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Calendar, User, Paperclip, MessageSquare, AlertTriangle, Clock, PackageCheck, MapPin } from 'lucide-react';
+import { Calendar, User, Paperclip, MessageSquare, AlertTriangle, Clock, PackageCheck, MapPin, Globe } from 'lucide-react';
 import { format, isPast, isToday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import RotuloBadges from '@/components/rotulos/RotuloBadges';
