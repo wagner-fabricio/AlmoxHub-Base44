@@ -597,7 +597,8 @@ export default function OSFormModal({
                 </TabsContent>
               )}
 
-              {(isExpedicaoCategory || isAtendimentoCategory) && (<TabsContent value="materiais"><OSItensDocumento itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} /></TabsContent>)}
+              {isExpedicaoCategory && (<TabsContent value="materiais"><OSItensDocumento itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} /></TabsContent>)}
+              {isAtendimentoCategory && (<TabsContent value="materiais"><OSAtendimentoMateriais itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} /></TabsContent>)}
               {isExpedicaoCategory && (<TabsContent value="volumes"><OSVolumes volumes={formData.volumes} onChange={(volumes) => setFormData(prev => ({ ...prev, volumes }))} /></TabsContent>)}
 
               {isExpedicaoCategory && (
