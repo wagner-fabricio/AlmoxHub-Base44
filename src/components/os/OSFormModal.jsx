@@ -753,8 +753,13 @@ export default function OSFormModal({
             <p className="text-sm text-slate-600 dark:text-slate-400 font-medium flex-shrink-0">* Campos obrigatórios</p>
             <div className="flex gap-4">
               <Button variant="outline" onClick={onClose} className="rounded-lg px-6 py-2 font-medium border-slate-300 dark:border-slate-600">Cancelar</Button>
-              <Button onClick={handleSubmit} disabled={!isValid || loading} className="rounded-lg px-6 py-2 font-medium shadow-lg" style={{ background: (!isValid || loading) ? '#cbd5e1' : 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)', color: 'white' }}>
-                {loading ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Salvando...</>) : (<><Save className="w-4 h-4 mr-2" />Salvar OS</>)}
+              {os?.id && (
+                <Button onClick={() => handleSubmit(false)} disabled={!isValid || loading} variant="outline" className="rounded-lg px-6 py-2 font-medium border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-300">
+                  {loading ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Salvando...</>) : (<><Save className="w-4 h-4 mr-2" />Salvar</>)}
+                </Button>
+              )}
+              <Button onClick={() => handleSubmit(true)} disabled={!isValid || loading} className="rounded-lg px-6 py-2 font-medium shadow-lg" style={{ background: (!isValid || loading) ? '#cbd5e1' : 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)', color: 'white' }}>
+                {loading ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Salvando...</>) : (<><Save className="w-4 h-4 mr-2" />{os?.id ? 'Salvar e Fechar' : 'Salvar OS'}</>)}
               </Button>
             </div>
           </div>
