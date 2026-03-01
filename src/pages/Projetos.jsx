@@ -49,6 +49,8 @@ export default function Projetos() {
     ativo: true
   });
   const [saving, setSaving] = useState(false);
+  const [filterRegional, setFilterRegional] = useState('');
+  const [filterAlmoxarifado, setFilterAlmoxarifado] = useState('');
 
   useEffect(() => {
     loadData();
