@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookOpen, Code, Workflow, CheckSquare, Settings, Shield } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { BookOpen, Code, Workflow, CheckSquare, Settings, Shield, GitBranch, Lock, Wrench, Database } from 'lucide-react';
 import ArquiteturaSection from '@/components/documentacao/ArquiteturaSection';
 import RecursosSection from '@/components/documentacao/RecursosSection';
 import StatusRecursosSection from '@/components/documentacao/StatusRecursosSection';
@@ -14,98 +13,107 @@ import PlanoMelhoriasSeg from '@/components/documentacao/PlanoMelhoriasSeg';
 import PlanoDRSection from '@/components/documentacao/PlanoDRSection';
 import ExportDocumentacaoButton from '@/components/documentacao/ExportDocumentacaoButton';
 
+const TABS = [
+  { id: 'arquitetura', label: 'Arquitetura', icon: Code },
+  { id: 'recursos', label: 'Recursos', icon: Workflow },
+  { id: 'status', label: 'Status', icon: CheckSquare },
+  { id: 'implementacao', label: 'Implementação', icon: GitBranch },
+  { id: 'operacoes', label: 'Operações', icon: Settings },
+  { id: 'seguranca', label: 'Segurança', icon: Shield },
+  { id: 'roadmap', label: 'Roadmap', icon: Database },
+  { id: 'privacy', label: 'Privacy', icon: Lock },
+  { id: 'melhorias', label: 'Melhorias', icon: Wrench },
+  { id: 'dr', label: 'DR/BCP', icon: Shield },
+];
+
 export default function Documentacao() {
   const [activeTab, setActiveTab] = useState('arquitetura');
 
-  return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-4 mb-8">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center">
-              <BookOpen className="w-8 h-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-                Documentação Técnica - AlmoxHub
-              </h1>
-              <p className="text-slate-600 dark:text-slate-400 mt-1">
-                Single Source of Truth para desenvolvedores e stakeholders técnicos
-              </p>
-            </div>
-          </div>
-          <ExportDocumentacaoButton />
-        </div>
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'arquitetura': return <ArquiteturaSection />;
+      case 'recursos': return <RecursosSection />;
+      case 'status': return <StatusRecursosSection />;
+      case 'implementacao': return <ImplementacaoSection />;
+      case 'operacoes': return <OperacoesSection />;
+      case 'seguranca': return <SegurancaSection />;
+      case 'roadmap': return <RoadmapImplementacao />;
+      case 'privacy': return <PrivacyByDesignSection />;
+      case 'melhorias': return <PlanoMelhoriasSeg />;
+      case 'dr': return <PlanoDRSection />;
+      default: return null;
+    }
+  };
 
-        {/* Version Badge */}
-        <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 border-blue-200 dark:border-blue-800">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="text-sm">
-                  <span className="font-semibold text-slate-900 dark:text-white">Versão:</span>
-                  <span className="ml-2 text-slate-700 dark:text-slate-300">1.0.0</span>
-                </div>
-                <div className="text-sm">
-                  <span className="font-semibold text-slate-900 dark:text-white">Última atualização:</span>
-                  <span className="ml-2 text-slate-700 dark:text-slate-300">Fevereiro 2026</span>
-                </div>
-                <div className="text-sm">
-                  <span className="font-semibold text-slate-900 dark:text-white">Status:</span>
-                  <span className="ml-2 px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs font-medium">
-                    Em Produção
-                  </span>
-                </div>
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+      {/* Header Banner */}
+      <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-purple-600 px-6 lg:px-10 py-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shrink-0">
+                <BookOpen className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl lg:text-3xl font-bold text-white leading-tight">
+                  Documentação Técnica
+                </h1>
+                <p className="text-blue-200 text-sm mt-0.5">
+                  AlmoxHub · Single Source of Truth
+                </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+            <ExportDocumentacaoButton />
+          </div>
 
-        {/* Main Content - Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-10 gap-2 bg-white dark:bg-slate-800 p-2 rounded-xl">
-            <TabsTrigger value="arquitetura" className="flex items-center gap-2">
-              <Code className="w-4 h-4" />
-              <span className="hidden sm:inline">Arquitetura</span>
-            </TabsTrigger>
-            <TabsTrigger value="recursos" className="flex items-center gap-2">
-              <Workflow className="w-4 h-4" />
-              <span className="hidden sm:inline">Recursos</span>
-            </TabsTrigger>
-            <TabsTrigger value="status" className="flex items-center gap-2">
-              <CheckSquare className="w-4 h-4" />
-              <span className="hidden sm:inline">Status</span>
-            </TabsTrigger>
-            <TabsTrigger value="implementacao" className="flex items-center gap-2">
-              <Code className="w-4 h-4" />
-              <span className="hidden sm:inline">Implementação</span>
-            </TabsTrigger>
-            <TabsTrigger value="operacoes" className="flex items-center gap-2">
-              <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline">Operações</span>
-            </TabsTrigger>
-            <TabsTrigger value="seguranca" className="flex items-center gap-2">
-              <Shield className="w-4 h-4" />
-              <span className="hidden sm:inline">Segurança</span>
-            </TabsTrigger>
-            <TabsTrigger value="roadmap" className="flex items-center gap-2">
-              <Workflow className="w-4 h-4" />
-              <span className="hidden sm:inline">Roadmap</span>
-            </TabsTrigger>
-            <TabsTrigger value="privacy" className="flex items-center gap-2">
-              <Shield className="w-4 h-4" />
-              <span className="hidden sm:inline">Privacy</span>
-            </TabsTrigger>
-            <TabsTrigger value="melhorias" className="flex items-center gap-2">
-              <Shield className="w-4 h-4" />
-              <span className="hidden sm:inline">Melhorias</span>
-            </TabsTrigger>
-            <TabsTrigger value="dr" className="flex items-center gap-2">
-              <Shield className="w-4 h-4" />
-              <span className="hidden sm:inline">DR/BCP</span>
-            </TabsTrigger>
-            </TabsList>
+          {/* Version info */}
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/15 backdrop-blur-sm rounded-lg text-white text-xs font-medium">
+              <span className="text-blue-200">Versão</span> 1.0.0
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/15 backdrop-blur-sm rounded-lg text-white text-xs font-medium">
+              <span className="text-blue-200">Atualizado</span> Fevereiro 2026
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-400/30 backdrop-blur-sm rounded-lg text-green-100 text-xs font-semibold">
+              <span className="w-1.5 h-1.5 bg-green-300 rounded-full inline-block"></span>
+              Em Produção
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 lg:px-8">
+        {/* Tab Navigation - scrollable */}
+        <div className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900 pt-4 pb-2">
+          <div className="overflow-x-auto scrollbar-hide">
+            <div className="flex gap-1 bg-white dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm w-max min-w-full">
+              {TABS.map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  onClick={() => setActiveTab(id)}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-150 ${
+                    activeTab === id
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span>{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="py-6">
+          {renderContent()}
+        </div>
+      </div>
+    </div>
+  );
+}
 
           <TabsContent value="arquitetura" className="mt-6">
             <ArquiteturaSection />
