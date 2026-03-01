@@ -139,7 +139,8 @@ export default function OSFormModal({
         problemas_anexos: os.problemas_anexos || [],
         fluxo_recebimento: os.fluxo_recebimento || EMPTY_FORM.fluxo_recebimento,
         fluxo_expedicao: os.fluxo_expedicao || { ...EMPTY_FORM.fluxo_expedicao, solicitacao_data: os.created_date || new Date().toISOString() },
-        codigo: os.codigo || '', progresso: os.progresso || 0
+        codigo: os.codigo || '', progresso: os.progresso || 0,
+        is_global: os.is_global || false
       });
     } else if (os && !os.id) {
       setFormData({ ...EMPTY_FORM, anotacoes: `Descrição: ${os.descricao_resumida || ''}` });
