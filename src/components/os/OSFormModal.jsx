@@ -22,6 +22,7 @@ import OSDetalhamentoExpedicao from './OSDetalhamentoExpedicao';
 import OSRecebimentoDocumento from './OSRecebimentoDocumento.jsx';
 import OSRecebimentoTransportador from './OSRecebimentoTransportador.jsx';
 import OSRecebimentoMateriais from './OSRecebimentoMateriais.jsx';
+import OSAtendimentoMateriais from './OSAtendimentoMateriais.jsx';
 import OSFluxoRecebimento from './OSFluxoRecebimento.jsx';
 import OSPrazosControle from './OSPrazosControle.jsx';
 import RotuloSelector from '@/components/rotulos/RotuloSelector';
