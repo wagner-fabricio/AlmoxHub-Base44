@@ -342,6 +342,10 @@ export default function OrdensServico() {
     setShowFormModal(true);
   };
 
+  const handleFormClose = () => {
+    setShowFormModal(false);
+  };
+
   const handleFormSave = async (isNew, osData) => {
     // Atualizar selectedOS com dados salvos para refletir imediatamente
     if (!isNew && osData) {
