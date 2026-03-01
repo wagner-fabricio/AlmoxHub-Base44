@@ -84,8 +84,11 @@ export default function OSFormModal({
 
     const formatDateForInput = (d) => {
       if (!d) return '';
+      // Se já está no formato yyyy-MM-dd, retorna diretamente sem conversão
       if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
-      return d.split('T')[0];
+      // Para strings ISO, extrai apenas a parte da data sem converter fuso
+      if (typeof d === 'string') return d.substring(0, 10);
+      return '';
     };
 
     if (os && os.id) {
