@@ -195,7 +195,7 @@ export default function OSFormModal({
     return progress;
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (closeAfter = false) => {
     setSaving(true);
     try {
       let codigo = formData.codigo;
