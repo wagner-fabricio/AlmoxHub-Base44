@@ -74,6 +74,16 @@ export default function OSAtendimentoMateriais({ itens = [], onChange }) {
                       </TableCell>
                       <TableCell>
                         <Input
+                          type="number"
+                          value={item.quantidade || ''}
+                          onChange={(e) => handleChange(index, 'quantidade', e.target.value)}
+                          placeholder="Qtd"
+                          className="h-8 text-sm w-24"
+                          min="0"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Input
                           value={item.endereco_armazenagem || ''}
                           onChange={(e) => handleChange(index, 'endereco_armazenagem', e.target.value)}
                           placeholder="Ex: A-01-01"
