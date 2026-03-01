@@ -499,9 +499,9 @@ export default function OSFormModal({
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     <div className="space-y-2">
                       <Label className="text-slate-700 dark:text-slate-300 font-medium">Líder *</Label>
-                      <Select value={formData.lider_id} onValueChange={(v) => { const executoresAtualizados = formData.executores_ids?.includes(v) ? formData.executores_ids : [...(formData.executores_ids || []), v]; setFormData({ ...formData, lider_id: v, executores_ids: executoresAtualizados }); }} disabled={!formData.almoxarifado_id}>
-                        <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg"><SelectValue placeholder={formData.almoxarifado_id ? "Selecione..." : "Selecione almoxarifado primeiro"} /></SelectTrigger>
-                        <SelectContent>{(pessoas || []).filter(p => p && p.funcoes?.includes('lider') && (!formData.almoxarifado_id || p.almoxarifados_ids?.includes(formData.almoxarifado_id))).sort((a, b) => a.nome.localeCompare(b.nome)).map(p => (<SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>))}</SelectContent>
+                      <Select value={formData.lider_id} onValueChange={(v) => { const executoresAtualizados = formData.executores_ids?.includes(v) ? formData.executores_ids : [...(formData.executores_ids || []), v]; setFormData({ ...formData, lider_id: v, executores_ids: executoresAtualizados }); }} disabled={!formData.is_global && !formData.almoxarifado_id}>
+                        <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg"><SelectValue placeholder={formData.is_global ? "Selecione..." : (formData.almoxarifado_id ? "Selecione..." : "Selecione almoxarifado primeiro")} /></SelectTrigger>
+                        <SelectContent>{(pessoas || []).filter(p => p && p.funcoes?.includes('lider') && (formData.is_global || !formData.almoxarifado_id || p.almoxarifados_ids?.includes(formData.almoxarifado_id))).sort((a, b) => a.nome.localeCompare(b.nome)).map(p => (<SelectItem key={p.id} value={p.id}>{p.nome}{formData.is_global && p.almoxarifados_ids?.length > 0 ? '' : ''}</SelectItem>))}</SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
