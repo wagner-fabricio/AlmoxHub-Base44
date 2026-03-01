@@ -47,6 +47,16 @@ export default function OSCard({ os, onClick, lider, categoria, regional, instal
       style={{ borderColor: getBorderColor() }}
       onClick={() => onClick?.(os)}
     >
+      {/* Badge Global */}
+      {os.is_global && (
+        <div className="mb-2">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
+            <Globe className="w-3 h-3" />
+            Global
+          </span>
+        </div>
+      )}
+
       {/* Rótulos */}
       {os.rotulos_ids?.length > 0 && rotulos.length > 0 && (
         <div className="mb-2">
