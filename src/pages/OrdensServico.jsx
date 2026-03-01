@@ -344,6 +344,7 @@ export default function OrdensServico() {
 
   const handleFormClose = () => {
     setShowFormModal(false);
+    setShowDetailModal(false);
   };
 
   const handleFormSave = async (isNew, osData) => {
