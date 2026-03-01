@@ -376,6 +376,12 @@ export default function Projetos() {
           <DialogHeader>
             <DialogTitle>{selectedItem ? 'Editar Projeto' : 'Novo Projeto'}</DialogTitle>
           </DialogHeader>
+          {(() => {
+            const filteredAlmoxarifados = almoxarifados.filter(a => a.regional_id === formData.regional_id);
+            const pessoasDoAlmoxarifado = formData.almoxarifado_id
+              ? pessoas.filter(p => p.almoxarifados_ids?.includes(formData.almoxarifado_id))
+              : [];
+            return (
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Nome *</Label>
@@ -393,6 +399,37 @@ export default function Projetos() {
                 placeholder="Descrição opcional"
                 rows={3}
               />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Regional *</Label>
+                <Select
+                  value={formData.regional_id}
+                  onValueChange={(v) => setFormData({ ...formData, regional_id: v, almoxarifado_id: '', lider_id: '', outros_envolvidos_ids: [] })}
+                >
+                  <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                  <SelectContent>
+                    {regionais.map(r => (
+                      <SelectItem key={r.id} value={r.id}>{r.sigla} - {r.descricao}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Almoxarifado *</Label>
+                <Select
+                  value={formData.almoxarifado_id}
+                  onValueChange={(v) => setFormData({ ...formData, almoxarifado_id: v, lider_id: '', outros_envolvidos_ids: [] })}
+                  disabled={!formData.regional_id}
+                >
+                  <SelectTrigger><SelectValue placeholder={formData.regional_id ? "Selecione..." : "Selecione a regional primeiro"} /></SelectTrigger>
+                  <SelectContent>
+                    {filteredAlmoxarifados.map(a => (
+                      <SelectItem key={a.id} value={a.id}>{a.nome}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Cor</Label>
@@ -415,12 +452,13 @@ export default function Projetos() {
               <Select
                 value={formData.lider_id}
                 onValueChange={(value) => setFormData({ ...formData, lider_id: value })}
+                disabled={!formData.almoxarifado_id}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione o líder" />
+                  <SelectValue placeholder={formData.almoxarifado_id ? "Selecione o líder" : "Selecione o almoxarifado primeiro"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {pessoas.map((pessoa) => (
+                  {pessoasDoAlmoxarifado.map((pessoa) => (
                     <SelectItem key={pessoa.id} value={pessoa.id}>
                       {pessoa.nome}
                     </SelectItem>
@@ -430,29 +468,38 @@ export default function Projetos() {
             </div>
             <div className="space-y-2">
               <Label>Outros Envolvidos</Label>
-              <ScrollArea className="h-40 border rounded-lg p-3">
-                <div className="space-y-2">
-                  {pessoas.map((pessoa) => (
-                    <label key={pessoa.id} className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-2 rounded">
-                      <Checkbox
-                        checked={formData.outros_envolvidos_ids?.includes(pessoa.id)}
-                        onCheckedChange={(checked) => {
-                          const newIds = checked
-                            ? [...(formData.outros_envolvidos_ids || []), pessoa.id]
-                            : (formData.outros_envolvidos_ids || []).filter(id => id !== pessoa.id);
-                          setFormData({ ...formData, outros_envolvidos_ids: newIds });
-                        }}
-                      />
-                      <span className="text-sm">{pessoa.nome}</span>
-                    </label>
-                  ))}
-                </div>
-              </ScrollArea>
+              {!formData.almoxarifado_id ? (
+                <p className="text-sm text-slate-400 border rounded-lg p-3">Selecione o almoxarifado primeiro</p>
+              ) : (
+                <ScrollArea className="h-40 border rounded-lg p-3">
+                  <div className="space-y-2">
+                    {pessoasDoAlmoxarifado.map((pessoa) => (
+                      <label key={pessoa.id} className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-2 rounded">
+                        <Checkbox
+                          checked={formData.outros_envolvidos_ids?.includes(pessoa.id)}
+                          onCheckedChange={(checked) => {
+                            const newIds = checked
+                              ? [...(formData.outros_envolvidos_ids || []), pessoa.id]
+                              : (formData.outros_envolvidos_ids || []).filter(id => id !== pessoa.id);
+                            setFormData({ ...formData, outros_envolvidos_ids: newIds });
+                          }}
+                        />
+                        <span className="text-sm">{pessoa.nome}</span>
+                      </label>
+                    ))}
+                    {pessoasDoAlmoxarifado.length === 0 && (
+                      <p className="text-sm text-slate-400 text-center py-2">Nenhuma pessoa neste almoxarifado</p>
+                    )}
+                  </div>
+                </ScrollArea>
+              )}
             </div>
           </div>
+            );
+          })()}
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowModal(false)}>Cancelar</Button>
-            <Button onClick={handleSave} disabled={!formData.nome || saving}>
+            <Button onClick={handleSave} disabled={!formData.nome || !formData.regional_id || !formData.almoxarifado_id || saving}>
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Salvar
             </Button>
