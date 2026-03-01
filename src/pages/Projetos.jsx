@@ -42,6 +42,8 @@ export default function Projetos() {
     nome: '',
     descricao: '',
     cor: '#3B82F6',
+    regional_id: '',
+    almoxarifado_id: '',
     lider_id: '',
     outros_envolvidos_ids: [],
     ativo: true
