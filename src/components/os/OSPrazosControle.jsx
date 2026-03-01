@@ -31,7 +31,7 @@ export default function OSPrazosControle({
             value={formData.data_inicial}
             onChange={(e) => {
               const novaDataInicial = e.target.value;
-              if (formData.prazo && novaDataInicial && new Date(formData.prazo) < new Date(novaDataInicial)) {
+              if (formData.prazo && novaDataInicial && formData.prazo < novaDataInicial) {
                 setPrazoError('O prazo não pode ser anterior à data inicial');
               } else {
                 setPrazoError('');
