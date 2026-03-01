@@ -508,7 +508,7 @@ export default function OSFormModal({
                       <Label className="text-slate-700 dark:text-slate-300 font-medium">Atendente</Label>
                       <Input list="pessoas-list" value={formData.atendente_nome} onChange={(e) => setFormData({ ...formData, atendente_nome: e.target.value })} placeholder="Digite ou selecione..." className="border-slate-300 dark:border-slate-600 rounded-lg" />
                       <datalist id="pessoas-list">
-                        {(formData.almoxarifado_id ? (pessoas || []).filter(p => p && p.almoxarifados_ids?.includes(formData.almoxarifado_id)) : (pessoas || [])).sort((a, b) => a.nome.localeCompare(b.nome)).map(p => (<option key={p.id} value={p.nome} />))}
+                        {(formData.is_global ? (pessoas || []) : (formData.almoxarifado_id ? (pessoas || []).filter(p => p && p.almoxarifados_ids?.includes(formData.almoxarifado_id)) : (pessoas || []))).sort((a, b) => a.nome.localeCompare(b.nome)).map(p => (<option key={p.id} value={p.nome} />))}
                       </datalist>
                     </div>
                   </div>
