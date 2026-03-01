@@ -84,6 +84,8 @@ export default function Projetos() {
       nome: '',
       descricao: '',
       cor: defaultColors[Math.floor(Math.random() * defaultColors.length)],
+      regional_id: '',
+      almoxarifado_id: '',
       lider_id: '',
       outros_envolvidos_ids: [],
       ativo: true
