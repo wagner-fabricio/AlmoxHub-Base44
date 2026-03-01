@@ -440,7 +440,11 @@ export default function OSFormModal({
                         <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg" onKeyDown={(e) => { if ((e.key === 'Delete' || e.key === 'Backspace') && formData.projetos_ids?.[0]) { e.preventDefault(); setFormData({ ...formData, projetos_ids: [] }); } }}>
                           <SelectValue placeholder="Selecione..." />
                         </SelectTrigger>
-                        <SelectContent>{(projetos || []).map(p => (<SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>))}</SelectContent>
+                        <SelectContent>{(projetos || []).filter(p => {
+                          if (formData.regional_id && p.regional_id && p.regional_id !== formData.regional_id) return false;
+                          if (formData.almoxarifado_id && p.almoxarifado_id && p.almoxarifado_id !== formData.almoxarifado_id) return false;
+                          return true;
+                        }).map(p => (<SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>))}</SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
