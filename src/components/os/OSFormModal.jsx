@@ -47,7 +47,8 @@ const EMPTY_FORM = {
   resumo_pendencias: '', acoes_acompanhamento: '', como_foi_solucionado: '',
   data_solucao: '', problemas_anexos: [],
   fluxo_recebimento: { etapa_atual: 1, xml_importado: false, conferencia_manual_completa: false, validacao_divergencias_completa: false, armazenagem_completa: false },
-  fluxo_expedicao: { etapa_atual: 1, solicitacao_completa: true, solicitacao_data: new Date().toISOString(), separacao_completa: false, preparacao_completa: false, envio_completo: false, entrega_completa: false }
+  fluxo_expedicao: { etapa_atual: 1, solicitacao_completa: true, solicitacao_data: new Date().toISOString(), separacao_completa: false, preparacao_completa: false, envio_completo: false, entrega_completa: false },
+  is_global: false
 };
 
 export default function OSFormModal({
