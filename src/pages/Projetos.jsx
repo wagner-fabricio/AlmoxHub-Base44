@@ -57,16 +57,18 @@ export default function Projetos() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [projetosData, ordensData, pessoasData, almoxarifadosData, categoriasData] = await Promise.all([
+      const [projetosData, ordensData, pessoasData, regionaisData, almoxarifadosData, categoriasData] = await Promise.all([
         base44.entities.Projeto.list(),
         base44.entities.OrdemServico.list(),
         base44.entities.Pessoa.list(),
+        base44.entities.Regional.list(),
         base44.entities.Almoxarifado.list(),
         base44.entities.Categoria.list()
       ]);
       setProjetos(projetosData);
       setOrdens(ordensData);
       setPessoas(pessoasData);
+      setRegionais(regionaisData);
       setAlmoxarifados(almoxarifadosData);
       setCategorias(categoriasData);
     } catch (error) {
