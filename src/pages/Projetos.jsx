@@ -171,9 +171,16 @@ export default function Projetos() {
     setExpandedProjetoId(expandedProjetoId === projetoId ? null : projetoId);
   };
 
-  const filteredItems = Array.isArray(projetos) ? projetos.filter(p => 
-    p?.nome?.toLowerCase().includes(search.toLowerCase())
-  ) : [];
+  const filteredAlmoxarifadosByFilterRegional = filterRegional
+    ? almoxarifados.filter(a => a.regional_id === filterRegional)
+    : almoxarifados;
+
+  const filteredItems = Array.isArray(projetos) ? projetos.filter(p => {
+    const matchSearch = p?.nome?.toLowerCase().includes(search.toLowerCase());
+    const matchRegional = !filterRegional || p?.regional_id === filterRegional;
+    const matchAlmoxarifado = !filterAlmoxarifado || p?.almoxarifado_id === filterAlmoxarifado;
+    return matchSearch && matchRegional && matchAlmoxarifado;
+  }) : [];
 
   if (loading) {
     return (
