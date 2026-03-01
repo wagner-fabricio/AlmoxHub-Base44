@@ -472,6 +472,22 @@ export default function OSFormModal({
                     <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
                     Atribuição e Responsáveis
                   </h3>
+
+                  {/* Toggle OS Global */}
+                  <div className={`flex items-center justify-between p-4 rounded-xl border-2 mb-6 transition-colors ${formData.is_global ? 'border-purple-400 bg-purple-50 dark:bg-purple-900/20' : 'border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/30'}`}>
+                    <div>
+                      <p className={`font-semibold text-sm ${formData.is_global ? 'text-purple-700 dark:text-purple-300' : 'text-slate-700 dark:text-slate-300'}`}>🌐 OS Global</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Permite selecionar pessoas de qualquer regional/almoxarifado</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, is_global: !formData.is_global, lider_id: '', executores_ids: [], atendente_nome: '' })}
+                      className={`relative w-12 h-6 rounded-full transition-colors focus:outline-none ${formData.is_global ? 'bg-purple-600' : 'bg-slate-300 dark:bg-slate-600'}`}
+                    >
+                      <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${formData.is_global ? 'translate-x-6' : 'translate-x-0'}`} />
+                    </button>
+                  </div>
+
                   <div className="space-y-2 mb-6">
                     <Label className="text-slate-700 dark:text-slate-300 font-medium">Equipe (Opcional)</Label>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Selecione uma equipe para preencher automaticamente líder e executores</p>
