@@ -7,7 +7,7 @@ import { PackageCheck, AlertCircle, Plus, Trash2 } from 'lucide-react';
 
 export default function OSAtendimentoMateriais({ itens = [], onChange }) {
   const addItem = () => {
-    onChange([...itens, { codigo: '', descricao: '', endereco_armazenagem: '' }]);
+    onChange([...itens, { codigo: '', descricao: '', quantidade: '', endereco_armazenagem: '' }]);
   };
 
   const removeItem = (index) => {
