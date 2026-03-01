@@ -21,8 +21,15 @@ const statusConfig = {
   cancelado: { color: 'bg-red-500', label: 'Cancelado' },
 };
 
+// Parse date string (yyyy-MM-dd) sem conversão de fuso horário
+const parseLocalDate = (str) => {
+  if (!str) return null;
+  const [y, m, d] = str.substring(0, 10).split('-').map(Number);
+  return new Date(y, m - 1, d);
+};
+
 export default function OSCard({ os, onClick, lider, categoria, regional, instalacoes, rotulos = [] }) {
-  const prazoDate = os.prazo ? new Date(os.prazo) : null;
+  const prazoDate = parseLocalDate(os.prazo);
   const isOverdue = prazoDate && isPast(prazoDate) && os.status !== 'concluido';
   const isDueToday = prazoDate && isToday(prazoDate);
 
