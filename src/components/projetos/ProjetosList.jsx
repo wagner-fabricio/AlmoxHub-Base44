@@ -227,18 +227,6 @@ export default function ProjetosList({
                     )}
                   </TableCell>
                   <TableCell>
-                    {executoresIds && executoresIds.length > 0 ? (
-                      <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-slate-400" />
-                        <span className="text-sm text-slate-900 dark:text-white">
-                          {executoresIds.length} executor{executoresIds.length > 1 ? 'es' : ''}
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="text-sm text-slate-400">-</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
                     <span className="text-sm text-slate-700 dark:text-slate-300">
                       {almoxarifado?.nome || '-'}
                     </span>
