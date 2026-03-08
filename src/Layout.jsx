@@ -451,6 +451,10 @@ export default function Layout({ children, currentPageName }) {
                         <Shield className="w-4 h-4 mr-2" />
                         Portal do Titular - LGPD
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => window.location.href = createPageUrl('AlertasConfig')}>
+                        <Bell className="w-4 h-4 mr-2" />
+                        Alertas Configuráveis
+                      </DropdownMenuItem>
                       {user?.role === 'admin' && (
                         <DropdownMenuItem onClick={() => window.location.href = createPageUrl('AuditLogs')}>
                           <Shield className="w-4 h-4 mr-2" />
