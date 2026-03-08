@@ -388,6 +388,9 @@ export default function Projetos() {
                           <TableHead>Categoria</TableHead>
                           <TableHead>Líder</TableHead>
                           <TableHead>Almoxarifado</TableHead>
+                          <TableHead>Data Inicial</TableHead>
+                          <TableHead>Data Conclusão</TableHead>
+                          <TableHead className="w-36">Progresso</TableHead>
                           <TableHead className="text-right">Ações</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -396,6 +399,8 @@ export default function Projetos() {
                           const lider = pessoas.find(p => p.id === os.lider_id);
                           const almoxarifado = almoxarifados.find(a => a.id === os.almoxarifado_id);
                           const categoria = categorias.find(c => c.id === os.categoria_id);
+                          const progresso = os.progresso || 0;
+                          const progressColor = progresso === 100 ? '#10b981' : progresso >= 50 ? '#0000FF' : '#FF6B00';
                           
                           return (
                             <TableRow key={os.id}>
@@ -403,6 +408,19 @@ export default function Projetos() {
                               <TableCell>{categoria?.nome || '-'}</TableCell>
                               <TableCell>{lider?.nome || '-'}</TableCell>
                               <TableCell>{almoxarifado?.nome || '-'}</TableCell>
+                              <TableCell className="text-sm text-slate-600 dark:text-slate-400">{os.data_inicial || '-'}</TableCell>
+                              <TableCell className="text-sm text-slate-600 dark:text-slate-400">{os.data_conclusao || '-'}</TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                    <div
+                                      className="h-full rounded-full transition-all"
+                                      style={{ width: `${progresso}%`, backgroundColor: progressColor }}
+                                    />
+                                  </div>
+                                  <span className="text-xs font-semibold w-8 text-right" style={{ color: progressColor }}>{progresso}%</span>
+                                </div>
+                              </TableCell>
                               <TableCell className="text-right">
                                 <Button
                                   variant="ghost"
