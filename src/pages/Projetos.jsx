@@ -318,7 +318,8 @@ export default function Projetos() {
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-4">
+                      <ProjetoGauge value={progresso} size={90} />
                       <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(projeto)}>
                           <Edit className="w-4 h-4" />
