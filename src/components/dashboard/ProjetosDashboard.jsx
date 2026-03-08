@@ -535,7 +535,7 @@ function KPIRow({ label, sublabel, children, last, fixed }) {
 
 function KPICell({ children, color, last }) {
   return (
-    <div className={`w-52 shrink-0 p-3 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center min-h-[90px] ${last ? '' : ''}`}
+    <div className={`w-52 shrink-0 p-3 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center h-[120px] ${last ? '' : ''}`}
       style={{ borderLeft: `3px solid ${color}20` }}>
       {children}
     </div>
