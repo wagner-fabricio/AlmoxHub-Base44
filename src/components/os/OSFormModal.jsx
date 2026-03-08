@@ -43,7 +43,7 @@ const EMPTY_FORM = {
   nfe_dados_transportador: {}, nfe_info_complementares: '', nfe_itens_conferencia: [],
   nfe_numero_receb: '', nfe_data_receb: '', numero_migo_receb: '',
   data_migo_receb: '', numero_v360: '', doc_referencia: '', data_recebimento: '',
-  problema_recebimento: false, problemas_recebimento_ids: [],
+  responsavel_recebimento: '', problema_recebimento: false, problemas_recebimento_ids: [],
   resumo_pendencias: '', acoes_acompanhamento: '', como_foi_solucionado: '',
   data_solucao: '', problemas_anexos: [],
   fluxo_recebimento: { etapa_atual: 1, xml_importado: false, conferencia_manual_completa: false, validacao_divergencias_completa: false, armazenagem_completa: false },
