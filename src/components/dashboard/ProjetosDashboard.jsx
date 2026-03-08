@@ -277,14 +277,14 @@ export default function ProjetosDashboard({ regionalFilter: externalRegionalFilt
     load();
   }, []);
 
-  const almoxarifadosFiltrados = regionalFilter
+  const almoxarifadosFiltrados = regionalFilter && regionalFilter !== 'all'
     ? almoxarifados.filter(a => a.regional_id === regionalFilter)
     : almoxarifados;
 
   const projetosFiltrados = projetos.filter(p => {
     const matchStatus = statusFilter === 'all' || p.status_projeto === statusFilter;
-    const matchRegional = !regionalFilter || p.regional_id === regionalFilter;
-    const matchAlmoxarifado = !almoxarifadoFilter || p.almoxarifado_id === almoxarifadoFilter;
+    const matchRegional = !regionalFilter || regionalFilter === 'all' || p.regional_id === regionalFilter;
+    const matchAlmoxarifado = !almoxarifadoFilter || almoxarifadoFilter === 'all' || p.almoxarifado_id === almoxarifadoFilter;
     return matchStatus && matchRegional && matchAlmoxarifado;
   });
 
