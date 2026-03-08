@@ -341,9 +341,6 @@ export default function ProjetosDashboard({ regionalFilter: externalRegionalFilt
           <div className="min-w-max">
             {/* Header Row - Scrollable */}
             <div className="flex">
-              {/* Placeholder for alignment - hidden */}
-              <div className="w-44 shrink-0 invisible" />
-
               {projetosFiltrados.map((proj, i) => (
                 <div
                   key={proj.id}
