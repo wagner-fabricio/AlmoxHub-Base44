@@ -342,7 +342,7 @@ export default function ProjetosDashboard() {
               {projetosFiltrados.map((proj, i) => (
                 <div
                   key={proj.id}
-                  className="w-52 shrink-0 p-3 text-white text-center font-bold text-sm border-r border-white/20 last:rounded-tr-xl"
+                  className="w-52 shrink-0 p-3 text-white text-center font-bold text-sm border-r border-white/20 last:rounded-tr-xl h-[120px] flex flex-col justify-center"
                   style={{ background: `linear-gradient(135deg, ${COLORS_PROJ[i % COLORS_PROJ.length]}, ${COLORS_PROJ[(i + 1) % COLORS_PROJ.length]})` }}
                 >
                   <div className="truncate">{proj.nome}</div>
