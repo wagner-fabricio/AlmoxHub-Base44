@@ -176,7 +176,6 @@ export default function ProjetosList({
                 </Popover>
               </div>
             </TableHead>
-            <TableHead className="font-semibold">Qtd. OS</TableHead>
             <TableHead className="font-semibold text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
