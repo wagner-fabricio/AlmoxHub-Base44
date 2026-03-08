@@ -31,8 +31,8 @@ export default function EquipesPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingEquipe, setEditingEquipe] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [currentUserPessoa, setCurrentUserPessoa] = useState(null);
+  const currentUser = ctxUser;
+  const currentUserPessoa = ctxPessoa;
 
   const [formData, setFormData] = useState({
     nome: '',

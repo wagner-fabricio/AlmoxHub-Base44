@@ -69,6 +69,13 @@ export default function Pessoas() {
     loadData();
   }, []);
 
+  // Sincronizar com contexto quando atualizar
+  useEffect(() => {
+    if (pessoasCtx.length > 0) setPessoas(pessoasCtx);
+    if (ctxUser) setCurrentUser(ctxUser);
+    if (ctxPessoa) setCurrentPessoa(ctxPessoa);
+  }, [pessoasCtx, ctxUser, ctxPessoa]);
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('view') === 'me' && currentUser && pessoas.length > 0) {
