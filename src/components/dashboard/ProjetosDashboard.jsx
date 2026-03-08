@@ -257,12 +257,16 @@ export default function ProjetosDashboard() {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const [projetosData, ordensData] = await Promise.all([
+      const [projetosData, ordensData, regionaisData, almoxarifadosData] = await Promise.all([
         base44.entities.Projeto.list(),
-        base44.entities.OrdemServico.list()
+        base44.entities.OrdemServico.list(),
+        base44.entities.Regional.list(),
+        base44.entities.Almoxarifado.list()
       ]);
       setProjetos(projetosData);
       setOrdens(ordensData);
+      setRegionais(regionaisData);
+      setAlmoxarifados(almoxarifadosData);
       setLoading(false);
     };
     load();
