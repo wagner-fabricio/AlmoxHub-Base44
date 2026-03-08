@@ -525,6 +525,61 @@ export default function Projetos() {
                 </ScrollArea>
               )}
             </div>
+
+            {/* Seção Prazos */}
+            {(() => {
+              const canEditPrazos = currentUser?.role === 'admin'
+                || currentPessoa?.funcoes?.includes('gestor')
+                || (selectedItem && currentPessoa?.id === selectedItem.lider_id)
+                || !selectedItem; // novo projeto: qualquer um define
+              return (
+                <div className="border rounded-lg p-4 space-y-3 bg-slate-50 dark:bg-slate-800/50">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Calendar className="w-4 h-4 text-blue-500" />
+                    <span className="font-semibold text-sm text-slate-700 dark:text-slate-300">Prazos</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs text-slate-500">Data Inicial Prevista</Label>
+                      <Input
+                        type="date"
+                        value={formData.data_inicial_prevista || ''}
+                        onChange={(e) => setFormData({ ...formData, data_inicial_prevista: e.target.value })}
+                        disabled={!canEditPrazos}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs text-slate-500">Data Final Prevista</Label>
+                      <Input
+                        type="date"
+                        value={formData.data_final_prevista || ''}
+                        onChange={(e) => setFormData({ ...formData, data_final_prevista: e.target.value })}
+                        disabled={!canEditPrazos}
+                      />
+                    </div>
+                  </div>
+                  {selectedItem && (
+                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-200 dark:border-slate-700">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-slate-400">Data Inicial Execução</Label>
+                        <div className="text-sm px-3 py-2 bg-white dark:bg-slate-700 border rounded-md text-slate-600 dark:text-slate-300">
+                          {selectedItem.data_inicial_execucao || <span className="text-slate-400 italic">Sem OS vinculadas</span>}
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-slate-400">Data Final Execução</Label>
+                        <div className="text-sm px-3 py-2 bg-white dark:bg-slate-700 border rounded-md text-slate-600 dark:text-slate-300">
+                          {selectedItem.data_final_execucao || <span className="text-slate-400 italic">Sem OS vinculadas</span>}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {!canEditPrazos && (
+                    <p className="text-xs text-slate-400 italic">Apenas o líder, gestor ou admin podem editar os prazos previstos.</p>
+                  )}
+                </div>
+              );
+            })()}
           </div>
             );
           })()}
