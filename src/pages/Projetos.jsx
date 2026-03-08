@@ -385,6 +385,7 @@ export default function Projetos() {
                       <TableHeader>
                         <TableRow>
                           <TableHead>Código</TableHead>
+                          <TableHead>Descrição</TableHead>
                           <TableHead>Categoria</TableHead>
                           <TableHead>Líder</TableHead>
                           <TableHead>Almoxarifado</TableHead>
