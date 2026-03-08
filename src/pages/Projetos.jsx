@@ -24,7 +24,7 @@ const defaultColors = [
 ];
 
 export default function Projetos() {
-  const { regionais, pessoas, categorias } = useApp();
+  const { regionais, pessoas, categorias, currentUser, currentPessoa } = useApp();
   const [loading, setLoading] = useState(true);
   const [projetos, setProjetos] = useState([]);
   const [ordens, setOrdens] = useState([]);
