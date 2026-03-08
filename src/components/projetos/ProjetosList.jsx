@@ -264,7 +264,7 @@ export default function ProjetosList({
 
                 {isExpanded && (
                   <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={6} className="p-0 pl-10 pr-4 pb-4">
+                    <TableCell colSpan={8} className="p-0 pl-10 pr-4 pb-4">
                       <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-800 shadow-sm">
                         <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80">
                           <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Ordens de Serviço</span>
