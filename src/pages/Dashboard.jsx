@@ -585,6 +585,12 @@ export default function Dashboard() {
           >
             Painel Produtividade
           </TabsTrigger>
+          <TabsTrigger 
+            value="projetos" 
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3"
+          >
+            Projetos
+          </TabsTrigger>
         </TabsList>
 
         {/* ABA GERAL */}
