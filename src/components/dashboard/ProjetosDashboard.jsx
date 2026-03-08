@@ -272,9 +272,15 @@ export default function ProjetosDashboard() {
     load();
   }, []);
 
+  const almoxarifadosFiltrados = regionalFilter
+    ? almoxarifados.filter(a => a.regional_id === regionalFilter)
+    : almoxarifados;
+
   const projetosFiltrados = projetos.filter(p => {
-    if (statusFilter === 'all') return true;
-    return p.status_projeto === statusFilter;
+    const matchStatus = statusFilter === 'all' || p.status_projeto === statusFilter;
+    const matchRegional = !regionalFilter || p.regional_id === regionalFilter;
+    const matchAlmoxarifado = !almoxarifadoFilter || p.almoxarifado_id === almoxarifadoFilter;
+    return matchStatus && matchRegional && matchAlmoxarifado;
   });
 
   if (loading) {
