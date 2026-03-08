@@ -130,6 +130,7 @@ export default function OSFormModal({
         data_migo_receb: formatDateForInput(os.data_migo_receb),
         numero_v360: os.numero_v360 || '', doc_referencia: os.doc_referencia || '',
         data_recebimento: formatDateForInput(os.data_recebimento),
+        responsavel_recebimento: os.responsavel_recebimento || '',
         problema_recebimento: os.problema_recebimento || false,
         problemas_recebimento_ids: os.problemas_recebimento_ids || [],
         resumo_pendencias: os.resumo_pendencias || '',
