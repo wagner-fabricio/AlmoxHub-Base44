@@ -336,8 +336,8 @@ export default function ProjetosDashboard() {
           <div className="min-w-max">
             {/* Header Row - Scrollable */}
             <div className="flex">
-              {/* Placeholder for alignment */}
-              <div className="w-44 shrink-0" />
+              {/* Placeholder for alignment - hidden */}
+              <div className="w-44 shrink-0 invisible" />
 
               {projetosFiltrados.map((proj, i) => (
                 <div
