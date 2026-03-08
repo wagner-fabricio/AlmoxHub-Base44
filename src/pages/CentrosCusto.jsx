@@ -9,10 +9,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Plus, Pencil, Trash2, Search, DollarSign, TrendingUp, AlertCircle } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, DollarSign, TrendingUp, AlertCircle, ShieldOff } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useApp } from '@/components/contexts/AppContext';
 
 export default function CentrosCusto() {
+  const { currentUser } = useApp();
+  if (currentUser && currentUser.role !== 'admin') {
+    return (
+      <div className="flex flex-col items-center justify-center h-96 gap-4 text-slate-500 dark:text-slate-400">
+        <ShieldOff className="w-16 h-16" />
+        <p className="text-xl font-semibold">Acesso restrito</p>
+        <p className="text-sm">Esta página é acessível apenas para administradores.</p>
+      </div>
+    );
+  }
   const [search, setSearch] = useState('');
   const [filterTipo, setFilterTipo] = useState('all');
   const [filterRegional, setFilterRegional] = useState('all');
