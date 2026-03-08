@@ -137,7 +137,6 @@ export default function ProjetosList({
             </TableHead>
             <TableHead className="font-semibold">Descrição</TableHead>
             <TableHead className="font-semibold">Líder</TableHead>
-            <TableHead className="font-semibold">Executores</TableHead>
             <TableHead className="font-semibold">Almoxarifado</TableHead>
             <TableHead className="font-semibold">
               <div className="flex items-center gap-2">
