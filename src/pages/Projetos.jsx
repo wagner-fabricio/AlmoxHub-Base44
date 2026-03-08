@@ -85,7 +85,9 @@ export default function Projetos() {
       almoxarifado_id: '',
       lider_id: '',
       outros_envolvidos_ids: [],
-      ativo: true
+      ativo: true,
+      data_inicial_prevista: new Date().toISOString().split('T')[0],
+      data_final_prevista: ''
     });
     setShowModal(true);
   };
@@ -100,7 +102,9 @@ export default function Projetos() {
       almoxarifado_id: item.almoxarifado_id || '',
       lider_id: item.lider_id || '',
       outros_envolvidos_ids: item.outros_envolvidos_ids || [],
-      ativo: item.ativo !== false
+      ativo: item.ativo !== false,
+      data_inicial_prevista: item.data_inicial_prevista || '',
+      data_final_prevista: item.data_final_prevista || ''
     });
     setShowModal(true);
   };
