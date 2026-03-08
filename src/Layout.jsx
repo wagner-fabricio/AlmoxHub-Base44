@@ -38,6 +38,7 @@ import NotificationBell from '@/components/notifications/NotificationBell';
 import useIdleTimer from '@/components/hooks/useIdleTimer';
 import IdleWarningModal from '@/components/IdleWarningModal';
 import ConsentimentoModal from '@/components/ConsentimentoModal';
+import { AppProvider } from '@/components/contexts/AppContext';
 
 const menuItems = [
   { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
