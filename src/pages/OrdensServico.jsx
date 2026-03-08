@@ -72,21 +72,17 @@ export default function OrdensServico() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [user, ordensData, regionaisData, almoxarifadosData, pessoasData, categoriasData, subcategoriasData, projetosData, instalacoesData, rotulosData] = await Promise.all([
+      const [user, ordensData, almoxarifadosData, projetosData, instalacoesData, rotulosData] = await Promise.all([
         base44.auth.me(),
         base44.entities.OrdemServico.list(),
-        base44.entities.Regional.list(),
         base44.entities.Almoxarifado.list(),
-        base44.entities.Pessoa.list(),
-        base44.entities.Categoria.list(),
-        base44.entities.Subcategoria.list(),
         base44.entities.Projeto.list(),
         base44.entities.Instalacao.list(),
         base44.entities.Rotulo.filter({ ativo: true })
       ]);
       
       setCurrentUser(user);
-      const pessoa = Array.isArray(pessoasData) ? pessoasData.find(p => p?.email === user.email) : null;
+      const pessoa = Array.isArray(pessoas) ? pessoas.find(p => p?.email === user.email) : null;
       setCurrentPessoa(pessoa);
 
       if (user.filtros_preferidos?.OrdensServico) {
