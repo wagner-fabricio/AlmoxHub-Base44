@@ -187,7 +187,8 @@ export default function Projetos() {
     const matchSearch = p?.nome?.toLowerCase().includes(search.toLowerCase());
     const matchRegional = !filterRegional || p?.regional_id === filterRegional;
     const matchAlmoxarifado = !filterAlmoxarifado || p?.almoxarifado_id === filterAlmoxarifado;
-    return matchSearch && matchRegional && matchAlmoxarifado;
+    const matchStatus = !filterStatus || (p?.status_projeto || 'ativo') === filterStatus;
+    return matchSearch && matchRegional && matchAlmoxarifado && matchStatus;
   }) : [];
 
   if (loading) {
