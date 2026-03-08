@@ -52,22 +52,12 @@ export default function EquipesPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [equipesData, pessoasData, regionaisData, almoxarifadosData, userData] = await Promise.all([
+      const [equipesData, almoxarifadosData] = await Promise.all([
         base44.entities.Equipe.list(),
-        base44.entities.Pessoa.list(),
-        base44.entities.Regional.list(),
-        base44.entities.Almoxarifado.list(),
-        base44.auth.me()
+        base44.entities.Almoxarifado.list()
       ]);
-
       setEquipes(equipesData);
-      setPessoas(pessoasData);
-      setRegionais(regionaisData);
       setAlmoxarifados(almoxarifadosData);
-      setCurrentUser(userData);
-
-      const pessoaData = pessoasData.find(p => p.user_id === userData.id);
-      setCurrentUserPessoa(pessoaData);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {

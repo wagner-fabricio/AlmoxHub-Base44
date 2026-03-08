@@ -83,21 +83,14 @@ export default function Pessoas() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [user, pessoasData, regionaisData, almoxData] = await Promise.all([
-        base44.auth.me(),
-        base44.entities.Pessoa.list(),
-        base44.entities.Regional.list(),
-        base44.entities.Almoxarifado.list()
-      ]);
-      setCurrentUser(user);
-      const pessoa = pessoasData.find(p => p.user_id === user.id);
-      setCurrentPessoa(pessoa);
-      setPessoas(pessoasData);
-      setRegionais(regionaisData);
+      const almoxData = await base44.entities.Almoxarifado.list();
       setAlmoxarifados(almoxData);
+      // Dados de pessoas/regionais/user vem do contexto, sincronizar local state
+      setPessoas(pessoasCtx);
+      setCurrentUser(ctxUser);
+      setCurrentPessoa(ctxPessoa);
     } catch (error) {
       console.error('Erro ao carregar dados');
-      // Não expor detalhes do erro ao usuário
     } finally {
       setLoading(false);
     }
