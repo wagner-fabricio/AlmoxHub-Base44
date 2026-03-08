@@ -614,13 +614,13 @@ export default function Projetos() {
                         <div className="space-y-1">
                           <Label className="text-xs text-slate-400">Data Inicial Execução</Label>
                           <div className="text-sm px-3 py-2 bg-white dark:bg-slate-700 border rounded-md text-slate-600 dark:text-slate-300">
-                            {dataInicioExec || <span className="text-slate-400 italic">Sem OS com data inicial</span>}
+                            {dataInicioExec ? format(new Date(dataInicioExec), 'dd/MM/yyyy') : <span className="text-slate-400 italic">Sem OS com data inicial</span>}
                           </div>
                         </div>
                         <div className="space-y-1">
                           <Label className="text-xs text-slate-400">Data Final Execução</Label>
                           <div className="text-sm px-3 py-2 bg-white dark:bg-slate-700 border rounded-md text-slate-600 dark:text-slate-300">
-                            {dataFimExec || <span className="text-slate-400 italic">Sem OS com data conclusão</span>}
+                            {dataFimExec ? format(new Date(dataFimExec), 'dd/MM/yyyy') : <span className="text-slate-400 italic">Sem OS com data conclusão</span>}
                           </div>
                         </div>
                       </div>
