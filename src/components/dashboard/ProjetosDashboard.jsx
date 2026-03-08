@@ -255,6 +255,11 @@ export default function ProjetosDashboard({ regionalFilter: externalRegionalFilt
   const [showHelp, setShowHelp] = useState(false);
 
   useEffect(() => {
+    setRegionalFilter(externalRegionalFilter);
+    setAlmoxarifadoFilter(externalAlmoxarifadoFilter);
+  }, [externalRegionalFilter, externalAlmoxarifadoFilter]);
+
+  useEffect(() => {
     const load = async () => {
       setLoading(true);
       const [projetosData, ordensData, regionaisData, almoxarifadosData] = await Promise.all([
