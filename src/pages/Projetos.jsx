@@ -281,6 +281,7 @@ export default function Projetos() {
           almoxarifados={almoxarifados}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          onStatusChange={loadData}
           onOpenOS={(os) => {
             setSelectedOS(os);
             setShowOSModal(true);
