@@ -1279,6 +1279,11 @@ export default function Dashboard() {
                 </div>
               </TabsContent>
 
+              {/* ABA PROJETOS */}
+              <TabsContent value="projetos" className="mt-6">
+                <ProjetosDashboard />
+              </TabsContent>
+
               {/* ABA PRODUTIVIDADE */}
               <TabsContent value="produtividade" className="mt-6 space-y-8">
                 <OSProductivityRanking
