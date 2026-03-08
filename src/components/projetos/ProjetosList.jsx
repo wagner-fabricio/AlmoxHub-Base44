@@ -186,6 +186,7 @@ export default function ProjetosList({
             const isExpanded = expandedProjetoId === projeto.id;
             const lider = Array.isArray(pessoas) ? pessoas.find(p => p?.id === projeto.lider_id) : null;
             const executoresIds = getProjetoExecutores(projeto.id);
+            const almoxarifado = almoxarifados.find(a => a.id === projeto.almoxarifado_id);
             
             return (
               <React.Fragment key={projeto.id}>
