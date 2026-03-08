@@ -217,34 +217,9 @@ export default function Dashboard() {
   
   const onTimeRate = osComPrazo.length > 0 ? Math.round((onTimeCount / osComPrazo.length) * 100) : 0;
 
-  // Average resolution time - Com logs detalhados
-  const uniqueStatus = [...new Set(filteredOrdens.map(os => os.status))];
-  console.log('=== DEBUG TEMPO MÉDIO RESOLUÇÃO ===');
-  console.log('Status únicos encontrados:', uniqueStatus);
-  console.log('Total de OS filtradas:', filteredOrdens.length);
-  
-  uniqueStatus.forEach(status => {
-    const count = filteredOrdens.filter(os => os.status === status).length;
-    console.log(`  ${status}: ${count} OS`);
-  });
-  
-  // Filtrar APENAS OS com status exatamente igual a 'concluido'
+  // Average resolution time
   const osConcluidasParaCalculo = filteredOrdens.filter(os => os.status === 'concluido');
   const osConcluidasComData = osConcluidasParaCalculo.filter(os => os.data_conclusao);
-  
-  console.log('\nOS com status "concluido":', osConcluidasParaCalculo.length);
-  console.log('OS concluídas COM data_conclusao:', osConcluidasComData.length);
-  
-  if (osConcluidasParaCalculo.length > 0 && osConcluidasComData.length === 0) {
-    console.log('⚠️ ATENÇÃO: Existem OS concluídas mas nenhuma tem data_conclusao');
-    console.log('Amostra de OS concluídas:', osConcluidasParaCalculo.slice(0, 3).map(os => ({
-      codigo: os.codigo,
-      status: os.status,
-      data_conclusao: os.data_conclusao,
-      data_inicial: os.data_inicial
-    })));
-  }
-  console.log('===================================');
   
   const avgResolutionDays = osConcluidasComData.length > 0
     ? Math.round(osConcluidasComData.reduce((sum, os) => {
