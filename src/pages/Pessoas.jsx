@@ -196,6 +196,7 @@ export default function Pessoas() {
       } else {
         await base44.entities.Pessoa.create(dadosAtualizados);
       }
+      await refreshPessoas();
       loadData();
       setShowModal(false);
     } catch (error) {
