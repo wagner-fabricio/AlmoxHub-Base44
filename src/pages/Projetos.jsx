@@ -24,13 +24,11 @@ const defaultColors = [
 ];
 
 export default function Projetos() {
+  const { regionais, pessoas, categorias } = useApp();
   const [loading, setLoading] = useState(true);
   const [projetos, setProjetos] = useState([]);
   const [ordens, setOrdens] = useState([]);
-  const [pessoas, setPessoas] = useState([]);
-  const [regionais, setRegionais] = useState([]);
   const [almoxarifados, setAlmoxarifados] = useState([]);
-  const [categorias, setCategorias] = useState([]);
   const [expandedProjetoId, setExpandedProjetoId] = useState(null);
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState('list');

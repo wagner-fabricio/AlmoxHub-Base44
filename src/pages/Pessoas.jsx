@@ -22,9 +22,9 @@ const funcaoLabels = {
 };
 
 export default function Pessoas() {
+  const { regionais, pessoas: pessoasCtx, currentUser: ctxUser, currentPessoa: ctxPessoa, refreshPessoas } = useApp();
   const [loading, setLoading] = useState(true);
   const [pessoas, setPessoas] = useState([]);
-  const [regionais, setRegionais] = useState([]);
   const [almoxarifados, setAlmoxarifados] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [currentPessoa, setCurrentPessoa] = useState(null);

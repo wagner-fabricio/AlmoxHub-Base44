@@ -23,9 +23,8 @@ import { Users, Plus, Edit, Trash2, Search, User, MapPin, Warehouse, Loader2 } f
 import { useApp } from '@/components/contexts/AppContext';
 
 export default function EquipesPage() {
+  const { regionais, pessoas, currentUser: ctxUser, currentPessoa: ctxPessoa } = useApp();
   const [equipes, setEquipes] = useState([]);
-  const [pessoas, setPessoas] = useState([]);
-  const [regionais, setRegionais] = useState([]);
   const [almoxarifados, setAlmoxarifados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
