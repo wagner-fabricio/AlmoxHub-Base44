@@ -251,62 +251,63 @@ export default function ProjetosList({
                 </TableRow>
 
                 {isExpanded && (
-                  <>
-                    {/* Sub-header */}
-                    <TableRow className="bg-blue-50 dark:bg-blue-900/20 border-t border-blue-100 dark:border-blue-800">
-                      <TableCell colSpan={6} className="pl-14 py-1.5">
-                        <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1.5fr_auto] gap-3 items-center">
-                          <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wide">Código</span>
-                          <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wide">Categoria</span>
-                          <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wide">Líder</span>
-                          <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wide">Dt. Inicial</span>
-                          <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wide">Prazo</span>
-                          <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wide">Progresso</span>
-                          <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wide">Status</span>
+                  <TableRow className="hover:bg-transparent">
+                    <TableCell colSpan={6} className="p-0 pl-10 pr-4 pb-4">
+                      <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-800 shadow-sm">
+                        <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80">
+                          <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Ordens de Serviço</span>
                         </div>
-                      </TableCell>
-                    </TableRow>
-                    {projetoOrdens.map((os) => {
-                      const osLider = Array.isArray(pessoas) ? pessoas.find(p => p?.id === os.lider_id) : null;
-                      const categoria = Array.isArray(categorias) ? categorias.find(c => c?.id === os.categoria_id) : null;
-                      const StatusIcon = statusConfig[os.status]?.icon || Clock;
-                      const progresso = os.progresso || 0;
-                      const progressColor = progresso === 100 ? '#10b981' : progresso >= 50 ? '#0000FF' : '#FF6B00';
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b border-slate-100 dark:border-slate-700">
+                              <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 px-4 py-2">Código</th>
+                              <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 px-4 py-2">Categoria</th>
+                              <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 px-4 py-2">Líder</th>
+                              <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 px-4 py-2">Almoxarifado</th>
+                              <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 px-4 py-2">Data Inicial</th>
+                              <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 px-4 py-2">Data Conclusão</th>
+                              <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 px-4 py-2 w-40">Progresso</th>
+                              <th className="text-right text-xs font-semibold text-slate-500 dark:text-slate-400 px-4 py-2">Ações</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {projetoOrdens.map((os, idx) => {
+                              const osLider = Array.isArray(pessoas) ? pessoas.find(p => p?.id === os.lider_id) : null;
+                              const categoria = Array.isArray(categorias) ? categorias.find(c => c?.id === os.categoria_id) : null;
+                              const almoxOS = almoxarifados.find(a => a.id === os.almoxarifado_id);
+                              const progresso = os.progresso || 0;
+                              const progressColor = progresso === 100 ? '#10b981' : progresso >= 50 ? '#0000FF' : '#FF6B00';
 
-                      return (
-                        <TableRow key={`os-${os.id}`} className="bg-slate-50/80 dark:bg-slate-900/40 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors border-b border-slate-100 dark:border-slate-800">
-                          <TableCell colSpan={6} className="pl-14 py-2.5">
-                            <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1.5fr_auto] gap-3 items-center">
-                              <span className="font-mono text-xs text-slate-700 dark:text-slate-300 font-medium">{os.codigo}</span>
-                              <Badge variant="outline" className="text-xs w-fit">{categoria?.nome || '-'}</Badge>
-                              <span className="text-xs text-slate-600 dark:text-slate-400 truncate">{osLider?.nome || '-'}</span>
-                              <span className="text-xs text-slate-500 dark:text-slate-400">
-                                {os.data_inicial ? format(new Date(os.data_inicial), 'dd/MM/yy') : '-'}
-                              </span>
-                              <span className="text-xs text-slate-500 dark:text-slate-400">
-                                {os.prazo ? format(new Date(os.prazo), 'dd/MM/yy') : '-'}
-                              </span>
-                              <div className="flex items-center gap-2">
-                                <div className="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                                  <div
-                                    className="h-full rounded-full transition-all"
-                                    style={{ width: `${progresso}%`, backgroundColor: progressColor }}
-                                  />
-                                </div>
-                                <span className="text-xs font-bold w-8 text-right shrink-0" style={{ color: progressColor }}>{progresso}%</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <StatusIcon className={`w-3.5 h-3.5 ${statusConfig[os.status]?.color} shrink-0`} />
-                                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={(e) => { e.stopPropagation(); onOpenOS?.(os); }}>
-                                  <ExternalLink className="w-3.5 h-3.5" />
-                                </Button>
-                              </div>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </>
+                              return (
+                                <tr key={`os-${os.id}`} className={`hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors ${idx < projetoOrdens.length - 1 ? 'border-b border-slate-100 dark:border-slate-700/50' : ''}`}>
+                                  <td className="px-4 py-2.5 font-mono text-xs text-slate-700 dark:text-slate-300 font-medium">{os.codigo}</td>
+                                  <td className="px-4 py-2.5 text-xs text-slate-600 dark:text-slate-400">{categoria?.nome || '-'}</td>
+                                  <td className="px-4 py-2.5 text-xs text-blue-600 dark:text-blue-400 font-medium">{osLider?.nome || '-'}</td>
+                                  <td className="px-4 py-2.5 text-xs text-slate-600 dark:text-slate-400">{almoxOS?.nome || '-'}</td>
+                                  <td className="px-4 py-2.5 text-xs text-slate-500 dark:text-slate-400">{os.data_inicial || '-'}</td>
+                                  <td className="px-4 py-2.5 text-xs text-slate-500 dark:text-slate-400">{os.data_conclusao || '-'}</td>
+                                  <td className="px-4 py-2.5">
+                                    <div className="flex items-center gap-2">
+                                      <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                        <div className="h-full rounded-full transition-all" style={{ width: `${progresso}%`, backgroundColor: progressColor }} />
+                                      </div>
+                                      <span className="text-xs font-bold w-8 shrink-0" style={{ color: progressColor }}>{progresso}%</span>
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-2.5 text-right">
+                                    <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={(e) => { e.stopPropagation(); onOpenOS?.(os); }}>
+                                      <ExternalLink className="w-3.5 h-3.5" />
+                                      Abrir
+                                    </Button>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </TableCell>
+                  </TableRow>
                 )}
               </React.Fragment>
             );
