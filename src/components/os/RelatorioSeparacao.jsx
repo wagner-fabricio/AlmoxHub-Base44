@@ -66,12 +66,13 @@ export default function RelatorioSeparacao({ os, regional, almoxarifado, lider, 
       </div>
 
       {/* Documento - Apenas se tiver dados */}
-      {(os.num_reserva || os.num_migo || os.orgao) && (
+      {(os.num_reserva || os.num_migo || os.orgao || os.usuario_reserva) && (
         <div className="mb-4">
           <div className="bg-gray-200 px-3 py-1 font-semibold text-sm border border-gray-400">DOCUMENTO</div>
-          <div className="border border-gray-300 p-2 text-xs grid grid-cols-3 gap-2 bg-gray-50">
+          <div className="border border-gray-300 p-2 text-xs grid grid-cols-4 gap-2 bg-gray-50">
             {os.num_reserva && <div><span className="font-semibold">Reserva:</span> {os.num_reserva}</div>}
             {os.num_migo && <div><span className="font-semibold">MIGO:</span> {os.num_migo}</div>}
+            {os.usuario_reserva && <div><span className="font-semibold">Usuário:</span> {os.usuario_reserva}</div>}
             {os.orgao && <div><span className="font-semibold">Órgão:</span> {os.orgao}</div>}
           </div>
         </div>
