@@ -42,6 +42,7 @@ export default function ProjetosList({
   const [columnFilters, setColumnFilters] = useState({ nome: [], status_projeto: [] });
   const [expandedProjetoId, setExpandedProjetoId] = useState(null);
   const [updatingStatus, setUpdatingStatus] = useState(null);
+  const [localStatus, setLocalStatus] = useState({});
 
   const getOSCount = (projetoId) => {
     if (!Array.isArray(ordens)) return 0;
