@@ -362,7 +362,6 @@ export default function ProjetosDashboard({ regionalFilter: externalRegionalFilt
 
             {/* ROW: Progresso */}
             <div className="flex">
-              <div className="w-44 shrink-0 invisible" />
               {projetosFiltrados.map((proj, i) => {
                 const osProj = ordens.filter(os => os.projetos_ids?.includes(proj.id));
                 const total = osProj.length;
