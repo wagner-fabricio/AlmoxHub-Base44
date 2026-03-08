@@ -182,7 +182,7 @@ export default function ProjetosList({
             const isExpanded = expandedProjetoId === projeto.id;
             const lider = Array.isArray(pessoas) ? pessoas.find(p => p?.id === projeto.lider_id) : null;
             const almoxarifado = almoxarifados.find(a => a.id === projeto.almoxarifado_id);
-            const statusAtual = getStatusConfig(projeto.status_projeto || 'ativo');
+            const statusAtual = getStatusConfig(localStatus[projeto.id] || projeto.status_projeto || 'ativo');
 
             return (
               <React.Fragment key={projeto.id}>
