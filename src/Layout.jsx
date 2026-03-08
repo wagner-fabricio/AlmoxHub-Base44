@@ -455,6 +455,10 @@ export default function Layout({ children, currentPageName }) {
                         <Bell className="w-4 h-4 mr-2" />
                         Alertas Configuráveis
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => window.location.href = createPageUrl('ConsentimentosPage')}>
+                        <BookOpen className="w-4 h-4 mr-2" />
+                        Meus Consentimentos
+                      </DropdownMenuItem>
                       {user?.role === 'admin' && (
                         <DropdownMenuItem onClick={() => window.location.href = createPageUrl('AuditLogs')}>
                           <Shield className="w-4 h-4 mr-2" />
