@@ -100,11 +100,7 @@ export default function OrdensServico() {
       }
       
       setOrdens(ordensData);
-      setRegionais(regionaisData);
       setAlmoxarifados(almoxarifadosData);
-      setPessoas(pessoasData);
-      setCategorias(categoriasData);
-      setSubcategorias(subcategoriasData);
       setProjetos(projetosData);
       setInstalacoes(instalacoesData);
       setRotulos(rotulosData);
