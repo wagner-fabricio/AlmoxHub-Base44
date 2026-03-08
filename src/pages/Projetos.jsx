@@ -406,6 +406,7 @@ export default function Projetos() {
                           return (
                             <TableRow key={os.id}>
                               <TableCell className="font-mono text-sm">{os.codigo}</TableCell>
+                              <TableCell className="text-sm text-slate-600 dark:text-slate-400 max-w-xs truncate">{os.descricao_resumida || os.anotacoes || '-'}</TableCell>
                               <TableCell>{categoria?.nome || '-'}</TableCell>
                               <TableCell>{lider?.nome || '-'}</TableCell>
                               <TableCell>{almoxarifado?.nome || '-'}</TableCell>
