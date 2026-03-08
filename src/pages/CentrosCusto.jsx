@@ -48,15 +48,7 @@ export default function CentrosCusto() {
     queryFn: () => base44.entities.CentroCusto.list()
   });
 
-  const { data: regionais = [] } = useQuery({
-    queryKey: ['regionais'],
-    queryFn: () => base44.entities.Regional.list()
-  });
-
-  const { data: pessoas = [] } = useQuery({
-    queryKey: ['pessoas'],
-    queryFn: () => base44.entities.Pessoa.list()
-  });
+  const { regionais, pessoas } = useApp();
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.CentroCusto.create(data),
