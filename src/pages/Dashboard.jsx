@@ -1281,7 +1281,10 @@ export default function Dashboard() {
 
               {/* ABA PROJETOS */}
               <TabsContent value="projetos" className="mt-6">
-                <ProjetosDashboard />
+                <ProjetosDashboard 
+                  regionalFilter={filters.regional}
+                  almoxarifadoFilter={filters.almoxarifado}
+                />
               </TabsContent>
 
               {/* ABA PRODUTIVIDADE */}
