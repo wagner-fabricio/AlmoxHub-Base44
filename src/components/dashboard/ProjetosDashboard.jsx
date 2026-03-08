@@ -246,8 +246,12 @@ function HelpModal({ open, onClose }) {
 export default function ProjetosDashboard() {
   const [projetos, setProjetos] = useState([]);
   const [ordens, setOrdens] = useState([]);
+  const [regionais, setRegionais] = useState([]);
+  const [almoxarifados, setAlmoxarifados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('ativo');
+  const [regionalFilter, setRegionalFilter] = useState('');
+  const [almoxarifadoFilter, setAlmoxarifadoFilter] = useState('');
   const [showHelp, setShowHelp] = useState(false);
 
   useEffect(() => {
