@@ -261,6 +261,7 @@ export default function ProjetosList({
                           <thead>
                             <tr className="border-b border-slate-100 dark:border-slate-700">
                               <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 px-4 py-2">Código</th>
+                              <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 px-4 py-2">Descrição</th>
                               <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 px-4 py-2">Categoria</th>
                               <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 px-4 py-2">Líder</th>
                               <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 px-4 py-2">Almoxarifado</th>
