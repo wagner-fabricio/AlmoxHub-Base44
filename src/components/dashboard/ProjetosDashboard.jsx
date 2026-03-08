@@ -348,27 +348,27 @@ export default function ProjetosDashboard() {
         </Button>
       </div>
 
-      {/* Table Layout - scroll horizontal */}
-      <div className="overflow-x-auto">
-        <div className="flex">
-          {/* Fixed Left Column */}
-          <div className="flex flex-col shrink-0">
-            {/* Header Row - Fixed */}
-            <div className="w-44 p-3 bg-slate-100 dark:bg-slate-800 rounded-tl-xl border-r border-slate-200 dark:border-slate-700 flex items-center">
-              <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Indicador ↓ / Projeto →</span>
-            </div>
-            {/* All KPI Rows - Fixed */}
-            <KPIRow label="Progresso" sublabel="OS em execução / total" fixed />
-            <KPIRow label="IDP / SPI" sublabel="Índice de desempenho de prazo" fixed />
-            <KPIRow label="Desvio de Prazo" sublabel="Dias planejado vs. hoje" fixed />
-            <KPIRow label="Produtividade" sublabel="OS concluídas / dia" fixed />
-            <KPIRow label="Cumprimento de Prazos" sublabel="OS entregues no prazo" fixed />
-            <KPIRow label="Lead Time Médio" sublabel="Abertura → Conclusão (dias)" fixed />
-            <KPIRow label="Throughput" sublabel="OS concluídas/mês" fixed />
-            <KPIRow label="Status das OS" sublabel="Distribuição por status" fixed last />
+      {/* Table Layout - Fixed + Scroll */}
+      <div className="flex">
+        {/* Fixed Left Column */}
+        <div className="flex flex-col shrink-0">
+          {/* Header Row - Fixed */}
+          <div className="w-44 p-3 bg-slate-100 dark:bg-slate-800 rounded-tl-xl border-r border-slate-200 dark:border-slate-700 flex items-center">
+            <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Indicador ↓ / Projeto →</span>
           </div>
+          {/* All KPI Rows - Fixed */}
+          <KPIRow label="Progresso" sublabel="OS em execução / total" fixed />
+          <KPIRow label="IDP / SPI" sublabel="Índice de desempenho de prazo" fixed />
+          <KPIRow label="Desvio de Prazo" sublabel="Dias planejado vs. hoje" fixed />
+          <KPIRow label="Produtividade" sublabel="OS concluídas / dia" fixed />
+          <KPIRow label="Cumprimento de Prazos" sublabel="OS entregues no prazo" fixed />
+          <KPIRow label="Lead Time Médio" sublabel="Abertura → Conclusão (dias)" fixed />
+          <KPIRow label="Throughput" sublabel="OS concluídas/mês" fixed />
+          <KPIRow label="Status das OS" sublabel="Distribuição por status" fixed last />
+        </div>
 
-          {/* Scrollable Content */}
+        {/* Scrollable Content */}
+        <div className="overflow-x-auto flex-1">
           <div className="min-w-max">
             {/* Header Row - Scrollable */}
             <div className="flex">
