@@ -45,7 +45,9 @@ export default function Projetos() {
     almoxarifado_id: '',
     lider_id: '',
     outros_envolvidos_ids: [],
-    ativo: true
+    ativo: true,
+    data_inicial_prevista: new Date().toISOString().split('T')[0],
+    data_final_prevista: ''
   });
   const [saving, setSaving] = useState(false);
   const [filterRegional, setFilterRegional] = useState('');
