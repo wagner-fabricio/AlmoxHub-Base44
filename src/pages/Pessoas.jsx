@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Plus, Edit, Trash2, User, Loader2, Search, Upload, X, CheckCircle2, UserX, Mail } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { SortableTableHead, useTableSort, useColumnFilters } from '@/components/ui/table-sortable';
+import { useApp } from '@/components/contexts/AppContext';
 
 const funcaoLabels = {
   gestor: { label: 'Gestor', color: 'bg-purple-100 text-purple-700' },

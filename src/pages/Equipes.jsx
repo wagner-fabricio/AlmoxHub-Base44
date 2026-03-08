@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Users, Plus, Edit, Trash2, Search, User, MapPin, Warehouse, Loader2 } from 'lucide-react';
+import { useApp } from '@/components/contexts/AppContext';
 
 export default function EquipesPage() {
   const [equipes, setEquipes] = useState([]);
