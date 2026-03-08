@@ -17,13 +17,10 @@ import OSDetailModal from '@/components/os/OSDetailModal.jsx';
 import { notifyOSAssignment, notifyStatusChange } from '@/components/notifications/PushNotificationHelper';
 
 export default function OrdensServico() {
+  const { regionais, categorias, subcategorias, pessoas, currentUser: ctxUser, currentPessoa: ctxPessoa } = useApp();
   const [loading, setLoading] = useState(true);
   const [ordens, setOrdens] = useState([]);
-  const [regionais, setRegionais] = useState([]);
   const [almoxarifados, setAlmoxarifados] = useState([]);
-  const [pessoas, setPessoas] = useState([]);
-  const [categorias, setCategorias] = useState([]);
-  const [subcategorias, setSubcategorias] = useState([]);
   const [projetos, setProjetos] = useState([]);
   const [instalacoes, setInstalacoes] = useState([]);
   const [rotulos, setRotulos] = useState([]);
