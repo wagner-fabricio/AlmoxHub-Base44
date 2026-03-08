@@ -21,6 +21,7 @@ import TorreControleRecebimentoProblemas from '@/components/dashboard/TorreContr
 import OSProductivityRanking from '@/components/dashboard/OSProductivityRanking';
 import OSPorAtendenteChart from '@/components/dashboard/OSPorAtendenteChart';
 import { isNoPrazo, isForaPrazo } from '@/components/dashboard/prazoHelpers';
+import ProjetosDashboard from '@/components/dashboard/ProjetosDashboard';
 
 const COLORS = ['#0000FF', '#FF6B00', '#10B981', '#A0B4D2', '#0A003C', '#EC4899'];
 
