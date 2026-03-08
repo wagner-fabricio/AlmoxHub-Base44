@@ -516,7 +516,7 @@ export default function ProjetosDashboard() {
 function KPIRow({ label, sublabel, children, last, fixed }) {
   if (fixed) {
     return (
-      <div className={`w-44 shrink-0 p-3 bg-slate-50 dark:bg-slate-800/50 border-r border-slate-200 dark:border-slate-700 flex flex-col justify-center ${last ? 'rounded-bl-xl' : ''} border-b border-slate-200 dark:border-slate-700`}>
+      <div className={`w-44 shrink-0 p-3 bg-slate-50 dark:bg-slate-800/50 border-r border-slate-200 dark:border-slate-700 flex flex-col justify-center h-[120px] ${last ? 'rounded-bl-xl' : ''} border-b border-slate-200 dark:border-slate-700`}>
         <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{label}</span>
         {sublabel && <span className="text-xs text-slate-400 mt-0.5">{sublabel}</span>}
       </div>
