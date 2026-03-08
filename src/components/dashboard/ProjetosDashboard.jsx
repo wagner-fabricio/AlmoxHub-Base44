@@ -375,163 +375,171 @@ export default function ProjetosDashboard() {
               {/* Placeholder for alignment */}
               <div className="w-44 shrink-0" />
 
-            {projetosFiltrados.map((proj, i) => (
-              <div
-                key={proj.id}
-                className="w-52 shrink-0 p-3 text-white text-center font-bold text-sm border-r border-white/20 last:rounded-tr-xl"
-                style={{ background: `linear-gradient(135deg, ${COLORS_PROJ[i % COLORS_PROJ.length]}, ${COLORS_PROJ[(i + 1) % COLORS_PROJ.length]})` }}
-              >
-                <div className="truncate">{proj.nome}</div>
-                <div className="flex justify-between text-xs font-normal opacity-80 mt-1">
-                  <span>{proj.data_inicial_prevista ? format(new Date(proj.data_inicial_prevista), 'dd/MM/yy') : '—'}</span>
-                  <span>{proj.data_final_prevista ? format(new Date(proj.data_final_prevista), 'dd/MM/yy') : '—'}</span>
+              {projetosFiltrados.map((proj, i) => (
+                <div
+                  key={proj.id}
+                  className="w-52 shrink-0 p-3 text-white text-center font-bold text-sm border-r border-white/20 last:rounded-tr-xl"
+                  style={{ background: `linear-gradient(135deg, ${COLORS_PROJ[i % COLORS_PROJ.length]}, ${COLORS_PROJ[(i + 1) % COLORS_PROJ.length]})` }}
+                >
+                  <div className="truncate">{proj.nome}</div>
+                  <div className="flex justify-between text-xs font-normal opacity-80 mt-1">
+                    <span>{proj.data_inicial_prevista ? format(new Date(proj.data_inicial_prevista), 'dd/MM/yy') : '—'}</span>
+                    <span>{proj.data_final_prevista ? format(new Date(proj.data_final_prevista), 'dd/MM/yy') : '—'}</span>
+                  </div>
+                  <StatusBadgeSmall status={proj.status_projeto} />
                 </div>
-                <StatusBadgeSmall status={proj.status_projeto} />
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
 
-          {/* ROW: Progresso */}
-          <KPIRow label="Progresso" sublabel="OS em execução / total">
-            {projetosFiltrados.map((proj, i) => {
-              const osProj = ordens.filter(os => os.projetos_ids?.includes(proj.id));
-              const total = osProj.length;
-              const inProgress = osProj.filter(os => os.status === 'execucao').length;
-              const pct = total > 0 ? Math.round(osProj.reduce((s, os) => s + (os.progresso || 0), 0) / total) : 0;
-              return (
-                <KPICell key={proj.id} color={COLORS_PROJ[i % COLORS_PROJ.length]}>
-                  <DonutProgress percent={pct} inProgress={inProgress} total={total} />
-                </KPICell>
-              );
-            })}
-          </KPIRow>
+            {/* ROW: Progresso */}
+            <div className="flex">
+              <div className="w-44 shrink-0" />
+              {projetosFiltrados.map((proj, i) => {
+                const osProj = ordens.filter(os => os.projetos_ids?.includes(proj.id));
+                const total = osProj.length;
+                const inProgress = osProj.filter(os => os.status === 'execucao').length;
+                const pct = total > 0 ? Math.round(osProj.reduce((s, os) => s + (os.progresso || 0), 0) / total) : 0;
+                return (
+                  <KPICell key={proj.id} color={COLORS_PROJ[i % COLORS_PROJ.length]}>
+                    <DonutProgress percent={pct} inProgress={inProgress} total={total} />
+                  </KPICell>
+                );
+              })}
+            </div>
 
-          {/* ROW: IDP */}
-          <KPIRow label="IDP / SPI" sublabel="Índice de desempenho de prazo">
-            {projetosFiltrados.map((proj, i) => {
-              const osProj = ordens.filter(os => os.projetos_ids?.includes(proj.id));
-              const idp = calcIDP(proj, osProj);
-              return (
-                <KPICell key={proj.id} color={COLORS_PROJ[i % COLORS_PROJ.length]}>
-                  <IDPBadge idp={idp} />
-                  <p className="text-xs text-slate-400 mt-1">
-                    {idp === null ? 'sem datas' : idp >= 1 ? 'Adiantado' : idp >= 0.8 ? 'Atenção' : 'Atrasado'}
-                  </p>
-                </KPICell>
-              );
-            })}
-          </KPIRow>
-
-          {/* ROW: Desvio de Prazo */}
-          <KPIRow label="Desvio de Prazo" sublabel="Dias planejado vs. hoje">
-            {projetosFiltrados.map((proj, i) => {
-              const sv = calcSVDias(proj);
-              return (
-                <KPICell key={proj.id} color={COLORS_PROJ[i % COLORS_PROJ.length]}>
-                  <SVBadge sv={sv} />
-                  {proj.data_final_prevista && (
+            {/* ROW: IDP */}
+            <div className="flex border-b border-slate-200 dark:border-slate-700">
+              <div className="w-44 shrink-0" />
+              {projetosFiltrados.map((proj, i) => {
+                const osProj = ordens.filter(os => os.projetos_ids?.includes(proj.id));
+                const idp = calcIDP(proj, osProj);
+                return (
+                  <KPICell key={proj.id} color={COLORS_PROJ[i % COLORS_PROJ.length]}>
+                    <IDPBadge idp={idp} />
                     <p className="text-xs text-slate-400 mt-1">
-                      Prazo: {format(new Date(proj.data_final_prevista), 'dd/MM/yy')}
+                      {idp === null ? 'sem datas' : idp >= 1 ? 'Adiantado' : idp >= 0.8 ? 'Atenção' : 'Atrasado'}
                     </p>
-                  )}
-                </KPICell>
-              );
-            })}
-          </KPIRow>
+                  </KPICell>
+                );
+              })}
+            </div>
 
-          {/* ROW: Produtividade */}
-          <KPIRow label="Produtividade" sublabel="OS concluídas / dia">
-            {projetosFiltrados.map((proj, i) => {
-              const osProj = ordens.filter(os => os.projetos_ids?.includes(proj.id));
-              const prod = calcProdutividade(proj, osProj);
-              const concluidas = osProj.filter(os => os.status === 'concluido').length;
-              return (
-                <KPICell key={proj.id} color={COLORS_PROJ[i % COLORS_PROJ.length]}>
-                  <span className="text-xl font-bold text-slate-800 dark:text-white">
-                    {prod !== null ? prod.toFixed(2) : '—'}
-                  </span>
-                  <span className="text-xs text-slate-500">OS/dia</span>
-                  <p className="text-xs text-slate-400 mt-1">{concluidas} concluídas</p>
-                </KPICell>
-              );
-            })}
-          </KPIRow>
+            {/* ROW: Desvio de Prazo */}
+            <div className="flex border-b border-slate-200 dark:border-slate-700">
+              <div className="w-44 shrink-0" />
+              {projetosFiltrados.map((proj, i) => {
+                const sv = calcSVDias(proj);
+                return (
+                  <KPICell key={proj.id} color={COLORS_PROJ[i % COLORS_PROJ.length]}>
+                    <SVBadge sv={sv} />
+                    {proj.data_final_prevista && (
+                      <p className="text-xs text-slate-400 mt-1">
+                        Prazo: {format(new Date(proj.data_final_prevista), 'dd/MM/yy')}
+                      </p>
+                    )}
+                  </KPICell>
+                );
+              })}
+            </div>
 
-          {/* ROW: Cumprimento de Prazos */}
-          <KPIRow label="Cumprimento de Prazos" sublabel="OS entregues no prazo">
-            {projetosFiltrados.map((proj, i) => {
-              const osProj = ordens.filter(os => os.projetos_ids?.includes(proj.id));
-              const pct = calcCumprimentoPrazos(osProj);
-              const comPrazo = osProj.filter(os => os.prazo).length;
-              return (
-                <KPICell key={proj.id} color={COLORS_PROJ[i % COLORS_PROJ.length]}>
-                  <CumprimentoBadge pct={pct} />
-                  {pct !== null && (
-                    <p className="text-xs text-slate-400 mt-1">{comPrazo} OS com prazo</p>
-                  )}
-                </KPICell>
-              );
-            })}
-          </KPIRow>
+            {/* ROW: Produtividade */}
+            <div className="flex border-b border-slate-200 dark:border-slate-700">
+              <div className="w-44 shrink-0" />
+              {projetosFiltrados.map((proj, i) => {
+                const osProj = ordens.filter(os => os.projetos_ids?.includes(proj.id));
+                const prod = calcProdutividade(proj, osProj);
+                const concluidas = osProj.filter(os => os.status === 'concluido').length;
+                return (
+                  <KPICell key={proj.id} color={COLORS_PROJ[i % COLORS_PROJ.length]}>
+                    <span className="text-xl font-bold text-slate-800 dark:text-white">
+                      {prod !== null ? prod.toFixed(2) : '—'}
+                    </span>
+                    <span className="text-xs text-slate-500">OS/dia</span>
+                    <p className="text-xs text-slate-400 mt-1">{concluidas} concluídas</p>
+                  </KPICell>
+                );
+              })}
+            </div>
 
-          {/* ROW: Lead Time */}
-          <KPIRow label="Lead Time Médio" sublabel="Abertura → Conclusão (dias)">
-            {projetosFiltrados.map((proj, i) => {
-              const osProj = ordens.filter(os => os.projetos_ids?.includes(proj.id));
-              const lt = calcLeadTimeMedio(osProj);
-              const concluidas = osProj.filter(os => os.status === 'concluido' && os.data_conclusao).length;
-              return (
-                <KPICell key={proj.id} color={COLORS_PROJ[i % COLORS_PROJ.length]}>
-                  {lt !== null ? (
-                    <>
-                      <span className="text-2xl font-bold text-slate-800 dark:text-white">{lt}</span>
-                      <span className="text-xs text-slate-500"> dias</span>
-                      <p className="text-xs text-slate-400 mt-1">({concluidas} OS concluídas)</p>
-                    </>
-                  ) : (
-                    <span className="text-xs text-slate-400">Sem OS concluídas</span>
-                  )}
-                </KPICell>
-              );
-            })}
-          </KPIRow>
+            {/* ROW: Cumprimento de Prazos */}
+            <div className="flex border-b border-slate-200 dark:border-slate-700">
+              <div className="w-44 shrink-0" />
+              {projetosFiltrados.map((proj, i) => {
+                const osProj = ordens.filter(os => os.projetos_ids?.includes(proj.id));
+                const pct = calcCumprimentoPrazos(osProj);
+                const comPrazo = osProj.filter(os => os.prazo).length;
+                return (
+                  <KPICell key={proj.id} color={COLORS_PROJ[i % COLORS_PROJ.length]}>
+                    <CumprimentoBadge pct={pct} />
+                    {pct !== null && (
+                      <p className="text-xs text-slate-400 mt-1">{comPrazo} OS com prazo</p>
+                    )}
+                  </KPICell>
+                );
+              })}
+            </div>
 
-          {/* ROW: Throughput */}
-          <KPIRow label="Throughput" sublabel="OS concluídas/mês">
-            {projetosFiltrados.map((proj, i) => {
-              const osProj = ordens.filter(os => os.projetos_ids?.includes(proj.id));
-              const data = calcThroughputMensal(osProj);
-              return (
-                <KPICell key={proj.id} color={COLORS_PROJ[i % COLORS_PROJ.length]}>
-                  <div className="w-full">
-                    <ThroughputChart data={data} color={COLORS_PROJ[i % COLORS_PROJ.length]} />
-                  </div>
-                </KPICell>
-              );
-            })}
-          </KPIRow>
+            {/* ROW: Lead Time */}
+            <div className="flex border-b border-slate-200 dark:border-slate-700">
+              <div className="w-44 shrink-0" />
+              {projetosFiltrados.map((proj, i) => {
+                const osProj = ordens.filter(os => os.projetos_ids?.includes(proj.id));
+                const lt = calcLeadTimeMedio(osProj);
+                const concluidas = osProj.filter(os => os.status === 'concluido' && os.data_conclusao).length;
+                return (
+                  <KPICell key={proj.id} color={COLORS_PROJ[i % COLORS_PROJ.length]}>
+                    {lt !== null ? (
+                      <>
+                        <span className="text-2xl font-bold text-slate-800 dark:text-white">{lt}</span>
+                        <span className="text-xs text-slate-500"> dias</span>
+                        <p className="text-xs text-slate-400 mt-1">({concluidas} OS concluídas)</p>
+                      </>
+                    ) : (
+                      <span className="text-xs text-slate-400">Sem OS concluídas</span>
+                    )}
+                  </KPICell>
+                );
+              })}
+            </div>
 
-          {/* ROW: Resumo OS */}
-          <KPIRow label="Status das OS" sublabel="Distribuição por status" last>
-            {projetosFiltrados.map((proj, i) => {
-              const osProj = ordens.filter(os => os.projetos_ids?.includes(proj.id));
-              const elab = osProj.filter(os => os.status === 'elaboracao').length;
-              const exec = osProj.filter(os => os.status === 'execucao').length;
-              const conc = osProj.filter(os => os.status === 'concluido').length;
-              const canc = osProj.filter(os => os.status === 'cancelado').length;
-              return (
-                <KPICell key={proj.id} color={COLORS_PROJ[i % COLORS_PROJ.length]} last>
-                  <div className="w-full space-y-1 text-xs">
-                    <div className="flex justify-between"><span className="text-slate-500">Elaboração</span><span className="font-bold">{elab}</span></div>
-                    <div className="flex justify-between"><span className="text-blue-600">Execução</span><span className="font-bold text-blue-600">{exec}</span></div>
-                    <div className="flex justify-between"><span className="text-green-600">Concluído</span><span className="font-bold text-green-600">{conc}</span></div>
-                    {canc > 0 && <div className="flex justify-between"><span className="text-red-500">Cancelado</span><span className="font-bold text-red-500">{canc}</span></div>}
-                    <div className="flex justify-between border-t pt-1 mt-1"><span className="font-semibold text-slate-700 dark:text-slate-300">Total</span><span className="font-bold">{osProj.length}</span></div>
-                  </div>
-                </KPICell>
-              );
-            })}
-          </KPIRow>
+            {/* ROW: Throughput */}
+            <div className="flex border-b border-slate-200 dark:border-slate-700">
+              <div className="w-44 shrink-0" />
+              {projetosFiltrados.map((proj, i) => {
+                const osProj = ordens.filter(os => os.projetos_ids?.includes(proj.id));
+                const data = calcThroughputMensal(osProj);
+                return (
+                  <KPICell key={proj.id} color={COLORS_PROJ[i % COLORS_PROJ.length]}>
+                    <div className="w-full">
+                      <ThroughputChart data={data} color={COLORS_PROJ[i % COLORS_PROJ.length]} />
+                    </div>
+                  </KPICell>
+                );
+              })}
+            </div>
+
+            {/* ROW: Resumo OS */}
+            <div className="flex rounded-b-xl overflow-hidden">
+              <div className="w-44 shrink-0" />
+              {projetosFiltrados.map((proj, i) => {
+                const osProj = ordens.filter(os => os.projetos_ids?.includes(proj.id));
+                const elab = osProj.filter(os => os.status === 'elaboracao').length;
+                const exec = osProj.filter(os => os.status === 'execucao').length;
+                const conc = osProj.filter(os => os.status === 'concluido').length;
+                const canc = osProj.filter(os => os.status === 'cancelado').length;
+                return (
+                  <KPICell key={proj.id} color={COLORS_PROJ[i % COLORS_PROJ.length]} last>
+                    <div className="w-full space-y-1 text-xs">
+                      <div className="flex justify-between"><span className="text-slate-500">Elaboração</span><span className="font-bold">{elab}</span></div>
+                      <div className="flex justify-between"><span className="text-blue-600">Execução</span><span className="font-bold text-blue-600">{exec}</span></div>
+                      <div className="flex justify-between"><span className="text-green-600">Concluído</span><span className="font-bold text-green-600">{conc}</span></div>
+                      {canc > 0 && <div className="flex justify-between"><span className="text-red-500">Cancelado</span><span className="font-bold text-red-500">{canc}</span></div>}
+                      <div className="flex justify-between border-t pt-1 mt-1"><span className="font-semibold text-slate-700 dark:text-slate-300">Total</span><span className="font-bold">{osProj.length}</span></div>
+                    </div>
+                  </KPICell>
+                );
+              })}
+            </div>
         </div>
       </div>
 
