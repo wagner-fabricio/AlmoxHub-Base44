@@ -30,6 +30,8 @@ Deno.serve(async (req) => {
     const text = pdfData.text;
 
     console.log('PDF extraído com sucesso, tamanho:', text.length);
+    console.log('Texto bruto (primeiros 1000 chars):', text.substring(0, 1000));
+    console.log('Texto bruto (chars 1000-2000):', text.substring(1000, 2000));
 
     // Parse específico para ZMMTSE (Movimentação de Material SAP)
     const dados = parseZMMTSE(text);
