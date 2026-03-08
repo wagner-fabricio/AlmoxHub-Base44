@@ -153,6 +153,13 @@ export default function Projetos() {
     return ordens.filter(os => os?.projetos_ids?.includes(projetoId));
   };
 
+  const getProjetoProgresso = (projetoId) => {
+    const projetoOrdens = ordens.filter(os => os?.projetos_ids?.includes(projetoId));
+    if (projetoOrdens.length === 0) return 0;
+    const total = projetoOrdens.reduce((sum, os) => sum + (os.progresso || 0), 0);
+    return total / projetoOrdens.length;
+  };
+
   const getProjetoExecutores = (projetoId) => {
     if (!Array.isArray(ordens)) return [];
     const projetoOrdens = ordens.filter(os => os?.projetos_ids?.includes(projetoId));
