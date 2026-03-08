@@ -11,20 +11,20 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const pdfBase64 = body.pdfBase64;
     const pdfUrl = body.pdfUrl;
 
-    if (!pdfBase64 && !pdfUrl) {
-      return Response.json({ error: 'PDF base64 ou URL não fornecido' }, { status: 400 });
+    if (!pdfUrl) {
+      return Response.json({ error: 'PDF URL não fornecido' }, { status: 400 });
     }
 
-    let pdfBuffer;
-    if (pdfBase64) {
-      pdfBuffer = Buffer.from(pdfBase64, 'base64');
-    } else {
-      const response = await fetch(pdfUrl);
-      pdfBuffer = await response.arrayBuffer();
+    // Fazer download do PDF da URL
+    const response = await fetch(pdfUrl);
+    if (!response.ok) {
+      throw new Error(`Erro ao baixar PDF: ${response.statusText}`);
     }
+    
+    const arrayBuffer = await response.arrayBuffer();
+    const pdfBuffer = Buffer.from(arrayBuffer);
 
     const pdfData = await pdfParse(pdfBuffer);
     const text = pdfData.text;
