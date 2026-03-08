@@ -32,14 +32,11 @@ const statusLabels = {
 };
 
 export default function Dashboard() {
+  const { regionais, categorias, subcategorias, pessoas, loading: ctxLoading } = useApp();
   const [loading, setLoading] = useState(true);
   const [ordens, setOrdens] = useState([]);
-  const [regionais, setRegionais] = useState([]);
-  const [categorias, setCategorias] = useState([]);
-  const [subcategorias, setSubcategorias] = useState([]);
   const [almoxarifados, setAlmoxarifados] = useState([]);
   const [instalacoes, setInstalacoes] = useState([]);
-  const [pessoas, setPessoas] = useState([]);
   const [problemasRecebimento, setProblemasRecebimento] = useState([]);
   const [mapFilters, setMapFilters] = useState({
     usina: true,
