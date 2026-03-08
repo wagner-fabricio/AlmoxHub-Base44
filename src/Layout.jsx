@@ -246,6 +246,7 @@ export default function Layout({ children, currentPageName }) {
   }
 
   return (
+    <AppProvider>
     <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
       <style>{`
         :root {
