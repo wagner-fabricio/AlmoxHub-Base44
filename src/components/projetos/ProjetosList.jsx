@@ -219,40 +219,22 @@ export default function ProjetosList({
                     <span className="text-sm text-slate-700 dark:text-slate-300">{almoxarifado?.nome || '-'}</span>
                   </TableCell>
                   <TableCell>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Badge
-                          className={`${statusAtual.className} select-none`}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {updatingStatus === projeto.id ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : null}
-                          {statusAtual.label}
-                        </Badge>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-40 p-1" align="start">
-                        <div className="space-y-1">
-                          {PROJETO_STATUS.map(s => (
-                            <button
-                              key={s.value}
-                              className="w-full text-left px-2 py-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-sm flex items-center gap-2"
-                              onClick={async (e) => {
-                                e.stopPropagation();
-                                if (s.value === (projeto.status_projeto || 'ativo')) return;
-                                setUpdatingStatus(projeto.id);
-                                await base44.entities.Projeto.update(projeto.id, { status_projeto: s.value });
-                                onStatusChange?.();
-                                setUpdatingStatus(null);
-                              }}
-                            >
-                              <Badge className={s.className.replace('hover:bg-green-200 cursor-pointer', '').replace('hover:bg-yellow-200 cursor-pointer', '').replace('hover:bg-blue-200 cursor-pointer', '').replace('hover:bg-red-200 cursor-pointer', '')}>
-                                {s.label}
-                              </Badge>
-                              {s.value === (projeto.status_projeto || 'ativo') && <span className="text-xs text-slate-400">(atual)</span>}
-                            </button>
-                          ))}
-                        </div>
-                      </PopoverContent>
-                    </Popover>
+                    <Badge
+                      className={`${statusAtual.className} select-none`}
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        if (updatingStatus === projeto.id) return;
+                        const currentIndex = STATUS_ORDER.indexOf(projeto.status_projeto || 'ativo');
+                        const nextStatus = STATUS_ORDER[(currentIndex + 1) % STATUS_ORDER.length];
+                        setUpdatingStatus(projeto.id);
+                        await base44.entities.Projeto.update(projeto.id, { status_projeto: nextStatus });
+                        onStatusChange?.();
+                        setUpdatingStatus(null);
+                      }}
+                    >
+                      {updatingStatus === projeto.id ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : null}
+                      {statusAtual.label}
+                    </Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center justify-end gap-1">
