@@ -358,13 +358,36 @@ export default function OSFormModal({
     if (!zmmtsePDF) return;
     setImportingPDF(true);
     try {
-      const jsonSchema = { type: "object", properties: { n_documento: { type: "string" }, data_documento: { type: "string" }, tipo_movimento: { type: "string" }, centro_estoque: { type: "string" }, nome_local_entrega: { type: "string" }, centro_custo: { type: "string" }, processado_por_nome: { type: "string" }, processado_por_matricula: { type: "string" }, itens: { type: "array", items: { type: "object", properties: { item: { type: "string" }, material: { type: "string" }, texto_breve: { type: "string" }, qtd: { type: "number" }, un: { type: "string" }, localizacao: { type: "string" }, dep: { type: "string" }, reserva: { type: "string" }, saldo_em_estoque: { type: "number" }, observacao: { type: "string" } } } } } };
-      const result = await base44.integrations.Core.ExtractDataFromUploadedFile({ file_url: zmmtsePDF, json_schema: jsonSchema });
-      if (result.status === "success" && result.output) {
-        const data = result.output;
-        setFormData(prev => ({ ...prev, num_reserva: data.itens?.[0]?.reserva || '', data_migo: data.data_documento ? data.data_documento.split('.').reverse().join('-') : '', atendente_nome: data.processado_por_nome ? `${data.processado_por_nome} (${data.processado_por_matricula || ''})`.trim() : '', descricao_resumida: data.itens?.[0]?.observacao || '', anotacoes: `Centro de estoque: ${data.centro_estoque || ''}, Local Entrega: ${data.nome_local_entrega || ''}, Centro de custo: ${data.centro_custo || ''}, Tipo de movimento: ${data.tipo_movimento || ''}`, itens_documento: data.itens?.map(item => ({ codigo: item.material || '', descricao: item.texto_breve || '', quantidade: item.qtd || 0, unidade: item.un || 'UN', r_unit: 0, r_total: 0, deposito: item.dep || '', endereco: item.localizacao || '', saldo: item.saldo_em_estoque || 0, seguravel: false })) || [] }));
+      const response = await base44.functions.invoke('parseZMMTSEPDF', { pdfUrl: zmmtsePDF });
+      if (response?.data) {
+        const data = response.data;
+        setFormData(prev => ({
+          ...prev,
+          num_migo: data.num_migo || '',
+          data_migo: data.data_documento || '',
+          num_reserva: data.itens_documento?.[0]?.numero_reserva || '',
+          atendente_nome: data.itens_documento?.[0]?.usuario_responsavel || '',
+          descricao_resumida: data.tipo_movimento ? `Movimentação tipo: ${data.tipo_movimento}` : '',
+          anotacoes: `Centro estoque: ${data.centro_estoque || ''}, Tipo movimento: ${data.tipo_movimento || ''}`,
+          itens_documento: data.itens_documento?.map(item => ({
+            codigo: item.codigo || '',
+            descricao: item.descricao || '',
+            quantidade: item.quantidade || 0,
+            unidade: item.unidade || 'UN',
+            r_unit: 0,
+            r_total: 0,
+            deposito: item.deposito || '',
+            endereco: item.endereco || '',
+            saldo: item.saldo_estoque || 0,
+            seguravel: false
+          })) || []
+        }));
+        toast.success('PDF ZMMTSE importado com sucesso!');
       }
-    } catch (error) { console.error('Error importing ZMMTSE data:', error); }
+    } catch (error) {
+      console.error('Error importing ZMMTSE data:', error);
+      toast.error('Erro ao importar PDF ZMMTSE: ' + (error.message || 'Erro desconhecido'));
+    }
     finally { setImportingPDF(false); }
   };
 
