@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
     }
     
     const arrayBuffer = await response.arrayBuffer();
-    const pdfBuffer = Buffer.from(arrayBuffer);
+    const pdfBuffer = new Uint8Array(arrayBuffer);
 
     const pdfData = await pdfParse(pdfBuffer);
     const text = pdfData.text;
