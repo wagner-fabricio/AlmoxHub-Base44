@@ -225,11 +225,12 @@ export default function ProjetosList({
                       onClick={async (e) => {
                         e.stopPropagation();
                         if (updatingStatus === projeto.id) return;
-                        const currentIndex = STATUS_ORDER.indexOf(projeto.status_projeto || 'ativo');
+                        const currentStatus = localStatus[projeto.id] || projeto.status_projeto || 'ativo';
+                        const currentIndex = STATUS_ORDER.indexOf(currentStatus);
                         const nextStatus = STATUS_ORDER[(currentIndex + 1) % STATUS_ORDER.length];
+                        setLocalStatus(prev => ({ ...prev, [projeto.id]: nextStatus }));
                         setUpdatingStatus(projeto.id);
                         await base44.entities.Projeto.update(projeto.id, { status_projeto: nextStatus });
-                        onStatusChange?.();
                         setUpdatingStatus(null);
                       }}
                     >
