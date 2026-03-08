@@ -318,6 +318,28 @@ export default function ProjetosDashboard() {
               <SelectItem value="cancelado">Cancelados</SelectItem>
             </SelectContent>
           </Select>
+          <Select value={regionalFilter} onValueChange={(v) => { setRegionalFilter(v === 'all' ? '' : v); setAlmoxarifadoFilter(''); }}>
+            <SelectTrigger className="w-48 bg-white dark:bg-slate-800">
+              <SelectValue placeholder="Regional" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as regionais</SelectItem>
+              {regionais.map(r => (
+                <SelectItem key={r.id} value={r.id}>{r.sigla} - {r.descricao}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={almoxarifadoFilter} onValueChange={(v) => setAlmoxarifadoFilter(v === 'all' ? '' : v)} disabled={!regionalFilter}>
+            <SelectTrigger className="w-52 bg-white dark:bg-slate-800">
+              <SelectValue placeholder={regionalFilter ? "Almoxarifado" : "Selecione regional"} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os almoxarifados</SelectItem>
+              {almoxarifadosFiltrados.map(a => (
+                <SelectItem key={a.id} value={a.id}>{a.nome}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <span className="text-sm text-slate-500">{projetosFiltrados.length} projeto(s)</span>
         </div>
         <Button variant="outline" size="sm" onClick={() => setShowHelp(true)} className="gap-2">
