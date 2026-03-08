@@ -243,15 +243,15 @@ function HelpModal({ open, onClose }) {
 }
 
 // ---- Main Component ----
-export default function ProjetosDashboard() {
+export default function ProjetosDashboard({ regionalFilter: externalRegionalFilter = '', almoxarifadoFilter: externalAlmoxarifadoFilter = '' }) {
   const [projetos, setProjetos] = useState([]);
   const [ordens, setOrdens] = useState([]);
   const [regionais, setRegionais] = useState([]);
   const [almoxarifados, setAlmoxarifados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('ativo');
-  const [regionalFilter, setRegionalFilter] = useState('');
-  const [almoxarifadoFilter, setAlmoxarifadoFilter] = useState('');
+  const [regionalFilter, setRegionalFilter] = useState(externalRegionalFilter);
+  const [almoxarifadoFilter, setAlmoxarifadoFilter] = useState(externalAlmoxarifadoFilter);
   const [showHelp, setShowHelp] = useState(false);
 
   useEffect(() => {
