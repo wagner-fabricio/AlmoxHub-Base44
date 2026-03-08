@@ -408,7 +408,7 @@ export default function ProjetosDashboard() {
 
             {/* ROW: Produtividade */}
             <div className="flex border-b border-slate-200 dark:border-slate-700">
-              <div className="w-44 shrink-0" />
+              <div className="w-44 shrink-0 invisible" />
               {projetosFiltrados.map((proj, i) => {
                 const osProj = ordens.filter(os => os.projetos_ids?.includes(proj.id));
                 const prod = calcProdutividade(proj, osProj);
