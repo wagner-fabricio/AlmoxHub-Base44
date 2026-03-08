@@ -264,6 +264,7 @@ export default function Projetos() {
           ordens={ordens}
           pessoas={pessoas}
           categorias={categorias}
+          almoxarifados={almoxarifados}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onOpenOS={(os) => {

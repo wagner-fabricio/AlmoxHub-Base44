@@ -19,6 +19,7 @@ export default function ProjetosList({
   ordens,
   pessoas,
   categorias,
+  almoxarifados = [],
   onEdit, 
   onDelete,
   onOpenOS 
