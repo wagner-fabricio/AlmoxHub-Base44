@@ -587,5 +587,6 @@ export default function Layout({ children, currentPageName }) {
           onAccept={() => setShowConsentimento(false)}
         />
         </div>
+    </AppProvider>
         );
         }
