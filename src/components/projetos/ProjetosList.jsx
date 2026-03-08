@@ -240,24 +240,13 @@ export default function ProjetosList({
                     )}
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div 
-                        className="w-6 h-6 rounded border border-slate-200 dark:border-slate-600"
-                        style={{ backgroundColor: projeto.cor }}
-                      />
-                      <span className="text-sm text-slate-600 dark:text-slate-400 font-mono">
-                        {projeto.cor}
-                      </span>
-                    </div>
+                    <span className="text-sm text-slate-700 dark:text-slate-300">
+                      {almoxarifado?.nome || '-'}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <Badge className={projeto.ativo !== false ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}>
                       {projeto.ativo !== false ? 'Ativo' : 'Inativo'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">
-                      {osCount} OS
                     </Badge>
                   </TableCell>
                   <TableCell>
