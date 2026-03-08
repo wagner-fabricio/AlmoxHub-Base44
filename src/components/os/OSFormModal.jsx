@@ -358,35 +358,74 @@ export default function OSFormModal({
     if (!zmmtsePDF) return;
     setImportingPDF(true);
     try {
-      const response = await base44.functions.invoke('parseZMMTSEPDF', { pdfUrl: zmmtsePDF });
-      if (response?.data) {
-        const data = response.data;
+      const jsonSchema = {
+        type: "object",
+        properties: {
+          n_documento: { type: "string", description: "Número do documento MIGO (campo N.DOCUMENTO)" },
+          data_documento: { type: "string", description: "Data do documento no formato DD.MM.YYYY" },
+          tipo_movimento: { type: "string" },
+          centro_estoque: { type: "string" },
+          nome_local_entrega: { type: "string" },
+          centro_custo: { type: "string" },
+          processado_por_nome: { type: "string" },
+          processado_por_matricula: { type: "string" },
+          itens: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                material: { type: "string" },
+                texto_breve: { type: "string" },
+                qtd: { type: "number", description: "Quantidade (campo Qtd)" },
+                un: { type: "string" },
+                localizacao: { type: "string" },
+                dep: { type: "string" },
+                reserva: { type: "string" },
+                saldo_em_estoque: { type: "number" },
+                observacao: { type: "string" }
+              }
+            }
+          }
+        }
+      };
+      const result = await base44.integrations.Core.ExtractDataFromUploadedFile({ file_url: zmmtsePDF, json_schema: jsonSchema });
+      if (result.status === "success" && result.output) {
+        const data = result.output;
+        // Converter data DD.MM.YYYY para YYYY-MM-DD
+        const convertDate = (d) => {
+          if (!d) return '';
+          const parts = d.split('.');
+          if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
+          return d;
+        };
         setFormData(prev => ({
           ...prev,
-          num_migo: data.num_migo || '',
-          data_migo: data.data_documento || '',
-          num_reserva: data.itens_documento?.[0]?.numero_reserva || '',
-          atendente_nome: data.itens_documento?.[0]?.usuario_responsavel || '',
-          descricao_resumida: data.tipo_movimento ? `Movimentação tipo: ${data.tipo_movimento}` : '',
-          anotacoes: `Centro estoque: ${data.centro_estoque || ''}, Tipo movimento: ${data.tipo_movimento || ''}`,
-          itens_documento: data.itens_documento?.map(item => ({
-            codigo: item.codigo || '',
-            descricao: item.descricao || '',
-            quantidade: item.quantidade || 0,
-            unidade: item.unidade || 'UN',
+          num_migo: data.n_documento || '',
+          data_migo: convertDate(data.data_documento),
+          num_reserva: data.itens?.[0]?.reserva || '',
+          atendente_nome: data.processado_por_nome ? `${data.processado_por_nome} (${data.processado_por_matricula || ''})`.trim() : '',
+          descricao_resumida: data.itens?.[0]?.observacao || '',
+          anotacoes: `Centro de estoque: ${data.centro_estoque || ''}, Local Entrega: ${data.nome_local_entrega || ''}, Centro de custo: ${data.centro_custo || ''}, Tipo de movimento: ${data.tipo_movimento || ''}`,
+          itens_documento: data.itens?.map(item => ({
+            codigo: item.material || '',
+            descricao: item.texto_breve || '',
+            quantidade: item.qtd || 0,
+            unidade: item.un || 'UN',
             r_unit: 0,
             r_total: 0,
-            deposito: item.deposito || '',
-            endereco: item.endereco || '',
-            saldo: item.saldo_estoque || 0,
+            deposito: item.dep || '',
+            endereco: item.localizacao || '',
+            saldo: item.saldo_em_estoque || 0,
             seguravel: false
           })) || []
         }));
         toast.success('PDF ZMMTSE importado com sucesso!');
+      } else {
+        toast.error('Erro ao processar PDF ZMMTSE');
       }
     } catch (error) {
       console.error('Error importing ZMMTSE data:', error);
-      toast.error('Erro ao importar PDF ZMMTSE: ' + (error.message || 'Erro desconhecido'));
+      toast.error('Erro ao importar PDF: ' + (error.message || 'Erro desconhecido'));
     }
     finally { setImportingPDF(false); }
   };
