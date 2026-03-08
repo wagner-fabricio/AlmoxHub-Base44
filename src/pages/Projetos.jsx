@@ -292,6 +292,7 @@ export default function Projetos() {
             const osCount = getOSCount(projeto.id);
             const projetoOrdens = getProjetoOrdens(projeto.id);
             const isExpanded = expandedProjetoId === projeto.id;
+            const progresso = getProjetoProgresso(projeto.id);
             
             return (
               <div key={projeto.id}>
