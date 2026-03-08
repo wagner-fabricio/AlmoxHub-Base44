@@ -482,7 +482,6 @@ export default function ProjetosDashboard({ regionalFilter: externalRegionalFilt
 
             {/* ROW: Resumo OS */}
             <div className="flex rounded-b-xl overflow-hidden">
-              <div className="w-44 shrink-0 invisible" />
               {projetosFiltrados.map((proj, i) => {
                 const osProj = ordens.filter(os => os.projetos_ids?.includes(proj.id));
                 const elab = osProj.filter(os => os.status === 'elaboracao').length;
