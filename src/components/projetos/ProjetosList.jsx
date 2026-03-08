@@ -209,6 +209,16 @@ export default function ProjetosList({
                     <span className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">{projeto.descricao || '-'}</span>
                   </TableCell>
                   <TableCell>
+                    <span className="text-sm text-slate-700 dark:text-slate-300">
+                      {projeto.data_inicial_prevista ? format(new Date(projeto.data_inicial_prevista), 'dd/MM/yyyy') : '-'}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm text-slate-700 dark:text-slate-300">
+                      {projeto.data_final_prevista ? format(new Date(projeto.data_final_prevista), 'dd/MM/yyyy') : '-'}
+                    </span>
+                  </TableCell>
+                  <TableCell>
                     {lider ? (
                       <div className="flex items-center gap-2">
                         <User className="w-4 h-4 text-slate-400" />
