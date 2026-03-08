@@ -4,8 +4,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Filter, Edit, Trash2, FolderKanban, ChevronDown, ChevronRight, ExternalLink, Clock, CheckCircle, Loader2, AlertTriangle, User, Users } from 'lucide-react';
+import { Filter, Edit, Trash2, FolderKanban, ChevronDown, ChevronRight, ExternalLink, Clock, CheckCircle, Loader2, AlertTriangle, User, Square } from 'lucide-react';
 import { format } from 'date-fns';
+import { base44 } from '@/api/base44Client';
 
 const statusConfig = {
   elaboracao: { icon: Clock, color: 'text-slate-500', label: 'Elaboração' },
@@ -13,6 +14,19 @@ const statusConfig = {
   concluido: { icon: CheckCircle, color: 'text-green-500', label: 'Concluído' },
   cancelado: { icon: AlertTriangle, color: 'text-red-500', label: 'Cancelado' },
 };
+
+const PROJETO_STATUS = [
+  { value: 'ativo', label: 'Ativo', className: 'bg-green-100 text-green-700 hover:bg-green-200 cursor-pointer' },
+  { value: 'parado', label: 'Parado', className: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200 cursor-pointer' },
+  { value: 'concluido', label: 'Concluído', className: 'bg-blue-100 text-blue-700 hover:bg-blue-200 cursor-pointer' },
+  { value: 'cancelado', label: 'Cancelado', className: 'bg-red-100 text-red-700 hover:bg-red-200 cursor-pointer' },
+];
+
+const STATUS_ORDER = ['ativo', 'parado', 'concluido', 'cancelado'];
+
+function getStatusConfig(status) {
+  return PROJETO_STATUS.find(s => s.value === status) || PROJETO_STATUS[0];
+}
 
 export default function ProjetosList({ 
   projetos, 
@@ -22,13 +36,12 @@ export default function ProjetosList({
   almoxarifados = [],
   onEdit, 
   onDelete,
-  onOpenOS 
+  onOpenOS,
+  onStatusChange
 }) {
-  const [columnFilters, setColumnFilters] = useState({
-    nome: [],
-    ativo: []
-  });
+  const [columnFilters, setColumnFilters] = useState({ nome: [], status_projeto: [] });
   const [expandedProjetoId, setExpandedProjetoId] = useState(null);
+  const [updatingStatus, setUpdatingStatus] = useState(null);
 
   const getOSCount = (projetoId) => {
     if (!Array.isArray(ordens)) return 0;
@@ -39,13 +52,11 @@ export default function ProjetosList({
     if (!Array.isArray(ordens)) return [];
     const projetoOrdens = ordens.filter(os => os?.projetos_ids?.includes(projetoId));
     const executoresIds = new Set();
-    
     projetoOrdens.forEach(os => {
       if (os?.executores_ids && Array.isArray(os.executores_ids)) {
         os.executores_ids.forEach(id => id && executoresIds.add(id));
       }
     });
-    
     return Array.from(executoresIds);
   };
 
@@ -58,40 +69,37 @@ export default function ProjetosList({
     setExpandedProjetoId(expandedProjetoId === projetoId ? null : projetoId);
   };
 
-  // Get unique values for each column
-  const getUniqueValues = (column) => {
-    const values = new Set();
-    projetos.forEach(projeto => {
-      if (column === 'nome') values.add(projeto.nome);
-      if (column === 'ativo') values.add(projeto.ativo !== false ? 'Ativo' : 'Inativo');
-    });
-    return Array.from(values).sort();
+  const handleToggleStatus = async (e, projeto) => {
+    e.stopPropagation();
+    const currentIndex = STATUS_ORDER.indexOf(projeto.status_projeto || 'ativo');
+    const nextStatus = STATUS_ORDER[(currentIndex + 1) % STATUS_ORDER.length];
+    setUpdatingStatus(projeto.id);
+    await base44.entities.Projeto.update(projeto.id, { status_projeto: nextStatus });
+    onStatusChange?.();
+    setUpdatingStatus(null);
   };
 
-  // Toggle filter value
+  const getUniqueNomes = () => {
+    return [...new Set(projetos.map(p => p.nome))].sort();
+  };
+
   const toggleFilter = (column, value) => {
     setColumnFilters(prev => {
       const current = prev[column];
-      const updated = current.includes(value)
-        ? current.filter(v => v !== value)
-        : [...current, value];
+      const updated = current.includes(value) ? current.filter(v => v !== value) : [...current, value];
       return { ...prev, [column]: updated };
     });
   };
 
-  // Clear column filter
   const clearFilter = (column) => {
     setColumnFilters(prev => ({ ...prev, [column]: [] }));
   };
 
-  // Apply filters
   const filteredProjetos = Array.isArray(projetos) ? projetos.filter(projeto => {
     if (!projeto) return false;
     if (columnFilters.nome.length > 0 && !columnFilters.nome.includes(projeto.nome)) return false;
-    
-    const statusLabel = projeto.ativo !== false ? 'Ativo' : 'Inativo';
-    if (columnFilters.ativo.length > 0 && !columnFilters.ativo.includes(statusLabel)) return false;
-    
+    const status = projeto.status_projeto || 'ativo';
+    if (columnFilters.status_projeto.length > 0 && !columnFilters.status_projeto.includes(status)) return false;
     return true;
   }) : [];
 
@@ -114,18 +122,13 @@ export default function ProjetosList({
                       <div className="flex items-center justify-between pb-2 border-b">
                         <span className="text-sm font-semibold">Filtrar Nome</span>
                         {columnFilters.nome.length > 0 && (
-                          <Button variant="ghost" size="sm" onClick={() => clearFilter('nome')} className="h-6 text-xs">
-                            Limpar
-                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => clearFilter('nome')} className="h-6 text-xs">Limpar</Button>
                         )}
                       </div>
                       <div className="max-h-64 overflow-y-auto space-y-1">
-                        {getUniqueValues('nome').map(value => (
+                        {getUniqueNomes().map(value => (
                           <label key={value} className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-1.5 rounded">
-                            <Checkbox
-                              checked={columnFilters.nome.includes(value)}
-                              onCheckedChange={() => toggleFilter('nome', value)}
-                            />
+                            <Checkbox checked={columnFilters.nome.includes(value)} onCheckedChange={() => toggleFilter('nome', value)} />
                             <span className="text-sm">{value}</span>
                           </label>
                         ))}
@@ -144,29 +147,22 @@ export default function ProjetosList({
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-6 w-6">
-                      <Filter className={`w-3 h-3 ${columnFilters.ativo.length > 0 ? 'text-blue-600' : 'text-slate-400'}`} />
+                      <Filter className={`w-3 h-3 ${columnFilters.status_projeto.length > 0 ? 'text-blue-600' : 'text-slate-400'}`} />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-64" align="start">
+                  <PopoverContent className="w-48" align="start">
                     <div className="space-y-2">
                       <div className="flex items-center justify-between pb-2 border-b">
                         <span className="text-sm font-semibold">Filtrar Status</span>
-                        {columnFilters.ativo.length > 0 && (
-                          <Button variant="ghost" size="sm" onClick={() => clearFilter('ativo')} className="h-6 text-xs">
-                            Limpar
-                          </Button>
+                        {columnFilters.status_projeto.length > 0 && (
+                          <Button variant="ghost" size="sm" onClick={() => clearFilter('status_projeto')} className="h-6 text-xs">Limpar</Button>
                         )}
                       </div>
-                      <div className="max-h-64 overflow-y-auto space-y-1">
-                        {getUniqueValues('ativo').map(value => (
-                          <label key={value} className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-1.5 rounded">
-                            <Checkbox
-                              checked={columnFilters.ativo.includes(value)}
-                              onCheckedChange={() => toggleFilter('ativo', value)}
-                            />
-                            <Badge className={value === 'Ativo' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}>
-                              {value}
-                            </Badge>
+                      <div className="space-y-1">
+                        {PROJETO_STATUS.map(s => (
+                          <label key={s.value} className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-1.5 rounded">
+                            <Checkbox checked={columnFilters.status_projeto.includes(s.value)} onCheckedChange={() => toggleFilter('status_projeto', s.value)} />
+                            <Badge className={s.className.replace('hover:bg-green-200', '').replace('hover:bg-yellow-200', '').replace('hover:bg-blue-200', '').replace('hover:bg-red-200', '').replace('cursor-pointer', '')}>{s.label}</Badge>
                           </label>
                         ))}
                       </div>
@@ -184,12 +180,12 @@ export default function ProjetosList({
             const projetoOrdens = getProjetoOrdens(projeto.id);
             const isExpanded = expandedProjetoId === projeto.id;
             const lider = Array.isArray(pessoas) ? pessoas.find(p => p?.id === projeto.lider_id) : null;
-            const executoresIds = getProjetoExecutores(projeto.id);
             const almoxarifado = almoxarifados.find(a => a.id === projeto.almoxarifado_id);
-            
+            const statusAtual = getStatusConfig(projeto.status_projeto || 'ativo');
+
             return (
               <React.Fragment key={projeto.id}>
-                <TableRow 
+                <TableRow
                   className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
                   onClick={() => osCount > 0 && toggleExpanded(projeto.id)}
                 >
@@ -200,21 +196,14 @@ export default function ProjetosList({
                           {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                         </Button>
                       )}
-                      <div 
-                        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                        style={{ backgroundColor: `${projeto.cor}20` }}
-                      >
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: `${projeto.cor}20` }}>
                         <FolderKanban className="w-4 h-4" style={{ color: projeto.cor }} />
                       </div>
-                      <span className="font-medium text-slate-900 dark:text-white">
-                        {projeto.nome}
-                      </span>
+                      <span className="font-medium text-slate-900 dark:text-white">{projeto.nome}</span>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
-                      {projeto.descricao || '-'}
-                    </span>
+                    <span className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">{projeto.descricao || '-'}</span>
                   </TableCell>
                   <TableCell>
                     {lider ? (
@@ -227,70 +216,71 @@ export default function ProjetosList({
                     )}
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm text-slate-700 dark:text-slate-300">
-                      {almoxarifado?.nome || '-'}
-                    </span>
+                    <span className="text-sm text-slate-700 dark:text-slate-300">{almoxarifado?.nome || '-'}</span>
                   </TableCell>
                   <TableCell>
-                    <Badge className={projeto.ativo !== false ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}>
-                      {projeto.ativo !== false ? 'Ativo' : 'Inativo'}
-                    </Badge>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Badge
+                          className={`${statusAtual.className} select-none`}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {updatingStatus === projeto.id ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : null}
+                          {statusAtual.label}
+                        </Badge>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-40 p-1" align="start">
+                        <div className="space-y-1">
+                          {PROJETO_STATUS.map(s => (
+                            <button
+                              key={s.value}
+                              className="w-full text-left px-2 py-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-sm flex items-center gap-2"
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                if (s.value === (projeto.status_projeto || 'ativo')) return;
+                                setUpdatingStatus(projeto.id);
+                                await base44.entities.Projeto.update(projeto.id, { status_projeto: s.value });
+                                onStatusChange?.();
+                                setUpdatingStatus(null);
+                              }}
+                            >
+                              <Badge className={s.className.replace('hover:bg-green-200 cursor-pointer', '').replace('hover:bg-yellow-200 cursor-pointer', '').replace('hover:bg-blue-200 cursor-pointer', '').replace('hover:bg-red-200 cursor-pointer', '')}>
+                                {s.label}
+                              </Badge>
+                              {s.value === (projeto.status_projeto || 'ativo') && <span className="text-xs text-slate-400">(atual)</span>}
+                            </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center justify-end gap-1">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-8 w-8" 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onEdit(projeto);
-                        }}
-                      >
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); onEdit(projeto); }}>
                         <Edit className="w-4 h-4" />
                       </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-8 w-8" 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDelete(projeto);
-                        }}
-                      >
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); onDelete(projeto); }}>
                         <Trash2 className="w-4 h-4 text-red-500" />
                       </Button>
                     </div>
                   </TableCell>
                 </TableRow>
 
-                {/* Expanded OS rows */}
                 {isExpanded && projetoOrdens.map((os) => {
-                  const lider = Array.isArray(pessoas) ? pessoas.find(p => p?.id === os.lider_id) : null;
+                  const osLider = Array.isArray(pessoas) ? pessoas.find(p => p?.id === os.lider_id) : null;
                   const categoria = Array.isArray(categorias) ? categorias.find(c => c?.id === os.categoria_id) : null;
                   const StatusIcon = statusConfig[os.status]?.icon || Clock;
 
                   return (
-                    <TableRow 
-                      key={`os-${os.id}`}
-                      className="bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                    >
-                      <TableCell colSpan={4} className="pl-16">
+                    <TableRow key={`os-${os.id}`} className="bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                      <TableCell colSpan={5} className="pl-16">
                         <div className="flex items-center gap-4 py-2">
-                          <span className="font-mono text-sm text-slate-600 dark:text-slate-400 w-40">
-                            {os.codigo}
-                          </span>
+                          <span className="font-mono text-sm text-slate-600 dark:text-slate-400 w-40">{os.codigo}</span>
                           <div className="flex items-center gap-2 w-48">
-                            <Badge variant="outline" className="text-xs">
-                              {categoria?.nome || '-'}
-                            </Badge>
+                            <Badge variant="outline" className="text-xs">{categoria?.nome || '-'}</Badge>
                           </div>
-                          <span className="text-sm text-slate-600 dark:text-slate-400 w-40">
-                            {lider?.nome || 'Não atribuído'}
-                          </span>
-                          <span className="text-sm text-slate-500 dark:text-slate-400 flex-1 line-clamp-1">
-                            {os.descricao_resumida || os.anotacoes || '-'}
-                          </span>
+                          <span className="text-sm text-slate-600 dark:text-slate-400 w-40">{osLider?.nome || 'Não atribuído'}</span>
+                          <span className="text-sm text-slate-500 dark:text-slate-400 flex-1 line-clamp-1">{os.descricao_resumida || os.anotacoes || '-'}</span>
                           <div className="flex items-center gap-4 w-64">
                             <div className="text-xs text-slate-500 dark:text-slate-400">
                               {os.data_inicial ? format(new Date(os.data_inicial), 'dd/MM/yy') : '-'}
@@ -302,15 +292,7 @@ export default function ProjetosList({
                               <span className="text-xs">{statusConfig[os.status]?.label}</span>
                             </div>
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 shrink-0"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onOpenOS?.(os);
-                            }}
-                          >
+                          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={(e) => { e.stopPropagation(); onOpenOS?.(os); }}>
                             <ExternalLink className="w-4 h-4" />
                           </Button>
                         </div>
