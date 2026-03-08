@@ -13,6 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { createPageUrl } from '../utils';
 import { useApp } from '@/components/contexts/AppContext';
 import ProjetosList from '../components/projetos/ProjetosList';
+import ProjetoGauge from '../components/projetos/ProjetoGauge';
 import OSDetailModal from '../components/os/OSDetailModal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
