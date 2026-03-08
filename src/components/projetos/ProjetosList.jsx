@@ -140,6 +140,8 @@ export default function ProjetosList({
               </div>
             </TableHead>
             <TableHead className="font-semibold">Descrição</TableHead>
+            <TableHead className="font-semibold">Data Inicial Prevista</TableHead>
+            <TableHead className="font-semibold">Data Final Prevista</TableHead>
             <TableHead className="font-semibold">Líder</TableHead>
             <TableHead className="font-semibold">Almoxarifado</TableHead>
             <TableHead className="font-semibold">
