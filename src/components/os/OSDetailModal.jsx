@@ -324,14 +324,16 @@ export default function OSDetailModal({
       if (!element) return;
 
       const canvas = await html2canvas(element, {
-        scale: 2,
+        scale: 1.2,
         useCORS: true,
         backgroundColor: '#ffffff',
         windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight
+        windowHeight: element.scrollHeight,
+        allowTaint: true
       });
 
-      const imgData = canvas.toDataURL('image/png');
+      // Compress the image to JPEG with quality reduction
+      const imgData = canvas.toDataURL('image/jpeg', 0.75);
       const pdf = new jsPDF('p', 'mm', 'a4');
       
       const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -357,7 +359,7 @@ export default function OSDetailModal({
         }
         
         const yOffset = -(pageHeight * i);
-        pdf.addImage(imgData, 'PNG', 0, yOffset, pageWidth, scaledHeight);
+        pdf.addImage(imgData, 'JPEG', 0, yOffset, pageWidth, scaledHeight, '', 'FAST');
       }
       
       pdf.save(`Lista_Separacao_${os.codigo}.pdf`);
