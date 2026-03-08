@@ -82,25 +82,17 @@ export default function Dashboard() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [user, ordensData, regionaisData, categoriasData, subcategoriasData, almoxarifadosData, instalacoesData, pessoasData, problemasData] = await Promise.all([
+      const [user, ordensData, almoxarifadosData, instalacoesData, problemasData] = await Promise.all([
         base44.auth.me(),
         base44.entities.OrdemServico.list(),
-        base44.entities.Regional.list(),
-        base44.entities.Categoria.list(),
-        base44.entities.Subcategoria.list(),
         base44.entities.Almoxarifado.list(),
         base44.entities.Instalacao.list(),
-        base44.entities.Pessoa.list(),
         base44.entities.ProblemaRecebimento.list()
       ]);
       setCurrentUser(user);
       setOrdens(ordensData);
-      setRegionais(regionaisData);
-      setCategorias(categoriasData);
-      setSubcategorias(subcategoriasData);
       setAlmoxarifados(almoxarifadosData);
       setInstalacoes(instalacoesData);
-      setPessoas(pessoasData);
       setProblemasRecebimento(problemasData);
 
       if (user.filtros_preferidos?.Dashboard) {
