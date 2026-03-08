@@ -250,40 +250,64 @@ export default function ProjetosList({
                   </TableCell>
                 </TableRow>
 
-                {isExpanded && projetoOrdens.map((os) => {
-                  const osLider = Array.isArray(pessoas) ? pessoas.find(p => p?.id === os.lider_id) : null;
-                  const categoria = Array.isArray(categorias) ? categorias.find(c => c?.id === os.categoria_id) : null;
-                  const StatusIcon = statusConfig[os.status]?.icon || Clock;
-
-                  return (
-                    <TableRow key={`os-${os.id}`} className="bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                      <TableCell colSpan={5} className="pl-16">
-                        <div className="flex items-center gap-4 py-2">
-                          <span className="font-mono text-sm text-slate-600 dark:text-slate-400 w-40">{os.codigo}</span>
-                          <div className="flex items-center gap-2 w-48">
-                            <Badge variant="outline" className="text-xs">{categoria?.nome || '-'}</Badge>
-                          </div>
-                          <span className="text-sm text-slate-600 dark:text-slate-400 w-40">{osLider?.nome || 'Não atribuído'}</span>
-                          <span className="text-sm text-slate-500 dark:text-slate-400 flex-1 line-clamp-1">{os.descricao_resumida || os.anotacoes || '-'}</span>
-                          <div className="flex items-center gap-4 w-64">
-                            <div className="text-xs text-slate-500 dark:text-slate-400">
-                              {os.data_inicial ? format(new Date(os.data_inicial), 'dd/MM/yy') : '-'}
-                              {' → '}
-                              {os.prazo ? format(new Date(os.prazo), 'dd/MM/yy') : '-'}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <StatusIcon className={`w-4 h-4 ${statusConfig[os.status]?.color}`} />
-                              <span className="text-xs">{statusConfig[os.status]?.label}</span>
-                            </div>
-                          </div>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={(e) => { e.stopPropagation(); onOpenOS?.(os); }}>
-                            <ExternalLink className="w-4 h-4" />
-                          </Button>
+                {isExpanded && (
+                  <>
+                    {/* Sub-header */}
+                    <TableRow className="bg-blue-50 dark:bg-blue-900/20 border-t border-blue-100 dark:border-blue-800">
+                      <TableCell colSpan={6} className="pl-14 py-1.5">
+                        <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1.5fr_auto] gap-3 items-center">
+                          <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wide">Código</span>
+                          <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wide">Categoria</span>
+                          <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wide">Líder</span>
+                          <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wide">Dt. Inicial</span>
+                          <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wide">Prazo</span>
+                          <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wide">Progresso</span>
+                          <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wide">Status</span>
                         </div>
                       </TableCell>
                     </TableRow>
-                  );
-                })}
+                    {projetoOrdens.map((os) => {
+                      const osLider = Array.isArray(pessoas) ? pessoas.find(p => p?.id === os.lider_id) : null;
+                      const categoria = Array.isArray(categorias) ? categorias.find(c => c?.id === os.categoria_id) : null;
+                      const StatusIcon = statusConfig[os.status]?.icon || Clock;
+                      const progresso = os.progresso || 0;
+                      const progressColor = progresso === 100 ? '#10b981' : progresso >= 50 ? '#0000FF' : '#FF6B00';
+
+                      return (
+                        <TableRow key={`os-${os.id}`} className="bg-slate-50/80 dark:bg-slate-900/40 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors border-b border-slate-100 dark:border-slate-800">
+                          <TableCell colSpan={6} className="pl-14 py-2.5">
+                            <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1.5fr_auto] gap-3 items-center">
+                              <span className="font-mono text-xs text-slate-700 dark:text-slate-300 font-medium">{os.codigo}</span>
+                              <Badge variant="outline" className="text-xs w-fit">{categoria?.nome || '-'}</Badge>
+                              <span className="text-xs text-slate-600 dark:text-slate-400 truncate">{osLider?.nome || '-'}</span>
+                              <span className="text-xs text-slate-500 dark:text-slate-400">
+                                {os.data_inicial ? format(new Date(os.data_inicial), 'dd/MM/yy') : '-'}
+                              </span>
+                              <span className="text-xs text-slate-500 dark:text-slate-400">
+                                {os.prazo ? format(new Date(os.prazo), 'dd/MM/yy') : '-'}
+                              </span>
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full rounded-full transition-all"
+                                    style={{ width: `${progresso}%`, backgroundColor: progressColor }}
+                                  />
+                                </div>
+                                <span className="text-xs font-bold w-8 text-right shrink-0" style={{ color: progressColor }}>{progresso}%</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <StatusIcon className={`w-3.5 h-3.5 ${statusConfig[os.status]?.color} shrink-0`} />
+                                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={(e) => { e.stopPropagation(); onOpenOS?.(os); }}>
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                </Button>
+                              </div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </>
+                )}
               </React.Fragment>
             );
           })}
