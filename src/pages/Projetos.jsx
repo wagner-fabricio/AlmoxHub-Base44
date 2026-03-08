@@ -247,6 +247,18 @@ export default function Projetos() {
               ))}
             </SelectContent>
           </Select>
+          <Select value={filterStatus || 'all'} onValueChange={(v) => setFilterStatus(v === 'all' ? '' : v)}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Todos os status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os status</SelectItem>
+              <SelectItem value="ativo">Ativo</SelectItem>
+              <SelectItem value="parado">Parado</SelectItem>
+              <SelectItem value="concluido">Concluído</SelectItem>
+              <SelectItem value="cancelado">Cancelado</SelectItem>
+            </SelectContent>
+          </Select>
           <div className="flex border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
             <Button
               variant={viewMode === 'cards' ? 'default' : 'ghost'}
