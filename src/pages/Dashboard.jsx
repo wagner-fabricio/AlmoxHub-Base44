@@ -1275,9 +1275,10 @@ export default function Dashboard() {
 
               {/* ABA EXPEDIÇÃO */}
               <TabsContent value="expedicao" className="mt-6 space-y-8">
-                <div className="text-center py-12 text-slate-400">
-                  <p>Conteúdo específico de expedição será adicionado em breve</p>
-                </div>
+                <OTIFExpedicao
+                  filteredOrdens={filteredOrdens}
+                  almoxarifados={almoxarifados}
+                />
               </TabsContent>
 
               {/* ABA PROJETOS */}
