@@ -121,9 +121,10 @@ export default function OSItensDocumento({ itens = [], onChange }) {
                     : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900'
                 }`}
               >
-                {/* Linha 1: Checkbox | Código | Descrição | Qtd Sol. | UN | Qtd Sep. | Status | Delete */}
+                {/* Linha 1: cb(24) | código(112) | descrição(flex) | Qtd Sol(96) | UN(52) | Qtd Sep(96) | Status(80) */}
+                {/* Fixos linha 1: 24+112+96+52+96+80 = 460 + 6gaps(48) = 508 → flex-1 ≈ resto */}
                 <div className="flex items-center gap-2 px-3 py-2">
-                  <div className="flex justify-center shrink-0">
+                  <div className="shrink-0 w-6 flex justify-center">
                     <Checkbox
                       checked={item.separado || false}
                       onCheckedChange={(v) => {
@@ -135,108 +136,64 @@ export default function OSItensDocumento({ itens = [], onChange }) {
                   </div>
                   <div className="w-28 shrink-0">
                     <p className="text-[10px] text-slate-400 mb-0.5">Código</p>
-                    <Input
-                      value={item.codigo}
-                      onChange={(e) => updateItem(index, 'codigo', e.target.value)}
-                      className="h-7 text-xs font-mono"
-                      placeholder="Código"
-                    />
+                    <Input value={item.codigo} onChange={(e) => updateItem(index, 'codigo', e.target.value)} className="h-7 text-xs font-mono" placeholder="Código" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[10px] text-slate-400 mb-0.5">Descrição</p>
-                    <Input
-                      value={item.descricao}
-                      onChange={(e) => updateItem(index, 'descricao', e.target.value)}
-                      className="h-7 text-xs"
-                      placeholder="Descrição"
-                    />
+                    <Input value={item.descricao} onChange={(e) => updateItem(index, 'descricao', e.target.value)} className="h-7 text-xs" placeholder="Descrição" />
                   </div>
-                  <div className="w-16 shrink-0">
+                  <div className="w-24 shrink-0">
                     <p className="text-[10px] text-slate-400 mb-0.5">Qtd Sol.</p>
-                    <Input
-                      type="number"
-                      value={item.quantidade}
-                      onChange={(e) => updateItem(index, 'quantidade', parseFloat(e.target.value) || 0)}
-                      className="h-7 text-xs"
-                    />
+                    <Input type="number" value={item.quantidade} onChange={(e) => updateItem(index, 'quantidade', parseFloat(e.target.value) || 0)} className="h-7 text-xs" />
                   </div>
-                  <div className="w-14 shrink-0">
+                  <div className="w-13 shrink-0" style={{width: '52px'}}>
                     <p className="text-[10px] text-slate-400 mb-0.5">UN</p>
-                    <Input
-                      value={item.unidade}
-                      onChange={(e) => updateItem(index, 'unidade', e.target.value)}
-                      className="h-7 text-xs"
-                    />
+                    <Input value={item.unidade} onChange={(e) => updateItem(index, 'unidade', e.target.value)} className="h-7 text-xs" />
                   </div>
-                  <div className="w-16 shrink-0">
+                  <div className="w-24 shrink-0">
                     <p className="text-[10px] text-slate-400 mb-0.5">Qtd Sep.</p>
-                    <Input
-                      type="number"
-                      value={item.quantidade_separada || 0}
-                      onChange={(e) => updateItem(index, 'quantidade_separada', parseFloat(e.target.value) || 0)}
-                      className="h-7 text-xs"
-                    />
+                    <Input type="number" value={item.quantidade_separada || 0} onChange={(e) => updateItem(index, 'quantidade_separada', parseFloat(e.target.value) || 0)} className="h-7 text-xs" />
                   </div>
                   <div className="w-20 shrink-0">
                     <p className="text-[10px] text-slate-400 mb-0.5">Status</p>
                     <StatusBadge item={item} />
                   </div>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 mt-3" onClick={() => removeItem(index)}>
-                    <Trash2 className="w-4 h-4 text-red-400" />
-                  </Button>
                 </div>
 
-                {/* Linha 2: R$ Unit | R$ Total | Depósito | Localização | Saldo | Segurável */}
+                {/* Linha 2: espaço(24) | Depósito(112) | Localização(flex) | Saldo(80) | R$Unit(96) | R$Total(96) | Segurável(52) | Delete(32) */}
+                {/* Fixos linha 2: 24+112+80+96+96+52+32 = 492 + 7gaps(56) = 548 → flex-1 = mesmo espaço restante de linha 1 */}
                 <div className="flex items-center gap-2 px-3 pb-2 border-t border-dashed border-slate-200 dark:border-slate-700 pt-2">
-                  <div className="w-6 shrink-0" />
+                  <div className="shrink-0 w-6" />
                   <div className="w-28 shrink-0">
-                    <p className="text-[10px] text-slate-400 mb-0.5">R$ Unit</p>
-                    <Input
-                      type="number" step="0.01"
-                      value={item.r_unit}
-                      onChange={(e) => updateItem(index, 'r_unit', parseFloat(e.target.value) || 0)}
-                      className="h-7 text-xs"
-                    />
+                    <p className="text-[10px] text-slate-400 mb-0.5">Depósito</p>
+                    <Input value={item.deposito || ''} onChange={(e) => updateItem(index, 'deposito', e.target.value)} className="h-7 text-xs" placeholder="Depósito" />
                   </div>
-                  <div className="w-28 shrink-0">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] text-slate-400 mb-0.5">Localização</p>
+                    <Input value={item.endereco} onChange={(e) => updateItem(index, 'endereco', e.target.value)} className="h-7 text-xs" placeholder="Endereço" />
+                  </div>
+                  <div className="w-20 shrink-0">
+                    <p className="text-[10px] text-slate-400 mb-0.5">Saldo</p>
+                    <Input type="number" value={item.saldo} onChange={(e) => updateItem(index, 'saldo', parseFloat(e.target.value) || 0)} className="h-7 text-xs" />
+                  </div>
+                  <div className="w-24 shrink-0">
+                    <p className="text-[10px] text-slate-400 mb-0.5">R$ Unit</p>
+                    <Input type="number" step="0.01" value={item.r_unit} onChange={(e) => updateItem(index, 'r_unit', parseFloat(e.target.value) || 0)} className="h-7 text-xs" />
+                  </div>
+                  <div className="w-24 shrink-0">
                     <p className="text-[10px] text-slate-400 mb-0.5">R$ Total</p>
                     <p className="text-sm font-semibold text-slate-800 dark:text-white h-7 flex items-center pl-1">
                       R$ {(item.r_total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </p>
                   </div>
-                  <div className="w-24 shrink-0">
-                    <p className="text-[10px] text-slate-400 mb-0.5">Depósito</p>
-                    <Input
-                      value={item.deposito || ''}
-                      onChange={(e) => updateItem(index, 'deposito', e.target.value)}
-                      className="h-7 text-xs"
-                      placeholder="Depósito"
-                    />
-                  </div>
-                  <div className="w-32 shrink-0">
-                    <p className="text-[10px] text-slate-400 mb-0.5">Localização</p>
-                    <Input
-                      value={item.endereco}
-                      onChange={(e) => updateItem(index, 'endereco', e.target.value)}
-                      className="h-7 text-xs"
-                      placeholder="Endereço"
-                    />
-                  </div>
-                  <div className="w-20 shrink-0">
-                    <p className="text-[10px] text-slate-400 mb-0.5">Saldo</p>
-                    <Input
-                      type="number"
-                      value={item.saldo}
-                      onChange={(e) => updateItem(index, 'saldo', parseFloat(e.target.value) || 0)}
-                      className="h-7 text-xs"
-                    />
-                  </div>
-                  <div className="flex flex-col items-center gap-1 shrink-0">
+                  <div className="shrink-0 flex flex-col items-center gap-1" style={{width: '52px'}}>
                     <p className="text-[10px] text-slate-400">Segurável</p>
-                    <Checkbox
-                      checked={item.seguravel}
-                      onCheckedChange={(v) => updateItem(index, 'seguravel', v)}
-                    />
+                    <Checkbox checked={item.seguravel} onCheckedChange={(v) => updateItem(index, 'seguravel', v)} />
+                  </div>
+                  <div className="w-8 shrink-0">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 mt-3" onClick={() => removeItem(index)}>
+                      <Trash2 className="w-4 h-4 text-red-400" />
+                    </Button>
                   </div>
                 </div>
               </div>
