@@ -77,7 +77,17 @@ function DonutChart({ value, color, size = 200, innerRadius = 60, outerRadius = 
 }
 
 export default function OTIFExpedicao({ filteredOrdens, almoxarifados }) {
-  const osExpedicao = filteredOrdens; // já filtrado para expedição pelo Dashboard
+  const osExpedicao = filteredOrdens;
+  const { regionais, categorias, subcategorias, pessoas } = useApp();
+  const [selectedOS, setSelectedOS] = useState(null);
+  const [editingOS, setEditingOS] = useState(null);
+  const [instalacoes, setInstalacoes] = useState([]);
+  const [projetos, setProjetos] = useState([]);
+
+  useEffect(() => {
+    base44.entities.Instalacao.list().then(setInstalacoes).catch(() => {});
+    base44.entities.Projeto.list().then(setProjetos).catch(() => {});
+  }, []);
 
   const { otRate, ifRate, otifRate, otCount, ifCount, otifCount, totalOT, totalIF, totalOTIF, entregues, isOnTime, isInFull } = useMemo(
     () => calcularOTIF(osExpedicao),
