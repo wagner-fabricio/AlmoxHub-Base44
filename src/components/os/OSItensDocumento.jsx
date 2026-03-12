@@ -121,9 +121,9 @@ export default function OSItensDocumento({ itens = [], onChange }) {
                     : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900'
                 }`}
               >
-                {/* Linha 1: Identificação + Separação */}
-                <div className="grid grid-cols-[32px_1fr_80px_60px_100px_100px_100px_90px_40px] gap-2 items-center px-3 py-2">
-                  <div className="flex justify-center">
+                {/* Linha 1: Checkbox | Código | Descrição | Qtd Sol. | UN | Qtd Sep. | Status | Delete */}
+                <div className="flex items-center gap-2 px-3 py-2">
+                  <div className="flex justify-center shrink-0">
                     <Checkbox
                       checked={item.separado || false}
                       onCheckedChange={(v) => {
@@ -133,14 +133,17 @@ export default function OSItensDocumento({ itens = [], onChange }) {
                       }}
                     />
                   </div>
-                  {/* Código + Descrição empilhados */}
-                  <div className="min-w-0">
+                  <div className="w-28 shrink-0">
+                    <p className="text-[10px] text-slate-400 mb-0.5">Código</p>
                     <Input
                       value={item.codigo}
                       onChange={(e) => updateItem(index, 'codigo', e.target.value)}
-                      className="h-7 text-xs font-mono mb-1"
+                      className="h-7 text-xs font-mono"
                       placeholder="Código"
                     />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] text-slate-400 mb-0.5">Descrição</p>
                     <Input
                       value={item.descricao}
                       onChange={(e) => updateItem(index, 'descricao', e.target.value)}
@@ -148,8 +151,7 @@ export default function OSItensDocumento({ itens = [], onChange }) {
                       placeholder="Descrição"
                     />
                   </div>
-                  {/* Qtd Solicitada */}
-                  <div>
+                  <div className="w-16 shrink-0">
                     <p className="text-[10px] text-slate-400 mb-0.5">Qtd Sol.</p>
                     <Input
                       type="number"
@@ -158,8 +160,7 @@ export default function OSItensDocumento({ itens = [], onChange }) {
                       className="h-7 text-xs"
                     />
                   </div>
-                  {/* UN */}
-                  <div>
+                  <div className="w-14 shrink-0">
                     <p className="text-[10px] text-slate-400 mb-0.5">UN</p>
                     <Input
                       value={item.unidade}
@@ -167,25 +168,7 @@ export default function OSItensDocumento({ itens = [], onChange }) {
                       className="h-7 text-xs"
                     />
                   </div>
-                  {/* R$ Unit */}
-                  <div>
-                    <p className="text-[10px] text-slate-400 mb-0.5">R$ Unit</p>
-                    <Input
-                      type="number" step="0.01"
-                      value={item.r_unit}
-                      onChange={(e) => updateItem(index, 'r_unit', parseFloat(e.target.value) || 0)}
-                      className="h-7 text-xs"
-                    />
-                  </div>
-                  {/* R$ Total */}
-                  <div>
-                    <p className="text-[10px] text-slate-400 mb-0.5">R$ Total</p>
-                    <p className="text-sm font-semibold text-slate-800 dark:text-white pl-1">
-                      R$ {(item.r_total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </p>
-                  </div>
-                  {/* Qtd Separada */}
-                  <div>
+                  <div className="w-16 shrink-0">
                     <p className="text-[10px] text-slate-400 mb-0.5">Qtd Sep.</p>
                     <Input
                       type="number"
@@ -194,21 +177,34 @@ export default function OSItensDocumento({ itens = [], onChange }) {
                       className="h-7 text-xs"
                     />
                   </div>
-                  {/* Status */}
-                  <div>
+                  <div className="w-20 shrink-0">
                     <p className="text-[10px] text-slate-400 mb-0.5">Status</p>
                     <StatusBadge item={item} />
                   </div>
-                  {/* Delete */}
-                  <Button variant="ghost" size="icon" className="h-8 w-8 mt-3" onClick={() => removeItem(index)}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 mt-3" onClick={() => removeItem(index)}>
                     <Trash2 className="w-4 h-4 text-red-400" />
                   </Button>
                 </div>
 
-                {/* Linha 2: Localização */}
-                <div className="grid grid-cols-[32px_1fr_1fr_1fr_80px_40px] gap-2 items-center px-3 pb-2 border-t border-dashed border-slate-200 dark:border-slate-700 pt-2">
-                  <div />
-                  <div>
+                {/* Linha 2: R$ Unit | R$ Total | Depósito | Localização | Saldo | Segurável */}
+                <div className="flex items-center gap-2 px-3 pb-2 border-t border-dashed border-slate-200 dark:border-slate-700 pt-2">
+                  <div className="w-6 shrink-0" />
+                  <div className="w-28 shrink-0">
+                    <p className="text-[10px] text-slate-400 mb-0.5">R$ Unit</p>
+                    <Input
+                      type="number" step="0.01"
+                      value={item.r_unit}
+                      onChange={(e) => updateItem(index, 'r_unit', parseFloat(e.target.value) || 0)}
+                      className="h-7 text-xs"
+                    />
+                  </div>
+                  <div className="w-28 shrink-0">
+                    <p className="text-[10px] text-slate-400 mb-0.5">R$ Total</p>
+                    <p className="text-sm font-semibold text-slate-800 dark:text-white h-7 flex items-center pl-1">
+                      R$ {(item.r_total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                  <div className="w-24 shrink-0">
                     <p className="text-[10px] text-slate-400 mb-0.5">Depósito</p>
                     <Input
                       value={item.deposito || ''}
@@ -217,7 +213,7 @@ export default function OSItensDocumento({ itens = [], onChange }) {
                       placeholder="Depósito"
                     />
                   </div>
-                  <div>
+                  <div className="w-32 shrink-0">
                     <p className="text-[10px] text-slate-400 mb-0.5">Localização</p>
                     <Input
                       value={item.endereco}
@@ -226,7 +222,7 @@ export default function OSItensDocumento({ itens = [], onChange }) {
                       placeholder="Endereço"
                     />
                   </div>
-                  <div>
+                  <div className="w-20 shrink-0">
                     <p className="text-[10px] text-slate-400 mb-0.5">Saldo</p>
                     <Input
                       type="number"
@@ -235,14 +231,13 @@ export default function OSItensDocumento({ itens = [], onChange }) {
                       className="h-7 text-xs"
                     />
                   </div>
-                  <div className="flex flex-col items-center gap-1">
+                  <div className="flex flex-col items-center gap-1 shrink-0">
                     <p className="text-[10px] text-slate-400">Segurável</p>
                     <Checkbox
                       checked={item.seguravel}
                       onCheckedChange={(v) => updateItem(index, 'seguravel', v)}
                     />
                   </div>
-                  <div />
                 </div>
               </div>
             );
