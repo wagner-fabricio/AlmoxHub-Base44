@@ -468,14 +468,21 @@ export default function OTIFExpedicao({ filteredOrdens, almoxarifados }) {
                   }
                   return (
                     <tr key={os.id} className={`border-b border-slate-100 dark:border-slate-700/50 ${idx % 2 !== 0 ? 'bg-slate-50/50 dark:bg-slate-700/20' : ''} hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors`}>
-                      <td className="px-3 py-2 font-mono text-blue-700 dark:text-blue-400">{os.codigo || os.id?.substring(0, 8)}</td>
-                      <td className="px-3 py-2 text-slate-700 dark:text-slate-300 max-w-[160px] truncate">{almox?.nome || '—'}</td>
-                      <td className="px-3 py-2 text-center text-slate-600 dark:text-slate-400">{safeFormat(os.data_reserva)}</td>
-                      <td className="px-3 py-2 text-center text-slate-600 dark:text-slate-400">{safeFormat(os.data_migo)}</td>
-                      <td className="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{qtdSol > 0 ? qtdSol.toLocaleString('pt-BR') : '—'}</td>
-                      <td className="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{qtdSep > 0 ? qtdSep.toLocaleString('pt-BR') : '—'}</td>
-                      <td className="px-3 py-2 text-center text-slate-600 dark:text-slate-400">{safeFormat(os.data_necessidade)}</td>
-                      <td className="px-3 py-2 text-center text-slate-600 dark:text-slate-400">{safeFormat(os.data_entrega)}</td>
+                      <td className="px-2 py-2 whitespace-nowrap">
+                        <Link
+                          to={`${createPageUrl('OrdensServico')}?os=${os.id}&view=true`}
+                          className="font-mono text-blue-600 dark:text-blue-400 hover:underline hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+                        >
+                          {os.codigo || os.id?.substring(0, 8)}
+                        </Link>
+                      </td>
+                      <td className="px-2 py-2 text-slate-700 dark:text-slate-300 max-w-[144px] truncate">{almox?.nome || '—'}</td>
+                      <td className="px-2 py-2 text-center text-slate-600 dark:text-slate-400 whitespace-nowrap">{safeFormat(os.data_reserva)}</td>
+                      <td className="px-2 py-2 text-center text-slate-600 dark:text-slate-400 whitespace-nowrap">{safeFormat(os.data_migo)}</td>
+                      <td className="px-2 py-2 text-right text-slate-700 dark:text-slate-300">{qtdSol > 0 ? qtdSol.toLocaleString('pt-BR') : '—'}</td>
+                      <td className="px-2 py-2 text-right text-slate-700 dark:text-slate-300">{qtdSep > 0 ? qtdSep.toLocaleString('pt-BR') : '—'}</td>
+                      <td className="px-2 py-2 text-center text-slate-600 dark:text-slate-400 whitespace-nowrap">{safeFormat(os.data_necessidade)}</td>
+                      <td className="px-2 py-2 text-center text-slate-600 dark:text-slate-400 whitespace-nowrap">{safeFormat(os.data_entrega)}</td>
                       <td className={`px-3 py-2 text-center ${tempoColor}`}>
                         {tempoEntrega !== null ? (tempoEntrega === 0 ? 'No prazo' : `${tempoEntrega > 0 ? '+' : ''}${tempoEntrega}d`) : '—'}
                       </td>
