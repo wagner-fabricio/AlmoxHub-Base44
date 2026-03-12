@@ -695,7 +695,19 @@ export default function OSFormModal({
 
               {isExpedicaoCategory && (<TabsContent value="materiais"><OSItensDocumento itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} /></TabsContent>)}
               {isAtendimentoCategory && (<TabsContent value="materiais"><OSAtendimentoMateriais itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} /></TabsContent>)}
-              {isExpedicaoCategory && (<TabsContent value="volumes"><OSVolumes volumes={formData.volumes} onChange={(volumes) => setFormData(prev => ({ ...prev, volumes }))} /></TabsContent>)}
+              {isExpedicaoCategory && (
+                <TabsContent value="volumes" className="space-y-6">
+                  <OSVolumes volumes={formData.volumes} onChange={(volumes) => setFormData(prev => ({ ...prev, volumes }))} />
+                  {/* Seção Separação */}
+                  <div className="border-t pt-6">
+                    <h4 className="font-semibold mb-4">Separação</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2"><Label>Responsável</Label><Input value={formData.responsavel_separacao} onChange={(e) => setFormData({ ...formData, responsavel_separacao: e.target.value })} /></div>
+                      <div className="space-y-2"><Label>Data Separação</Label><Input type="date" value={formData.data_separacao} onChange={(e) => setFormData({ ...formData, data_separacao: e.target.value })} /></div>
+                    </div>
+                  </div>
+                </TabsContent>
+              )}
 
               {isExpedicaoCategory && (
                 <TabsContent value="expedicao" className="space-y-6">
