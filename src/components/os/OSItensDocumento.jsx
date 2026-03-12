@@ -165,21 +165,21 @@ export default function OSItensDocumento({ itens = [], onChange }) {
                   </div>
                   <div className="w-24 shrink-0">
                     <p className="text-[10px] text-slate-400 mb-0.5">R$ Unit</p>
-                    <Input type="number" step="0.01" value={item.r_unit} onChange={(e) => updateItem(index, 'r_unit', parseFloat(e.target.value) || 0)} className="h-7 text-xs" />
+                    <Input type="number" step="0.01" value={item.r_unit} onChange={(e) => updateItem(index, 'r_unit', parseFloat(e.target.value) || 0)} className="h-7 text-xs text-left" />
                   </div>
                   {/* R$ Total = UN(52) + gap(8) + Qtd Sep(96) = 156px */}
                   <div className="shrink-0" style={{width: '156px'}}>
                     <p className="text-[10px] text-slate-400 mb-0.5">R$ Total</p>
-                    <p className="text-sm font-semibold text-slate-800 dark:text-white h-7 flex items-center pl-1">
+                    <p className="text-sm font-semibold text-slate-800 dark:text-white h-7 flex items-center">
                       R$ {(item.r_total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </p>
                   </div>
-                  <div className="shrink-0 flex flex-col items-center gap-1" style={{width: '52px'}}>
-                    <p className="text-[10px] text-slate-400">Segurável</p>
-                    <Checkbox checked={item.seguravel} onCheckedChange={(v) => updateItem(index, 'seguravel', v)} />
-                  </div>
-                  <div className="w-8 shrink-0">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 mt-3" onClick={() => removeItem(index)}>
+                  <div className="shrink-0 flex items-center gap-2" style={{width: '92px'}}>
+                    <div className="flex flex-col items-center gap-1">
+                      <p className="text-[10px] text-slate-400">Segurável</p>
+                      <Checkbox checked={item.seguravel} onCheckedChange={(v) => updateItem(index, 'seguravel', v)} />
+                    </div>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => removeItem(index)}>
                       <Trash2 className="w-4 h-4 text-red-400" />
                     </Button>
                   </div>
