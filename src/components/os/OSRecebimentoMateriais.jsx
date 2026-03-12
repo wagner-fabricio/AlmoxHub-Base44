@@ -1,373 +1,241 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
-import { PackageCheck, AlertCircle, CheckCircle, TrendingDown, Plus, Trash2 } from 'lucide-react';
+import { PackageCheck, AlertCircle, Plus, Trash2 } from 'lucide-react';
+
+function getStatusConferencia(item) {
+  const qtdEsp = item.quantidade_esperada || 0;
+  const qtdRec = item.quantidade_recebida || 0;
+  if (qtdRec === 0) return 'pendente';
+  if (qtdRec < qtdEsp) return 'parcial';
+  if (qtdRec === qtdEsp) return 'completo';
+  return 'excedente';
+}
+
+function StatusBadge({ status }) {
+  const map = {
+    pendente: 'bg-slate-100 text-slate-600 border-slate-200',
+    parcial: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+    completo: 'bg-green-100 text-green-700 border-green-200',
+    excedente: 'bg-blue-100 text-blue-700 border-blue-200',
+  };
+  const labels = { pendente: 'Pendente', parcial: 'Parcial', completo: 'Completo', excedente: 'Excedente' };
+  return (
+    <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${map[status]}`}>
+      {labels[status]}
+    </span>
+  );
+}
 
 export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData }) {
-  const [editingIndex, setEditingIndex] = useState(null);
-  const [allChecked, setAllChecked] = useState(false);
-  const [fillWithNA, setFillWithNA] = useState(false);
-
   const addItem = () => {
     const novoItem = {
-      codigo: '',
-      descricao: '',
-      quantidade_esperada: 0,
-      quantidade_recebida: 0,
-      unidade: 'UN',
-      status_conferencia: 'pendente',
-      endereco_armazenagem: '',
-      valor_unitario: 0
+      codigo: '', descricao: '', quantidade_esperada: 0, quantidade_recebida: 0,
+      unidade: 'UN', status_conferencia: 'pendente', endereco_armazenagem: '', valor_unitario: 0
     };
     onChange({ itens: [...itens, novoItem], fluxo });
   };
 
   const removeItem = (index) => {
-    const newItens = itens.filter((_, i) => i !== index);
-    onChange({ itens: newItens, fluxo });
-  };
-
-  const handleCheckItem = (index) => {
-    const newItens = [...itens];
-    const item = newItens[index];
-    const isCurrentlyChecked = item.quantidade_recebida === item.quantidade_esperada;
-    
-    if (isCurrentlyChecked) {
-      // Desmarcar: zera a quantidade recebida
-      newItens[index].quantidade_recebida = 0;
-    } else {
-      // Marcar: iguala quantidade recebida com esperada
-      newItens[index].quantidade_recebida = item.quantidade_esperada;
-    }
-    
-    // Atualizar status baseado na comparação
-    const qtdEsperada = newItens[index].quantidade_esperada;
-    const qtdRecebida = newItens[index].quantidade_recebida;
-    
-    if (qtdRecebida === 0) {
-      newItens[index].status_conferencia = 'pendente';
-    } else if (qtdRecebida < qtdEsperada) {
-      newItens[index].status_conferencia = 'parcial';
-    } else if (qtdRecebida === qtdEsperada) {
-      newItens[index].status_conferencia = 'completo';
-    } else if (qtdRecebida > qtdEsperada) {
-      newItens[index].status_conferencia = 'excedente';
-    }
-
-    // Atualizar fluxo se todos os itens estão conferidos
-    const todosCompletos = newItens.every(item => item.status_conferencia === 'completo' || item.status_conferencia === 'excedente');
-    const novoFluxo = { ...fluxo };
-    if (todosCompletos && !novoFluxo.conferencia_manual_completa) {
-      novoFluxo.conferencia_manual_completa = true;
-      novoFluxo.etapa_atual = 3;
-    }
-
-    onChange({ itens: newItens, fluxo: novoFluxo });
-  };
-
-  const handleCheckAll = () => {
-    const newItens = itens.map(item => {
-      if (!allChecked) {
-        // Marcar todos: iguala quantidade recebida com esperada
-        item.quantidade_recebida = item.quantidade_esperada;
-        item.status_conferencia = 'completo';
-      } else {
-        // Desmarcar todos: zera quantidade recebida
-        item.quantidade_recebida = 0;
-        item.status_conferencia = 'pendente';
-      }
-      return item;
-    });
-    
-    // Atualizar fluxo se todos os itens estão conferidos
-    const novoFluxo = { ...fluxo };
-    if (!allChecked) {
-      novoFluxo.conferencia_manual_completa = true;
-      novoFluxo.etapa_atual = 3;
-    } else {
-      novoFluxo.conferencia_manual_completa = false;
-      novoFluxo.etapa_atual = 2;
-    }
-    
-    setAllChecked(!allChecked);
-    onChange({ itens: newItens, fluxo: novoFluxo });
-  };
-
-  const handleFillAllNA = () => {
-    const newFillWithNA = !fillWithNA;
-    setFillWithNA(newFillWithNA);
-    
-    const newItens = itens.map(item => ({
-      ...item,
-      endereco_armazenagem: newFillWithNA ? 'N/A' : ''
-    }));
-    
-    // Verificar se todos os itens conferidos têm endereço preenchido
-    const todosConferidos = newItens.every(item => 
-      item.status_conferencia === 'completo' || item.status_conferencia === 'excedente'
-    );
-    const todosComEndereco = newItens.every(item => item.endereco_armazenagem && item.endereco_armazenagem.trim() !== '');
-    
-    const novoFluxo = { ...fluxo };
-    if (todosConferidos && todosComEndereco) {
-      novoFluxo.armazenagem_completa = true;
-      novoFluxo.etapa_atual = 4;
-    } else {
-      novoFluxo.armazenagem_completa = false;
-    }
-    
-    onChange({ itens: newItens, fluxo: novoFluxo });
+    onChange({ itens: itens.filter((_, i) => i !== index), fluxo });
   };
 
   const handleItemChange = (index, field, value) => {
     const newItens = [...itens];
     newItens[index] = { ...newItens[index], [field]: value };
-    
-    console.log('Item atualizado:', { index, field, value, item: newItens[index] });
-    
-    // Atualizar status baseado na comparação
-    const qtdEsperada = newItens[index].quantidade_esperada;
-    const qtdRecebida = newItens[index].quantidade_recebida;
-    
-    if (qtdRecebida === 0) {
-      newItens[index].status_conferencia = 'pendente';
-    } else if (qtdRecebida < qtdEsperada) {
-      newItens[index].status_conferencia = 'parcial';
-    } else if (qtdRecebida === qtdEsperada) {
-      newItens[index].status_conferencia = 'completo';
-    } else if (qtdRecebida > qtdEsperada) {
-      newItens[index].status_conferencia = 'excedente';
-    }
 
-    // Atualizar fluxo se todos os itens estão conferidos
-    const todosCompletos = newItens.every(item => item.status_conferencia === 'completo' || item.status_conferencia === 'excedente');
+    const qtdEsp = newItens[index].quantidade_esperada;
+    const qtdRec = newItens[index].quantidade_recebida;
+
+    if (qtdRec === 0) newItens[index].status_conferencia = 'pendente';
+    else if (qtdRec < qtdEsp) newItens[index].status_conferencia = 'parcial';
+    else if (qtdRec === qtdEsp) newItens[index].status_conferencia = 'completo';
+    else newItens[index].status_conferencia = 'excedente';
+
+    const todosCompletos = newItens.every(i => i.status_conferencia === 'completo' || i.status_conferencia === 'excedente');
     const novoFluxo = { ...fluxo };
     if (todosCompletos && !novoFluxo.conferencia_manual_completa) {
       novoFluxo.conferencia_manual_completa = true;
       novoFluxo.etapa_atual = 3;
     }
-
-    // Verificar se todos os itens conferidos têm endereço preenchido (para armazenagem)
     if (field === 'endereco_armazenagem') {
-      const todosComEndereco = newItens.every(item => item.endereco_armazenagem && item.endereco_armazenagem.trim() !== '');
-      if (todosCompletos && todosComEndereco) {
-        novoFluxo.armazenagem_completa = true;
-        novoFluxo.etapa_atual = 4;
-      } else {
-        novoFluxo.armazenagem_completa = false;
-      }
+      const todosComEndereco = newItens.every(i => i.endereco_armazenagem && i.endereco_armazenagem.trim() !== '');
+      if (todosCompletos && todosComEndereco) { novoFluxo.armazenagem_completa = true; novoFluxo.etapa_atual = 4; }
+      else { novoFluxo.armazenagem_completa = false; }
     }
-
     onChange({ itens: newItens, fluxo: novoFluxo });
   };
 
-  const getStatusBadge = (status) => {
-    const configs = {
-      pendente: { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-800 dark:text-gray-100', label: 'Pendente' },
-      parcial: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-800 dark:text-yellow-100', label: 'Parcial' },
-      completo: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-800 dark:text-green-100', label: 'Completo' },
-      excedente: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-800 dark:text-blue-100', label: 'Excedente' }
-    };
-    const config = configs[status] || configs.pendente;
-    return <Badge className={`${config.bg} ${config.text} border-0`}>{config.label}</Badge>;
+  const handleCheckItem = (index) => {
+    const item = itens[index];
+    const isChecked = item.quantidade_recebida === item.quantidade_esperada && item.quantidade_esperada > 0;
+    handleItemChange(index, 'quantidade_recebida', isChecked ? 0 : item.quantidade_esperada);
   };
 
-  const itemsComStatus = itens.map(item => ({
-    ...item,
-    status_conferencia: item.status_conferencia || 'pendente'
-  }));
+  const handleCheckAll = (checked) => {
+    const newItens = itens.map(item => ({
+      ...item,
+      quantidade_recebida: checked ? item.quantidade_esperada : 0,
+      status_conferencia: checked ? 'completo' : 'pendente',
+    }));
+    const novoFluxo = { ...fluxo, conferencia_manual_completa: !!checked, etapa_atual: checked ? 3 : 2 };
+    onChange({ itens: newItens, fluxo: novoFluxo });
+  };
 
-  const conferenciaProgress = itemsComStatus.length > 0
-    ? Math.round((itemsComStatus.filter(i => i.status_conferencia !== 'pendente').length / itemsComStatus.length) * 100)
-    : 0;
+  const itemsComStatus = itens.map(item => ({ ...item, status_conferencia: item.status_conferencia || 'pendente' }));
+  const totalEsperado = itemsComStatus.reduce((s, i) => s + (parseFloat(i.quantidade_esperada) || 0), 0);
+  const totalRecebido = itemsComStatus.reduce((s, i) => s + (parseFloat(i.quantidade_recebida) || 0), 0);
+  const totalValor = itemsComStatus.reduce((s, i) => s + ((i.quantidade_esperada || 0) * (i.valor_unitario || 0)), 0);
+  const totalCompletos = itemsComStatus.filter(i => i.status_conferencia === 'completo' || i.status_conferencia === 'excedente').length;
+  const allChecked = itemsComStatus.length > 0 && itemsComStatus.every(i => i.quantidade_recebida === i.quantidade_esperada && i.quantidade_esperada > 0);
 
   return (
-    <div className="space-y-6">
-      {/* Materiais Recebidos */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <PackageCheck className="w-5 h-5" />
-              Conferência de Materiais
-            </CardTitle>
-            <Button onClick={addItem} size="sm" className="bg-blue-600 hover:bg-blue-700">
-              <Plus className="w-4 h-4 mr-2" />
-              Adicionar Material
-            </Button>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <PackageCheck className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+            <h4 className="font-semibold text-slate-900 dark:text-white">Conferência de Materiais</h4>
           </div>
-        </CardHeader>
-        <CardContent>
-          {itemsComStatus.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-slate-500">
-              <AlertCircle className="w-8 h-8 mb-2" />
-              <p>Nenhum item importado. Faça upload do XML na aba "Anexos"</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-slate-50 dark:bg-slate-800">
-                    <TableHead className="font-semibold text-center w-16">
-                      <Checkbox
-                        checked={allChecked}
-                        onCheckedChange={handleCheckAll}
-                      />
-                    </TableHead>
-                    <TableHead className="font-semibold">Código</TableHead>
-                    <TableHead className="font-semibold">Descrição</TableHead>
-                    <TableHead className="font-semibold text-center">Esperado</TableHead>
-                    <TableHead className="font-semibold text-center">Recebido</TableHead>
-                    <TableHead className="font-semibold text-right">Valor Unit.</TableHead>
-                    <TableHead className="font-semibold text-right">Valor Total</TableHead>
-                    <TableHead className="font-semibold text-center">Status</TableHead>
-                    <TableHead className="font-semibold">Endereço</TableHead>
-                    <TableHead className="font-semibold w-16">
-                      <Checkbox
-                        checked={fillWithNA}
-                        onCheckedChange={handleFillAllNA}
-                        title="Preencher todos os endereços com N/A"
-                      />
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {itemsComStatus.map((item, index) => {
-                    const isChecked = item.quantidade_recebida === item.quantidade_esperada && item.quantidade_esperada > 0;
-                    return (
-                    <TableRow key={index} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                      <TableCell className="text-center">
-                        <Checkbox
-                          checked={isChecked}
-                          onCheckedChange={() => handleCheckItem(index)}
-                        />
-                      </TableCell>
-                      <TableCell className="font-mono text-sm">
-                        <Input
-                          value={item.codigo || ''}
-                          onChange={(e) => handleItemChange(index, 'codigo', e.target.value)}
-                          placeholder="Código"
-                          className="h-8 text-sm font-mono"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          value={item.descricao || ''}
-                          onChange={(e) => handleItemChange(index, 'descricao', e.target.value)}
-                          placeholder="Descrição"
-                          className="h-8 text-sm"
-                        />
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex items-center gap-2">
-                          <Input
-                            type="number"
-                            value={item.quantidade_esperada || 0}
-                            onChange={(e) => handleItemChange(index, 'quantidade_esperada', parseFloat(e.target.value) || 0)}
-                            className="w-16 text-center h-8 text-sm"
-                            min="0"
-                          />
-                          <Input
-                            value={item.unidade || 'UN'}
-                            onChange={(e) => handleItemChange(index, 'unidade', e.target.value)}
-                            className="w-16 text-center h-8 text-sm"
-                            placeholder="UN"
-                          />
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Input
-                          type="number"
-                          value={item.quantidade_recebida || 0}
-                          onChange={(e) => handleItemChange(index, 'quantidade_recebida', parseFloat(e.target.value) || 0)}
-                          className="w-20 text-center h-8 text-sm"
-                          min="0"
-                        />
-                      </TableCell>
-                      <TableCell className="text-right font-mono text-sm">
-                        {(item.valor_unitario || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                      </TableCell>
-                      <TableCell className="text-right font-mono text-sm">
-                        {((item.quantidade_esperada || 0) * (item.valor_unitario || 0)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {getStatusBadge(item.status_conferencia)}
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          value={item.endereco_armazenagem || ''}
-                          onChange={(e) => handleItemChange(index, 'endereco_armazenagem', e.target.value)}
-                          placeholder="Ex: A-01-01"
-                          className="h-8 text-sm"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeItem(index)}
-                          className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                    );
-                  })}
-                  
-                  {/* Linha Totalizadora */}
-                  {itemsComStatus.length > 0 && (
-                    <>
-                      <TableRow className="bg-blue-50 dark:bg-blue-900/20 font-semibold border-t-2">
-                        <TableCell></TableCell>
-                        <TableCell className="text-sm">
-                          Total: {itemsComStatus.length} {itemsComStatus.length === 1 ? 'item' : 'itens'}
-                        </TableCell>
-                        <TableCell></TableCell>
-                        <TableCell className="text-center text-sm">
-                          {itemsComStatus.reduce((sum, item) => sum + (parseFloat(item.quantidade_esperada) || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                        </TableCell>
-                        <TableCell className="text-center text-sm">
-                          {itemsComStatus.reduce((sum, item) => sum + (parseFloat(item.quantidade_recebida) || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                        </TableCell>
-                        <TableCell></TableCell>
-                        <TableCell className="text-right font-mono text-sm">
-                          {itemsComStatus.reduce((sum, item) => sum + ((item.quantidade_esperada || 0) * (item.valor_unitario || 0)), 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                        </TableCell>
-                        <TableCell colSpan="3"></TableCell>
-                      </TableRow>
-                      
-                      {/* Linha Dados da NF */}
-                      {nfeData && (
-                        <TableRow className="bg-slate-50 dark:bg-slate-800/50 text-sm">
-                          <TableCell colSpan="2" className="font-semibold">Dados da NF</TableCell>
-                          <TableCell colSpan="2">
-                            <span className="text-slate-600 dark:text-slate-400">Volumes: </span>
-                            <span className="font-semibold">{nfeData.volumes || '-'}</span>
-                          </TableCell>
-                          <TableCell colSpan="3">
-                            <span className="text-slate-600 dark:text-slate-400">Peso Líquido: </span>
-                            <span className="font-semibold">{nfeData.peso_liquido ? `${parseFloat(nfeData.peso_liquido).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} kg` : '-'}</span>
-                            <span className="text-slate-600 dark:text-slate-400 ml-4">Peso Bruto: </span>
-                            <span className="font-semibold">{nfeData.peso_bruto ? `${parseFloat(nfeData.peso_bruto).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} kg` : '-'}</span>
-                          </TableCell>
-                          <TableCell colSpan="2"></TableCell>
-                        </TableRow>
-                      )}
-                    </>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+          {itemsComStatus.length > 0 && (
+            <span className="text-xs text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full">
+              {totalCompletos}/{itemsComStatus.length} conferidos
+            </span>
           )}
-        </CardContent>
-      </Card>
+          {itemsComStatus.length > 0 && (
+            <label className="flex items-center gap-1.5 text-xs text-slate-500 cursor-pointer select-none">
+              <Checkbox checked={allChecked} onCheckedChange={handleCheckAll} />
+              Marcar todos como conferidos
+            </label>
+          )}
+        </div>
+        <Button onClick={addItem} size="sm" className="bg-blue-600 hover:bg-blue-700">
+          <Plus className="w-4 h-4 mr-2" /> Adicionar Material
+        </Button>
+      </div>
+
+      {itemsComStatus.length === 0 ? (
+        <div className="text-center py-10 text-slate-400 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
+          <AlertCircle className="w-8 h-8 mx-auto mb-2 opacity-40" />
+          <p className="text-sm">Nenhum item adicionado. Faça upload do XML na aba "Anexos" ou clique em "Adicionar Material".</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {itemsComStatus.map((item, index) => {
+            const status = item.status_conferencia;
+            const isChecked = item.quantidade_recebida === item.quantidade_esperada && item.quantidade_esperada > 0;
+            const valorTotal = (item.quantidade_esperada || 0) * (item.valor_unitario || 0);
+            return (
+              <div
+                key={index}
+                className={`rounded-xl border transition-colors ${
+                  status === 'completo'
+                    ? 'border-green-200 bg-green-50/50 dark:bg-green-900/10 dark:border-green-800'
+                    : status === 'parcial'
+                    ? 'border-yellow-200 bg-yellow-50/30 dark:bg-yellow-900/10 dark:border-yellow-800'
+                    : status === 'excedente'
+                    ? 'border-blue-200 bg-blue-50/30 dark:bg-blue-900/10 dark:border-blue-800'
+                    : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900'
+                }`}
+              >
+                {/* Linha 1: cb(24) | código(112) | descrição(flex) | Qtd Esp.(96) | UN(52) | Qtd Rec.(96) | Status(92) */}
+                <div className="flex items-center gap-2 px-3 py-2">
+                  <div className="shrink-0 w-6 flex justify-center">
+                    <Checkbox checked={isChecked} onCheckedChange={() => handleCheckItem(index)} />
+                  </div>
+                  <div className="w-28 shrink-0">
+                    <p className="text-[10px] text-slate-400 mb-0.5">Código</p>
+                    <Input value={item.codigo || ''} onChange={(e) => handleItemChange(index, 'codigo', e.target.value)} className="h-7 text-xs font-mono" placeholder="Código" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] text-slate-400 mb-0.5">Descrição</p>
+                    <Input value={item.descricao || ''} onChange={(e) => handleItemChange(index, 'descricao', e.target.value)} className="h-7 text-xs" placeholder="Descrição" />
+                  </div>
+                  <div className="w-24 shrink-0">
+                    <p className="text-[10px] text-slate-400 mb-0.5">Qtd Esperada</p>
+                    <Input type="number" value={item.quantidade_esperada || 0} onChange={(e) => handleItemChange(index, 'quantidade_esperada', parseFloat(e.target.value) || 0)} className="h-7 text-xs" min="0" />
+                  </div>
+                  <div className="shrink-0" style={{width: '52px'}}>
+                    <p className="text-[10px] text-slate-400 mb-0.5">UN</p>
+                    <Input value={item.unidade || 'UN'} onChange={(e) => handleItemChange(index, 'unidade', e.target.value)} className="h-7 text-xs" />
+                  </div>
+                  <div className="w-24 shrink-0">
+                    <p className="text-[10px] text-slate-400 mb-0.5">Qtd Recebida</p>
+                    <Input type="number" value={item.quantidade_recebida || 0} onChange={(e) => handleItemChange(index, 'quantidade_recebida', parseFloat(e.target.value) || 0)} className="h-7 text-xs" min="0" />
+                  </div>
+                  {/* Status = 92px (alinhado com Segurável+Delete da OS expedição) */}
+                  <div className="shrink-0" style={{width: '92px'}}>
+                    <p className="text-[10px] text-slate-400 mb-0.5">Status</p>
+                    <StatusBadge status={status} />
+                  </div>
+                </div>
+
+                {/* Linha 2: espaço(24) | espaço(112) | Endereço(flex) | R$ Unit.(96) | R$ Total(156) | Delete(92) */}
+                <div className="flex items-center gap-2 px-3 pb-2 border-t border-dashed border-slate-200 dark:border-slate-700 pt-2">
+                  <div className="shrink-0 w-6" />
+                  <div className="w-28 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] text-slate-400 mb-0.5">Endereço Armazenagem</p>
+                    <Input value={item.endereco_armazenagem || ''} onChange={(e) => handleItemChange(index, 'endereco_armazenagem', e.target.value)} className="h-7 text-xs" placeholder="Ex: A-01-01" />
+                  </div>
+                  <div className="w-24 shrink-0">
+                    <p className="text-[10px] text-slate-400 mb-0.5">R$ Unit.</p>
+                    <p className="text-sm font-medium text-slate-800 dark:text-white h-7 flex items-center">
+                      {(item.valor_unitario || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                    </p>
+                  </div>
+                  {/* R$ Total = UN(52) + gap(8) + Qtd Rec(96) = 156px */}
+                  <div className="shrink-0" style={{width: '156px'}}>
+                    <p className="text-[10px] text-slate-400 mb-0.5">R$ Total</p>
+                    <p className="text-sm font-semibold text-slate-800 dark:text-white h-7 flex items-center">
+                      {valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                    </p>
+                  </div>
+                  <div className="shrink-0 flex items-center justify-end" style={{width: '92px'}}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => removeItem(index)}>
+                      <Trash2 className="w-4 h-4 text-red-400" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Totais */}
+      {itemsComStatus.length > 0 && (
+        <div className="flex justify-end gap-8 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
+          <div className="text-right">
+            <p className="text-sm text-slate-500">Total de Itens</p>
+            <p className="text-lg font-bold text-slate-900 dark:text-white">{itemsComStatus.length}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-slate-500">Qtd Esperada</p>
+            <p className="text-lg font-bold text-slate-900 dark:text-white">{totalEsperado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-slate-500">Qtd Recebida</p>
+            <p className="text-lg font-bold text-green-600">{totalRecebido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-slate-500">Valor Total</p>
+            <p className="text-lg font-bold text-blue-600">{totalValor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Dados da NF */}
+      {nfeData && itemsComStatus.length > 0 && (
+        <div className="flex gap-6 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-sm text-slate-600 dark:text-slate-400">
+          <span><span className="font-medium">Volumes:</span> {nfeData.volumes || '-'}</span>
+          <span><span className="font-medium">Peso Líquido:</span> {nfeData.peso_liquido ? `${parseFloat(nfeData.peso_liquido).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} kg` : '-'}</span>
+          <span><span className="font-medium">Peso Bruto:</span> {nfeData.peso_bruto ? `${parseFloat(nfeData.peso_bruto).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} kg` : '-'}</span>
+        </div>
+      )}
     </div>
   );
 }
