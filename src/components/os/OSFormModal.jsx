@@ -37,7 +37,7 @@ const EMPTY_FORM = {
   num_migo: '', vinculacao: '', instalacao_origem_id: '', instalacao_destino_id: '',
   itens_documento: [], volumes: [], detalhamento_expedicao: [],
   status_separacao: 'pendente', responsavel_separacao: '', data_separacao: '',
-  data_entrega: '', anexos: [], imagens: [],
+  data_entrega: '', data_necessidade: '', anexos: [], imagens: [],
   nfe_numero: '', nfe_serie: '', nfe_data_emissao: '', nfe_chave_acesso: '',
   nfe_natureza_operacao: '', nfe_dados_emissor: {}, nfe_dados_destinatario: {},
   nfe_dados_transportador: {}, nfe_info_complementares: '', nfe_itens_conferencia: [],
