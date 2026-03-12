@@ -146,7 +146,7 @@ export default function OSItensDocumento({ itens = [], onChange }) {
                     <p className="text-[10px] text-slate-400 mb-0.5">Qtd Sol.</p>
                     <Input type="number" value={item.quantidade} onChange={(e) => updateItem(index, 'quantidade', parseFloat(e.target.value) || 0)} className="h-7 text-xs" />
                   </div>
-                  <div className="w-13 shrink-0" style={{width: '52px'}}>
+                  <div className="shrink-0" style={{width: '52px'}}>
                     <p className="text-[10px] text-slate-400 mb-0.5">UN</p>
                     <Input value={item.unidade} onChange={(e) => updateItem(index, 'unidade', e.target.value)} className="h-7 text-xs" />
                   </div>
@@ -154,7 +154,7 @@ export default function OSItensDocumento({ itens = [], onChange }) {
                     <p className="text-[10px] text-slate-400 mb-0.5">Qtd Sep.</p>
                     <Input type="number" value={item.quantidade_separada || 0} onChange={(e) => updateItem(index, 'quantidade_separada', parseFloat(e.target.value) || 0)} className="h-7 text-xs" />
                   </div>
-                  <div className="w-20 shrink-0">
+                  <div className="shrink-0" style={{width: '80px'}}>
                     <p className="text-[10px] text-slate-400 mb-0.5">Status</p>
                     <StatusBadge item={item} />
                   </div>
