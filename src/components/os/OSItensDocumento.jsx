@@ -168,7 +168,7 @@ export default function OSItensDocumento({ itens = [], onChange }) {
                     <p className="text-[10px] text-slate-400 mb-0.5">Depósito</p>
                     <Input value={item.deposito || ''} onChange={(e) => updateItem(index, 'deposito', e.target.value)} className="h-7 text-xs" placeholder="Depósito" />
                   </div>
-                  <div className="flex-1 min-w-0" style={{maxWidth: 'calc(100% - 572px)'}}>
+                  <div className="flex-1 min-w-0">
                     <p className="text-[10px] text-slate-400 mb-0.5">Localização</p>
                     <Input value={item.endereco} onChange={(e) => updateItem(index, 'endereco', e.target.value)} className="h-7 text-xs" placeholder="Endereço" />
                   </div>
