@@ -159,6 +159,65 @@ export default function OTIFExpedicao({ filteredOrdens, almoxarifados }) {
     });
   }, [filteredOrdens, almoxarifados]);
 
+  // Filtrar e ordenar osTabela
+  const osTabelaFiltrada = useMemo(() => {
+    let rows = [...osTabela];
+
+    // Aplicar filtros
+    Object.entries(columnFilters).forEach(([col, values]) => {
+      if (!values || values.length === 0) return;
+      rows = rows.filter(({ os, almox, tempoEntrega }) => {
+        if (col === 'almox') return values.includes(almox?.nome || '—');
+        if (col === 'status_separacao') return values.includes(os.status_separacao || '—');
+        if (col === 'data_reserva') return values.includes(safeFormat(os.data_reserva));
+        if (col === 'data_migo') return values.includes(safeFormat(os.data_migo));
+        if (col === 'data_necessidade') return values.includes(safeFormat(os.data_necessidade));
+        if (col === 'data_entrega') return values.includes(safeFormat(os.data_entrega));
+        if (col === 'tempoEntrega') {
+          const label = tempoEntrega === null ? '—' : (tempoEntrega === 0 ? 'No prazo' : `${tempoEntrega > 0 ? '+' : ''}${tempoEntrega}d`);
+          return values.includes(label);
+        }
+        return true;
+      });
+    });
+
+    // Aplicar ordenação
+    if (sortConfig.column && sortConfig.direction) {
+      rows.sort((a, b) => {
+        let va, vb;
+        const col = sortConfig.column;
+        if (col === 'codigo') { va = a.os.codigo || ''; vb = b.os.codigo || ''; }
+        else if (col === 'almox') { va = a.almox?.nome || ''; vb = b.almox?.nome || ''; }
+        else if (col === 'data_reserva') { va = a.os.data_reserva || ''; vb = b.os.data_reserva || ''; }
+        else if (col === 'data_migo') { va = a.os.data_migo || ''; vb = b.os.data_migo || ''; }
+        else if (col === 'qtdSol') { va = a.qtdSol; vb = b.qtdSol; }
+        else if (col === 'qtdSep') { va = a.qtdSep; vb = b.qtdSep; }
+        else if (col === 'data_necessidade') { va = a.os.data_necessidade || ''; vb = b.os.data_necessidade || ''; }
+        else if (col === 'data_entrega') { va = a.os.data_entrega || ''; vb = b.os.data_entrega || ''; }
+        else if (col === 'tempoEntrega') { va = a.tempoEntrega ?? Infinity; vb = b.tempoEntrega ?? Infinity; }
+        else { va = ''; vb = ''; }
+        if (va < vb) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (va > vb) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return rows;
+  }, [osTabela, sortConfig, columnFilters]);
+
+  const getUniqueValues = (col) => {
+    const vals = osTabela.map(({ os, almox, tempoEntrega }) => {
+      if (col === 'almox') return almox?.nome || '—';
+      if (col === 'data_reserva') return safeFormat(os.data_reserva);
+      if (col === 'data_migo') return safeFormat(os.data_migo);
+      if (col === 'data_necessidade') return safeFormat(os.data_necessidade);
+      if (col === 'data_entrega') return safeFormat(os.data_entrega);
+      if (col === 'tempoEntrega') return tempoEntrega === null ? '—' : (tempoEntrega === 0 ? 'No prazo' : `${tempoEntrega > 0 ? '+' : ''}${tempoEntrega}d`);
+      return '—';
+    });
+    return [...new Set(vals)].sort();
+  };
+
   return (
     <div className="space-y-6">
       {/* KPI Cards */}
