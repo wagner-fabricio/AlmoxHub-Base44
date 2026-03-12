@@ -140,7 +140,8 @@ export default function OSItensDocumento({ itens = [], onChange }) {
                     <p className="text-[10px] text-slate-400 mb-0.5">Qtd Sep.</p>
                     <Input type="number" value={item.quantidade_separada || 0} onChange={(e) => updateItem(index, 'quantidade_separada', parseFloat(e.target.value) || 0)} className="h-7 text-xs" />
                   </div>
-                  <div className="shrink-0" style={{width: '80px'}}>
+                  {/* Status = Segurável(52) + gap(8) + Delete(32) = 92px */}
+                  <div className="shrink-0" style={{width: '92px'}}>
                     <p className="text-[10px] text-slate-400 mb-0.5">Status</p>
                     <StatusBadge item={item} />
                   </div>
