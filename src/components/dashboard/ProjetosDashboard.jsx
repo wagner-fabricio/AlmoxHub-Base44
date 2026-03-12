@@ -13,7 +13,7 @@ import { ptBR } from 'date-fns/locale';
 const AXIA_BLUE = '#0000FF';
 const AXIA_DARK = '#0A003C';
 const AXIA_ORANGE = '#FF6B00';
-const COLORS_PROJ = ['#0000FF', '#FF6B00', '#10B981', '#8B5CF6', '#EC4899', '#0A003C', '#F59E0B'];
+const COLORS_PROJ = ['#1e40af', '#1d4ed8', '#1e3a8a', '#1d4ed8', '#2563eb', '#1e40af', '#1d4ed8'];
 
 // ---- helpers ----
 function calcIDP(projeto, osDoProj) {
