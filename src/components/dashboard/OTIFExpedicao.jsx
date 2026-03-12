@@ -10,6 +10,7 @@ import { useApp } from '@/components/contexts/AppContext';
 import { base44 } from '@/api/base44Client';
 import OSDetailModal from '@/components/os/OSDetailModal';
 import OSFormModal from '@/components/os/OSFormModal';
+// NOTE: Link/createPageUrl removed — modal opened inline
 
 const safeFormat = (dateStr) => {
   if (!dateStr) return '—';
