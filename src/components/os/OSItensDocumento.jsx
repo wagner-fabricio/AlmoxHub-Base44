@@ -71,34 +71,20 @@ export default function OSItensDocumento({ itens = [], onChange }) {
               {totalSeparados}/{itens.length} separados
             </span>
           )}
+          {itens.length > 0 && (
+            <label className="flex items-center gap-1.5 text-xs text-slate-500 cursor-pointer select-none">
+              <Checkbox
+                checked={itens.every(i => i.separado)}
+                onCheckedChange={(checked) => onChange(itens.map(i => ({ ...i, separado: checked, quantidade_separada: checked ? i.quantidade : 0 })))}
+              />
+              Marcar todos como conferidos
+            </label>
+          )}
         </div>
         <Button onClick={addItem} size="sm">
           <Plus className="w-4 h-4 mr-2" /> Inserir Item
         </Button>
       </div>
-
-      {/* Header Row */}
-      {itens.length > 0 && (
-        <div className="hidden md:grid grid-cols-[32px_1fr_80px_60px_90px_90px_90px_80px_80px_70px_60px_40px] gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-          <div className="flex justify-center">
-            <Checkbox
-              checked={itens.every(i => i.separado)}
-              onCheckedChange={(checked) => onChange(itens.map(i => ({ ...i, separado: checked, quantidade_separada: checked ? i.quantidade : 0 })))}
-            />
-          </div>
-          <span>Código / Descrição</span>
-          <span>Qtd Sol.</span>
-          <span>UN</span>
-          <span>R$ Unit</span>
-          <span>R$ Total</span>
-          <span>Qtd Sep.</span>
-          <span>Status</span>
-          <span>Depósito</span>
-          <span>Localiz.</span>
-          <span>Saldo</span>
-          <span></span>
-        </div>
-      )}
 
       {/* Items */}
       <div className="space-y-2">
