@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Target, Clock, Package, TrendingUp } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { SortableTableHead, useTableSort, useColumnFilters } from '@/components/ui/table-sortable';
 
 const safeFormat = (dateStr) => {
   if (!dateStr) return '—';
