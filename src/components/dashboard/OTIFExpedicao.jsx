@@ -282,6 +282,39 @@ export default function OTIFExpedicao({ filteredOrdens, almoxarifados }) {
         )}
       </div>
 
+      {/* Distribuição Tempo de Entrega */}
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-6 flex items-center gap-2">
+          <div className="w-1 h-5 rounded-full bg-blue-600"></div>
+          Distribuição por Tempo de Entrega
+        </h3>
+        {distribuicaoTempoEntrega.length === 0 ? (
+          <div className="h-40 flex items-center justify-center text-slate-400">Sem entregas com datas preenchidas</div>
+        ) : (
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={distribuicaoTempoEntrega} margin={{ top: 30, right: 20, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+              <XAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 11 }} />
+              <YAxis hide />
+              <Tooltip
+                contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px' }}
+                formatter={(value, name, props) => [`${value}% (${props.payload.count} OS)`, 'Entregas']}
+              />
+              <Bar dataKey="pct" radius={[4, 4, 0, 0]}>
+                <LabelList dataKey="pct" position="top" formatter={(v) => v > 0 ? `${v}%` : ''} style={{ fill: '#475569', fontSize: 12, fontWeight: 600 }} />
+                {distribuicaoTempoEntrega.map((entry, index) => {
+                  let color = '#ef4444';
+                  if (entry.label === 'On Time') color = '#10b981';
+                  else if (entry.label.startsWith('-')) color = '#10b981';
+                  else if (entry.label === '1d - 5d') color = '#f59e0b';
+                  return <Cell key={index} fill={color} />;
+                })}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+
       {/* Tendência OTIF Mensal */}
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
         <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-6 flex items-center gap-2">
