@@ -510,6 +510,7 @@ export default function OTIFExpedicao({ filteredOrdens, almoxarifados }) {
       </div>
     </div>
 
+    <>
     {selectedOS && (
       <OSDetailModal
         open={!!selectedOS}
