@@ -346,6 +346,56 @@ export default function OTIFExpedicao({ filteredOrdens, almoxarifados }) {
           </ResponsiveContainer>
         )}
       </div>
+
+      {/* Tabela de OS */}
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-4 flex items-center gap-2">
+          <div className="w-1 h-5 rounded-full bg-blue-600"></div>
+          OS utilizadas nos indicadores ({osTabela.length})
+        </h3>
+        {osTabela.length === 0 ? (
+          <div className="h-24 flex items-center justify-center text-slate-400 text-sm">Nenhuma OS com movimentação encontrada</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs border-collapse">
+              <thead>
+                <tr className="bg-slate-50 dark:bg-slate-700/50">
+                  <th className="text-left px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Nº OS</th>
+                  <th className="text-left px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Almoxarifado</th>
+                  <th className="text-right px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Qtd Sol.</th>
+                  <th className="text-right px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Qtd Sep.</th>
+                  <th className="text-center px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Data Necessidade</th>
+                  <th className="text-center px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Data Entrega</th>
+                  <th className="text-center px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Tempo Entrega</th>
+                </tr>
+              </thead>
+              <tbody>
+                {osTabela.map(({ os, almox, qtdSol, qtdSep, tempoEntrega }, idx) => {
+                  let tempoColor = 'text-slate-600 dark:text-slate-400';
+                  if (tempoEntrega !== null) {
+                    if (tempoEntrega <= 0) tempoColor = 'text-green-600 font-semibold';
+                    else if (tempoEntrega <= 5) tempoColor = 'text-yellow-600 font-semibold';
+                    else tempoColor = 'text-red-600 font-semibold';
+                  }
+                  return (
+                    <tr key={os.id} className={`border-b border-slate-100 dark:border-slate-700/50 ${idx % 2 !== 0 ? 'bg-slate-50/50 dark:bg-slate-700/20' : ''} hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors`}>
+                      <td className="px-3 py-2 font-mono text-blue-700 dark:text-blue-400">{os.codigo || os.id?.substring(0, 8)}</td>
+                      <td className="px-3 py-2 text-slate-700 dark:text-slate-300 max-w-[160px] truncate">{almox?.nome || '—'}</td>
+                      <td className="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{qtdSol > 0 ? qtdSol.toLocaleString('pt-BR') : '—'}</td>
+                      <td className="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{qtdSep > 0 ? qtdSep.toLocaleString('pt-BR') : '—'}</td>
+                      <td className="px-3 py-2 text-center text-slate-600 dark:text-slate-400">{os.data_necessidade ? format(new Date(os.data_necessidade), 'dd/MM/yy') : '—'}</td>
+                      <td className="px-3 py-2 text-center text-slate-600 dark:text-slate-400">{os.data_entrega ? format(new Date(os.data_entrega), 'dd/MM/yy') : '—'}</td>
+                      <td className={`px-3 py-2 text-center ${tempoColor}`}>
+                        {tempoEntrega !== null ? (tempoEntrega === 0 ? 'No prazo' : `${tempoEntrega > 0 ? '+' : ''}${tempoEntrega}d`) : '—'}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
