@@ -433,17 +433,17 @@ export default function OTIFExpedicao({ filteredOrdens, almoxarifados }) {
               <thead>
                 <tr className="bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300">
                   {[
-                    { col: 'codigo', label: 'Nº OS', align: 'left', filter: false },
-                    { col: 'almox', label: 'Almoxarifado', align: 'left', filter: true },
-                    { col: 'data_reserva', label: 'Data Reserva', align: 'center', filter: true },
-                    { col: 'data_migo', label: 'Data MIGO', align: 'center', filter: true },
-                    { col: 'qtdSol', label: 'Qtd Sol.', align: 'right', filter: false },
-                    { col: 'qtdSep', label: 'Qtd Sep.', align: 'right', filter: false },
-                    { col: 'data_necessidade', label: 'Data Necessidade', align: 'center', filter: true },
-                    { col: 'data_entrega', label: 'Data Entrega', align: 'center', filter: true },
-                    { col: 'tempoEntrega', label: 'Tempo Entrega', align: 'center', filter: true },
-                  ].map(({ col, label, align, filter }) => (
-                    <th key={col} className={`px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-${align}`}>
+                   { col: 'codigo', label: 'Nº OS', align: 'left', filter: false, width: 'w-48' },
+                   { col: 'almox', label: 'Almoxarifado', align: 'left', filter: true, width: 'w-36' },
+                   { col: 'data_reserva', label: 'Reserva', align: 'center', filter: true, width: 'w-24' },
+                   { col: 'data_migo', label: 'MIGO', align: 'center', filter: true, width: 'w-24' },
+                   { col: 'qtdSol', label: 'Sol.', align: 'right', filter: false, width: 'w-16' },
+                   { col: 'qtdSep', label: 'Sep.', align: 'right', filter: false, width: 'w-16' },
+                   { col: 'data_necessidade', label: 'Necessidade', align: 'center', filter: true, width: 'w-24' },
+                   { col: 'data_entrega', label: 'Entrega', align: 'center', filter: true, width: 'w-24' },
+                   { col: 'tempoEntrega', label: 'Tempo', align: 'center', filter: true, width: 'w-20' },
+                  ].map(({ col, label, align, filter, width }) => (
+                   <th key={col} className={`px-2 py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-${align} ${width} whitespace-nowrap`}>
                       <SortableTableHead
                         label={label}
                         column={col}
