@@ -172,7 +172,7 @@ export default function OSItensDocumento({ itens = [], onChange }) {
                     <p className="text-[10px] text-slate-400 mb-0.5">Localização</p>
                     <Input value={item.endereco} onChange={(e) => updateItem(index, 'endereco', e.target.value)} className="h-7 text-xs" placeholder="Endereço" />
                   </div>
-                  <div className="w-20 shrink-0">
+                  <div className="w-24 shrink-0">
                     <p className="text-[10px] text-slate-400 mb-0.5">Saldo</p>
                     <Input type="number" value={item.saldo} onChange={(e) => updateItem(index, 'saldo', parseFloat(e.target.value) || 0)} className="h-7 text-xs" />
                   </div>
@@ -180,7 +180,8 @@ export default function OSItensDocumento({ itens = [], onChange }) {
                     <p className="text-[10px] text-slate-400 mb-0.5">R$ Unit</p>
                     <Input type="number" step="0.01" value={item.r_unit} onChange={(e) => updateItem(index, 'r_unit', parseFloat(e.target.value) || 0)} className="h-7 text-xs" />
                   </div>
-                  <div className="w-24 shrink-0">
+                  {/* R$ Total = UN(52) + gap(8) + Qtd Sep(96) = 156px */}
+                  <div className="shrink-0" style={{width: '156px'}}>
                     <p className="text-[10px] text-slate-400 mb-0.5">R$ Total</p>
                     <p className="text-sm font-semibold text-slate-800 dark:text-white h-7 flex items-center pl-1">
                       R$ {(item.r_total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
