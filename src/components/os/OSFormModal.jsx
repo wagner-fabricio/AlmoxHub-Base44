@@ -116,6 +116,7 @@ export default function OSFormModal({
         responsavel_separacao: os.responsavel_separacao || '',
         data_separacao: formatDateForInput(os.data_separacao),
         data_entrega: formatDateForInput(os.data_entrega),
+        data_necessidade: formatDateForInput(os.data_necessidade),
         anexos: os.anexos || [], imagens: os.imagens || [],
         nfe_numero: os.nfe_numero || '', nfe_serie: os.nfe_serie || '',
         nfe_data_emissao: os.nfe_data_emissao || '', nfe_chave_acesso: os.nfe_chave_acesso || '',
