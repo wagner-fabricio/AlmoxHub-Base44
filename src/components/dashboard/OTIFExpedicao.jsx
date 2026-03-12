@@ -5,6 +5,13 @@ import { Target, Clock, Package, TrendingUp } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
+const safeFormat = (dateStr) => {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '—';
+  return format(d, 'dd/MM/yy');
+};
+
 const COLOR_SUCCESS = '#10b981';
 const COLOR_FAIL = '#ef4444';
 const COLOR_OTIF = '#0000FF';
