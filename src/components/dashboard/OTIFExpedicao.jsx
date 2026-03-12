@@ -362,6 +362,8 @@ export default function OTIFExpedicao({ filteredOrdens, almoxarifados }) {
                 <tr className="bg-slate-50 dark:bg-slate-700/50">
                   <th className="text-left px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Nº OS</th>
                   <th className="text-left px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Almoxarifado</th>
+                  <th className="text-center px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Data Reserva</th>
+                  <th className="text-center px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Data MIGO</th>
                   <th className="text-right px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Qtd Sol.</th>
                   <th className="text-right px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Qtd Sep.</th>
                   <th className="text-center px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Data Necessidade</th>
