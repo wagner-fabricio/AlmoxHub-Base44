@@ -483,7 +483,7 @@ export default function OTIFExpedicao({ filteredOrdens, almoxarifados }) {
                       <td className="px-2 py-2 text-right text-slate-700 dark:text-slate-300">{qtdSep > 0 ? qtdSep.toLocaleString('pt-BR') : '—'}</td>
                       <td className="px-2 py-2 text-center text-slate-600 dark:text-slate-400 whitespace-nowrap">{safeFormat(os.data_necessidade)}</td>
                       <td className="px-2 py-2 text-center text-slate-600 dark:text-slate-400 whitespace-nowrap">{safeFormat(os.data_entrega)}</td>
-                      <td className={`px-3 py-2 text-center ${tempoColor}`}>
+                      <td className={`px-2 py-2 text-center whitespace-nowrap ${tempoColor}`}>
                         {tempoEntrega !== null ? (tempoEntrega === 0 ? 'No prazo' : `${tempoEntrega > 0 ? '+' : ''}${tempoEntrega}d`) : '—'}
                       </td>
                     </tr>
