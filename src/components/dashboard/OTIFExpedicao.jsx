@@ -429,20 +429,35 @@ export default function OTIFExpedicao({ filteredOrdens, almoxarifados }) {
           <div className="overflow-x-auto">
             <table className="w-full text-xs border-collapse">
               <thead>
-                <tr className="bg-slate-50 dark:bg-slate-700/50">
-                  <th className="text-left px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Nº OS</th>
-                  <th className="text-left px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Almoxarifado</th>
-                  <th className="text-center px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Data Reserva</th>
-                  <th className="text-center px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Data MIGO</th>
-                  <th className="text-right px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Qtd Sol.</th>
-                  <th className="text-right px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Qtd Sep.</th>
-                  <th className="text-center px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Data Necessidade</th>
-                  <th className="text-center px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Data Entrega</th>
-                  <th className="text-center px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Tempo Entrega</th>
+                <tr className="bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300">
+                  {[
+                    { col: 'codigo', label: 'Nº OS', align: 'left', filter: false },
+                    { col: 'almox', label: 'Almoxarifado', align: 'left', filter: true },
+                    { col: 'data_reserva', label: 'Data Reserva', align: 'center', filter: true },
+                    { col: 'data_migo', label: 'Data MIGO', align: 'center', filter: true },
+                    { col: 'qtdSol', label: 'Qtd Sol.', align: 'right', filter: false },
+                    { col: 'qtdSep', label: 'Qtd Sep.', align: 'right', filter: false },
+                    { col: 'data_necessidade', label: 'Data Necessidade', align: 'center', filter: true },
+                    { col: 'data_entrega', label: 'Data Entrega', align: 'center', filter: true },
+                    { col: 'tempoEntrega', label: 'Tempo Entrega', align: 'center', filter: true },
+                  ].map(({ col, label, align, filter }) => (
+                    <th key={col} className={`px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-${align}`}>
+                      <SortableTableHead
+                        label={label}
+                        column={col}
+                        sortConfig={sortConfig}
+                        onSort={handleSort}
+                        filterConfig={filter ? columnFilters : null}
+                        onToggleFilter={toggleFilter}
+                        onClearFilter={clearFilter}
+                        getUniqueValues={getUniqueValues}
+                      />
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {osTabela.map(({ os, almox, qtdSol, qtdSep, tempoEntrega }, idx) => {
+                {osTabelaFiltrada.map(({ os, almox, qtdSol, qtdSep, tempoEntrega }, idx) => {
                   let tempoColor = 'text-slate-600 dark:text-slate-400';
                   if (tempoEntrega !== null) {
                     if (tempoEntrega <= 0) tempoColor = 'text-green-600 font-semibold';
