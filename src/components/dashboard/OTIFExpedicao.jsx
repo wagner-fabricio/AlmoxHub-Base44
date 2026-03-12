@@ -142,6 +142,9 @@ export default function OTIFExpedicao({ filteredOrdens, almoxarifados }) {
     }).filter(b => b.count > 0 || b.label === 'On Time');
   }, [entregues]);
 
+  const { sortConfig, handleSort } = useTableSort();
+  const { columnFilters, toggleFilter, clearFilter } = useColumnFilters();
+
   // OS base da tabela (todas com status_separacao e dados relevantes)
   const osTabela = useMemo(() => {
     return filteredOrdens.filter(os => os.status_separacao && os.status_separacao !== 'pendente').map(os => {
