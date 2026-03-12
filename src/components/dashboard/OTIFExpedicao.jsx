@@ -421,7 +421,7 @@ export default function OTIFExpedicao({ filteredOrdens, almoxarifados }) {
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
         <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-4 flex items-center gap-2">
           <div className="w-1 h-5 rounded-full bg-blue-600"></div>
-          OS utilizadas nos indicadores ({osTabela.length})
+          OS utilizadas nos indicadores ({osTabelaFiltrada.length}{osTabelaFiltrada.length !== osTabela.length ? ` de ${osTabela.length}` : ''})
         </h3>
         {osTabela.length === 0 ? (
           <div className="h-24 flex items-center justify-center text-slate-400 text-sm">Nenhuma OS com movimentação encontrada</div>
