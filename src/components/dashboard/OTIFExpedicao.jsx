@@ -544,5 +544,6 @@ export default function OTIFExpedicao({ filteredOrdens, almoxarifados }) {
         onSave={() => setEditingOS(null)}
       />
     )}
+    </>
   );
 }
