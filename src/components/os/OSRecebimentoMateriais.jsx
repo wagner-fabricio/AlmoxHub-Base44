@@ -192,7 +192,10 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData
                 {/* Linha 2: espaço(24) | espaço(112) | Endereço(flex) | R$ Unit.(96) | R$ Total(156) | Delete(92) */}
                 <div className="flex items-center gap-2 px-3 pb-2 border-t border-dashed border-slate-200 dark:border-slate-700 pt-2">
                   <div className="shrink-0 w-6" />
-                  <div className="w-28 shrink-0" />
+                  <div className="w-28 shrink-0">
+                    <p className="text-[10px] text-slate-400 mb-0.5">Nº Série/Referência</p>
+                    <Input value={item.num_serie || ''} onChange={(e) => handleItemChange(index, 'num_serie', e.target.value)} className="h-7 text-xs" placeholder="Nº Série" />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[10px] text-slate-400 mb-0.5">Endereço Armazenagem</p>
                     <Input value={item.endereco_armazenagem || ''} onChange={(e) => handleItemChange(index, 'endereco_armazenagem', e.target.value)} className="h-7 text-xs" placeholder="Ex: A-01-01" />
