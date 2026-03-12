@@ -111,6 +111,22 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData
               Marcar todos como conferidos
             </label>
           )}
+          {itemsComStatus.length > 0 && (
+            <label className="flex items-center gap-1.5 text-xs text-slate-500 cursor-pointer select-none">
+              <Checkbox
+                checked={itemsComStatus.every(i => i.endereco_armazenagem === 'N/A')}
+                onCheckedChange={(checked) => {
+                  const newItens = itens.map(i => ({ ...i, endereco_armazenagem: checked ? 'N/A' : '' }));
+                  const todosCompletos = newItens.every(i => i.status_conferencia === 'completo' || i.status_conferencia === 'excedente');
+                  const novoFluxo = { ...fluxo };
+                  if (checked && todosCompletos) { novoFluxo.armazenagem_completa = true; novoFluxo.etapa_atual = 4; }
+                  else { novoFluxo.armazenagem_completa = false; }
+                  onChange({ itens: newItens, fluxo: novoFluxo });
+                }}
+              />
+              Endereço N/A para todos
+            </label>
+          )}
         </div>
         <Button onClick={addItem} size="sm" className="bg-blue-600 hover:bg-blue-700">
           <Plus className="w-4 h-4 mr-2" /> Adicionar Material
