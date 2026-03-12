@@ -202,14 +202,14 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData
                   </div>
                   <div className="w-24 shrink-0">
                     <p className="text-[10px] text-slate-400 mb-0.5">R$ Unit.</p>
-                    <p className="text-sm font-medium text-slate-800 dark:text-white h-7 flex items-center">
+                    <p className="text-sm font-medium text-slate-800 dark:text-white h-7 flex items-center justify-start pl-1">
                       {(item.valor_unitario || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                     </p>
                   </div>
                   {/* R$ Total = UN(52) + gap(8) + Qtd Rec(96) = 156px */}
                   <div className="shrink-0" style={{width: '156px'}}>
                     <p className="text-[10px] text-slate-400 mb-0.5">R$ Total</p>
-                    <p className="text-sm font-semibold text-slate-800 dark:text-white h-7 flex items-center">
+                    <p className="text-sm font-semibold text-slate-800 dark:text-white h-7 flex items-center justify-start pl-1">
                       {valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                     </p>
                   </div>
