@@ -4,9 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Target, Clock, Package, TrendingUp } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
 import { SortableTableHead, useTableSort, useColumnFilters } from '@/components/ui/table-sortable';
+import { useApp } from '@/components/contexts/AppContext';
+import { base44 } from '@/api/base44Client';
+import OSDetailModal from '@/components/os/OSDetailModal';
+import OSFormModal from '@/components/os/OSFormModal';
 
 const safeFormat = (dateStr) => {
   if (!dateStr) return '—';
