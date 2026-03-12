@@ -713,18 +713,66 @@ export default function OSFormModal({
                 <TabsContent value="expedicao" className="space-y-6">
                   <OSDetalhamentoExpedicao detalhamento={formData.detalhamento_expedicao} onChange={(d) => setFormData(prev => ({ ...prev, detalhamento_expedicao: d }))} os={os} />
                   <div className="border-t pt-6">
-                    <h4 className="font-semibold mb-4">Separação / Expedição</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <h4 className="font-semibold mb-4">Acompanhamento de Entrega</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       <div className="space-y-2">
-                        <Label>Status Separação</Label>
+                        <Label>Status Atendimento</Label>
                         <Select value={formData.status_separacao} onValueChange={(v) => setFormData({ ...formData, status_separacao: v })}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent><SelectItem value="pendente">Pendente</SelectItem><SelectItem value="em_separacao">Em separação</SelectItem><SelectItem value="separado">Separado</SelectItem><SelectItem value="em_rota">Em rota</SelectItem><SelectItem value="entregue">Entregue</SelectItem></SelectContent>
                         </Select>
                       </div>
-                      <div className="space-y-2"><Label>Responsável</Label><Input value={formData.responsavel_separacao} onChange={(e) => setFormData({ ...formData, responsavel_separacao: e.target.value })} /></div>
-                      <div className="space-y-2"><Label>Data Separação</Label><Input type="date" value={formData.data_separacao} onChange={(e) => setFormData({ ...formData, data_separacao: e.target.value })} /></div>
-                      <div className="space-y-2"><Label>Data Entrega</Label><Input type="date" value={formData.data_entrega} onChange={(e) => { const newData = { ...formData, data_entrega: e.target.value }; if (e.target.value) newData.status_separacao = 'entregue'; setFormData(newData); }} /></div>
+                      <div className="space-y-2">
+                        <Label>Data Necessidade</Label>
+                        <Input type="date" value={formData.data_necessidade} onChange={(e) => setFormData({ ...formData, data_necessidade: e.target.value })} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Data Entrega</Label>
+                        <Input
+                          type="date"
+                          value={formData.data_entrega}
+                          disabled={!formData.data_necessidade}
+                          title={!formData.data_necessidade ? 'Preencha a Data Necessidade primeiro' : ''}
+                          onChange={(e) => {
+                            const newData = { ...formData, data_entrega: e.target.value };
+                            if (e.target.value) newData.status_separacao = 'entregue';
+                            setFormData(newData);
+                          }}
+                        />
+                        {!formData.data_necessidade && <p className="text-xs text-amber-600">Preencha a Data Necessidade primeiro</p>}
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Tempo Entrega</Label>
+                        <div className="h-9 flex items-center px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-sm text-slate-700 dark:text-slate-300">
+                          {(() => {
+                            if (!formData.data_entrega || !formData.data_necessidade) return <span className="text-slate-400">—</span>;
+                            const d1 = new Date(formData.data_necessidade);
+                            const d2 = new Date(formData.data_entrega);
+                            const diff = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+                            if (diff === 0) return <span>0 dias</span>;
+                            return <span>{diff > 0 ? `+${diff}` : diff} dias</span>;
+                          })()}
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Pontualidade</Label>
+                        <div className="h-9 flex items-center px-3 rounded-md text-sm font-medium border">
+                          {(() => {
+                            if (!formData.data_entrega && !formData.data_necessidade) {
+                              return <span className="text-yellow-700 bg-yellow-50 dark:bg-yellow-900/20 dark:text-yellow-300 w-full text-center py-0.5 px-2 rounded">Pendente</span>;
+                            }
+                            if (formData.data_entrega && formData.data_necessidade) {
+                              const necessidade = new Date(formData.data_necessidade);
+                              const entrega = new Date(formData.data_entrega);
+                              if (entrega > necessidade) {
+                                return <span className="text-red-700 bg-red-50 dark:bg-red-900/20 dark:text-red-300 w-full text-center py-0.5 px-2 rounded">Entregue fora do prazo</span>;
+                              }
+                              return <span className="text-green-700 bg-green-50 dark:bg-green-900/20 dark:text-green-300 w-full text-center py-0.5 px-2 rounded">Entregue no prazo</span>;
+                            }
+                            return <span className="text-yellow-700 bg-yellow-50 dark:bg-yellow-900/20 dark:text-yellow-300 w-full text-center py-0.5 px-2 rounded">Pendente</span>;
+                          })()}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </TabsContent>
