@@ -509,7 +509,6 @@ export default function OTIFExpedicao({ filteredOrdens, almoxarifados }) {
         )}
       </div>
     </div>
-    </div>
 
     {selectedOS && (
       <OSDetailModal
