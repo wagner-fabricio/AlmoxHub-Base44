@@ -714,7 +714,7 @@ export default function OSFormModal({
                   <OSDetalhamentoExpedicao detalhamento={formData.detalhamento_expedicao} onChange={(d) => setFormData(prev => ({ ...prev, detalhamento_expedicao: d }))} os={os} />
                   <div className="border-t pt-6">
                     <h4 className="font-semibold mb-4">Acompanhamento de Entrega</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
                       <div className="space-y-2">
                         <Label>Status Atendimento</Label>
                         <Select value={formData.status_separacao} onValueChange={(v) => setFormData({ ...formData, status_separacao: v })}>
