@@ -1,194 +1,274 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Trash2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Plus, Trash2, PackageCheck } from 'lucide-react';
+
+function getStatusSeparacao(item) {
+  const qtdSol = item.quantidade || 0;
+  const qtdSep = item.quantidade_separada || 0;
+  if (item.separado || qtdSep >= qtdSol && qtdSol > 0) return 'separado';
+  if (qtdSep > 0) return 'parcial';
+  return 'pendente';
+}
+
+function StatusBadge({ item }) {
+  const status = getStatusSeparacao(item);
+  const map = {
+    separado: 'bg-green-100 text-green-700 border-green-200',
+    parcial: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+    pendente: 'bg-slate-100 text-slate-600 border-slate-200',
+  };
+  const labels = { separado: 'Separado', parcial: 'Parcial', pendente: 'Pendente' };
+  return (
+    <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${map[status]}`}>
+      {labels[status]}
+    </span>
+  );
+}
 
 export default function OSItensDocumento({ itens = [], onChange }) {
   const addItem = () => {
     onChange([...itens, {
-      codigo: '',
-      descricao: '',
-      quantidade: 0,
-      unidade: 'UN',
-      r_unit: 0,
-      r_total: 0,
-      deposito: '',
-      endereco: '',
-      saldo: 0,
-      seguravel: false,
-      separado: false,
+      codigo: '', descricao: '', quantidade: 0, unidade: 'UN',
+      r_unit: 0, r_total: 0, deposito: '', endereco: '',
+      saldo: 0, seguravel: false, separado: false, quantidade_separada: 0,
     }]);
   };
 
   const updateItem = (index, field, value) => {
     const newItens = [...itens];
     newItens[index] = { ...newItens[index], [field]: value };
-    
-    // Calculate r_total
     if (field === 'quantidade' || field === 'r_unit') {
       newItens[index].r_total = (newItens[index].quantidade || 0) * (newItens[index].r_unit || 0);
     }
-    
+    // Auto-marcar separado se qtd_separada >= quantidade
+    if (field === 'quantidade_separada') {
+      const qtdSep = parseFloat(value) || 0;
+      const qtdSol = newItens[index].quantidade || 0;
+      if (qtdSol > 0 && qtdSep >= qtdSol) {
+        newItens[index].separado = true;
+      } else {
+        newItens[index].separado = false;
+      }
+    }
     onChange(newItens);
   };
 
-  const removeItem = (index) => {
-    onChange(itens.filter((_, i) => i !== index));
-  };
+  const removeItem = (index) => onChange(itens.filter((_, i) => i !== index));
 
-  const totalQuantidade = itens.reduce((sum, item) => sum + (item.quantidade || 0), 0);
   const totalValor = itens.reduce((sum, item) => sum + (item.r_total || 0), 0);
+  const totalSeparados = itens.filter(i => getStatusSeparacao(i) === 'separado').length;
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="font-semibold text-slate-900 dark:text-white">Detalhamento dos Materiais</h4>
+        <div className="flex items-center gap-3">
+          <h4 className="font-semibold text-slate-900 dark:text-white">Detalhamento dos Materiais</h4>
+          {itens.length > 0 && (
+            <span className="text-xs text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full">
+              {totalSeparados}/{itens.length} separados
+            </span>
+          )}
+        </div>
         <Button onClick={addItem} size="sm">
           <Plus className="w-4 h-4 mr-2" /> Inserir Item
         </Button>
       </div>
 
-      <div className="border rounded-xl overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-slate-50 dark:bg-slate-800">
-              <TableHead className="w-12 text-center">
-                <Checkbox
-                  checked={itens.length > 0 && itens.every(item => item.separado)}
-                  onCheckedChange={(checked) => {
-                    onChange(itens.map(item => ({ ...item, separado: checked })));
-                  }}
-                  className="accent-green-600"
-                />
-              </TableHead>
-              <TableHead className="w-24">Código</TableHead>
-              <TableHead>Descrição</TableHead>
-              <TableHead className="w-20">Qtd</TableHead>
-              <TableHead className="w-16">UN</TableHead>
-              <TableHead className="w-24">R$ Unit</TableHead>
-              <TableHead className="w-24">R$ Total</TableHead>
-              <TableHead className="w-24">Depósito</TableHead>
-              <TableHead className="w-24">Localização</TableHead>
-              <TableHead className="w-20">Saldo</TableHead>
-              <TableHead className="w-20">Segurável</TableHead>
-              <TableHead className="w-12"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {itens.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={12} className="text-center py-8 text-slate-500">
-                  Nenhum item adicionado. Clique em "Inserir Item" para começar.
-                </TableCell>
-              </TableRow>
-            ) : (
-              itens.map((item, index) => (
-                <TableRow key={index} className={item.separado ? 'bg-green-50 dark:bg-green-900/10' : ''}>
-                  <TableCell className="text-center">
+      {/* Header Row */}
+      {itens.length > 0 && (
+        <div className="hidden md:grid grid-cols-[32px_1fr_80px_60px_90px_90px_90px_80px_80px_70px_60px_40px] gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+          <div className="flex justify-center">
+            <Checkbox
+              checked={itens.every(i => i.separado)}
+              onCheckedChange={(checked) => onChange(itens.map(i => ({ ...i, separado: checked, quantidade_separada: checked ? i.quantidade : 0 })))}
+            />
+          </div>
+          <span>Código / Descrição</span>
+          <span>Qtd Sol.</span>
+          <span>UN</span>
+          <span>R$ Unit</span>
+          <span>R$ Total</span>
+          <span>Qtd Sep.</span>
+          <span>Status</span>
+          <span>Depósito</span>
+          <span>Localiz.</span>
+          <span>Saldo</span>
+          <span></span>
+        </div>
+      )}
+
+      {/* Items */}
+      <div className="space-y-2">
+        {itens.length === 0 ? (
+          <div className="text-center py-10 text-slate-400 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
+            <PackageCheck className="w-8 h-8 mx-auto mb-2 opacity-40" />
+            <p className="text-sm">Nenhum item adicionado. Clique em "Inserir Item" para começar.</p>
+          </div>
+        ) : (
+          itens.map((item, index) => {
+            const status = getStatusSeparacao(item);
+            return (
+              <div
+                key={index}
+                className={`rounded-xl border transition-colors ${
+                  status === 'separado'
+                    ? 'border-green-200 bg-green-50/50 dark:bg-green-900/10 dark:border-green-800'
+                    : status === 'parcial'
+                    ? 'border-yellow-200 bg-yellow-50/30 dark:bg-yellow-900/10 dark:border-yellow-800'
+                    : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900'
+                }`}
+              >
+                {/* Linha 1: Identificação + Separação */}
+                <div className="grid grid-cols-[32px_1fr_80px_60px_100px_100px_100px_90px_40px] gap-2 items-center px-3 py-2">
+                  <div className="flex justify-center">
                     <Checkbox
                       checked={item.separado || false}
-                      onCheckedChange={(v) => updateItem(index, 'separado', v)}
-                      className="accent-green-600"
+                      onCheckedChange={(v) => {
+                        const newItens = [...itens];
+                        newItens[index] = { ...newItens[index], separado: v, quantidade_separada: v ? newItens[index].quantidade : 0 };
+                        onChange(newItens);
+                      }}
                     />
-                  </TableCell>
-                  <TableCell>
+                  </div>
+                  {/* Código + Descrição empilhados */}
+                  <div className="min-w-0">
                     <Input
                       value={item.codigo}
                       onChange={(e) => updateItem(index, 'codigo', e.target.value)}
-                      className="h-8"
+                      className="h-7 text-xs font-mono mb-1"
+                      placeholder="Código"
                     />
-                  </TableCell>
-                  <TableCell>
                     <Input
                       value={item.descricao}
                       onChange={(e) => updateItem(index, 'descricao', e.target.value)}
-                      className="h-8"
+                      className="h-7 text-xs"
+                      placeholder="Descrição"
                     />
-                  </TableCell>
-                  <TableCell>
+                  </div>
+                  {/* Qtd Solicitada */}
+                  <div>
+                    <p className="text-[10px] text-slate-400 mb-0.5">Qtd Sol.</p>
                     <Input
                       type="number"
                       value={item.quantidade}
                       onChange={(e) => updateItem(index, 'quantidade', parseFloat(e.target.value) || 0)}
-                      className="h-8"
+                      className="h-7 text-xs"
                     />
-                  </TableCell>
-                  <TableCell>
+                  </div>
+                  {/* UN */}
+                  <div>
+                    <p className="text-[10px] text-slate-400 mb-0.5">UN</p>
                     <Input
                       value={item.unidade}
                       onChange={(e) => updateItem(index, 'unidade', e.target.value)}
-                      className="h-8"
+                      className="h-7 text-xs"
                     />
-                  </TableCell>
-                  <TableCell>
+                  </div>
+                  {/* R$ Unit */}
+                  <div>
+                    <p className="text-[10px] text-slate-400 mb-0.5">R$ Unit</p>
                     <Input
-                      type="number"
-                      step="0.01"
+                      type="number" step="0.01"
                       value={item.r_unit}
                       onChange={(e) => updateItem(index, 'r_unit', parseFloat(e.target.value) || 0)}
-                      className="h-8"
+                      className="h-7 text-xs"
                     />
-                  </TableCell>
-                  <TableCell>
-                    <span className="font-medium text-slate-900 dark:text-white">
+                  </div>
+                  {/* R$ Total */}
+                  <div>
+                    <p className="text-[10px] text-slate-400 mb-0.5">R$ Total</p>
+                    <p className="text-sm font-semibold text-slate-800 dark:text-white pl-1">
                       R$ {(item.r_total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </span>
-                  </TableCell>
-                  <TableCell>
+                    </p>
+                  </div>
+                  {/* Qtd Separada */}
+                  <div>
+                    <p className="text-[10px] text-slate-400 mb-0.5">Qtd Sep.</p>
+                    <Input
+                      type="number"
+                      value={item.quantidade_separada || 0}
+                      onChange={(e) => updateItem(index, 'quantidade_separada', parseFloat(e.target.value) || 0)}
+                      className="h-7 text-xs"
+                    />
+                  </div>
+                  {/* Status */}
+                  <div>
+                    <p className="text-[10px] text-slate-400 mb-0.5">Status</p>
+                    <StatusBadge item={item} />
+                  </div>
+                  {/* Delete */}
+                  <Button variant="ghost" size="icon" className="h-8 w-8 mt-3" onClick={() => removeItem(index)}>
+                    <Trash2 className="w-4 h-4 text-red-400" />
+                  </Button>
+                </div>
+
+                {/* Linha 2: Localização */}
+                <div className="grid grid-cols-[32px_1fr_1fr_1fr_80px_40px] gap-2 items-center px-3 pb-2 border-t border-dashed border-slate-200 dark:border-slate-700 pt-2">
+                  <div />
+                  <div>
+                    <p className="text-[10px] text-slate-400 mb-0.5">Depósito</p>
                     <Input
                       value={item.deposito || ''}
                       onChange={(e) => updateItem(index, 'deposito', e.target.value)}
-                      className="h-8"
+                      className="h-7 text-xs"
+                      placeholder="Depósito"
                     />
-                  </TableCell>
-                  <TableCell>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 mb-0.5">Localização</p>
                     <Input
                       value={item.endereco}
                       onChange={(e) => updateItem(index, 'endereco', e.target.value)}
-                      className="h-8"
+                      className="h-7 text-xs"
+                      placeholder="Endereço"
                     />
-                  </TableCell>
-                  <TableCell>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 mb-0.5">Saldo</p>
                     <Input
                       type="number"
                       value={item.saldo}
                       onChange={(e) => updateItem(index, 'saldo', parseFloat(e.target.value) || 0)}
-                      className="h-8"
+                      className="h-7 text-xs"
                     />
-                  </TableCell>
-                  <TableCell className="text-center">
+                  </div>
+                  <div className="flex flex-col items-center gap-1">
+                    <p className="text-[10px] text-slate-400">Segurável</p>
                     <Checkbox
                       checked={item.seguravel}
                       onCheckedChange={(v) => updateItem(index, 'seguravel', v)}
                     />
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="icon" onClick={() => removeItem(index)}>
-                      <Trash2 className="w-4 h-4 text-red-500" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+                  </div>
+                  <div />
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* Totais */}
-      <div className="flex justify-end gap-8 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
-        <div className="text-right">
-          <p className="text-sm text-slate-500">Total de Itens</p>
-          <p className="text-lg font-bold text-slate-900 dark:text-white">{totalQuantidade}</p>
+      {itens.length > 0 && (
+        <div className="flex justify-end gap-8 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
+          <div className="text-right">
+            <p className="text-sm text-slate-500">Total de Itens</p>
+            <p className="text-lg font-bold text-slate-900 dark:text-white">{itens.length}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-slate-500">Separados</p>
+            <p className="text-lg font-bold text-green-600">{totalSeparados}/{itens.length}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-slate-500">Valor Total</p>
+            <p className="text-lg font-bold text-blue-600">
+              R$ {totalValor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </p>
+          </div>
         </div>
-        <div className="text-right">
-          <p className="text-sm text-slate-500">Valor Total</p>
-          <p className="text-lg font-bold text-blue-600">
-            R$ {totalValor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-          </p>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
