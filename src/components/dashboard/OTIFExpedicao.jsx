@@ -110,6 +110,44 @@ export default function OTIFExpedicao({ filteredOrdens, almoxarifados }) {
 
   const temDados = entregues.length > 0;
 
+  // Tempo de entrega (dias entre data_necessidade e data_entrega; negativo = adiantado)
+  const distribuicaoTempoEntrega = useMemo(() => {
+    const buckets = [
+      { label: '-15d to -10d', min: -Infinity, max: -10 },
+      { label: '-10d to -5d', min: -10, max: -5 },
+      { label: '-5d to -1d', min: -5, max: -1 },
+      { label: 'On Time', min: -1, max: 0 },
+      { label: '1d - 5d', min: 0, max: 5 },
+      { label: '5d - 10d', min: 5, max: 10 },
+      { label: '10d - 15d', min: 10, max: 15 },
+      { label: 'more than 15d', min: 15, max: Infinity },
+    ];
+    const osComDatas = entregues.filter(os => os.data_entrega && os.data_necessidade);
+    const total = osComDatas.length;
+    if (total === 0) return [];
+    return buckets.map(b => {
+      const count = osComDatas.filter(os => {
+        const dias = differenceInDays(new Date(os.data_entrega), new Date(os.data_necessidade));
+        return dias > b.min && dias <= b.max;
+      }).length;
+      return { label: b.label, pct: total > 0 ? Math.round((count / total) * 100) : 0, count, isOnTime: b.label === 'On Time' };
+    }).filter(b => b.count > 0 || b.label === 'On Time');
+  }, [entregues]);
+
+  // OS base da tabela (todas com status_separacao e dados relevantes)
+  const osTabela = useMemo(() => {
+    return filteredOrdens.filter(os => os.status_separacao && os.status_separacao !== 'pendente').map(os => {
+      const itens = os.itens_documento || [];
+      const qtdSol = itens.reduce((s, i) => s + (i.quantidade || 0), 0);
+      const qtdSep = itens.reduce((s, i) => s + (i.quantidade_separada || 0), 0);
+      const tempoEntrega = (os.data_entrega && os.data_necessidade)
+        ? differenceInDays(new Date(os.data_entrega), new Date(os.data_necessidade))
+        : null;
+      const almox = almoxarifados.find(a => a.id === os.almoxarifado_id);
+      return { os, almox, qtdSol, qtdSep, tempoEntrega };
+    });
+  }, [filteredOrdens, almoxarifados]);
+
   return (
     <div className="space-y-6">
       {/* KPI Cards */}
