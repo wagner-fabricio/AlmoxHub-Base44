@@ -234,7 +234,7 @@ export default function OTIFExpedicao({ filteredOrdens, almoxarifados }) {
   };
 
   return (
-    <div className="space-y-6">
+    <>
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="rounded-2xl p-5 shadow-lg" style={{ background: 'linear-gradient(135deg, #0000FF 0%, #0A003C 100%)' }}>
