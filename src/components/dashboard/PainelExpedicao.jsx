@@ -231,6 +231,8 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados }) {
   const [selectedOS, setSelectedOS] = useState(null);
   const [editingOS, setEditingOS] = useState(null);
   const [showHelp, setShowHelp] = useState(false);
+  const [tabelaPage, setTabelaPage] = useState(1);
+  const TABELA_PAGE_SIZE = 200;
   const [instalacoes, setInstalacoes] = useState([]);
   const [projetos, setProjetos] = useState([]);
 
