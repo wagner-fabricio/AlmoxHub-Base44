@@ -763,6 +763,25 @@ export default function PainelRecebimento({
       })()}
 
       <HelpModalRecebimento open={showHelp} onClose={() => setShowHelp(false)} />
+
+      {selectedOS && (
+        <OSDetailModal
+          open={!!selectedOS}
+          onClose={() => setSelectedOS(null)}
+          os={selectedOS}
+          regionais={regionais}
+          almoxarifados={almoxarifados}
+          pessoas={pessoas}
+          categorias={categorias}
+          subcategorias={subcategorias}
+          instalacoes={instalacoes}
+          projetos={projetos}
+          onEdit={() => setSelectedOS(null)}
+          onDelete={() => setSelectedOS(null)}
+          canDelete={false}
+          onRefresh={() => {}}
+        />
+      )}
     </div>
   );
 }
