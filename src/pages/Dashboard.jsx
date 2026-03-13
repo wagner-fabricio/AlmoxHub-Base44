@@ -429,7 +429,7 @@ export default function Dashboard() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas Regionais</SelectItem>
-              {regionais.map(r => (
+              {[...regionais].sort((a, b) => a.sigla.localeCompare(b.sigla)).map(r => (
                 <SelectItem key={r.id} value={r.id}>{r.sigla}</SelectItem>
               ))}
             </SelectContent>
