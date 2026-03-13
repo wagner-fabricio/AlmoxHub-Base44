@@ -643,11 +643,101 @@ export default function PainelRecebimento({
           if (!d) return '—';
           try { return format(new Date(d), 'dd/MM/yy', { locale: ptBR }); } catch { return '—'; }
         };
-        const totalPages = Math.max(1, Math.ceil(osReceb.length / TABELA_PAGE_SIZE));
+
+        // Build enriched rows
+        const osTabela = osReceb.map(os => {
+          const almox = almoxarifados.find(a => a.id === os.almoxarifado_id);
+          const ltrDias = os.nfe_data_receb && os.data_migo_receb
+            ? Math.max(0, differenceInDays(new Date(os.data_migo_receb), new Date(os.nfe_data_receb)))
+            : null;
+          const tmrpDias = os.data_solucao && os.data_recebimento
+            ? Math.abs(differenceInDays(new Date(os.data_solucao), new Date(os.data_recebimento)))
+            : null;
+          const itens = os.nfe_itens_conferencia || [];
+          const itensComp = itens.filter(i => i.status_conferencia === 'completo').length;
+          const tacPct = itens.length > 0 ? Math.round((itensComp / itens.length) * 100) : null;
+          const armazenado = os.fluxo_recebimento?.armazenagem_completa === true;
+          const temProblema = os.problema_recebimento === true;
+          return { os, almox, ltrDias, tmrpDias, itens, itensComp, tacPct, armazenado, temProblema };
+        });
+
+        const getUniqueValues = (col) => {
+          const vals = osTabela.map(({ os, almox, ltrDias, tmrpDias, tacPct, armazenado, temProblema }) => {
+            if (col === 'almox') return almox?.nome || '—';
+            if (col === 'nfe_data_receb') return safeF(os.nfe_data_receb);
+            if (col === 'data_migo_receb') return safeF(os.data_migo_receb);
+            if (col === 'ltrDias') return ltrDias !== null ? `${ltrDias}d` : '—';
+            if (col === 'data_recebimento') return safeF(os.data_recebimento);
+            if (col === 'armazenado') return armazenado ? 'Sim' : 'Não';
+            if (col === 'temProblema') return temProblema ? 'Sim' : 'Não';
+            if (col === 'data_solucao') return safeF(os.data_solucao);
+            if (col === 'tmrpDias') return tmrpDias !== null ? `${tmrpDias}d` : '—';
+            if (col === 'tacPct') return tacPct !== null ? `${tacPct}%` : '—';
+            return '—';
+          });
+          return [...new Set(vals)].sort();
+        };
+
+        // Filter
+        let rows = [...osTabela];
+        Object.entries(columnFilters).forEach(([col, values]) => {
+          if (!values || values.length === 0) return;
+          rows = rows.filter(({ os, almox, ltrDias, tmrpDias, tacPct, armazenado, temProblema }) => {
+            if (col === 'almox') return values.includes(almox?.nome || '—');
+            if (col === 'nfe_data_receb') return values.includes(safeF(os.nfe_data_receb));
+            if (col === 'data_migo_receb') return values.includes(safeF(os.data_migo_receb));
+            if (col === 'ltrDias') return values.includes(ltrDias !== null ? `${ltrDias}d` : '—');
+            if (col === 'data_recebimento') return values.includes(safeF(os.data_recebimento));
+            if (col === 'armazenado') return values.includes(armazenado ? 'Sim' : 'Não');
+            if (col === 'temProblema') return values.includes(temProblema ? 'Sim' : 'Não');
+            if (col === 'data_solucao') return values.includes(safeF(os.data_solucao));
+            if (col === 'tmrpDias') return values.includes(tmrpDias !== null ? `${tmrpDias}d` : '—');
+            if (col === 'tacPct') return values.includes(tacPct !== null ? `${tacPct}%` : '—');
+            return true;
+          });
+        });
+
+        // Sort
+        if (sortConfig.column && sortConfig.direction) {
+          rows.sort((a, b) => {
+            const col = sortConfig.column;
+            let va, vb;
+            if (col === 'codigo') { va = a.os.codigo || ''; vb = b.os.codigo || ''; }
+            else if (col === 'almox') { va = a.almox?.nome || ''; vb = b.almox?.nome || ''; }
+            else if (col === 'nfe_data_receb') { va = a.os.nfe_data_receb || ''; vb = b.os.nfe_data_receb || ''; }
+            else if (col === 'data_migo_receb') { va = a.os.data_migo_receb || ''; vb = b.os.data_migo_receb || ''; }
+            else if (col === 'ltrDias') { va = a.ltrDias ?? Infinity; vb = b.ltrDias ?? Infinity; }
+            else if (col === 'data_recebimento') { va = a.os.data_recebimento || ''; vb = b.os.data_recebimento || ''; }
+            else if (col === 'tmrpDias') { va = a.tmrpDias ?? Infinity; vb = b.tmrpDias ?? Infinity; }
+            else if (col === 'tacPct') { va = a.tacPct ?? -1; vb = b.tacPct ?? -1; }
+            else { va = ''; vb = ''; }
+            if (va < vb) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (va > vb) return sortConfig.direction === 'asc' ? 1 : -1;
+            return 0;
+          });
+        }
+
+        const totalPages = Math.max(1, Math.ceil(rows.length / TABELA_PAGE_SIZE));
         const safePage = Math.min(tabelaPage, totalPages);
-        const pageRows = osReceb.slice((safePage - 1) * TABELA_PAGE_SIZE, safePage * TABELA_PAGE_SIZE);
+        const pageRows = rows.slice((safePage - 1) * TABELA_PAGE_SIZE, safePage * TABELA_PAGE_SIZE);
         const startRow = (safePage - 1) * TABELA_PAGE_SIZE + 1;
-        const endRow = Math.min(safePage * TABELA_PAGE_SIZE, osReceb.length);
+        const endRow = Math.min(safePage * TABELA_PAGE_SIZE, rows.length);
+
+        const COLS = [
+          { col: 'codigo',          label: 'Nº OS',        filter: false, width: 'min-w-[160px]' },
+          { col: 'almox',           label: 'Almoxarifado', filter: true,  width: 'w-36' },
+          { col: 'nfe_data_receb',  label: 'NF-e Receb.',  filter: true,  width: 'w-24' },
+          { col: 'data_migo_receb', label: 'MIGO Receb.',  filter: true,  width: 'w-24' },
+          { col: 'ltrDias',         label: 'LTR (d)',      filter: true,  width: 'w-20' },
+          { col: 'data_recebimento',label: 'Recebimento',  filter: true,  width: 'w-24' },
+          { col: 'armazenado',      label: 'Armazenagem',  filter: true,  width: 'w-24' },
+          { col: 'temProblema',     label: 'Problema?',    filter: true,  width: 'w-22' },
+          { col: 'data_solucao',    label: 'Solução',      filter: true,  width: 'w-24' },
+          { col: 'tmrpDias',        label: 'TMRP (d)',     filter: true,  width: 'w-20' },
+          { col: 'itensConf',       label: 'Itens Conf.',  filter: false, width: 'w-20' },
+          { col: 'completos',       label: 'Completos',    filter: false, width: 'w-20' },
+          { col: 'tacPct',          label: 'TAC %',        filter: true,  width: 'w-16' },
+        ];
 
         return (
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
@@ -655,10 +745,12 @@ export default function PainelRecebimento({
               <div>
                 <h3 className="text-base font-semibold text-slate-900 dark:text-white">
                   Dados dos Indicadores
-                  <span className="ml-2 text-sm font-normal text-slate-500">({osReceb.length} OS)</span>
+                  <span className="ml-2 text-sm font-normal text-slate-500">
+                    ({rows.length}{rows.length !== osReceb.length ? ` de ${osReceb.length}` : ''} OS)
+                  </span>
                 </h3>
-                {osReceb.length > 0 && (
-                  <p className="text-xs text-slate-400 mt-0.5">Exibindo {startRow}–{endRow} de {osReceb.length}</p>
+                {rows.length > 0 && (
+                  <p className="text-xs text-slate-400 mt-0.5">Exibindo {startRow}–{endRow} de {rows.length}</p>
                 )}
               </div>
               {totalPages > 1 && (
@@ -689,42 +781,28 @@ export default function PainelRecebimento({
               <table className="w-full text-xs border-collapse">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300">
-                    {[
-                      'Nº OS', 'Almoxarifado', 'NF-e Receb.', 'Data MIGO', 'LTR (d)',
-                      'Recebimento', 'Armazenagem', 'Problema?', 'Solução', 'TMRP (d)',
-                      'Itens Conf.', 'Completos', 'TAC %'
-                    ].map(h => (
-                      <th key={h} className="px-2 py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-left whitespace-nowrap">{h}</th>
+                    {COLS.map(({ col, label, filter, width }) => (
+                      <th key={col} className={`px-2 py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-left ${width} whitespace-nowrap`}>
+                        <SortableTableHead label={label} column={col} sortConfig={sortConfig} onSort={handleSort}
+                          filterConfig={filter ? columnFilters : null}
+                          onToggleFilter={toggleFilter} onClearFilter={clearFilter} getUniqueValues={getUniqueValues} />
+                      </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {pageRows.map((os, idx) => {
-                    const almox = almoxarifados.find(a => a.id === os.almoxarifado_id);
-                    const ltrDias = os.nfe_data_receb && os.data_migo_receb
-                      ? Math.max(0, differenceInDays(new Date(os.data_migo_receb), new Date(os.nfe_data_receb)))
-                      : null;
-                    const tmrpDias = os.data_solucao && os.data_recebimento
-                      ? Math.abs(differenceInDays(new Date(os.data_solucao), new Date(os.data_recebimento)))
-                      : null;
-                    const itens = os.nfe_itens_conferencia || [];
-                    const itensComp = itens.filter(i => i.status_conferencia === 'completo').length;
-                    const tacPct = itens.length > 0 ? Math.round((itensComp / itens.length) * 100) : null;
-                    const armazenado = os.fluxo_recebimento?.armazenagem_completa === true;
-                    const temProblema = os.problema_recebimento === true;
-
+                  {pageRows.map(({ os, almox, ltrDias, tmrpDias, itens, itensComp, tacPct, armazenado, temProblema }, idx) => {
                     const ltrColor = ltrDias === null ? '' : ltrDias <= 3 ? 'text-green-600 font-semibold' : ltrDias <= 7 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold';
                     const tmrpColor = tmrpDias === null ? '' : tmrpDias <= 3 ? 'text-green-600 font-semibold' : tmrpDias <= 7 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold';
                     const tacColor = tacPct === null ? '' : tacPct >= 95 ? 'text-green-600 font-semibold' : tacPct >= 80 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold';
-
                     return (
                       <tr key={os.id} className={`border-b border-slate-100 dark:border-slate-700/50 ${idx % 2 !== 0 ? 'bg-slate-50/50 dark:bg-slate-700/20' : ''} hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors`}>
-                        <td className="px-2 py-2 whitespace-nowrap">
+                        <td className="px-2 py-2 whitespace-nowrap min-w-[160px]">
                           <button onClick={() => setSelectedOS(os)} className="font-mono text-blue-600 dark:text-blue-400 hover:underline text-left">
                             {os.codigo || os.id?.substring(0, 8)}
                           </button>
                         </td>
-                        <td className="px-2 py-2 max-w-[140px] truncate text-slate-700 dark:text-slate-300">{almox?.nome || '—'}</td>
+                        <td className="px-2 py-2 max-w-[144px] truncate text-slate-700 dark:text-slate-300">{almox?.nome || '—'}</td>
                         <td className="px-2 py-2 text-center whitespace-nowrap">{safeF(os.nfe_data_receb)}</td>
                         <td className="px-2 py-2 text-center whitespace-nowrap">{safeF(os.data_migo_receb)}</td>
                         <td className={`px-2 py-2 text-center whitespace-nowrap ${ltrColor}`}>{ltrDias !== null ? `${ltrDias}d` : '—'}</td>
