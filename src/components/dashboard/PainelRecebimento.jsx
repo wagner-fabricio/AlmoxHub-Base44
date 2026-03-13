@@ -57,6 +57,103 @@ const TOOLTIP_STYLE = {
 const STATUS_COLORS = { completo: '#10b981', parcial: '#f59e0b', pendente: '#94a3b8', excedente: '#ef4444' };
 const STATUS_LABELS = { completo: 'Completo', parcial: 'Parcial', pendente: 'Pendente', excedente: 'Excedente' };
 
+// ─── Help Modal ──────────────────────────────────────────────────────────────
+function HelpModalRecebimento({ open, onClose }) {
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-lg font-bold flex items-center gap-2">
+            <HelpCircle className="w-5 h-5 text-blue-500" />
+            Guia de Indicadores — Painel de Recebimento
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-5 text-sm">
+
+          {[
+            {
+              num: 1, sigla: 'TCR', titulo: 'Taxa de Conformidade no Recebimento',
+              desc: 'Percentual de OS de recebimento sem ocorrência de problema registrado.',
+              formula: 'TCR = ((Total OS − OS com Problema) / Total OS) × 100',
+              semaforo: [['≥ 90%', 'Excelente', 'green'], ['75–90%', 'Atenção', 'yellow'], ['< 75%', 'Crítico', 'red']],
+              exemplo: '90 OS sem problema de 100 → TCR = 90%'
+            },
+            {
+              num: 2, sigla: 'TAC', titulo: 'Taxa de Acuracidade na Conferência',
+              desc: 'Percentual de itens conferidos com status "completo" em relação ao total de itens conferidos.',
+              formula: 'TAC = (Itens com status_conferencia = "completo" / Total Itens) × 100',
+              semaforo: [['≥ 95%', 'Excelente', 'green'], ['80–95%', 'Bom', 'blue'], ['< 80%', 'Crítico', 'red']],
+              exemplo: '190 itens completos de 200 conferidos → TAC = 95%'
+            },
+            {
+              num: 3, sigla: 'LTR', titulo: 'Lead Time de Recebimento',
+              desc: 'Tempo médio em dias entre a data da NF-e de recebimento e o lançamento do MIGO (entrada no SAP).',
+              formula: 'LTR = Média(data_migo_receb − nfe_data_receb) em dias',
+              semaforo: [['≤ 3d', 'Ágil', 'green'], ['4–7d', 'Atenção', 'yellow'], ['> 7d', 'Lento', 'red']],
+              exemplo: 'NF-e em 01/03, MIGO em 04/03 → LTR = 3 dias'
+            },
+            {
+              num: 4, sigla: 'TCF', titulo: 'Taxa de Conclusão do Fluxo',
+              desc: 'Percentual de OS que completaram todas as etapas do fluxo de recebimento (incluindo armazenagem).',
+              formula: 'TCF = (OS com fluxo_recebimento.armazenagem_completa = true / Total OS) × 100',
+              exemplo: '60 OS com armazenagem finalizada de 100 → TCF = 60%'
+            },
+            {
+              num: 5, sigla: 'TDQ', titulo: 'Taxa de Divergência de Quantidade',
+              desc: 'Percentual de itens com discrepância entre quantidade esperada e recebida (status parcial ou excedente).',
+              formula: 'TDQ = (Itens parcial + excedente / Total Itens) × 100',
+              semaforo: [['≤ 5%', 'Excelente', 'green'], ['5–15%', 'Atenção', 'yellow'], ['> 15%', 'Crítico', 'red']],
+              exemplo: '20 itens divergentes de 200 → TDQ = 10%'
+            },
+            {
+              num: 6, sigla: 'Backlog', titulo: 'Backlog de Recebimento',
+              desc: 'Quantidade de OS que possuem NF-e registrada mas ainda não tiveram o MIGO lançado — ou seja, estão pendentes de entrada no SAP.',
+              formula: 'Backlog = Σ OS com nfe_data_receb preenchida e data_migo_receb em branco',
+              exemplo: '8 NF-es recebidas sem MIGO → Backlog = 8'
+            },
+            {
+              num: 7, sigla: 'IRP', titulo: 'Índice de Resolução de Problemas',
+              desc: 'Percentual de OS com problemas de recebimento que já foram solucionados (data_solucao preenchida).',
+              formula: 'IRP = (OS com problema E data_solucao / Total OS com problema) × 100',
+              semaforo: [['≥ 80%', 'Bom', 'green'], ['50–80%', 'Atenção', 'yellow'], ['< 50%', 'Crítico', 'red']],
+              exemplo: '8 de 10 problemas resolvidos → IRP = 80%'
+            },
+            {
+              num: 8, sigla: 'TMRP', titulo: 'Tempo Médio de Resolução de Problemas',
+              desc: 'Tempo médio em dias entre o registro do recebimento e a solução do problema identificado.',
+              formula: 'TMRP = Média(data_solucao − data_recebimento) em dias',
+              semaforo: [['≤ 3d', 'Rápido', 'green'], ['4–7d', 'Atenção', 'yellow'], ['> 7d', 'Lento', 'red']],
+              exemplo: 'Problema registrado 02/03, solução em 05/03 → TMRP = 3 dias'
+            },
+          ].map(item => (
+            <div key={item.num} className="border border-slate-100 dark:border-slate-700 rounded-xl p-4">
+              <h3 className="font-bold text-slate-900 dark:text-white mb-1 flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs flex items-center justify-center font-bold shrink-0">{item.num}</span>
+                <span className="text-blue-700 dark:text-blue-400">{item.sigla}</span>
+                <span className="text-slate-600 dark:text-slate-400 font-normal">— {item.titulo}</span>
+              </h3>
+              <p className="text-slate-500 text-xs mb-2">{item.desc}</p>
+              <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-2.5 font-mono text-xs text-slate-700 dark:text-slate-300 mb-2">{item.formula}</div>
+              {item.semaforo && (
+                <div className="flex gap-2 mb-2">
+                  {item.semaforo.map(([v, l, c]) => (
+                    <div key={v} className={`flex-1 rounded p-1.5 text-center text-xs bg-${c}-50 text-${c}-700 dark:bg-${c}-900/20 dark:text-${c}-400`}>
+                      <div className="font-bold">{v}</div>
+                      <div>{l}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="text-xs text-slate-400 italic">Exemplo: {item.exemplo}</p>
+            </div>
+          ))}
+
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 export default function PainelRecebimento({

@@ -114,6 +114,117 @@ const EmptyState = ({ msg = 'Dados insuficientes para exibir' }) => (
   <div className="h-40 flex items-center justify-center text-slate-400 text-sm">{msg}</div>
 );
 
+// ─── Help Modal ──────────────────────────────────────────────────────────────
+function HelpModalExpedicao({ open, onClose }) {
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-lg font-bold flex items-center gap-2">
+            <HelpCircle className="w-5 h-5 text-blue-500" />
+            Guia de Indicadores — Painel de Expedição
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-5 text-sm">
+
+          {[
+            {
+              num: 1, sigla: 'OTIF', titulo: 'On-Time In-Full',
+              desc: 'Percentual de entregas realizadas dentro do prazo E com a quantidade completa.',
+              formula: 'OTIF = (Entregas OT ∩ IF / Total Entregas Elegíveis) × 100',
+              semaforo: [['≥ 95%', 'Excelente', 'green'], ['80–95%', 'Bom', 'blue'], ['< 80%', 'Crítico', 'red']],
+              exemplo: '10 OS entregues; 7 foram on-time e in-full → OTIF = 70%'
+            },
+            {
+              num: 2, sigla: 'On-Time', titulo: 'Entrega No Prazo',
+              desc: 'Percentual de entregas com data_entrega ≤ data_necessidade.',
+              formula: 'OT = (Entregas com data_entrega ≤ data_necessidade / Total com necessidade) × 100',
+              exemplo: '8 de 10 OS entregues antes ou na data pedida → OT = 80%'
+            },
+            {
+              num: 3, sigla: 'In-Full', titulo: 'Entrega Completa',
+              desc: 'Percentual de entregas com todos os itens completamente separados (separado=true ou quantidade_separada ≥ quantidade).',
+              formula: 'IF = (Entregas com itens 100% separados / Total com itens) × 100',
+              exemplo: '9 de 10 OS tiveram todos itens separados → IF = 90%'
+            },
+            {
+              num: 4, sigla: 'TCS', titulo: 'Tempo de Ciclo de Separação',
+              desc: 'Tempo médio em dias entre o início da separação e a conclusão da separação.',
+              formula: 'TCS = Média(separacao_concluida_em − data_separacao) em dias',
+              exemplo: 'OS A: 2d, OS B: 4d, OS C: 3d → TCS = 3 dias'
+            },
+            {
+              num: 5, sigla: 'TCR-MIGO', titulo: 'Ciclo Reserva → MIGO',
+              desc: 'Tempo médio do processo logístico desde a abertura da reserva até o lançamento do MIGO (saída no SAP).',
+              formula: 'TCR-MIGO = Média(data_migo − data_reserva) em dias',
+              semaforo: [['≤ 5d', 'Ágil', 'green'], ['6–10d', 'Atenção', 'yellow'], ['> 10d', 'Lento', 'red']],
+              exemplo: 'Reserva em 01/03, MIGO em 08/03 → 7 dias'
+            },
+            {
+              num: 6, sigla: 'Mix Modal', titulo: 'Distribuição por Modal',
+              desc: 'Percentual de expedições por modal de transporte utilizado (Terrestre, Aéreo, Marítimo, Misto).',
+              formula: '% Modal = (qtd expedições por modal / total expedições) × 100',
+              exemplo: '40 Terrestre, 10 Aéreo de 50 expedições → Terrestre 80%, Aéreo 20%'
+            },
+            {
+              num: 7, sigla: 'TACarona', titulo: 'Taxa de Aproveitamento de Carona',
+              desc: 'Percentual de expedições que aproveitaram transporte compartilhado, reduzindo custo logístico.',
+              formula: 'TACarona = (Expedições com aproveitando_carona = true / Total) × 100',
+              exemplo: '15 de 50 expedições usaram carona → TACarona = 30%'
+            },
+            {
+              num: 8, sigla: 'TCS-Seg', titulo: 'Cobertura de Seguro',
+              desc: 'Dos materiais marcados como seguráveis, qual percentual das OS efetivamente usou seguro no transporte.',
+              formula: 'TCS-Seg = (OS com itens seguráveis E usar_seguro=true / OS com itens seguráveis) × 100',
+              exemplo: '3 de 5 OS com itens seguráveis usaram seguro → TCS-Seg = 60%'
+            },
+            {
+              num: 9, sigla: 'CMF', titulo: 'Custo Médio de Frete',
+              desc: 'Valor médio pago por frete nas expedições com transportadora contratada.',
+              formula: 'CMF = Σ(transportadora.valor_frete) / nº expedições com frete',
+              exemplo: 'R$1.500 + R$2.500 em 2 expedições → CMF = R$2.000'
+            },
+            {
+              num: 10, sigla: 'TME', titulo: 'Ticket Médio por Expedição',
+              desc: 'Valor médio dos materiais expedidos por remessa.',
+              formula: 'TME = Σ(detalhamento_expedicao.valor_total) / total de expedições com valor',
+              exemplo: 'R$10k + R$20k + R$30k em 3 expedições → TME = R$20.000'
+            },
+            {
+              num: 11, sigla: 'Volume', titulo: 'Volume Expedido (M³ e Peso)',
+              desc: 'Soma total do volume cúbico e peso bruto dos volumes registrados nas OS do período.',
+              formula: 'Volume = Σ(volumes.m3) | Peso = Σ(volumes.peso_bruto)',
+              exemplo: '10 volumes de 0,5m³ cada = 5m³ total'
+            },
+          ].map(item => (
+            <div key={item.num} className="border border-slate-100 dark:border-slate-700 rounded-xl p-4">
+              <h3 className="font-bold text-slate-900 dark:text-white mb-1 flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs flex items-center justify-center font-bold shrink-0">{item.num}</span>
+                <span className="text-blue-700 dark:text-blue-400">{item.sigla}</span>
+                <span className="text-slate-600 dark:text-slate-400 font-normal">— {item.titulo}</span>
+              </h3>
+              <p className="text-slate-500 text-xs mb-2">{item.desc}</p>
+              <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-2.5 font-mono text-xs text-slate-700 dark:text-slate-300 mb-2">{item.formula}</div>
+              {item.semaforo && (
+                <div className="flex gap-2 mb-2">
+                  {item.semaforo.map(([v, l, c]) => (
+                    <div key={v} className={`flex-1 rounded p-1.5 text-center text-xs bg-${c}-50 text-${c}-700 dark:bg-${c}-900/20 dark:text-${c}-400`}>
+                      <div className="font-bold">{v}</div>
+                      <div>{l}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="text-xs text-slate-400 italic">Exemplo: {item.exemplo}</p>
+            </div>
+          ))}
+
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function PainelExpedicao({ filteredOrdens, almoxarifados }) {
   const { regionais, categorias, subcategorias, pessoas } = useApp();
