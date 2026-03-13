@@ -618,6 +618,134 @@ export default function PainelRecebimento({
         )}
       </div>
 
+      {/* ── Tabela de Dados dos Indicadores ── */}
+      {(() => {
+        const safeF = (d) => {
+          if (!d) return '—';
+          try { return format(new Date(d), 'dd/MM/yy', { locale: ptBR }); } catch { return '—'; }
+        };
+        const totalPages = Math.max(1, Math.ceil(osReceb.length / TABELA_PAGE_SIZE));
+        const safePage = Math.min(tabelaPage, totalPages);
+        const pageRows = osReceb.slice((safePage - 1) * TABELA_PAGE_SIZE, safePage * TABELA_PAGE_SIZE);
+        const startRow = (safePage - 1) * TABELA_PAGE_SIZE + 1;
+        const endRow = Math.min(safePage * TABELA_PAGE_SIZE, osReceb.length);
+
+        return (
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+              <div>
+                <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                  Dados dos Indicadores
+                  <span className="ml-2 text-sm font-normal text-slate-500">({osReceb.length} OS)</span>
+                </h3>
+                {osReceb.length > 0 && (
+                  <p className="text-xs text-slate-400 mt-0.5">Exibindo {startRow}–{endRow} de {osReceb.length}</p>
+                )}
+              </div>
+              {totalPages > 1 && (
+                <div className="flex items-center gap-1.5">
+                  <button onClick={() => setTabelaPage(1)} disabled={safePage === 1}
+                    className="px-2 py-1 rounded text-xs font-medium border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">«</button>
+                  <button onClick={() => setTabelaPage(p => Math.max(1, p - 1))} disabled={safePage === 1}
+                    className="px-2 py-1 rounded text-xs font-medium border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">‹</button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(p => p === 1 || p === totalPages || Math.abs(p - safePage) <= 1)
+                    .reduce((acc, p, idx, arr) => { if (idx > 0 && p - arr[idx - 1] > 1) acc.push('...'); acc.push(p); return acc; }, [])
+                    .map((p, i) => p === '...' ? (
+                      <span key={`e${i}`} className="px-1 text-xs text-slate-400">…</span>
+                    ) : (
+                      <button key={p} onClick={() => setTabelaPage(p)}
+                        className={`px-2.5 py-1 rounded text-xs font-medium border transition-colors ${safePage === p ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
+                        {p}
+                      </button>
+                    ))}
+                  <button onClick={() => setTabelaPage(p => Math.min(totalPages, p + 1))} disabled={safePage === totalPages}
+                    className="px-2 py-1 rounded text-xs font-medium border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">›</button>
+                  <button onClick={() => setTabelaPage(totalPages)} disabled={safePage === totalPages}
+                    className="px-2 py-1 rounded text-xs font-medium border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">»</button>
+                </div>
+              )}
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300">
+                    {[
+                      'Nº OS', 'Almoxarifado', 'NF-e Receb.', 'Data MIGO', 'LTR (d)',
+                      'Recebimento', 'Armazenagem', 'Problema?', 'Solução', 'TMRP (d)',
+                      'Itens Conf.', 'Completos', 'TAC %'
+                    ].map(h => (
+                      <th key={h} className="px-2 py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-left whitespace-nowrap">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {pageRows.map((os, idx) => {
+                    const almox = almoxarifados.find(a => a.id === os.almoxarifado_id);
+                    const ltrDias = os.nfe_data_receb && os.data_migo_receb
+                      ? Math.max(0, differenceInDays(new Date(os.data_migo_receb), new Date(os.nfe_data_receb)))
+                      : null;
+                    const tmrpDias = os.data_solucao && os.data_recebimento
+                      ? Math.abs(differenceInDays(new Date(os.data_solucao), new Date(os.data_recebimento)))
+                      : null;
+                    const itens = os.nfe_itens_conferencia || [];
+                    const itensComp = itens.filter(i => i.status_conferencia === 'completo').length;
+                    const tacPct = itens.length > 0 ? Math.round((itensComp / itens.length) * 100) : null;
+                    const armazenado = os.fluxo_recebimento?.armazenagem_completa === true;
+                    const temProblema = os.problema_recebimento === true;
+
+                    const ltrColor = ltrDias === null ? '' : ltrDias <= 3 ? 'text-green-600 font-semibold' : ltrDias <= 7 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold';
+                    const tmrpColor = tmrpDias === null ? '' : tmrpDias <= 3 ? 'text-green-600 font-semibold' : tmrpDias <= 7 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold';
+                    const tacColor = tacPct === null ? '' : tacPct >= 95 ? 'text-green-600 font-semibold' : tacPct >= 80 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold';
+
+                    return (
+                      <tr key={os.id} className={`border-b border-slate-100 dark:border-slate-700/50 ${idx % 2 !== 0 ? 'bg-slate-50/50 dark:bg-slate-700/20' : ''} hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors`}>
+                        <td className="px-2 py-2 whitespace-nowrap font-mono text-blue-600 dark:text-blue-400">{os.codigo || os.id?.substring(0, 8)}</td>
+                        <td className="px-2 py-2 max-w-[140px] truncate text-slate-700 dark:text-slate-300">{almox?.nome || '—'}</td>
+                        <td className="px-2 py-2 text-center whitespace-nowrap">{safeF(os.nfe_data_receb)}</td>
+                        <td className="px-2 py-2 text-center whitespace-nowrap">{safeF(os.data_migo_receb)}</td>
+                        <td className={`px-2 py-2 text-center whitespace-nowrap ${ltrColor}`}>{ltrDias !== null ? `${ltrDias}d` : '—'}</td>
+                        <td className="px-2 py-2 text-center whitespace-nowrap">{safeF(os.data_recebimento)}</td>
+                        <td className="px-2 py-2 text-center">
+                          {armazenado
+                            ? <span className="inline-block px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-medium">✓ Sim</span>
+                            : <span className="inline-block px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-500 text-xs">Não</span>}
+                        </td>
+                        <td className="px-2 py-2 text-center">
+                          {temProblema
+                            ? <span className="inline-block px-1.5 py-0.5 rounded-full bg-red-100 text-red-600 text-xs font-medium">Sim</span>
+                            : <span className="inline-block px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 text-xs">Não</span>}
+                        </td>
+                        <td className="px-2 py-2 text-center whitespace-nowrap">{temProblema ? safeF(os.data_solucao) : '—'}</td>
+                        <td className={`px-2 py-2 text-center whitespace-nowrap ${tmrpColor}`}>{tmrpDias !== null ? `${tmrpDias}d` : '—'}</td>
+                        <td className="px-2 py-2 text-right">{itens.length > 0 ? itens.length : '—'}</td>
+                        <td className="px-2 py-2 text-right">{itens.length > 0 ? itensComp : '—'}</td>
+                        <td className={`px-2 py-2 text-right whitespace-nowrap ${tacColor}`}>{tacPct !== null ? `${tacPct}%` : '—'}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/50">
+                <p className="text-xs text-slate-400">Página {safePage} de {totalPages} · {TABELA_PAGE_SIZE} registros por página</p>
+                <div className="flex gap-2">
+                  <button onClick={() => setTabelaPage(p => Math.max(1, p - 1))} disabled={safePage === 1}
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+                    ← Anterior
+                  </button>
+                  <button onClick={() => setTabelaPage(p => Math.min(totalPages, p + 1))} disabled={safePage === totalPages}
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+                    Próxima →
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
       <HelpModalRecebimento open={showHelp} onClose={() => setShowHelp(false)} />
     </div>
   );
