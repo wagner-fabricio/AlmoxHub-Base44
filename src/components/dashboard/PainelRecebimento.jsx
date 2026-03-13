@@ -617,6 +617,7 @@ export default function PainelRecebimento({
         )}
       </div>
 
+      <HelpModalRecebimento open={showHelp} onClose={() => setShowHelp(false)} />
     </div>
   );
 }
