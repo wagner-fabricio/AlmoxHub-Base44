@@ -435,7 +435,9 @@ export default function OSFormModal({
 
   const currentPessoa = pessoas?.find(p => p.user_id === currentUser?.id);
   const problemasNaoPreenchidos = formData.problema_recebimento && (!formData.problemas_recebimento_ids || formData.problemas_recebimento_ids.length === 0);
-  const isValid = formData.categoria_id && formData.subcategorias_ids?.length > 0 && formData.regional_id && formData.almoxarifado_id && formData.lider_id && formData.prazo && !prazoError && !problemasNaoPreenchidos;
+  const hasVolumes = (formData.volumes?.length || 0) > 0;
+  const separacaoIncompleta = isExpedicaoCategory && hasVolumes && (!formData.responsavel_separacao || !formData.data_separacao || !formData.separacao_concluida_em);
+  const isValid = formData.categoria_id && formData.subcategorias_ids?.length > 0 && formData.regional_id && formData.almoxarifado_id && formData.lider_id && formData.prazo && !prazoError && !problemasNaoPreenchidos && !separacaoIncompleta;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
