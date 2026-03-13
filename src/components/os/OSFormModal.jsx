@@ -703,11 +703,21 @@ export default function OSFormModal({
                   <OSVolumes volumes={formData.volumes} onChange={(volumes) => setFormData(prev => ({ ...prev, volumes }))} />
                   {/* Seção Separação */}
                   <div className="border-t pt-6">
-                    <h4 className="font-semibold mb-4">Separação</h4>
+                    <h4 className="font-semibold mb-1">Separação</h4>
+                    {hasVolumes && <p className="text-xs text-amber-600 dark:text-amber-400 mb-4">* Campos obrigatórios pois há volumes adicionados</p>}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                      <div className="space-y-2"><Label>Responsável</Label><Input value={formData.responsavel_separacao} onChange={(e) => setFormData({ ...formData, responsavel_separacao: e.target.value })} /></div>
-                      <div className="space-y-2"><Label>Data Início Separação</Label><Input type="date" value={formData.data_separacao} onChange={(e) => setFormData({ ...formData, data_separacao: e.target.value })} /></div>
-                      <div className="space-y-2"><Label>Separação Concluída Em</Label><Input type="date" value={formData.separacao_concluida_em || ''} onChange={(e) => setFormData({ ...formData, separacao_concluida_em: e.target.value })} /></div>
+                      <div className="space-y-2">
+                        <Label>Responsável {hasVolumes && <span className="text-red-500">*</span>}</Label>
+                        <Input value={formData.responsavel_separacao} onChange={(e) => setFormData({ ...formData, responsavel_separacao: e.target.value })} className={hasVolumes && !formData.responsavel_separacao ? 'border-red-300 dark:border-red-700' : ''} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Data Início Separação {hasVolumes && <span className="text-red-500">*</span>}</Label>
+                        <Input type="date" value={formData.data_separacao} onChange={(e) => setFormData({ ...formData, data_separacao: e.target.value })} className={hasVolumes && !formData.data_separacao ? 'border-red-300 dark:border-red-700' : ''} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Separação Concluída Em {hasVolumes && <span className="text-red-500">*</span>}</Label>
+                        <Input type="date" value={formData.separacao_concluida_em || ''} onChange={(e) => setFormData({ ...formData, separacao_concluida_em: e.target.value })} className={hasVolumes && !formData.separacao_concluida_em ? 'border-red-300 dark:border-red-700' : ''} />
+                      </div>
                       <div className="space-y-2">
                         <Label>Duração Separação</Label>
                         <div className="h-9 flex items-center px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-sm text-slate-700 dark:text-slate-300">
