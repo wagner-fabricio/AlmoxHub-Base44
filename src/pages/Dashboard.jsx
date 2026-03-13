@@ -24,6 +24,7 @@ import OSPorAtendenteChart from '@/components/dashboard/OSPorAtendenteChart';
 import { isNoPrazo, isForaPrazo } from '@/components/dashboard/prazoHelpers';
 import ProjetosDashboard from '@/components/dashboard/ProjetosDashboard';
 import OTIFExpedicao from '@/components/dashboard/OTIFExpedicao';
+import PainelExpedicao from '@/components/dashboard/PainelExpedicao';
 
 const COLORS = ['#0000FF', '#FF6B00', '#10B981', '#A0B4D2', '#0A003C', '#EC4899'];
 
