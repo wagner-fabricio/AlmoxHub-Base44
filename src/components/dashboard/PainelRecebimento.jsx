@@ -7,8 +7,10 @@ import { differenceInDays, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
   CheckCircle, AlertTriangle, Clock, Package, TrendingUp, Activity,
-  BarChart2, Timer
+  BarChart2, Timer, HelpCircle
 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 // ─── Sub-components ─────────────────────────────────────────────────────────
 

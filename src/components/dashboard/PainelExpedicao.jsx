@@ -4,7 +4,9 @@ import {
   CartesianGrid, Tooltip, Legend, LineChart, Line, ReferenceLine, LabelList,
   AreaChart, Area
 } from 'recharts';
-import { Target, Clock, Package, TrendingUp, DollarSign, Shield, Box, Navigation, Truck } from 'lucide-react';
+import { Target, Clock, Package, TrendingUp, DollarSign, Shield, Box, Navigation, Truck, HelpCircle } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { format, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { SortableTableHead, useTableSort, useColumnFilters } from '@/components/ui/table-sortable';
