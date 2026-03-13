@@ -232,7 +232,10 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados }) {
       (os.volumes || []).forEach(v => { map[key].m3 += v.m3 || 0; map[key].peso += v.peso_bruto || 0; });
     });
     return Object.entries(map).sort(([a], [b]) => a.localeCompare(b)).slice(-12)
-      .map(([key, v]) => ({ mes: format(new Date(key + '-01'), 'MMM/yy', { locale: ptBR }), m3: parseFloat(v.m3.toFixed(1)), peso: parseFloat(v.peso.toFixed(0)) }))
+      .map(([key, v]) => {
+        const dt = new Date(key + '-15');
+        return { mes: isNaN(dt.getTime()) ? key : format(dt, 'MMM/yy', { locale: ptBR }), m3: parseFloat(v.m3.toFixed(1)), peso: parseFloat(v.peso.toFixed(0)) };
+      })
       .filter(d => d.m3 > 0 || d.peso > 0);
   }, [filteredOrdens]);
 
