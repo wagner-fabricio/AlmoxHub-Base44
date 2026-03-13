@@ -166,9 +166,18 @@ export default function PainelRecebimento({
   problemasRecebimento,
 }) {
   // Filtrar apenas OS de recebimento
+  const { regionais, categorias, subcategorias, pessoas } = useApp();
   const [showHelp, setShowHelp] = useState(false);
+  const [selectedOS, setSelectedOS] = useState(null);
   const [tabelaPage, setTabelaPage] = useState(1);
   const TABELA_PAGE_SIZE = 200;
+  const [instalacoes, setInstalacoes] = useState([]);
+  const [projetos, setProjetos] = useState([]);
+
+  useEffect(() => {
+    base44.entities.Instalacao.list().then(setInstalacoes).catch(() => {});
+    base44.entities.Projeto.list().then(setProjetos).catch(() => {});
+  }, []);
 
   const osReceb = useMemo(
     () => filteredOrdens.filter(os => os.categoria_id === categoriaRecebimento?.id),
