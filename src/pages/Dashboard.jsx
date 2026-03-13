@@ -481,7 +481,7 @@ export default function Dashboard() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas Subcategorias</SelectItem>
-              {filteredSubcategorias.map(s => (
+              {[...filteredSubcategorias].sort((a, b) => a.nome.localeCompare(b.nome)).map(s => (
                 <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
               ))}
             </SelectContent>
