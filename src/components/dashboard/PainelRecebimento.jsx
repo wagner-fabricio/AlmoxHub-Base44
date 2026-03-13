@@ -347,6 +347,14 @@ export default function PainelRecebimento({
   return (
     <div className="space-y-6">
 
+      {/* ── Botão de ajuda ── */}
+      <div className="flex justify-end">
+        <Button variant="outline" size="sm" onClick={() => setShowHelp(true)} className="gap-2">
+          <HelpCircle className="w-4 h-4 text-blue-500" />
+          Entender os indicadores
+        </Button>
+      </div>
+
       {/* ── KPI Cards ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <KPICard
