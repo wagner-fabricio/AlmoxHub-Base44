@@ -464,7 +464,7 @@ export default function Dashboard() {
               ) : (
                 <>
                   <SelectItem value="all">Todas Categorias</SelectItem>
-                  {categorias.map(c => (
+                  {[...categorias].sort((a, b) => a.nome.localeCompare(b.nome)).map(c => (
                     <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
                   ))}
                 </>
