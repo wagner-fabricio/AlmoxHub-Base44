@@ -610,13 +610,31 @@ export default function PainelRecebimento({
           </div>
         ) : (
           <>
-            <ResponsiveContainer width="100%" height={Math.max(240, problemasChartData.length * 44)}>
+            <ResponsiveContainer width="100%" height={Math.max(240, problemasChartData.length * 56)}>
               <BarChart data={problemasChartData} layout="vertical"
                 margin={{ top: 5, right: 60, left: 10, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
                 <XAxis type="number" tick={{ fill: '#64748b', fontSize: 11 }} allowDecimals={false} />
-                <YAxis type="category" dataKey="nome" tick={{ fill: '#64748b', fontSize: 11 }} width={160}
-                  tickFormatter={v => v.length > 22 ? v.substring(0, 20) + '…' : v} />
+                <YAxis type="category" dataKey="nome" width={220}
+                  tick={({ x, y, payload }) => {
+                    const words = payload.value.split(' ');
+                    const lines = [];
+                    let current = '';
+                    words.forEach(word => {
+                      const test = current ? `${current} ${word}` : word;
+                      if (test.length > 28 && current) { lines.push(current); current = word; }
+                      else { current = test; }
+                    });
+                    if (current) lines.push(current);
+                    return (
+                      <g transform={`translate(${x},${y})`}>
+                        {lines.map((line, i) => (
+                          <text key={i} x={0} y={0} dy={i * 14 - ((lines.length - 1) * 7)} textAnchor="end"
+                            fill="#64748b" fontSize={11}>{line}</text>
+                        ))}
+                      </g>
+                    );
+                  }} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} formatter={v => [v, 'Ocorrências']} />
                 <Bar dataKey="quantidade" radius={[0, 4, 4, 0]} fill="#0000FF">
                   {problemasChartData.map((_, i) => {
