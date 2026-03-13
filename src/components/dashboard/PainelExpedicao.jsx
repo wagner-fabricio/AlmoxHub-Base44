@@ -285,7 +285,10 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados }) {
       if (isOnTime(os) && isInFull(os)) map[key].otif++;
     });
     return Object.entries(map).sort(([a], [b]) => a.localeCompare(b)).slice(-12)
-      .map(([key, v]) => ({ mes: format(new Date(key + '-01'), 'MMM/yy', { locale: ptBR }), otif: Math.round((v.otif / v.total) * 100) }));
+      .map(([key, v]) => {
+        const dt = new Date(key + '-15');
+        return { mes: isNaN(dt.getTime()) ? key : format(dt, 'MMM/yy', { locale: ptBR }), otif: Math.round((v.otif / v.total) * 100) };
+      });
   }, [entregues]);
 
   // ── Distribuição Tempo Entrega ────────────────────────────────────────────
