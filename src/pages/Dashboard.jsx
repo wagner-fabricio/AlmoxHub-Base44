@@ -18,6 +18,7 @@ import ExportDashboardButton from '@/components/dashboard/ExportDashboardButton'
 import DashboardCustomizer from '@/components/dashboard/DashboardCustomizer';
 import TorreControleContent from '@/components/dashboard/TorreControleContent';
 import TorreControleRecebimentoProblemas from '@/components/dashboard/TorreControleRecebimentoProblemas';
+import PainelRecebimento from '@/components/dashboard/PainelRecebimento';
 import OSProductivityRanking from '@/components/dashboard/OSProductivityRanking';
 import OSPorAtendenteChart from '@/components/dashboard/OSPorAtendenteChart';
 import { isNoPrazo, isForaPrazo } from '@/components/dashboard/prazoHelpers';
