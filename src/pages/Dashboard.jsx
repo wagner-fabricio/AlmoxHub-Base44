@@ -162,10 +162,15 @@ export default function Dashboard() {
     return true;
   });
 
-  // Subcategorias filtradas pela categoria selecionada
-  const filteredSubcategorias = filters.categoria === 'all' 
-    ? subcategorias 
-    : subcategorias.filter(s => s.categoria_id === filters.categoria);
+  // Subcategorias filtradas pela categoria selecionada (ou pela categoria fixa da aba)
+  const activeCategoriaId = 
+    activeTab === 'recebimento' ? categoriaRecebimento?.id :
+    activeTab === 'expedicao' ? categoriaExpedicao?.id :
+    filters.categoria !== 'all' ? filters.categoria : null;
+
+  const filteredSubcategorias = activeCategoriaId
+    ? subcategorias.filter(s => s.categoria_id === activeCategoriaId)
+    : subcategorias;
 
   // KPIs - Com comparação de ontem
   const yesterday = subDays(new Date(), 1);
