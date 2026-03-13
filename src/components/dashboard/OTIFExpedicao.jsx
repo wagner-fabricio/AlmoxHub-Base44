@@ -35,6 +35,9 @@ function calcularOTIF(osExpedicao) {
   const isInFull = (os) => {
     const itens = os.itens_documento || [];
     if (itens.length === 0) return false;
+    // Considera in-full se todos os itens estão marcados como separados
+    if (itens.every(i => i.separado === true)) return true;
+    // Ou se a quantidade separada >= quantidade solicitada
     const qtdSol = itens.reduce((sum, i) => sum + (i.quantidade || 0), 0);
     const qtdSep = itens.reduce((sum, i) => sum + (i.quantidade_separada || 0), 0);
     return qtdSep >= qtdSol && qtdSol > 0;
