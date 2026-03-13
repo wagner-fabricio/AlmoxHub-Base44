@@ -172,6 +172,8 @@ export default function PainelRecebimento({
   const [selectedOS, setSelectedOS] = useState(null);
   const [tabelaPage, setTabelaPage] = useState(1);
   const TABELA_PAGE_SIZE = 200;
+  const { sortConfig, handleSort } = useTableSort();
+  const { columnFilters, toggleFilter, clearFilter } = useColumnFilters();
   const [instalacoes, setInstalacoes] = useState([]);
   const [projetos, setProjetos] = useState([]);
 
