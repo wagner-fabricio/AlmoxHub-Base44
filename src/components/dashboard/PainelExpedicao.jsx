@@ -251,7 +251,10 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados }) {
       map[key].qtd++;
     });
     return Object.entries(map).sort(([a], [b]) => a.localeCompare(b)).slice(-12)
-      .map(([key, v]) => ({ mes: format(new Date(key + '-01'), 'MMM/yy', { locale: ptBR }), frete: Math.round(v.frete), ticket: v.qtd > 0 ? Math.round(v.valor / v.qtd) : 0 }))
+      .map(([key, v]) => {
+        const dt = new Date(key + '-15');
+        return { mes: isNaN(dt.getTime()) ? key : format(dt, 'MMM/yy', { locale: ptBR }), frete: Math.round(v.frete), ticket: v.qtd > 0 ? Math.round(v.valor / v.qtd) : 0 };
+      })
       .filter(d => d.frete > 0 || d.ticket > 0);
   }, [todasExpedicoes]);
 
