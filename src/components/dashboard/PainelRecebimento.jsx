@@ -712,7 +712,11 @@ export default function PainelRecebimento({
 
                     return (
                       <tr key={os.id} className={`border-b border-slate-100 dark:border-slate-700/50 ${idx % 2 !== 0 ? 'bg-slate-50/50 dark:bg-slate-700/20' : ''} hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors`}>
-                        <td className="px-2 py-2 whitespace-nowrap font-mono text-blue-600 dark:text-blue-400">{os.codigo || os.id?.substring(0, 8)}</td>
+                        <td className="px-2 py-2 whitespace-nowrap">
+                          <button onClick={() => setSelectedOS(os)} className="font-mono text-blue-600 dark:text-blue-400 hover:underline text-left">
+                            {os.codigo || os.id?.substring(0, 8)}
+                          </button>
+                        </td>
                         <td className="px-2 py-2 max-w-[140px] truncate text-slate-700 dark:text-slate-300">{almox?.nome || '—'}</td>
                         <td className="px-2 py-2 text-center whitespace-nowrap">{safeF(os.nfe_data_receb)}</td>
                         <td className="px-2 py-2 text-center whitespace-nowrap">{safeF(os.data_migo_receb)}</td>
