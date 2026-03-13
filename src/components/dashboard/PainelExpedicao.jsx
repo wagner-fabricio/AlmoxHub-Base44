@@ -230,6 +230,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados }) {
   const { regionais, categorias, subcategorias, pessoas } = useApp();
   const [selectedOS, setSelectedOS] = useState(null);
   const [editingOS, setEditingOS] = useState(null);
+  const [showHelp, setShowHelp] = useState(false);
   const [instalacoes, setInstalacoes] = useState([]);
   const [projetos, setProjetos] = useState([]);
 

@@ -163,6 +163,8 @@ export default function PainelRecebimento({
   problemasRecebimento,
 }) {
   // Filtrar apenas OS de recebimento
+  const [showHelp, setShowHelp] = useState(false);
+
   const osReceb = useMemo(
     () => filteredOrdens.filter(os => os.categoria_id === categoriaRecebimento?.id),
     [filteredOrdens, categoriaRecebimento]
