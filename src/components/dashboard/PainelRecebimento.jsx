@@ -297,7 +297,9 @@ export default function PainelRecebimento({
     const map = {};
     osComProblemaArr.forEach(os => {
       if (!os.data_recebimento) return;
-      const key = os.data_recebimento.substring(0, 7);
+      let keyDate;
+      try { keyDate = new Date(os.data_recebimento); if (isNaN(keyDate)) return; } catch { return; }
+      const key = format(keyDate, 'yyyy-MM');
       if (!map[key]) map[key] = { total: 0, resolvidos: 0 };
       map[key].total++;
       if (os.data_solucao) map[key].resolvidos++;
@@ -306,12 +308,14 @@ export default function PainelRecebimento({
       .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
       .slice(-12)
       .map(([key, v]) => ({
+        key,
         mes: format(new Date(key + '-01'), 'MMM/yy', { locale: ptBR }),
         irp: v.total > 0 ? Math.round((v.resolvidos / v.total) * 100) : 0,
         tmrp: (() => {
-          const resolved = osComProblemaArr.filter(os =>
-            os.data_recebimento?.startsWith(key) && os.data_solucao && os.data_recebimento
-          );
+          const resolved = osComProblemaArr.filter(os => {
+            if (!os.data_recebimento || !os.data_solucao) return false;
+            try { return format(new Date(os.data_recebimento), 'yyyy-MM') === key; } catch { return false; }
+          });
           if (!resolved.length) return null;
           const avg = resolved.reduce((s, os) =>
             s + Math.abs(differenceInDays(new Date(os.data_solucao), new Date(os.data_recebimento))), 0
