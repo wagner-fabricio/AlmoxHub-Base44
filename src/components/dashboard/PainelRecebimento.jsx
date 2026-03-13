@@ -303,7 +303,7 @@ export default function PainelRecebimento({
       if (os.data_solucao) map[key].resolvidos++;
     });
     return Object.entries(map)
-      .sort(([a], [b]) => a.localeCompare(b))
+      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
       .slice(-12)
       .map(([key, v]) => ({
         mes: format(new Date(key + '-01'), 'MMM/yy', { locale: ptBR }),
