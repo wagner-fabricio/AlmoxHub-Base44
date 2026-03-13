@@ -442,6 +442,7 @@ export default function Dashboard() {
               <SelectItem value="all">Todos Almoxarifados</SelectItem>
               {almoxarifados
                 .filter(a => filters.regional === 'all' || a.regional_id === filters.regional)
+                .sort((a, b) => a.nome.localeCompare(b.nome))
                 .map(a => (
                   <SelectItem key={a.id} value={a.id}>{a.nome}</SelectItem>
                 ))}
