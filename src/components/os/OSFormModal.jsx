@@ -704,6 +704,7 @@ export default function OSFormModal({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2"><Label>Responsável</Label><Input value={formData.responsavel_separacao} onChange={(e) => setFormData({ ...formData, responsavel_separacao: e.target.value })} /></div>
                       <div className="space-y-2"><Label>Data Separação</Label><Input type="date" value={formData.data_separacao} onChange={(e) => setFormData({ ...formData, data_separacao: e.target.value })} /></div>
+                      <div className="space-y-2"><Label>Separação Concluída Em</Label><Input type="date" value={formData.separacao_concluida_em || ''} onChange={(e) => setFormData({ ...formData, separacao_concluida_em: e.target.value })} /></div>
                     </div>
                   </div>
                 </TabsContent>
