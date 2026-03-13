@@ -136,9 +136,9 @@ export default function RelatorioSeparacao({ os, regional, almoxarifado, lider, 
             <thead>
               <tr className="bg-gray-50 border-b border-gray-300">
                 <th className="p-2 border-r border-gray-300 text-center font-semibold text-xs">Qtd</th>
+                <th className="p-2 border-r border-gray-300 text-center font-semibold text-xs">Comprimento (cm)</th>
                 <th className="p-2 border-r border-gray-300 text-center font-semibold text-xs">Largura (cm)</th>
                 <th className="p-2 border-r border-gray-300 text-center font-semibold text-xs">Altura (cm)</th>
-                <th className="p-2 border-r border-gray-300 text-center font-semibold text-xs">Comprimento (cm)</th>
                 <th className="p-2 text-center font-semibold text-xs">Peso (kg)</th>
               </tr>
             </thead>
