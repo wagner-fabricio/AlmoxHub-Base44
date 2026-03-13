@@ -702,10 +702,22 @@ export default function OSFormModal({
                   {/* Seção Separação */}
                   <div className="border-t pt-6">
                     <h4 className="font-semibold mb-4">Separação</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                       <div className="space-y-2"><Label>Responsável</Label><Input value={formData.responsavel_separacao} onChange={(e) => setFormData({ ...formData, responsavel_separacao: e.target.value })} /></div>
                       <div className="space-y-2"><Label>Data Separação</Label><Input type="date" value={formData.data_separacao} onChange={(e) => setFormData({ ...formData, data_separacao: e.target.value })} /></div>
                       <div className="space-y-2"><Label>Separação Concluída Em</Label><Input type="date" value={formData.separacao_concluida_em || ''} onChange={(e) => setFormData({ ...formData, separacao_concluida_em: e.target.value })} /></div>
+                      <div className="space-y-2">
+                        <Label>Duração Separação</Label>
+                        <div className="h-9 flex items-center px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-sm text-slate-700 dark:text-slate-300">
+                          {(() => {
+                            if (!formData.data_separacao || !formData.separacao_concluida_em) return <span className="text-slate-400">—</span>;
+                            const d1 = new Date(formData.data_separacao);
+                            const d2 = new Date(formData.separacao_concluida_em);
+                            const diff = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+                            return <span className={diff < 0 ? 'text-red-500' : ''}>{diff} {Math.abs(diff) === 1 ? 'dia' : 'dias'}</span>;
+                          })()}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </TabsContent>
