@@ -268,7 +268,10 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados }) {
       map[key].dias += Math.abs(differenceInDays(new Date(os.data_migo), new Date(os.data_reserva)));
     });
     return Object.entries(map).sort(([a], [b]) => a.localeCompare(b)).slice(-12)
-      .map(([key, v]) => ({ mes: format(new Date(key + '-01'), 'MMM/yy', { locale: ptBR }), dias: parseFloat((v.dias / v.total).toFixed(1)) }));
+      .map(([key, v]) => {
+        const dt = new Date(key + '-15');
+        return { mes: isNaN(dt.getTime()) ? key : format(dt, 'MMM/yy', { locale: ptBR }), dias: parseFloat((v.dias / v.total).toFixed(1)) };
+      });
   }, [osComMigo]);
 
   // ── Tendência OTIF Mensal ─────────────────────────────────────────────────
