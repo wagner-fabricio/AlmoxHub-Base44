@@ -164,6 +164,8 @@ export default function PainelRecebimento({
 }) {
   // Filtrar apenas OS de recebimento
   const [showHelp, setShowHelp] = useState(false);
+  const [tabelaPage, setTabelaPage] = useState(1);
+  const TABELA_PAGE_SIZE = 200;
 
   const osReceb = useMemo(
     () => filteredOrdens.filter(os => os.categoria_id === categoriaRecebimento?.id),
