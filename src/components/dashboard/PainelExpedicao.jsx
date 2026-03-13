@@ -939,68 +939,147 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados }) {
       </div>
 
       {/* ── Tabela de OS ── */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-        <SectionHeader title={`OS utilizadas nos indicadores (${osTabelaFiltrada.length}${osTabelaFiltrada.length !== osTabela.length ? ` de ${osTabela.length}` : ''})`} />
-        {osTabela.length === 0 ? (
-          <EmptyState msg="Nenhuma OS com movimentação encontrada" />
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs border-collapse">
-              <thead>
-                <tr className="bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300">
-                  {[
-                    { col: 'codigo', label: 'Nº OS', filter: false, width: 'w-48' },
-                    { col: 'almox', label: 'Almoxarifado', filter: true, width: 'w-36' },
-                    { col: 'data_reserva', label: 'Reserva', filter: true, width: 'w-24' },
-                    { col: 'data_migo', label: 'MIGO', filter: true, width: 'w-24' },
-                    { col: 'qtdSol', label: 'Sol.', filter: false, width: 'w-16' },
-                    { col: 'qtdSep', label: 'Sep.', filter: false, width: 'w-16' },
-                    { col: 'data_necessidade', label: 'Necessidade', filter: true, width: 'w-24' },
-                    { col: 'data_entrega', label: 'Entrega', filter: true, width: 'w-24' },
-                    { col: 'tempoEntrega', label: 'Tempo', filter: true, width: 'w-20' },
-                  ].map(({ col, label, filter, width }) => (
-                    <th key={col} className={`px-2 py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-left ${width} whitespace-nowrap`}>
-                      <SortableTableHead label={label} column={col} sortConfig={sortConfig} onSort={handleSort}
-                        filterConfig={filter ? columnFilters : null}
-                        onToggleFilter={toggleFilter} onClearFilter={clearFilter} getUniqueValues={getUniqueValues} />
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {osTabelaFiltrada.map(({ os, almox, qtdSol, qtdSep, tempoEntrega }, idx) => {
-                  let tempoColor = 'text-slate-600 dark:text-slate-400';
-                  if (tempoEntrega !== null) {
-                    if (tempoEntrega <= 0) tempoColor = 'text-green-600 font-semibold';
-                    else if (tempoEntrega <= 5) tempoColor = 'text-yellow-600 font-semibold';
-                    else tempoColor = 'text-red-600 font-semibold';
+      {(() => {
+        const totalPages = Math.max(1, Math.ceil(osTabelaFiltrada.length / TABELA_PAGE_SIZE));
+        const safePage = Math.min(tabelaPage, totalPages);
+        const pageRows = osTabelaFiltrada.slice((safePage - 1) * TABELA_PAGE_SIZE, safePage * TABELA_PAGE_SIZE);
+        const startRow = (safePage - 1) * TABELA_PAGE_SIZE + 1;
+        const endRow = Math.min(safePage * TABELA_PAGE_SIZE, osTabelaFiltrada.length);
+        return (
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+              <div>
+                <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                  Dados dos Indicadores
+                  <span className="ml-2 text-sm font-normal text-slate-500">
+                    ({osTabelaFiltrada.length}{osTabelaFiltrada.length !== osTabela.length ? ` de ${osTabela.length}` : ''} OS)
+                  </span>
+                </h3>
+                {osTabelaFiltrada.length > 0 && (
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Exibindo {startRow}–{endRow} de {osTabelaFiltrada.length}
+                  </p>
+                )}
+              </div>
+              {totalPages > 1 && (
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => setTabelaPage(1)}
+                    disabled={safePage === 1}
+                    className="px-2 py-1 rounded text-xs font-medium border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  >«</button>
+                  <button
+                    onClick={() => setTabelaPage(p => Math.max(1, p - 1))}
+                    disabled={safePage === 1}
+                    className="px-2 py-1 rounded text-xs font-medium border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  >‹</button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(p => p === 1 || p === totalPages || Math.abs(p - safePage) <= 1)
+                    .reduce((acc, p, idx, arr) => {
+                      if (idx > 0 && p - arr[idx - 1] > 1) acc.push('...');
+                      acc.push(p);
+                      return acc;
+                    }, [])
+                    .map((p, i) => p === '...' ? (
+                      <span key={`ellipsis-${i}`} className="px-1 text-xs text-slate-400">…</span>
+                    ) : (
+                      <button
+                        key={p}
+                        onClick={() => setTabelaPage(p)}
+                        className={`px-2.5 py-1 rounded text-xs font-medium border transition-colors ${safePage === p ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                      >{p}</button>
+                    ))
                   }
-                  return (
-                    <tr key={os.id} className={`border-b border-slate-100 dark:border-slate-700/50 ${idx % 2 !== 0 ? 'bg-slate-50/50 dark:bg-slate-700/20' : ''} hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors`}>
-                      <td className="px-2 py-2 whitespace-nowrap">
-                        <button onClick={() => setSelectedOS(os)}
-                          className="font-mono text-blue-600 dark:text-blue-400 hover:underline text-left">
-                          {os.codigo || os.id?.substring(0, 8)}
-                        </button>
-                      </td>
-                      <td className="px-2 py-2 text-slate-700 dark:text-slate-300 max-w-[144px] truncate">{almox?.nome || '—'}</td>
-                      <td className="px-2 py-2 text-center whitespace-nowrap">{safeFormat(os.data_reserva)}</td>
-                      <td className="px-2 py-2 text-center whitespace-nowrap">{safeFormat(os.data_migo)}</td>
-                      <td className="px-2 py-2 text-right">{qtdSol > 0 ? qtdSol.toLocaleString('pt-BR') : '—'}</td>
-                      <td className="px-2 py-2 text-right">{qtdSep > 0 ? qtdSep.toLocaleString('pt-BR') : '—'}</td>
-                      <td className="px-2 py-2 text-center whitespace-nowrap">{safeFormat(os.data_necessidade)}</td>
-                      <td className="px-2 py-2 text-center whitespace-nowrap">{safeFormat(os.data_entrega)}</td>
-                      <td className={`px-2 py-2 text-center whitespace-nowrap ${tempoColor}`}>
-                        {tempoEntrega !== null ? (tempoEntrega === 0 ? 'No prazo' : `${tempoEntrega > 0 ? '+' : ''}${tempoEntrega}d`) : '—'}
-                      </td>
+                  <button
+                    onClick={() => setTabelaPage(p => Math.min(totalPages, p + 1))}
+                    disabled={safePage === totalPages}
+                    className="px-2 py-1 rounded text-xs font-medium border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  >›</button>
+                  <button
+                    onClick={() => setTabelaPage(totalPages)}
+                    disabled={safePage === totalPages}
+                    className="px-2 py-1 rounded text-xs font-medium border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  >»</button>
+                </div>
+              )}
+            </div>
+            {osTabela.length === 0 ? (
+              <EmptyState msg="Nenhuma OS com movimentação encontrada" />
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300">
+                      {[
+                        { col: 'codigo', label: 'Nº OS', filter: false, width: 'w-48' },
+                        { col: 'almox', label: 'Almoxarifado', filter: true, width: 'w-36' },
+                        { col: 'data_reserva', label: 'Reserva', filter: true, width: 'w-24' },
+                        { col: 'data_migo', label: 'MIGO', filter: true, width: 'w-24' },
+                        { col: 'qtdSol', label: 'Sol.', filter: false, width: 'w-16' },
+                        { col: 'qtdSep', label: 'Sep.', filter: false, width: 'w-16' },
+                        { col: 'data_necessidade', label: 'Necessidade', filter: true, width: 'w-24' },
+                        { col: 'data_entrega', label: 'Entrega', filter: true, width: 'w-24' },
+                        { col: 'tempoEntrega', label: 'Tempo', filter: true, width: 'w-20' },
+                      ].map(({ col, label, filter, width }) => (
+                        <th key={col} className={`px-2 py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-left ${width} whitespace-nowrap`}>
+                          <SortableTableHead label={label} column={col} sortConfig={sortConfig} onSort={handleSort}
+                            filterConfig={filter ? columnFilters : null}
+                            onToggleFilter={toggleFilter} onClearFilter={clearFilter} getUniqueValues={getUniqueValues} />
+                        </th>
+                      ))}
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody>
+                    {pageRows.map(({ os, almox, qtdSol, qtdSep, tempoEntrega }, idx) => {
+                      let tempoColor = 'text-slate-600 dark:text-slate-400';
+                      if (tempoEntrega !== null) {
+                        if (tempoEntrega <= 0) tempoColor = 'text-green-600 font-semibold';
+                        else if (tempoEntrega <= 5) tempoColor = 'text-yellow-600 font-semibold';
+                        else tempoColor = 'text-red-600 font-semibold';
+                      }
+                      return (
+                        <tr key={os.id} className={`border-b border-slate-100 dark:border-slate-700/50 ${idx % 2 !== 0 ? 'bg-slate-50/50 dark:bg-slate-700/20' : ''} hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors`}>
+                          <td className="px-2 py-2 whitespace-nowrap">
+                            <button onClick={() => setSelectedOS(os)}
+                              className="font-mono text-blue-600 dark:text-blue-400 hover:underline text-left">
+                              {os.codigo || os.id?.substring(0, 8)}
+                            </button>
+                          </td>
+                          <td className="px-2 py-2 text-slate-700 dark:text-slate-300 max-w-[144px] truncate">{almox?.nome || '—'}</td>
+                          <td className="px-2 py-2 text-center whitespace-nowrap">{safeFormat(os.data_reserva)}</td>
+                          <td className="px-2 py-2 text-center whitespace-nowrap">{safeFormat(os.data_migo)}</td>
+                          <td className="px-2 py-2 text-right">{qtdSol > 0 ? qtdSol.toLocaleString('pt-BR') : '—'}</td>
+                          <td className="px-2 py-2 text-right">{qtdSep > 0 ? qtdSep.toLocaleString('pt-BR') : '—'}</td>
+                          <td className="px-2 py-2 text-center whitespace-nowrap">{safeFormat(os.data_necessidade)}</td>
+                          <td className="px-2 py-2 text-center whitespace-nowrap">{safeFormat(os.data_entrega)}</td>
+                          <td className={`px-2 py-2 text-center whitespace-nowrap ${tempoColor}`}>
+                            {tempoEntrega !== null ? (tempoEntrega === 0 ? 'No prazo' : `${tempoEntrega > 0 ? '+' : ''}${tempoEntrega}d`) : '—'}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/50">
+                <p className="text-xs text-slate-400">Página {safePage} de {totalPages} · {TABELA_PAGE_SIZE} registros por página</p>
+                <div className="flex gap-2">
+                  <button onClick={() => setTabelaPage(p => Math.max(1, p - 1))} disabled={safePage === 1}
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+                    ← Anterior
+                  </button>
+                  <button onClick={() => setTabelaPage(p => Math.min(totalPages, p + 1))} disabled={safePage === totalPages}
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+                    Próxima →
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        );
+      })()}
 
     </div>
 
