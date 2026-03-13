@@ -1248,7 +1248,7 @@ export default function Dashboard() {
 
               {/* ABA EXPEDIÇÃO */}
               <TabsContent value="expedicao" className="mt-6 space-y-8">
-                <OTIFExpedicao
+                <PainelExpedicao
                   filteredOrdens={filteredOrdens}
                   almoxarifados={almoxarifados}
                 />
