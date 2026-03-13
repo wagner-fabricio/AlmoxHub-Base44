@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line, ReferenceLine, LabelList
@@ -11,6 +11,9 @@ import {
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { base44 } from '@/api/base44Client';
+import { useApp } from '@/components/contexts/AppContext';
+import OSDetailModal from '@/components/os/OSDetailModal';
 
 // ─── Sub-components ─────────────────────────────────────────────────────────
 
