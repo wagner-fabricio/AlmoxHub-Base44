@@ -1237,39 +1237,10 @@ export default function Dashboard() {
 
               {/* ABA RECEBIMENTO */}
               <TabsContent value="recebimento" className="mt-6 space-y-8">
-                <TorreControleRecebimentoProblemas 
-                  filteredOrdens={ordens.filter(os => {
-                    // Aplicar os mesmos filtros que filteredOrdens, mas sem restrição de categoria
-                    if (filters.regional !== 'all' && os.regional_id !== filters.regional) return false;
-                    if (filters.almoxarifado !== 'all' && os.almoxarifado_id !== filters.almoxarifado) return false;
-                    if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
-                    if (filters.status !== 'all' && os.status !== filters.status) return false;
-
-                    // Period filter
-                    if (filters.periodo === 'mes_atual') {
-                      const now = new Date();
-                      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-                      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-                      const osDate = new Date(os.created_date);
-                      if (osDate < startOfMonth || osDate > endOfMonth) return false;
-                    } else if (filters.periodo === 'customizado') {
-                      if (filters.dataInicio) {
-                        const startDate = new Date(filters.dataInicio);
-                        if (new Date(os.created_date) < startDate) return false;
-                      }
-                      if (filters.dataFim) {
-                        const endDate = new Date(filters.dataFim);
-                        endDate.setHours(23, 59, 59, 999);
-                        if (new Date(os.created_date) > endDate) return false;
-                      }
-                    } else if (filters.periodo !== 'all') {
-                      const days = parseInt(filters.periodo);
-                      const cutoff = subDays(new Date(), days);
-                      if (new Date(os.created_date) < cutoff) return false;
-                    }
-                    return true;
-                  })}
-                  regionais={regionais}
+                <PainelRecebimento
+                  filteredOrdens={filteredOrdens}
+                  categoriaRecebimento={categoriaRecebimento}
+                  almoxarifados={almoxarifados}
                   problemasRecebimento={problemasRecebimento}
                 />
               </TabsContent>
