@@ -115,6 +115,7 @@ export default function OSFormModal({
         status_separacao: os.status_separacao || 'pendente',
         responsavel_separacao: os.responsavel_separacao || '',
         data_separacao: formatDateForInput(os.data_separacao),
+        separacao_concluida_em: formatDateForInput(os.separacao_concluida_em),
         data_entrega: formatDateForInput(os.data_entrega),
         data_necessidade: formatDateForInput(os.data_necessidade),
         anexos: os.anexos || [], imagens: os.imagens || [],
