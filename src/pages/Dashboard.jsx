@@ -473,7 +473,7 @@ export default function Dashboard() {
           <Select 
             value={filters.subcategoria} 
             onValueChange={(v) => updateFilters({ ...filters, subcategoria: v })}
-            disabled={filters.categoria === 'all'}
+            disabled={!activeCategoriaId}
           >
             <SelectTrigger className="w-full bg-white dark:bg-slate-800">
               <SelectValue placeholder="Subcategoria" />
