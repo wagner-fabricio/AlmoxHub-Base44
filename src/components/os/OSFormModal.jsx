@@ -974,6 +974,7 @@ export default function OSFormModal({
             onClose={() => setShowEtiquetaModal(false)}
             os={{ ...formData, codigo: os?.codigo || formData.codigo }}
             instalacoes={instalacoes}
+            almoxarifados={almoxarifados}
           />
         )}
 

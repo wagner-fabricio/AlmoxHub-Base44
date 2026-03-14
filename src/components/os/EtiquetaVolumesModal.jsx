@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Loader2, Tag, Package } from 'lucide-react';
 import jsPDF from 'jspdf';
 import JsBarcode from 'jsbarcode';
+import QRCode from 'qrcode';
 
 const ISO_SYMBOLS = [
   { id: 'fragil',           label: 'Frágil',              description: 'Conteúdo quebrável — manuseio cuidadoso' },
@@ -76,13 +77,14 @@ const svgToPng = (svgStr, px = 280) => new Promise((resolve) => {
   img.src = url;
 });
 
-export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes }) {
+export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, almoxarifados }) {
   const [selectedSymbols, setSelectedSymbols] = useState([]);
   const [labelsPerPage, setLabelsPerPage]     = useState('2');
   const [generating, setGenerating]           = useState(false);
 
   const instalacaoOrigem  = instalacoes?.find(i => i?.id === os?.instalacao_origem_id);
   const instalacaoDestino = instalacoes?.find(i => i?.id === os?.instalacao_destino_id);
+  const almoxarifado      = almoxarifados?.find(a => a?.id === os?.almoxarifado_id);
 
   const expandedVolumes = (os?.volumes || []).flatMap(vol => {
     const qty = parseInt(vol.quantidade) || 1;
@@ -108,6 +110,13 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
       for (const sid of selectedSymbols)
         if (SYMBOL_SVGS[sid]) symImages[sid] = await svgToPng(SYMBOL_SVGS[sid], 280);
 
+      // Pre-generate QR code (same link as "compartilhar" button)
+      const osUrl = `${window.location.origin}/OrdensServico?os_id=${os.id}`;
+      let qrDataUrl = null;
+      try {
+        qrDataUrl = await QRCode.toDataURL(osUrl, { width: 300, margin: 1, errorCorrectionLevel: 'M' });
+      } catch(e) { console.warn('QR generation failed', e); }
+
       const n    = parseInt(labelsPerPage);
       const pdf  = new jsPDF('p', 'mm', 'a4');
       const PW = 210, PH = 297, MG = 5, GAP = 2;
@@ -116,7 +125,7 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
       const LW = (PW - 2*MG - (cols-1)*GAP) / cols;
       const LH = (PH - 2*MG - (rows-1)*GAP) / rows;
 
-      // ── Returns the largest fontSize ≤ maxFs where text fits in maxW (single line) ──
+      // ── Returns the largest fontSize ≤ maxFs where text fits in maxW ──
       const fitFont = (text, maxW, maxFs, minFs = 4) => {
         let fs = maxFs;
         while (fs > minFs) {
@@ -127,10 +136,9 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
         return minFs;
       };
 
-      // ── Truncates text with ellipsis until it fits maxW at current fontSize ──
+      // ── Truncates text with ellipsis until it fits maxW ──
       const truncate = (text, maxW) => {
         if (!text) return '';
-        pdf.setFontSize(pdf.getFontSize());
         const scale = pdf.internal.scaleFactor;
         const fs    = pdf.getFontSize();
         const ellipsis = '…';
@@ -150,36 +158,36 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
       };
 
       const totalWeight = expandedVolumes.reduce((s,v) => s + (parseFloat(v.peso_bruto)||0), 0);
+      const totalM3     = expandedVolumes.reduce((s,v) => s + (parseFloat(v.m3)||0), 0);
 
       const drawLabel = (lx, ly, lw, lh, vol, vIdx, vTotal) => {
         const mg = 2.5;
         const iw = lw - 2*mg;
 
-        // ── Scale: geometric mean of label size, min 10pt ──
+        // ── Scale-based font sizes ──
         const scale = Math.sqrt(lw * lh);
-        const FSN  = Math.max(10,  scale * 0.118);  // body
-        const FSL  = Math.max(8.5, FSN  * 0.80);    // labels (REMETENTE:)
-        const FSA  = Math.max(7.5, FSN  * 0.76);    // address
-        const FSC  = Math.max(11,  FSN  * 1.36);    // OS code
-        const FSS  = Math.max(9,   FSN  * 0.84);    // small fields
-        const FSH  = Math.max(8,   FSN  * 0.92);    // header
-        const FSBar= Math.max(7.5, FSN  * 0.78);    // summary bar
+        const FSN  = Math.max(10,  scale * 0.118);
+        const FSL  = Math.max(8.5, FSN  * 0.80);
+        const FSA  = Math.max(7.5, FSN  * 0.76);
+        const FSC  = Math.max(11,  FSN  * 1.36);
+        const FSS  = Math.max(9,   FSN  * 0.84);
+        const FSH  = Math.max(8,   FSN  * 0.92);
+        const FSBar= Math.max(6.5, FSN  * 0.70);
 
         const lhOf = (fs) => fs * 0.50;
 
-        const HEADER_H = Math.max(6.5,  FSH  * 0.84);
-        const SUMBAR_H = Math.max(5,    FSBar* 0.80);
-        const BOT_H    = Math.max(11,   lh   * 0.16);
+        const HEADER_H = Math.max(6.5, FSH  * 0.84);
+        const SUMBAR_H = Math.max(3.8, FSBar * 0.65);  // text-only, no fill
+        const BOT_H    = Math.max(22,  lh   * 0.27);   // QR + barcode + info
 
-        // ── Column layout ──
-        const colGap   = 1.5;
-        const leftColW = iw * 0.44 - colGap / 2;
-        const rightColW= iw * 0.56 - colGap / 2;
-        const colX_R   = lx + mg + leftColW + colGap;
+        // ── TOP section column layout ──
+        const colGap    = 1.5;
+        const leftColW  = iw * 0.44 - colGap / 2;
+        const rightColW = iw * 0.56 - colGap / 2;
+        const colX_R    = lx + mg + leftColW + colGap;
 
-        // TOP height: label + name + address (2 lines) + CNPJ line each side
-        const TOP_H = lhOf(FSL)+0.8 + lhOf(FSA)*4 + 3.5;
-        const MID_H = lh - HEADER_H - TOP_H - SUMBAR_H - BOT_H;
+        const TOP_H = lhOf(FSL) + 0.8 + lhOf(FSA) * 4 + 3.5;
+        const MID_H = lh - HEADER_H - TOP_H - BOT_H;
 
         // ── Border ──
         pdf.setLineWidth(0.8); pdf.setDrawColor(0);
@@ -196,17 +204,16 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
         pdf.text(vtLabel, lx+lw-mg-vtW, ly + HEADER_H*0.74);
         pdf.setTextColor(0,0,0);
 
-        // ══════════ TOP SECTION — 2 columns, same font size ══════════
+        // ══════════ TOP SECTION — Remetente / Destinatário ══════════
         const topStart = ly + HEADER_H;
         const topEnd   = topStart + TOP_H;
         let ty = topStart + 1.5;
         let ry = topStart + 1.5;
 
-        // Helper: find font size so ALL lines of text fit within maxW AND total height fits maxH
-        const fitBlock = (text, maxW, maxH, maxFs, bold = false) => {
+        const fitBlock = (text, maxW, maxH, maxFs) => {
           let fs = maxFs;
           while (fs > 4) {
-            pdf.setFont('helvetica', bold ? 'bold' : 'normal');
+            pdf.setFont('helvetica','normal');
             pdf.setFontSize(fs);
             const lines = pdf.splitTextToSize(text, maxW);
             const totalH = lines.length * lhOf(fs);
@@ -218,53 +225,37 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
           return { fs: 4, lines: pdf.splitTextToSize(text, maxW) };
         };
 
-        // Available height per side for name+address+cnpj block (after label row)
         const blockH = TOP_H - lhOf(FSL) - 0.8 - 2.0;
 
-        // — Left: REMETENTE —
-        pdf.setFont('helvetica','bold'); pdf.setFontSize(FSL);
-        pdf.text('REMETENTE:', lx+mg, ty + lhOf(FSL)*0.76);
-        ty += lhOf(FSL) + 0.8;
-
-        // Helper to render name+address+cnpj block in a column
+        // Render name + address+CNPJ concatenated
         const renderAddrBlock = (inst, x, startY, colW) => {
-          const nome = inst?.nome || '-';
-          const addr = getEndereco(inst);
-          const cnpj = inst?.cnpj ? `CNPJ: ${inst.cnpj}` : '';
-          // Build full text to measure block size
-          const parts = [nome, addr, cnpj].filter(Boolean);
-          const fullText = parts.join('\n');
-          const block = fitBlock(fullText, colW, blockH, FSA, false);
-          const fs = block.fs;
+          const nome     = inst?.nome || '-';
+          const addr     = getEndereco(inst);
+          const cnpjPart = inst?.cnpj ? ` — CNPJ: ${inst.cnpj}` : '';
+          const addrLine = addr + cnpjPart;
+          const fullText = [nome, addrLine].filter(Boolean).join('\n');
+          const block    = fitBlock(fullText, colW, blockH, FSA);
+          const fs       = block.fs;
           pdf.setFontSize(fs);
           let y = startY;
-          // Name (bold)
           const nameLines = pdf.splitTextToSize(nome, colW);
           pdf.setFont('helvetica','bold');
           pdf.text(nameLines.map(l => truncate(l, colW)), x, y + lhOf(fs)*0.76);
           y += nameLines.length * lhOf(fs) + 0.4;
-          // Address (normal)
-          if (addr) {
-            const addrLines = pdf.splitTextToSize(addr, colW);
+          if (addrLine) {
+            const addrLines = pdf.splitTextToSize(addrLine, colW);
             pdf.setFont('helvetica','normal');
             pdf.text(addrLines.map(l => truncate(l, colW)), x, y + lhOf(fs)*0.76);
-            y += addrLines.length * lhOf(fs) + 0.3;
-          }
-          // CNPJ (normal)
-          if (cnpj) {
-            const cnpjLines = pdf.splitTextToSize(cnpj, colW);
-            pdf.setFont('helvetica','normal');
-            pdf.text(cnpjLines.map(l => truncate(l, colW)), x, y + lhOf(fs)*0.76);
           }
         };
 
-        // — Left: REMETENTE —
+        // Left: REMETENTE
         pdf.setFont('helvetica','bold'); pdf.setFontSize(FSL);
         pdf.text('REMETENTE:', lx+mg, ty + lhOf(FSL)*0.76);
         ty += lhOf(FSL) + 0.8;
         renderAddrBlock(instalacaoOrigem, lx+mg, ty, leftColW);
 
-        // — Right: DESTINATÁRIO —
+        // Right: DESTINATÁRIO
         pdf.setFont('helvetica','bold'); pdf.setFontSize(FSL);
         pdf.text('DESTINATÁRIO:', colX_R, ry + lhOf(FSL)*0.76);
         ry += lhOf(FSL) + 0.8;
@@ -286,28 +277,18 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
         const dataW    = iw - symZoneW;
         let my = midStart + 1.5;
 
-        const printMid = (text, x, y, fs, bold=false, maxW=dataW, maxLines=1) => {
-          if (y > midEnd) return y;
-          pdf.setFont('helvetica', bold ? 'bold' : 'normal'); pdf.setFontSize(fs);
-          const lines = pdf.splitTextToSize(text, maxW).slice(0, maxLines)
-            .map(l => truncate(l, maxW));
-          pdf.text(lines, x, y + lhOf(fs)*0.76);
-          return y + lines.length * lhOf(fs) + 0.7;
-        };
-
-        // Build all mid-section lines and auto-fit font to available height
+        // Build mid-section lines, auto-fit font
         const midLines = [
           { text: 'ORDEM DE SERVIÇO:', bold: true, big: false },
           { text: os?.codigo || '-',   bold: true, big: true  },
-          ...(os?.num_reserva     ? [{ text: `Reserva: ${os.num_reserva}`,       bold: false, big: false }] : []),
-          ...(os?.num_migo        ? [{ text: `MIGO: ${os.num_migo}`,             bold: false, big: false }] : []),
-          ...(os?.usuario_reserva ? [{ text: `Usuário: ${os.usuario_reserva}`,   bold: false, big: false }] : []),
+          ...(os?.num_reserva     ? [{ text: `Reserva: ${os.num_reserva}`,     bold: false, big: false }] : []),
+          ...(os?.num_migo        ? [{ text: `MIGO: ${os.num_migo}`,           bold: false, big: false }] : []),
+          ...(os?.usuario_reserva ? [{ text: `Usuário: ${os.usuario_reserva}`, bold: false, big: false }] : []),
           { text: '---divider---', bold: false, big: false },
           { text: `C: ${vol.comprimento||'—'} cm  L: ${vol.largura||'—'} cm  A: ${vol.altura||'—'} cm`, bold: false, big: false },
           { text: `Peso Bruto: ${vol.peso_bruto||'—'} kg${vol.m3 ? `   M³: ${vol.m3}` : ''}`, bold: false, big: false },
         ];
 
-        // Compute total height needed for given fs, codeFs = fs * 1.3
         const midAvailH = midEnd - midStart - 3;
         let midFs = FSS;
         for (let testFs = FSS; testFs >= 5; testFs -= 0.5) {
@@ -335,16 +316,17 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
           my += lines.length * lhOf(fs) + 0.7;
         });
 
-        // Symbols
+        // Symbols (3 cols for 8/page, 2 for others when enough symbols/space)
         if (hasSyms && symZoneW > 0) {
           const symX    = lx + mg + dataW + 1;
           const availH  = MID_H - SUMBAR_H - 3;
-          const symCols = symZoneW >= 22 && selectedSymbols.length > 2 ? 2 : 1;
+          const symCols = (n === 8 && selectedSymbols.length > 2) ? 3 :
+                          (symZoneW >= 22 && selectedSymbols.length > 2 ? 2 : 1);
           const symRows = Math.ceil(selectedSymbols.length / symCols);
           const colW    = symZoneW / symCols;
-          const symSz   = Math.max(6, Math.min(colW-2, (availH/symRows)-5));
-          const showLbl = symSz >= 14;
-          const rowH    = symSz + (showLbl ? 6 : 2.5);
+          const symSz   = Math.max(5, Math.min(colW - 1.5, (availH / symRows) - 4));
+          const showLbl = symSz >= 12;
+          const rowH    = symSz + (showLbl ? 5.5 : 2);
 
           selectedSymbols.forEach((sid, si) => {
             const col = si % symCols, row = Math.floor(si / symCols);
@@ -355,39 +337,73 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
             if (showLbl) {
               const sym = ISO_SYMBOLS.find(s => s.id === sid);
               if (sym) {
-                pdf.setFontSize(Math.max(4, symSz*0.22));
+                pdf.setFontSize(Math.max(3.5, symSz * 0.20));
                 pdf.setFont('helvetica','normal');
-                pdf.text(pdf.splitTextToSize(sym.label, colW-1).slice(0,2), sX, sY+symSz+2);
+                pdf.text(pdf.splitTextToSize(sym.label, colW - 0.5).slice(0, 2), sX, sY + symSz + 1.8);
               }
             }
           });
         }
 
-        // Summary bar
+        // ── Summary line — no fill, top border only, includes m³ total ──
         const smY = midStart + MID_H - SUMBAR_H;
-        pdf.setFillColor(210,210,210);
-        pdf.rect(lx, smY, lw, SUMBAR_H, 'F');
-        const sumText = `${vTotal} vol(s)  |  Peso Total: ${totalWeight.toFixed(1)} kg  |  Vol. ${vIdx+1}/${vTotal}`;
-        const sumFs   = fitFont(sumText, iw, FSBar, 5);
-        pdf.setFont('helvetica','bold'); pdf.setFontSize(sumFs); pdf.setTextColor(0,0,0);
-        pdf.text(sumText, lx+mg, smY + SUMBAR_H*0.72);
-        pdf.setLineWidth(0.9);
-        pdf.line(lx, midStart+MID_H, lx+lw, midStart+MID_H);
+        pdf.setLineWidth(0.5);
+        pdf.line(lx, smY, lx+lw, smY);
+        const sumText = `${vTotal} vol(s)  |  Peso Total: ${totalWeight.toFixed(1)} kg  |  M³ Total: ${totalM3.toFixed(3)}  |  Vol. ${vIdx+1}/${vTotal}`;
+        const sumFs   = fitFont(sumText, iw, FSBar, 4);
+        pdf.setFont('helvetica','normal'); pdf.setFontSize(sumFs); pdf.setTextColor(0,0,0);
+        pdf.text(sumText, lx+mg, smY + SUMBAR_H * 0.72);
 
-        // ══════════ BOTTOM — barcode + info line ══════════
+        // Section border (mid → bot)
+        pdf.setLineWidth(0.9);
+        pdf.line(lx, midStart + MID_H, lx+lw, midStart + MID_H);
+
+        // ══════════ BOTTOM — QR (left) | Barcode + info (right) ══════════
         const botY   = midStart + MID_H;
-        const osCode = (os?.codigo||'OS').replace(/[^A-Z0-9\-_]/gi,'').toUpperCase();
-        const barcodeData = `${osCode} ${String(vIdx+1).padStart(2,'0')}/${String(vTotal).padStart(2,'0')}`;
-        const bcImg  = genBarcode(barcodeData);
+        const qrSize = Math.min(BOT_H - 3, iw * 0.34);
+        const qrX    = lx + mg;
+        const qrY    = botY + (BOT_H - qrSize) / 2;
+
+        // Left: QR code
+        if (qrDataUrl) {
+          pdf.addImage(qrDataUrl, 'PNG', qrX, qrY, qrSize, qrSize);
+        }
+
+        // Right: barcode (OS number only) + info lines
+        const bcColX = lx + mg + qrSize + 2;
+        const bcColW = iw - qrSize - 2;
+        const osCode = (os?.codigo || 'OS').replace(/[^A-Z0-9\-_]/gi, '').toUpperCase();
+        const bcImg  = genBarcode(osCode);
+
         if (bcImg) {
-          const bcH = Math.min(BOT_H * 0.62, 18);
-          pdf.addImage(bcImg, 'PNG', lx+mg, botY+1.0, iw, bcH);
-          // Info line: OS + vol + peso only (CNPJs moved to section 1)
-          const hrTxt = `OS: ${os?.codigo||'-'}  |  Vol: ${vIdx+1}/${vTotal}  |  Peso: ${vol.peso_bruto||'-'} kg  |  Peso Total: ${totalWeight.toFixed(1)} kg`;
-          const hrY   = botY + 1.0 + bcH + 0.8;
-          const hrFs  = fitFont(hrTxt, iw, 5.5, 2.5);
-          pdf.setFont('helvetica','normal'); pdf.setFontSize(hrFs);
-          pdf.text(truncate(hrTxt, iw), lx+mg, hrY + hrFs*0.38);
+          const bcH = Math.min(BOT_H * 0.42, 13);
+          pdf.addImage(bcImg, 'PNG', bcColX, botY + 1.0, bcColW, bcH);
+
+          // Info lines below barcode
+          const infoAvailH = BOT_H - bcH - 3.5;
+          const infoFs = Math.max(4, Math.min(FSS * 0.72, infoAvailH / 3 * 1.6));
+          let iy = botY + 1.0 + bcH + 1.0;
+
+          const almoxNome = almoxarifado?.nome || '-';
+          const respSep   = os?.responsavel_separacao || '-';
+          const dataSep   = os?.separacao_concluida_em || os?.data_separacao || '-';
+
+          const infoItems = [
+            { label: 'Almox', value: almoxNome },
+            { label: 'Resp.',  value: respSep  },
+            { label: 'Sep.',   value: dataSep  },
+          ];
+
+          infoItems.forEach(({ label, value }) => {
+            if (iy > botY + BOT_H - 1) return;
+            const lblStr = label + ': ';
+            pdf.setFont('helvetica','bold'); pdf.setFontSize(infoFs * 0.85);
+            const lblW = pdf.getStringUnitWidth(lblStr) * infoFs * 0.85 / pdf.internal.scaleFactor;
+            pdf.text(lblStr, bcColX, iy + lhOf(infoFs) * 0.76);
+            pdf.setFont('helvetica','normal'); pdf.setFontSize(infoFs);
+            pdf.text(truncate(value, bcColW - lblW), bcColX + lblW, iy + lhOf(infoFs) * 0.76);
+            iy += lhOf(infoFs) + 0.5;
+          });
         }
       };
 
