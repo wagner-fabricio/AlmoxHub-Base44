@@ -244,7 +244,9 @@ export default function ExportDocumentacaoButton() {
       addText('• Ranking de produtividade por líder', 11);
       addText('• Torre de Controle para monitoramento em tempo real', 11);
       addText('• Insights automáticos de performance e riscos', 11);
+      addText('• Analytics com fórmulas detalhadas para cada métrica', 11);
       yPos += 3;
+      addScreenshotPlaceholder('Dashboard com KPIs e gráficos');
 
       addText('2.4 Comunicação e Colaboração', 16, true);
       addText('• Chat em tempo real (conversas privadas e em grupo)', 11);
