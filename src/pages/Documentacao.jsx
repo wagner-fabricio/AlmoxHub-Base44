@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { BookOpen, Code, Workflow, CheckSquare, Settings, Shield, GitBranch, Lock, Wrench, Database } from 'lucide-react';
+import { BookOpen, Code, Workflow, CheckSquare, Settings, Shield, GitBranch, Lock, Wrench, Database, BarChart2 } from 'lucide-react';
 import ArquiteturaSection from '@/components/documentacao/ArquiteturaSection';
 import RecursosSection from '@/components/documentacao/RecursosSection';
 import StatusRecursosSection from '@/components/documentacao/StatusRecursosSection';
@@ -12,6 +12,7 @@ import PrivacyByDesignSection from '@/components/documentacao/PrivacyByDesignSec
 import PlanoMelhoriasSeg from '@/components/documentacao/PlanoMelhoriasSeg';
 import PlanoDRSection from '@/components/documentacao/PlanoDRSection';
 import ExportDocumentacaoButton from '@/components/documentacao/ExportDocumentacaoButton';
+import AnalyticsSection from '@/components/documentacao/AnalyticsSection';
 
 const TABS = [
   { id: 'arquitetura', label: 'Arquitetura', icon: Code },
@@ -20,6 +21,7 @@ const TABS = [
   { id: 'implementacao', label: 'Implementação', icon: GitBranch },
   { id: 'operacoes', label: 'Operações', icon: Settings },
   { id: 'seguranca', label: 'Segurança', icon: Shield },
+  { id: 'analytics', label: 'Analytics', icon: BarChart2 },
   { id: 'roadmap', label: 'Roadmap', icon: Database },
   { id: 'privacy', label: 'Privacy', icon: Lock },
   { id: 'melhorias', label: 'Melhorias', icon: Wrench },
