@@ -227,7 +227,7 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
 
         const blockH = TOP_H - lhOf(FSL) - 0.8 - 2.0;
         // For n=1 cap font smaller so long names/addresses don't overflow the section
-        const blockMaxFs = n === 1 ? FSA * 0.72 : FSA;
+        const blockMaxFs = n === 1 ? FSA * 0.58 : FSA;
 
         // Render name + address+CNPJ concatenated
         const renderAddrBlock = (inst, x, startY, colW) => {
