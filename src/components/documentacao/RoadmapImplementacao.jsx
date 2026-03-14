@@ -90,6 +90,77 @@ export default function RoadmapImplementacao() {
       ]
     },
     {
+      id: 'etiquetas_logisticas',
+      titulo: '✅ Etiquetas Logísticas PDF (ISO 780)',
+      descricao: 'IMPLEMENTADO - Geração de etiquetas com código de barras, QR Code e símbolos ISO de manuseio',
+      icon: FileText,
+      prioridade: 'alta',
+      complexidade: 'alta',
+      estimativa: '4-6 dias',
+      categoria: 'funcionalidades',
+      status: 'implementado',
+      dependencias: ['OrdemServico com volumes preenchidos', 'Instalações de origem e destino cadastradas'],
+      stackTecnico: [
+        'jsPDF — geração de PDF',
+        'JsBarcode — código de barras CODE128',
+        'qrcode — QR Code com URL da OS',
+        'SVG inline — símbolos ISO 780',
+        'Canvas API — conversão SVG→PNG',
+        'layouts: 1, 2, 4 e 8 etiquetas/folha A4'
+      ],
+      implementacao: [
+        {
+          etapa: 'EtiquetaVolumesModal Component',
+          detalhes: [
+            'Modal de configuração: escolha de layout (1/2/4/8 por folha) e símbolos',
+            'Símbolos ISO 780: Frágil, Este Lado Para Cima, Proteger da Umidade, Empilhamento, Centro de Gravidade, Não Usar Garra',
+            'Botão "Gerar Etiquetas" exibido ao lado de "Inserir Volume" em verde esmeralda',
+            'Etiquetas expandem volumes pela quantidade (ex: vol qtd=3 gera 3 etiquetas iguais)',
+          ]
+        },
+        {
+          etapa: 'Layout Responsivo por Densidade',
+          detalhes: [
+            '1/folha: máximo detalhe, fonte maior, wrap de anotações',
+            '2/folha: 1 col × 2 linhas, fontes intermediárias',
+            '4/folha: 2 col × 2 linhas, fontes reduzidas',
+            '8/folha: 2 col × 4 linhas, fontes mínimas, layout compacto',
+            'Auto-fit de fonte (fitFont/fitBlock) para evitar overflow em todos os layouts',
+            'Número máximo de linhas calculado via blockH / lineHeight',
+          ]
+        },
+        {
+          etapa: 'Seções de Cada Etiqueta',
+          detalhes: [
+            'Header preto: "AXIA ENERGIA" + "VOL. X/Y"',
+            'Seção Top (2 colunas): Remetente (instalação origem) e Destinatário (instalação destino)',
+            'Seção Meio: código OS, reserva, MIGO, usuário, dimensões, peso/m³ | símbolos ISO à direita',
+            'Barra de resumo: total volumes, peso total, m³ total',
+            'Footer: QR Code (link OS) | código de barras CODE128 + infos de separação',
+          ]
+        },
+        {
+          etapa: 'Qualidade e Precisão Visual',
+          detalhes: [
+            'truncate(): corta texto com "…" quando excede a largura disponível',
+            'fitBlock(): reduz tamanho de fonte iterativamente até caber no bloco',
+            'Símbolos alinhados à direita da zona reservada',
+            'Divider entre remetente e destinatário com borda vertical',
+            'Linha separadora (sumbar) com totais — sem preenchimento de fundo',
+          ]
+        }
+      ],
+      criteriosAceitacao: [
+        'PDF é gerado corretamente para 1, 2, 4 e 8 etiquetas por folha',
+        'Código de barras CODE128 é legível',
+        'QR Code aponta para a URL correta da OS',
+        'Símbolos ISO 780 são exibidos sem pixelização',
+        'Texto nunca transborda fora dos limites de cada seção',
+        'Botão de acesso está junto ao "Inserir Volume", em cor diferenciada',
+        'Botão desabilitado quando não há volumes cadastrados',
+      ]
+    },
+    {
       id: 'anexos_mensagens',
       titulo: '✅ Anexos em Mensagens',
       descricao: 'IMPLEMENTADO - Upload arquivos, preview imagens, 5 anexos/msg',
