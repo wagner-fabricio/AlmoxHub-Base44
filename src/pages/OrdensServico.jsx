@@ -676,6 +676,15 @@ export default function OrdensServico() {
               }}
             />
           )}
+          {viewMode === 'pendencias_expedicao' && (
+            <OSPendenciasExpedicao
+              ordens={filteredOrdens}
+              categorias={categorias}
+              subcategorias={subcategorias}
+              instalacoes={instalacoes}
+              onOSClick={handleOSClick}
+            />
+          )}
         </>
       )}
 
