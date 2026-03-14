@@ -322,15 +322,18 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
         if (hasSyms && symZoneW > 0) {
           const symX    = lx + mg + dataW + 1;
           const availH  = MID_H - SUMBAR_H - 3;
-          const symCols = (n === 8 && selectedSymbols.length > 2) ? 3 :
-                          (symZoneW >= 22 && selectedSymbols.length > 2 ? 2 : 1);
+          // Columns per layout: 1→1col, 2→3cols, 4→2cols(tight), 8→3cols
+          const symCols = n === 1 ? 1 :
+                          n === 2 ? (selectedSymbols.length > 1 ? 3 : 1) :
+                          n === 8 ? (selectedSymbols.length > 2 ? 3 : 2) :
+                          (selectedSymbols.length > 2 ? 2 : 1);
           const symRows = Math.ceil(selectedSymbols.length / symCols);
           const colW    = symZoneW / symCols;
-          // For 8/page use tighter row gap to fit all symbols in available height
-          const rowGap  = n === 8 ? 1.0 : 2.0;
-          const symSz   = Math.max(4, Math.min(colW - 1.0, (availH / symRows) - rowGap));
-          const showLbl = symSz >= 12;
-          const rowH    = symSz + (showLbl ? 5.0 : rowGap);
+          // Tight row gap for dense layouts
+          const rowGap  = (n === 4 || n === 8) ? 0.8 : 1.5;
+          const symSz   = Math.max(4, Math.min(colW - 0.8, (availH / symRows) - rowGap));
+          const showLbl = symSz >= 11;
+          const rowH    = symSz + (showLbl ? 4.5 : rowGap);
 
           selectedSymbols.forEach((sid, si) => {
             const col = si % symCols, row = Math.floor(si / symCols);
