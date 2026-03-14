@@ -175,7 +175,7 @@ export default function OSFilters({
                 <span className="truncate text-xs sm:text-sm">
                   {isExpedicaoView || isPendenciasView
                     ? 'Expedição'
-                    : isRecebimentoView
+                    : isRecebimentoView || isPendenciasRecebimentoView
                     ? 'Recebimento'
                     : filters.categorias?.length === 0 ? 'Categorias' : 
                       filters.categorias?.length === 1 ? (categorias.find(c => c.id === filters.categorias[0])?.nome || 'Cat.') :
