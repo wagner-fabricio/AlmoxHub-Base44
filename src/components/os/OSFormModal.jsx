@@ -724,6 +724,18 @@ export default function OSFormModal({
               {isAtendimentoCategory && (<TabsContent value="materiais"><OSAtendimentoMateriais itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} /></TabsContent>)}
               {isExpedicaoCategory && (
                 <TabsContent value="volumes" className="space-y-6">
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      onClick={() => setShowEtiquetaModal(true)}
+                      disabled={!formData.volumes?.length}
+                      size="sm"
+                      className="bg-blue-700 hover:bg-blue-800 text-white gap-2"
+                    >
+                      <Tag className="w-4 h-4" />
+                      Gerar Etiquetas
+                    </Button>
+                  </div>
                   <OSVolumes volumes={formData.volumes} onChange={(volumes) => setFormData(prev => ({ ...prev, volumes }))} />
                   {/* Seção Separação */}
                   <div className="border-t pt-6">
