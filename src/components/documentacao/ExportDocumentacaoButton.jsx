@@ -78,7 +78,27 @@ export default function ExportDocumentacaoButton() {
           yPos += lineHeight;
         });
 
-        yPos += 3;
+        yPos += 2;
+      };
+      
+      // Função para adicionar seção com screenshot placeholder
+      const addScreenshotPlaceholder = (label) => {
+        if (yPos + 50 > pageHeight - 40) {
+          addNewPage();
+        }
+        // Box com borda
+        doc.setDrawColor(220, 220, 220);
+        doc.setLineWidth(0.5);
+        doc.rect(margin, yPos, contentWidth, 45);
+        // Preenchimento cinza claro
+        doc.setFillColor(245, 245, 245);
+        doc.rect(margin, yPos, contentWidth, 45, 'F');
+        // Texto
+        doc.setTextColor(120, 120, 120);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'italic');
+        doc.text(`[Screenshot: ${label}]`, pageWidth / 2, yPos + 22, { align: 'center' });
+        yPos += 48;
       };
 
       // CAPA com design elegante e clean
