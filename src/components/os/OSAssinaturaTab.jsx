@@ -209,7 +209,7 @@ export default function OSAssinaturaTab({ os, onSave }) {
                 {editingId ? 'Redesenhar Assinatura' : 'Nova Assinatura'}
               </p>
             </div>
-            <Button variant="ghost" size="icon" onClick={closePad} className="h-8 w-8">
+            <Button type="button" variant="ghost" size="icon" onClick={closePad} className="h-8 w-8">
               <X className="w-4 h-4" />
             </Button>
           </div>
