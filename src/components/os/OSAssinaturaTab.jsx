@@ -243,11 +243,12 @@ export default function OSAssinaturaTab({ os, onSave }) {
             </div>
 
             <div className="flex gap-2">
-              <Button variant="outline" onClick={clearCanvas} className="gap-2">
+              <Button type="button" variant="outline" onClick={clearCanvas} className="gap-2">
                 <RotateCcw className="w-4 h-4" />
                 Limpar
               </Button>
               <Button
+                type="button"
                 onClick={handleSave}
                 disabled={!hasDrawing || saving}
                 className="flex-1 gap-2"
