@@ -437,7 +437,12 @@ export default function OSFormModal({
   const problemasNaoPreenchidos = formData.problema_recebimento && (!formData.problemas_recebimento_ids || formData.problemas_recebimento_ids.length === 0);
   const hasVolumes = (formData.volumes?.length || 0) > 0;
   const separacaoIncompleta = isExpedicaoCategory && hasVolumes && (!formData.responsavel_separacao || !formData.data_separacao || !formData.separacao_concluida_em);
-  const isValid = formData.categoria_id && formData.subcategorias_ids?.length > 0 && formData.regional_id && formData.almoxarifado_id && formData.lider_id && formData.prazo && !prazoError && !problemasNaoPreenchidos && !separacaoIncompleta;
+  const documentoIncompleto = isExpedicaoCategory && (
+    !formData.num_reserva || !formData.data_reserva || !formData.usuario_reserva ||
+    !formData.orgao || !formData.vinculacao || !formData.instalacao_origem_id || !formData.instalacao_destino_id ||
+    (formData.num_migo && !formData.data_migo)
+  );
+  const isValid = formData.categoria_id && formData.subcategorias_ids?.length > 0 && formData.regional_id && formData.almoxarifado_id && formData.lider_id && formData.prazo && !prazoError && !problemasNaoPreenchidos && !separacaoIncompleta && !documentoIncompleto;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
