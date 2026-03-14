@@ -226,46 +226,49 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
         pdf.text('REMETENTE:', lx+mg, ty + lhOf(FSL)*0.76);
         ty += lhOf(FSL) + 0.8;
 
-        // Name + address share same font size, name is bold
-        const rnText = instalacaoOrigem?.nome || '-';
-        const rnAddr = getEndereco(instalacaoOrigem);
-        const rnFull = rnAddr ? `${rnText}\n${rnAddr}` : rnText;
-        // Find fs where full block fits
-        const rnBlock = fitBlock(rnFull, leftColW, blockH, FSA, false);
-        const rnAllLines = rnBlock.lines;
-        // First line(s) = name (bold), rest = address (normal) — split at newline
-        const rnNameLines = pdf.splitTextToSize(rnText, leftColW);
-        const rnAddrLines = rnAddr ? pdf.splitTextToSize(rnAddr, leftColW) : [];
-        const sharedFsR   = rnBlock.fs;
-        pdf.setFontSize(sharedFsR);
-        pdf.setFont('helvetica','bold');
-        pdf.text(rnNameLines.map(l => truncate(l, leftColW)), lx+mg, ty + lhOf(sharedFsR)*0.76);
-        ty += rnNameLines.length * lhOf(sharedFsR) + 0.5;
-        if (rnAddrLines.length > 0) {
-          pdf.setFont('helvetica','normal');
-          pdf.text(rnAddrLines.map(l => truncate(l, leftColW)), lx+mg, ty + lhOf(sharedFsR)*0.76);
-        }
+        // Helper to render name+address+cnpj block in a column
+        const renderAddrBlock = (inst, x, startY, colW) => {
+          const nome = inst?.nome || '-';
+          const addr = getEndereco(inst);
+          const cnpj = inst?.cnpj ? `CNPJ: ${inst.cnpj}` : '';
+          // Build full text to measure block size
+          const parts = [nome, addr, cnpj].filter(Boolean);
+          const fullText = parts.join('\n');
+          const block = fitBlock(fullText, colW, blockH, FSA, false);
+          const fs = block.fs;
+          pdf.setFontSize(fs);
+          let y = startY;
+          // Name (bold)
+          const nameLines = pdf.splitTextToSize(nome, colW);
+          pdf.setFont('helvetica','bold');
+          pdf.text(nameLines.map(l => truncate(l, colW)), x, y + lhOf(fs)*0.76);
+          y += nameLines.length * lhOf(fs) + 0.4;
+          // Address (normal)
+          if (addr) {
+            const addrLines = pdf.splitTextToSize(addr, colW);
+            pdf.setFont('helvetica','normal');
+            pdf.text(addrLines.map(l => truncate(l, colW)), x, y + lhOf(fs)*0.76);
+            y += addrLines.length * lhOf(fs) + 0.3;
+          }
+          // CNPJ (normal)
+          if (cnpj) {
+            const cnpjLines = pdf.splitTextToSize(cnpj, colW);
+            pdf.setFont('helvetica','normal');
+            pdf.text(cnpjLines.map(l => truncate(l, colW)), x, y + lhOf(fs)*0.76);
+          }
+        };
+
+        // — Left: REMETENTE —
+        pdf.setFont('helvetica','bold'); pdf.setFontSize(FSL);
+        pdf.text('REMETENTE:', lx+mg, ty + lhOf(FSL)*0.76);
+        ty += lhOf(FSL) + 0.8;
+        renderAddrBlock(instalacaoOrigem, lx+mg, ty, leftColW);
 
         // — Right: DESTINATÁRIO —
         pdf.setFont('helvetica','bold'); pdf.setFontSize(FSL);
         pdf.text('DESTINATÁRIO:', colX_R, ry + lhOf(FSL)*0.76);
         ry += lhOf(FSL) + 0.8;
-
-        const dnText = instalacaoDestino?.nome || '-';
-        const dnAddr = getEndereco(instalacaoDestino);
-        const dnFull = dnAddr ? `${dnText}\n${dnAddr}` : dnText;
-        const dnBlock = fitBlock(dnFull, rightColW, blockH, FSA, false);
-        const dnNameLines = pdf.splitTextToSize(dnText, rightColW);
-        const dnAddrLines = dnAddr ? pdf.splitTextToSize(dnAddr, rightColW) : [];
-        const sharedFsD   = dnBlock.fs;
-        pdf.setFontSize(sharedFsD);
-        pdf.setFont('helvetica','bold');
-        pdf.text(dnNameLines.map(l => truncate(l, rightColW)), colX_R, ry + lhOf(sharedFsD)*0.76);
-        ry += dnNameLines.length * lhOf(sharedFsD) + 0.5;
-        if (dnAddrLines.length > 0) {
-          pdf.setFont('helvetica','normal');
-          pdf.text(dnAddrLines.map(l => truncate(l, rightColW)), colX_R, ry + lhOf(sharedFsD)*0.76);
-        }
+        renderAddrBlock(instalacaoDestino, colX_R, ry, rightColW);
 
         // Column divider
         pdf.setLineWidth(0.25);
