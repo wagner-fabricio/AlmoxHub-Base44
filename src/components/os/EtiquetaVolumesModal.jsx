@@ -408,15 +408,23 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
           }
 
           let iy = botY + 1.0 + bcH + 0.8;
-          infoItems.forEach(({ label, value }) => {
+          infoItems.forEach(({ label, value, wrap }) => {
             if (iy > botY + BOT_H - 0.5) return;
             const lblStr = label + ': ';
             pdf.setFont('helvetica','bold'); pdf.setFontSize(infoFs * 0.88);
             const lblW = pdf.getStringUnitWidth(lblStr) * infoFs * 0.88 / pdf.internal.scaleFactor;
             pdf.text(lblStr, bcColX, iy + lhOf(infoFs) * 0.76);
             pdf.setFont('helvetica','normal'); pdf.setFontSize(infoFs);
-            pdf.text(truncate(value, bcColW - lblW), bcColX + lblW, iy + lhOf(infoFs) * 0.76);
-            iy += lhOf(infoFs) + 0.5;
+            if (wrap && n === 1) {
+              // Multi-line wrap for 1/page layout
+              const valueW = bcColW - lblW;
+              const lines  = pdf.splitTextToSize(value, valueW);
+              pdf.text(lines, bcColX + lblW, iy + lhOf(infoFs) * 0.76);
+              iy += lines.length * lhOf(infoFs) + 0.5;
+            } else {
+              pdf.text(truncate(value, bcColW - lblW), bcColX + lblW, iy + lhOf(infoFs) * 0.76);
+              iy += lhOf(infoFs) + 0.5;
+            }
           });
         }
       };
