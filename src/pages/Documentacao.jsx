@@ -90,7 +90,7 @@ export default function Documentacao() {
         {/* Tab Navigation - scrollable */}
         <div className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900 pt-4 pb-2">
           <div className="overflow-x-auto scrollbar-hide">
-            <div className="flex gap-1 bg-white dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm w-max min-w-full">
+            <div className="flex gap-1 bg-white dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex-wrap">
               {TABS.map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
