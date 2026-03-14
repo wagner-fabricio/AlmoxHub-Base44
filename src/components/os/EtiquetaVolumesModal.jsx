@@ -9,13 +9,82 @@ import jsPDF from 'jspdf';
 import JsBarcode from 'jsbarcode';
 
 const ISO_SYMBOLS = [
-  { id: 'fragil', label: 'Frágil', description: 'Conteúdo quebrável — manuseio cuidadoso (ISO 780)' },
-  { id: 'lado_cima', label: 'Este Lado Para Cima', description: 'Posição correta de armazenamento e transporte' },
+  { id: 'fragil', label: 'Frágil', description: 'Conteúdo quebrável — manuseio cuidadoso' },
+  { id: 'lado_cima', label: 'Este Lado Para Cima', description: 'Posição correta de armazenamento' },
   { id: 'umidade', label: 'Proteger da Umidade', description: 'Manter em local seco e protegido' },
-  { id: 'empilhamento', label: 'Limite de Empilhamento', description: 'Peso máximo ou número de caixas empilhadas' },
-  { id: 'centro_gravidade', label: 'Centro de Gravidade', description: 'Posição do centro de gravidade para içamento seguro' },
-  { id: 'nao_garra', label: 'Não Usar Garra / Empilhadeira', description: 'Proibido uso de garras mecânicas ou empilhadeiras' },
+  { id: 'empilhamento', label: 'Empilhamento', description: 'Limite de empilhamento' },
+  { id: 'centro_gravidade', label: 'Centro de Gravidade', description: 'Posição do centro de gravidade' },
+  { id: 'nao_garra', label: 'Não Usar Garra', description: 'Proibido uso de garras mecânicas' },
 ];
+
+// Clean bold silhouette SVGs matching ISO 780 reference quality
+const SYMBOL_SVGS = {
+  fragil: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 100">
+    <path d="M16 5 L64 5 C73 32 71 50 58 64 C52 72 50 75 50 75 C50 75 48 72 42 64 C29 50 27 32 16 5Z" fill="black"/>
+    <path d="M50 19 L44 41 L52 41 L45 65 L62 37 L54 37 L60 19Z" fill="white"/>
+    <rect x="45" y="75" width="10" height="14" fill="black" rx="2"/>
+    <path d="M24 91 L56 91 L60 100 H20Z" fill="black"/>
+  </svg>`,
+
+  lado_cima: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 92">
+    <path d="M22 48 L10 48 L27 7 L44 48 L32 48 L32 80 L22 80Z" fill="black"/>
+    <path d="M48 48 L36 48 L53 7 L70 48 L58 48 L58 80 L48 80Z" fill="black"/>
+    <rect x="5" y="83" width="70" height="9" rx="2" fill="black"/>
+  </svg>`,
+
+  umidade: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 92">
+    <path d="M4 48 C4 20 20 5 40 5 C60 5 76 20 76 48Z" fill="black"/>
+    <line x1="40" y1="7" x2="40" y2="48" stroke="white" stroke-width="2.5"/>
+    <line x1="4" y1="48" x2="22" y2="24" stroke="white" stroke-width="2"/>
+    <line x1="76" y1="48" x2="58" y2="24" stroke="white" stroke-width="2"/>
+    <rect x="36" y="48" width="8" height="28" fill="black" rx="4"/>
+    <path d="M40 76 Q40 88 53 88 Q66 88 66 76" fill="none" stroke="black" stroke-width="7" stroke-linecap="round"/>
+  </svg>`,
+
+  empilhamento: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 90">
+    <rect x="2" y="62" width="76" height="24" rx="3" fill="black"/>
+    <rect x="9" y="38" width="62" height="22" rx="3" fill="black"/>
+    <rect x="18" y="16" width="44" height="20" rx="3" fill="black"/>
+    <rect x="0" y="59" width="80" height="4" fill="white"/>
+    <rect x="0" y="35" width="80" height="4" fill="white"/>
+  </svg>`,
+
+  centro_gravidade: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+    <circle cx="40" cy="40" r="34" fill="none" stroke="black" stroke-width="7"/>
+    <rect x="37" y="4" width="6" height="72" fill="black" rx="3"/>
+    <rect x="4" y="37" width="72" height="6" fill="black" rx="3"/>
+    <circle cx="40" cy="40" r="7" fill="black"/>
+  </svg>`,
+
+  nao_garra: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+    <circle cx="40" cy="40" r="34" fill="none" stroke="black" stroke-width="7"/>
+    <rect x="22" y="10" width="7" height="24" rx="3.5" fill="black"/>
+    <rect x="36" y="10" width="7" height="24" rx="3.5" fill="black"/>
+    <rect x="51" y="10" width="7" height="24" rx="3.5" fill="black"/>
+    <rect x="22" y="30" width="36" height="6" rx="2" fill="black"/>
+    <rect x="36" y="36" width="7" height="26" rx="3.5" fill="black"/>
+    <line x1="12" y1="68" x2="68" y2="12" stroke="black" stroke-width="9" stroke-linecap="round"/>
+  </svg>`,
+};
+
+// Render SVG string to PNG data URL at given pixel size
+const svgToPng = (svgStr, px = 240) => new Promise((resolve) => {
+  const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement('canvas');
+    c.width = c.height = px;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, px, px);
+    ctx.drawImage(img, 0, 0, px, px);
+    URL.revokeObjectURL(url);
+    resolve(c.toDataURL('image/png'));
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+  img.src = url;
+});
 
 export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes }) {
   const [selectedSymbols, setSelectedSymbols] = useState([]);
@@ -35,447 +104,235 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
     setSelectedSymbols(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
   };
 
+  const getEndereco = (inst) => {
+    if (!inst) return '';
+    return [inst.logradouro, inst.numero, inst.bairro,
+      `${inst.cidade || ''}${inst.estado ? '/' + inst.estado : ''}`, inst.cep
+    ].filter(Boolean).join(', ');
+  };
+
   const handleGenerate = async () => {
     if (!os?.volumes?.length) return;
     setGenerating(true);
-
     try {
+      // Pre-render all selected symbols as high-res PNGs
+      const symImages = {};
+      for (const sid of selectedSymbols) {
+        if (SYMBOL_SVGS[sid]) symImages[sid] = await svgToPng(SYMBOL_SVGS[sid], 240);
+      }
+
       const n = parseInt(labelsPerPage);
       const pdf = new jsPDF('p', 'mm', 'a4');
-      const PW = 210, PH = 297;
-      // Minimal margins for max space
-      const MG = 5, GAP = 2;
+      const PW = 210, PH = 297, MG = 5, GAP = 2;
 
-      const grids = { 1: [1,1], 2: [1,2], 4: [2,2], 8: [2,4] };
+      const grids = { 1: [1, 1], 2: [1, 2], 4: [2, 2], 8: [2, 4] };
       const [cols, rows] = grids[n];
-      const LW = (PW - 2*MG - (cols-1)*GAP) / cols;
-      const LH = (PH - 2*MG - (rows-1)*GAP) / rows;
+      const LW = (PW - 2 * MG - (cols - 1) * GAP) / cols;
+      const LH = (PH - 2 * MG - (rows - 1) * GAP) / rows;
 
       const genBarcode = (text) => {
         try {
           const c = document.createElement('canvas');
-          JsBarcode(c, text, {
-            format: 'CODE128', displayValue: false,
-            width: 2, height: 80, margin: 4,
-            background: '#ffffff', lineColor: '#000000',
-          });
+          JsBarcode(c, text, { format: 'CODE128', displayValue: false, width: 2, height: 60, margin: 4, background: '#fff', lineColor: '#000' });
           return c.toDataURL('image/png');
-        } catch(e) { return null; }
-      };
-
-      // Fill polygon helper: takes array of absolute [x,y] points
-      const fillPoly = (pts, style = 'F') => {
-        if (pts.length < 2) return;
-        const segs = pts.slice(1).map((p, i) => [p[0] - pts[i][0], p[1] - pts[i][1]]);
-        pdf.lines(segs, pts[0][0], pts[0][1], [1, 1], style, true);
-      };
-
-      // Arc helper: approximate arc with line segments
-      const drawArc = (cx, cy, rx, ry, startAngle, endAngle, steps = 20) => {
-        const pts = [];
-        for (let i = 0; i <= steps; i++) {
-          const a = startAngle + (endAngle - startAngle) * (i / steps);
-          pts.push([cx + rx * Math.cos(a), cy + ry * Math.sin(a)]);
-        }
-        for (let i = 0; i < pts.length - 1; i++) {
-          pdf.line(pts[i][0], pts[i][1], pts[i+1][0], pts[i+1][1]);
-        }
-      };
-
-      const drawSym = (symId, sx, sy, sz) => {
-        pdf.setDrawColor(0, 0, 0);
-        pdf.setFillColor(0, 0, 0);
-        const lw = Math.max(0.4, sz * 0.055);
-        pdf.setLineWidth(lw);
-        const cx = sx + sz / 2;
-        const cy = sy + sz / 2;
-
-        switch (symId) {
-          case 'fragil': {
-            // Wine glass: bowl + stem + base + X cracks
-            const bowlCy = sy + sz * 0.38;
-            const bowlRx = sz * 0.33, bowlRy = sz * 0.26;
-            pdf.setFillColor(255, 255, 255);
-            pdf.ellipse(cx, bowlCy, bowlRx, bowlRy, 'FD');
-            pdf.setFillColor(0, 0, 0);
-            // Stem
-            pdf.setLineWidth(lw * 1.4);
-            pdf.line(cx, bowlCy + bowlRy, cx, sy + sz * 0.82);
-            // Base
-            pdf.setLineWidth(lw * 2);
-            pdf.line(cx - sz * 0.28, sy + sz * 0.85, cx + sz * 0.28, sy + sz * 0.85);
-            // X cracks inside bowl
-            pdf.setLineWidth(lw * 0.9);
-            pdf.line(cx - bowlRx * 0.5, bowlCy - bowlRy * 0.45, cx + bowlRx * 0.5, bowlCy + bowlRy * 0.45);
-            pdf.line(cx + bowlRx * 0.5, bowlCy - bowlRy * 0.45, cx - bowlRx * 0.5, bowlCy + bowlRy * 0.45);
-            break;
-          }
-
-          case 'lado_cima': {
-            // Two solid filled upward arrows
-            [0.18, 0.58].forEach(xf => {
-              const ax = sx + sz * xf + sz * 0.12;
-              const aw = sz * 0.13; // half-width of arrowhead
-              const headTip = sy + sz * 0.1;
-              const headBase = sy + sz * 0.44;
-              const bodyW = sz * 0.065;
-              const bodyBot = sy + sz * 0.9;
-              // Filled arrowhead triangle
-              fillPoly([
-                [ax, headTip],
-                [ax - aw, headBase],
-                [ax + aw, headBase],
-              ]);
-              // Filled rectangle body
-              fillPoly([
-                [ax - bodyW, headBase],
-                [ax + bodyW, headBase],
-                [ax + bodyW, bodyBot],
-                [ax - bodyW, bodyBot],
-              ]);
-            });
-            break;
-          }
-
-          case 'umidade': {
-            // Umbrella dome + handle + rain drops
-            const uCy = sy + sz * 0.42;
-            const uRx = sz * 0.42, uRy = sz * 0.34;
-            // Dome arc (top half of ellipse)
-            pdf.setLineWidth(lw * 1.6);
-            drawArc(cx, uCy, uRx, uRy, Math.PI, 0, 18);
-            // Dome base line
-            pdf.line(cx - uRx, uCy, cx + uRx, uCy);
-            // Internal ribs (2 dividers)
-            pdf.setLineWidth(lw * 0.6);
-            [-0.45, 0, 0.45].forEach(rf => {
-              const rx = cx + uRx * rf;
-              const ry = uCy - uRy * Math.sqrt(1 - rf * rf);
-              pdf.line(rx, uCy, rx, ry);
-            });
-            // Vertical pole
-            pdf.setLineWidth(lw * 1.4);
-            pdf.line(cx, uCy, cx, sy + sz * 0.78);
-            // J-curve handle
-            drawArc(cx + sz * 0.1, sy + sz * 0.82, sz * 0.1, sz * 0.07, Math.PI, 0, 8);
-            // Rain drops (small diagonal lines below)
-            pdf.setLineWidth(lw * 0.8);
-            [
-              [cx - sz * 0.28, sy + sz * 0.88],
-              [cx, sy + sz * 0.93],
-              [cx + sz * 0.28, sy + sz * 0.88],
-            ].forEach(([dx, dy]) => {
-              pdf.line(dx, dy, dx + sz * 0.04, dy + sz * 0.06);
-            });
-            break;
-          }
-
-          case 'empilhamento': {
-            // 3 stacked boxes (largest at bottom)
-            pdf.setFillColor(255, 255, 255);
-            pdf.setLineWidth(lw);
-            pdf.rect(sx + sz * 0.03, sy + sz * 0.62, sz * 0.94, sz * 0.32, 'FD');
-            pdf.rect(sx + sz * 0.11, sy + sz * 0.35, sz * 0.78, sz * 0.25, 'FD');
-            pdf.rect(sx + sz * 0.2, sy + sz * 0.1, sz * 0.6, sz * 0.22, 'FD');
-            pdf.setFillColor(0, 0, 0);
-            // Downward arrow on right side to indicate "not above"
-            const aX = sx + sz * 0.82;
-            const aY = sy + sz * 0.04;
-            const aSz = sz * 0.13;
-            fillPoly([
-              [aX, aY + aSz],
-              [aX - aSz * 0.5, aY],
-              [aX + aSz * 0.5, aY],
-            ]);
-            break;
-          }
-
-          case 'centro_gravidade': {
-            // Large circle with crosshair and center dot
-            pdf.setFillColor(255, 255, 255);
-            pdf.setLineWidth(lw * 1.5);
-            pdf.ellipse(cx, cy, sz * 0.42, sz * 0.42, 'FD');
-            pdf.setFillColor(0, 0, 0);
-            // Cross lines
-            pdf.setLineWidth(lw);
-            pdf.line(cx, sy + sz * 0.04, cx, sy + sz * 0.96);
-            pdf.line(sx + sz * 0.04, cy, sx + sz * 0.96, cy);
-            // Center filled dot
-            pdf.ellipse(cx, cy, sz * 0.07, sz * 0.07, 'F');
-            break;
-          }
-
-          case 'nao_garra': {
-            // Fork/tines + prohibition circle
-            const fCx = cx;
-            const tineTop = sy + sz * 0.08;
-            const tineBot = sy + sz * 0.38;
-            const barY = sy + sz * 0.38;
-            const handleBot = sy + sz * 0.78;
-
-            // Draw fork shape first
-            pdf.setLineWidth(lw * 1.3);
-            // 3 tines
-            [-sz*0.16, 0, sz*0.16].forEach(dx => {
-              pdf.line(fCx + dx, tineTop, fCx + dx, tineBot);
-            });
-            // Connecting bar
-            pdf.line(fCx - sz * 0.16, barY, fCx + sz * 0.16, barY);
-            // Handle shaft
-            pdf.line(fCx, barY, fCx, handleBot);
-
-            // Prohibition circle (hollow, draws over fork)
-            pdf.setFillColor(255, 255, 255);
-            pdf.setLineWidth(lw * 2);
-            // Draw outer circle
-            const cr = sz * 0.44;
-            // Clear inside with white fill except the border
-            pdf.ellipse(cx, cy, cr, cr, 'S');
-
-            // Redraw fork on top of circle (inside circle, clipped visually by drawing fork)
-            pdf.setLineWidth(lw * 1.3);
-            [-sz*0.16, 0, sz*0.16].forEach(dx => {
-              pdf.line(fCx + dx, tineTop, fCx + dx, tineBot);
-            });
-            pdf.line(fCx - sz * 0.16, barY, fCx + sz * 0.16, barY);
-            pdf.line(fCx, barY, fCx, handleBot);
-
-            // Diagonal red/black slash
-            pdf.setLineWidth(lw * 2.8);
-            pdf.setDrawColor(0, 0, 0);
-            const slashAngle = Math.PI * 0.78;
-            pdf.line(
-              cx + cr * Math.cos(slashAngle),
-              cy - cr * Math.sin(slashAngle),
-              cx - cr * Math.cos(slashAngle),
-              cy + cr * Math.sin(slashAngle)
-            );
-            break;
-          }
-        }
-
-        // Reset
-        pdf.setLineWidth(0.2);
-        pdf.setDrawColor(0, 0, 0);
-        pdf.setFillColor(0, 0, 0);
+        } catch { return null; }
       };
 
       const totalWeight = expandedVolumes.reduce((s, v) => s + (parseFloat(v.peso_bruto) || 0), 0);
-
-      const getEndereco = (inst) => {
-        if (!inst) return '';
-        return [
-          inst.logradouro, inst.numero, inst.complemento,
-          inst.bairro, `${inst.cidade || ''}${inst.estado ? '/' + inst.estado : ''}`, inst.cep
-        ].filter(Boolean).join(', ');
-      };
 
       const drawLabel = (lx, ly, lw, lh, vol, vIdx, vTotal) => {
         const mg = 2.5;
         const iw = lw - 2 * mg;
 
-        // Section proportions
-        const TOP_H = lh * 0.33;
-        const MID_H = lh * 0.40;
-        const BOT_H = lh * 0.27;
+        // Fonts scale with label size — smaller labels get smaller fonts
+        const scale = Math.min(lw, lh * 1.4);
+        const FSS = Math.max(4, Math.min(scale * 0.042, 7.5));   // small text
+        const FSN = Math.max(5, Math.min(scale * 0.052, 9.5));   // normal text
+        const FSH = Math.max(6, Math.min(lw * 0.072, 11));       // header
+        const FSC = Math.max(6.5, Math.min(lw * 0.080, 13));     // OS code
+        const lhS = FSS * 0.46;
+        const lhN = FSN * 0.46;
+
+        // Section heights
+        const HEADER_H = Math.min(9, Math.max(5.5, FSH * 1.2));
+        const BOT_H = Math.min(38, Math.max(13, lh * 0.23));
+        const TOP_H = lh * 0.40;   // divider between top and mid
+        const MID_H = lh - TOP_H - BOT_H;
+        const SUMBAR_H = Math.min(8, MID_H * 0.28);
+
+        // Small label = limit text lines
+        const maxNomLines = lh < 85 ? 1 : 2;
+        const maxAddrLines = lh < 85 ? 1 : 2;
 
         // Outer border
         pdf.setLineWidth(0.8);
-        pdf.setDrawColor(0);
+        pdf.setDrawColor(0, 0, 0);
         pdf.rect(lx, ly, lw, lh, 'S');
 
-        // ===== TOP SECTION =====
-        const HEADER_H = Math.min(8, lh * 0.095);
+        // ====== HEADER ======
         pdf.setFillColor(0, 0, 0);
         pdf.rect(lx, ly, lw, HEADER_H, 'F');
         pdf.setTextColor(255, 255, 255);
         pdf.setFont('helvetica', 'bold');
-        const fHeader = Math.max(5.5, Math.min(lw * 0.076, 9));
-        pdf.setFontSize(fHeader);
-        pdf.text('AXIA ENERGIA', lx + mg, ly + HEADER_H * 0.75);
+        pdf.setFontSize(FSH);
+        pdf.text('AXIA ENERGIA', lx + mg, ly + HEADER_H * 0.73);
         const vtLabel = `VOL. ${vIdx + 1}/${vTotal}`;
-        const vtW = pdf.getStringUnitWidth(vtLabel) * fHeader / pdf.internal.scaleFactor;
-        pdf.text(vtLabel, lx + lw - mg - vtW, ly + HEADER_H * 0.75);
+        const vtW = pdf.getStringUnitWidth(vtLabel) * FSH / pdf.internal.scaleFactor;
+        pdf.text(vtLabel, lx + lw - mg - vtW, ly + HEADER_H * 0.73);
         pdf.setTextColor(0, 0, 0);
 
-        const FSS = Math.max(4, Math.min(lw * 0.042, 6.5));
-        const FSN = Math.max(4.8, Math.min(lw * 0.052, 7.5));
+        // ====== TOP SECTION: Remetente / Destinatário ======
+        const topEnd = ly + TOP_H - 1.5; // don't draw below this
         let ty = ly + HEADER_H + 1.5;
 
-        // REMETENTE
-        pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(FSS);
-        pdf.setTextColor(150, 0, 0);
-        pdf.text('REMETENTE:', lx + mg, ty + FSS * 0.38);
-        ty += FSS * 0.5 + 1;
-        pdf.setTextColor(0, 0, 0);
-        pdf.setFont('helvetica', 'normal');
-        pdf.setFontSize(FSN);
-        const onNome = instalacaoOrigem?.nome || '-';
-        const onLines = pdf.splitTextToSize(onNome, iw);
-        pdf.text(onLines.slice(0, 2), lx + mg, ty + FSN * 0.38);
-        ty += Math.min(onLines.length, 2) * (FSN * 0.42) + 0.8;
+        const writeText = (text, x, y, fs, bold = false, maxW = iw, maxLines = 1) => {
+          if (y >= topEnd) return y;
+          pdf.setFont('helvetica', bold ? 'bold' : 'normal');
+          pdf.setFontSize(fs);
+          const lines = pdf.splitTextToSize(text, maxW).slice(0, maxLines);
+          pdf.text(lines, x, y + fs * 0.38);
+          return y + lines.length * (fs * 0.46) + 0.8;
+        };
+
+        // Remetente
+        ty = writeText('REMETENTE:', lx + mg, ty, FSS, true);
+        ty = writeText(instalacaoOrigem?.nome || '-', lx + mg, ty, FSN, false, iw, maxNomLines);
         const onEnd = getEndereco(instalacaoOrigem);
-        if (onEnd) {
-          pdf.setFontSize(FSS * 0.92);
-          const onEndL = pdf.splitTextToSize(onEnd, iw);
-          pdf.text(onEndL.slice(0, 2), lx + mg, ty + FSS * 0.38);
-          ty += Math.min(onEndL.length, 2) * (FSS * 0.42) + 0.8;
+        if (onEnd && ty < topEnd) ty = writeText(onEnd, lx + mg, ty, FSS * 0.92, false, iw, maxAddrLines);
+
+        // Divider
+        ty += 0.5;
+        if (ty < topEnd) {
+          pdf.setLineWidth(0.25);
+          pdf.line(lx + mg, ty, lx + lw - mg, ty);
+          ty += 2;
         }
 
-        ty += 0.8;
-        pdf.setLineWidth(0.25);
-        pdf.line(lx + mg, ty, lx + lw - mg, ty);
-        ty += 1.5;
-
-        // DESTINATÁRIO
-        pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(FSS);
-        pdf.setTextColor(0, 0, 150);
-        pdf.text('DESTINATÁRIO:', lx + mg, ty + FSS * 0.38);
-        ty += FSS * 0.5 + 1;
-        pdf.setTextColor(0, 0, 0);
-        pdf.setFont('helvetica', 'normal');
-        pdf.setFontSize(FSN);
-        const dnNome = instalacaoDestino?.nome || '-';
-        const dnLines = pdf.splitTextToSize(dnNome, iw);
-        pdf.text(dnLines.slice(0, 2), lx + mg, ty + FSN * 0.38);
-        ty += Math.min(dnLines.length, 2) * (FSN * 0.42) + 0.8;
+        // Destinatário
+        ty = writeText('DESTINATÁRIO:', lx + mg, ty, FSS, true);
+        ty = writeText(instalacaoDestino?.nome || '-', lx + mg, ty, FSN, false, iw, maxNomLines);
         const dnEnd = getEndereco(instalacaoDestino);
-        if (dnEnd) {
-          pdf.setFontSize(FSS * 0.92);
-          const dnEndL = pdf.splitTextToSize(dnEnd, iw);
-          pdf.text(dnEndL.slice(0, 2), lx + mg, ty + FSN * 0.38);
-        }
+        if (dnEnd && ty < topEnd) writeText(dnEnd, lx + mg, ty, FSS * 0.92, false, iw, maxAddrLines);
 
-        // Section divider
+        // Section divider line
         pdf.setLineWidth(1.0);
         pdf.line(lx, ly + TOP_H, lx + lw, ly + TOP_H);
 
-        // ===== MIDDLE SECTION =====
-        const midY = ly + TOP_H;
+        // ====== MID SECTION ======
+        const midStart = ly + TOP_H;
+        const midEnd = midStart + MID_H - SUMBAR_H; // boundary above summary bar
         const hasSyms = selectedSymbols.length > 0;
-        const symZoneW = hasSyms ? Math.min(lw * 0.34, 32) : 0;
+        const symZoneW = hasSyms ? Math.min(lw * 0.36, 40) : 0;
         const dataW = iw - symZoneW;
-        let my = midY + 1.5;
+        let my = midStart + 1.5;
 
-        // OS Code prominent
-        pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(FSS * 0.9);
-        pdf.text('ORDEM DE SERVIÇO:', lx + mg, my + FSS * 0.38);
-        my += FSS * 0.52 + 1;
-        const fOS = Math.max(6.5, Math.min(lw * 0.072, 10.5));
-        pdf.setFontSize(fOS);
-        const osLines = pdf.splitTextToSize(os?.codigo || '-', dataW);
-        pdf.text(osLines[0], lx + mg, my + fOS * 0.38);
-        my += fOS * 0.5 + 1.5;
+        const writeMid = (text, x, y, fs, bold = false, maxW = dataW, maxLines = 1) => {
+          if (y >= midEnd) return y;
+          pdf.setFont('helvetica', bold ? 'bold' : 'normal');
+          pdf.setFontSize(fs);
+          const lines = pdf.splitTextToSize(text, maxW).slice(0, maxLines);
+          pdf.text(lines, x, y + fs * 0.38);
+          return y + lines.length * (fs * 0.46) + 0.8;
+        };
 
-        // Document fields
-        pdf.setFont('helvetica', 'normal');
-        pdf.setFontSize(FSS);
+        my = writeMid('ORDEM DE SERVIÇO:', lx + mg, my, FSS * 0.9, true);
+        my = writeMid(os?.codigo || '-', lx + mg, my, FSC, true, dataW, 1);
+
         const docFields = [];
         if (os?.num_reserva) docFields.push(`Reserva: ${os.num_reserva}`);
         if (os?.num_migo) docFields.push(`MIGO: ${os.num_migo}`);
         if (os?.usuario_reserva) docFields.push(`Usuário: ${os.usuario_reserva}`);
-        docFields.forEach(f => {
-          pdf.text(f, lx + mg, my + FSS * 0.38);
-          my += FSS * 0.52 + 0.8;
-        });
-
-        my += 0.5;
-        pdf.setLineWidth(0.2);
-        pdf.line(lx + mg, my, lx + mg + dataW, my);
-        my += 1.5;
-
-        // Dimensions
-        pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(FSS * 0.9);
-        pdf.text('DIMENSÕES:', lx + mg, my + FSS * 0.38);
-        my += FSS * 0.52 + 1;
-        pdf.setFont('helvetica', 'normal');
-        pdf.text(`C: ${vol.comprimento || '—'} cm  L: ${vol.largura || '—'} cm  A: ${vol.altura || '—'} cm`, lx + mg, my + FSS * 0.38);
-        my += FSS * 0.52 + 1;
-        pdf.setFont('helvetica', 'bold');
-        pdf.text('Peso Bruto: ', lx + mg, my + FSS * 0.38);
-        pdf.setFont('helvetica', 'normal');
-        const pbW = pdf.getStringUnitWidth('Peso Bruto: ') * FSS / pdf.internal.scaleFactor;
-        pdf.text(`${vol.peso_bruto || '—'} kg`, lx + mg + pbW, my + FSS * 0.38);
-        if (vol.m3) {
-          const kgW = pbW + pdf.getStringUnitWidth(`${vol.peso_bruto || '—'} kg`) * FSS / pdf.internal.scaleFactor + 2;
-          pdf.setFont('helvetica', 'bold');
-          pdf.text('M³:', lx + mg + kgW, my + FSS * 0.38);
-          pdf.setFont('helvetica', 'normal');
-          pdf.text(String(vol.m3), lx + mg + kgW + 5, my + FSS * 0.38);
+        for (const f of docFields) {
+          if (my >= midEnd) break;
+          my = writeMid(f, lx + mg, my, FSS, false, dataW, 1);
         }
 
-        // ISO Symbols (right column)
-        if (hasSyms) {
-          const symStartX = lx + mg + dataW + 1;
-          const symZoneAvailW = symZoneW;
-          const symZoneH = MID_H - 2;
-          const symCols = symZoneAvailW > 22 && selectedSymbols.length > 3 ? 2 : 1;
-          const symPerCol = Math.ceil(selectedSymbols.length / symCols);
-          const rawSz = Math.min(
-            (symZoneAvailW / symCols) - 2,
-            (symZoneH / symPerCol) - (symZoneAvailW > 22 ? 5 : 4)
+        if (my < midEnd - lhS * 2) {
+          my += 0.5;
+          pdf.setLineWidth(0.2); pdf.line(lx + mg, my, lx + mg + dataW, my); my += 1.5;
+          my = writeMid('DIMENSÕES:', lx + mg, my, FSS * 0.9, true, dataW, 1);
+        }
+        if (my < midEnd) {
+          my = writeMid(
+            `C: ${vol.comprimento || '—'} cm  L: ${vol.largura || '—'} cm  A: ${vol.altura || '—'} cm`,
+            lx + mg, my, FSS, false, dataW, 1
           );
-          const symSz = Math.max(6, rawSz);
+        }
+        if (my < midEnd) {
+          writeMid(
+            `Peso Bruto: ${vol.peso_bruto || '—'} kg${vol.m3 ? `   M³: ${vol.m3}` : ''}`,
+            lx + mg, my, FSS, false, dataW, 1
+          );
+        }
+
+        // Symbols (right column)
+        if (hasSyms && symZoneW > 0) {
+          const symX = lx + mg + dataW + 1;
+          const availH = MID_H - SUMBAR_H - 3;
+          const symCols = symZoneW >= 24 && selectedSymbols.length > 2 ? 2 : 1;
+          const symRows = Math.ceil(selectedSymbols.length / symCols);
+          const colW = symZoneW / symCols;
+          const rawSz = Math.min(colW - 2, (availH / symRows) - 4);
+          const symSz = Math.max(5, rawSz);
+          const showLbl = symSz >= 11;
+          const rowSpacing = symSz + (showLbl ? 5 : 2);
 
           selectedSymbols.forEach((sid, si) => {
-            const col = symCols > 1 ? si % symCols : 0;
-            const row = symCols > 1 ? Math.floor(si / symCols) : si;
-            const sX = symStartX + col * (symZoneAvailW / symCols);
-            const sY = midY + 2 + row * (symSz + (symSz > 10 ? 5.5 : 4));
-            drawSym(sid, sX, sY, symSz);
-            if (symSz >= 7) {
+            const col = si % symCols;
+            const row = Math.floor(si / symCols);
+            const sX = symX + col * colW;
+            const sY = midStart + 2 + row * rowSpacing;
+            if (sY + symSz > midEnd) return;
+            if (symImages[sid]) pdf.addImage(symImages[sid], 'PNG', sX, sY, symSz, symSz);
+            if (showLbl) {
               const sym = ISO_SYMBOLS.find(s => s.id === sid);
               if (sym) {
-                pdf.setFontSize(Math.max(3, symSz * 0.2));
+                pdf.setFontSize(Math.max(3, symSz * 0.22));
                 pdf.setFont('helvetica', 'normal');
-                const lblLines = pdf.splitTextToSize(sym.label, symZoneAvailW / symCols - 0.5);
-                pdf.text(lblLines.slice(0, 2), sX, sY + symSz + 1.5);
+                const lbl = pdf.splitTextToSize(sym.label, colW - 1).slice(0, 2);
+                pdf.text(lbl, sX, sY + symSz + 1.5);
               }
             }
           });
         }
 
         // Summary bar
-        const smY = ly + TOP_H + MID_H - 8;
-        pdf.setFillColor(220, 220, 220);
-        pdf.rect(lx, smY, lw, 8, 'F');
-        pdf.setFontSize(Math.max(4.5, Math.min(lw * 0.046, 6.5)));
+        const smY = midStart + MID_H - SUMBAR_H;
+        pdf.setFillColor(215, 215, 215);
+        pdf.rect(lx, smY, lw, SUMBAR_H, 'F');
+        pdf.setFontSize(Math.max(4, Math.min(lw * 0.044, 6)));
         pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(0, 0, 0);
         pdf.text(
           `${vTotal} vol(s)  |  Peso Total: ${totalWeight.toFixed(1)} kg  |  Vol. ${vIdx + 1}/${vTotal}`,
-          lx + mg, smY + 5.2
+          lx + mg, smY + SUMBAR_H * 0.68
         );
 
         pdf.setLineWidth(1.0);
-        pdf.line(lx, ly + TOP_H + MID_H, lx + lw, ly + TOP_H + MID_H);
+        pdf.line(lx, midStart + MID_H, lx + lw, midStart + MID_H);
 
-        // ===== BOTTOM SECTION — Barcode =====
-        const botY = ly + TOP_H + MID_H;
+        // ====== BOTTOM: Barcode ======
+        const botY = midStart + MID_H;
         const cnpjO = (instalacaoOrigem?.cnpj || '').replace(/\D/g, '').substring(0, 14).padEnd(14, '0');
         const cnpjD = (instalacaoDestino?.cnpj || '').replace(/\D/g, '').substring(0, 14).padEnd(14, '0');
         const osCode = (os?.codigo || 'OS').replace(/[^A-Z0-9\-_]/gi, '').toUpperCase();
         const barcodeData = `${osCode} ${String(vIdx + 1).padStart(2, '0')}/${String(vTotal).padStart(2, '0')} ${cnpjO} ${cnpjD}`;
-
         const bcImg = genBarcode(barcodeData);
         if (bcImg) {
-          const bcH = Math.min(BOT_H * 0.55, 16);
+          const bcH = Math.min(BOT_H * 0.52, 16);
           pdf.addImage(bcImg, 'PNG', lx + mg, botY + 1.5, iw, bcH);
           const hrY = botY + 1.5 + bcH + 1.5;
-          const fHR = Math.max(3.5, Math.min(lw * 0.034, 5));
+          const fHR = Math.max(3.2, Math.min(lw * 0.032, 5));
           pdf.setFontSize(fHR);
           pdf.setFont('helvetica', 'normal');
           const hr1 = `OS: ${os?.codigo || '-'}  |  Vol: ${vIdx + 1}/${vTotal}  |  Peso: ${vol.peso_bruto || '-'} kg  |  Peso Total: ${totalWeight.toFixed(1)} kg`;
           const hr2 = `CNPJ Origem: ${instalacaoOrigem?.cnpj || '-'}  |  CNPJ Destino: ${instalacaoDestino?.cnpj || '-'}`;
           pdf.text(pdf.splitTextToSize(hr1, iw), lx + mg, hrY + fHR * 0.4);
-          pdf.text(pdf.splitTextToSize(hr2, iw), lx + mg, hrY + fHR * 0.4 + fHR * 0.55 + 1.2);
+          pdf.text(pdf.splitTextToSize(hr2, iw), lx + mg, hrY + fHR * 0.4 + fHR * 0.56 + 1);
         }
       };
 
-      // Render pages
+      // Render all labels
       expandedVolumes.forEach((vol, vIdx) => {
         const pos = vIdx % n;
         const col = pos % cols;
