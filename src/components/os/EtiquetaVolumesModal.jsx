@@ -17,57 +17,64 @@ const ISO_SYMBOLS = [
   { id: 'nao_garra', label: 'Não Usar Garra', description: 'Proibido uso de garras mecânicas' },
 ];
 
-// Clean bold silhouette SVGs matching ISO 780 reference quality
+// High-quality SVG silhouettes matching ISO 780 reference
 const SYMBOL_SVGS = {
+  // Solid black goblet with white lightning bolt crack (ISO fragile)
   fragil: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 100">
-    <path d="M16 5 L64 5 C73 32 71 50 58 64 C52 72 50 75 50 75 C50 75 48 72 42 64 C29 50 27 32 16 5Z" fill="black"/>
-    <path d="M50 19 L44 41 L52 41 L45 65 L62 37 L54 37 L60 19Z" fill="white"/>
-    <rect x="45" y="75" width="10" height="14" fill="black" rx="2"/>
-    <path d="M24 91 L56 91 L60 100 H20Z" fill="black"/>
+    <path d="M14 4 L66 4 C74 26 72 48 56 60 C50 65 48 68 48 68 L32 68 C32 68 30 65 24 60 C8 48 6 26 14 4Z" fill="black"/>
+    <path d="M43 14 L34 40 L42 40 L33 64 L50 36 L42 36 L51 14Z" fill="white"/>
+    <rect x="36" y="68" width="8" height="17" fill="black" rx="1"/>
+    <rect x="20" y="85" width="40" height="9" rx="3" fill="black"/>
   </svg>`,
 
+  // Two solid upward arrows with base bar
   lado_cima: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 92">
-    <path d="M22 48 L10 48 L27 7 L44 48 L32 48 L32 80 L22 80Z" fill="black"/>
-    <path d="M48 48 L36 48 L53 7 L70 48 L58 48 L58 80 L48 80Z" fill="black"/>
-    <rect x="5" y="83" width="70" height="9" rx="2" fill="black"/>
+    <path d="M21 46 L10 46 L27 8 L44 46 L33 46 L33 78 L21 78Z" fill="black"/>
+    <path d="M47 46 L36 46 L53 8 L70 46 L59 46 L59 78 L47 78Z" fill="black"/>
+    <rect x="4" y="82" width="72" height="8" rx="2" fill="black"/>
   </svg>`,
 
+  // Filled umbrella dome with handle
   umidade: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 92">
-    <path d="M4 48 C4 20 20 5 40 5 C60 5 76 20 76 48Z" fill="black"/>
-    <line x1="40" y1="7" x2="40" y2="48" stroke="white" stroke-width="2.5"/>
-    <line x1="4" y1="48" x2="22" y2="24" stroke="white" stroke-width="2"/>
-    <line x1="76" y1="48" x2="58" y2="24" stroke="white" stroke-width="2"/>
-    <rect x="36" y="48" width="8" height="28" fill="black" rx="4"/>
-    <path d="M40 76 Q40 88 53 88 Q66 88 66 76" fill="none" stroke="black" stroke-width="7" stroke-linecap="round"/>
+    <path d="M4 46 Q4 6 40 6 Q76 6 76 46Z" fill="black"/>
+    <path d="M6 46 Q16 30 28 38 Q40 6 40 46Z" fill="black"/>
+    <path d="M40 46 Q40 6 52 38 Q64 30 74 46Z" fill="black"/>
+    <line x1="10" y1="46" x2="70" y2="46" stroke="white" stroke-width="3"/>
+    <line x1="28" y1="38" x2="28" y2="46" stroke="white" stroke-width="2"/>
+    <line x1="52" y1="38" x2="52" y2="46" stroke="white" stroke-width="2"/>
+    <rect x="37" y="46" width="6" height="28" fill="black" rx="3"/>
+    <path d="M40 74 Q40 88 53 88 Q66 88 66 78" fill="none" stroke="black" stroke-width="7" stroke-linecap="round"/>
   </svg>`,
 
+  // Three stacked boxes
   empilhamento: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 90">
-    <rect x="2" y="62" width="76" height="24" rx="3" fill="black"/>
-    <rect x="9" y="38" width="62" height="22" rx="3" fill="black"/>
-    <rect x="18" y="16" width="44" height="20" rx="3" fill="black"/>
-    <rect x="0" y="59" width="80" height="4" fill="white"/>
+    <rect x="2" y="63" width="76" height="23" rx="3" fill="black"/>
+    <rect x="9" y="38" width="62" height="23" rx="3" fill="black"/>
+    <rect x="18" y="15" width="44" height="21" rx="3" fill="black"/>
+    <rect x="0" y="60" width="80" height="4" fill="white"/>
     <rect x="0" y="35" width="80" height="4" fill="white"/>
   </svg>`,
 
+  // Circle with crosshair and center dot
   centro_gravidade: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
     <circle cx="40" cy="40" r="34" fill="none" stroke="black" stroke-width="7"/>
     <rect x="37" y="4" width="6" height="72" fill="black" rx="3"/>
     <rect x="4" y="37" width="72" height="6" fill="black" rx="3"/>
-    <circle cx="40" cy="40" r="7" fill="black"/>
+    <circle cx="40" cy="40" r="8" fill="black"/>
   </svg>`,
 
+  // Fork tines + prohibition circle + diagonal slash
   nao_garra: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
     <circle cx="40" cy="40" r="34" fill="none" stroke="black" stroke-width="7"/>
     <rect x="22" y="10" width="7" height="24" rx="3.5" fill="black"/>
-    <rect x="36" y="10" width="7" height="24" rx="3.5" fill="black"/>
+    <rect x="36" y="10" width="8" height="24" rx="4" fill="black"/>
     <rect x="51" y="10" width="7" height="24" rx="3.5" fill="black"/>
-    <rect x="22" y="30" width="36" height="6" rx="2" fill="black"/>
-    <rect x="36" y="36" width="7" height="26" rx="3.5" fill="black"/>
+    <rect x="22" y="31" width="36" height="6" rx="2" fill="black"/>
+    <rect x="36" y="37" width="8" height="26" rx="4" fill="black"/>
     <line x1="12" y1="68" x2="68" y2="12" stroke="black" stroke-width="9" stroke-linecap="round"/>
   </svg>`,
 };
 
-// Render SVG string to PNG data URL at given pixel size
 const svgToPng = (svgStr, px = 240) => new Promise((resolve) => {
   const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
   const url = URL.createObjectURL(blob);
@@ -115,7 +122,6 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
     if (!os?.volumes?.length) return;
     setGenerating(true);
     try {
-      // Pre-render all selected symbols as high-res PNGs
       const symImages = {};
       for (const sid of selectedSymbols) {
         if (SYMBOL_SVGS[sid]) symImages[sid] = await svgToPng(SYMBOL_SVGS[sid], 240);
@@ -124,7 +130,6 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
       const n = parseInt(labelsPerPage);
       const pdf = new jsPDF('p', 'mm', 'a4');
       const PW = 210, PH = 297, MG = 5, GAP = 2;
-
       const grids = { 1: [1, 1], 2: [1, 2], 4: [2, 2], 8: [2, 4] };
       const [cols, rows] = grids[n];
       const LW = (PW - 2 * MG - (cols - 1) * GAP) / cols;
@@ -144,25 +149,22 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
         const mg = 2.5;
         const iw = lw - 2 * mg;
 
-        // Fonts scale with label size — smaller labels get smaller fonts
-        const scale = Math.min(lw, lh * 1.4);
-        const FSS = Math.max(4, Math.min(scale * 0.042, 7.5));   // small text
-        const FSN = Math.max(5, Math.min(scale * 0.052, 9.5));   // normal text
-        const FSH = Math.max(6, Math.min(lw * 0.072, 11));       // header
-        const FSC = Math.max(6.5, Math.min(lw * 0.080, 13));     // OS code
-        const lhS = FSS * 0.46;
-        const lhN = FSN * 0.46;
+        // All font sizes scale with label width
+        const HEADER_H = Math.max(5, Math.min(lw * 0.062, 7.5));  // reduced header
+        const SUMBAR_H = Math.max(4.5, Math.min(lw * 0.052, 6.5)); // reduced summary bar
+        const BOT_H = Math.max(14, Math.min(lh * 0.22, 32));
 
-        // Section heights
-        const HEADER_H = Math.min(9, Math.max(5.5, FSH * 1.2));
-        const BOT_H = Math.min(38, Math.max(13, lh * 0.23));
-        const TOP_H = lh * 0.40;   // divider between top and mid
-        const MID_H = lh - TOP_H - BOT_H;
-        const SUMBAR_H = Math.min(8, MID_H * 0.28);
+        // Available for top (remetente/destinatário) and mid sections
+        const contentH = lh - HEADER_H - BOT_H;
+        const TOP_H = contentH * 0.42;
+        const MID_H = contentH * 0.58;
 
-        // Small label = limit text lines
-        const maxNomLines = lh < 85 ? 1 : 2;
-        const maxAddrLines = lh < 85 ? 1 : 2;
+        const FSH = Math.max(5.5, Math.min(lw * 0.068, 10));     // header
+        const FSL = Math.max(4, Math.min(lw * 0.040, 6));        // label (REMETENTE:)
+        const FSN = Math.max(4.5, Math.min(lw * 0.050, 8));      // normal body
+        const FSA = Math.max(3.8, Math.min(lw * 0.038, 5.5));    // address (smaller)
+        const FSC = Math.max(6, Math.min(lw * 0.075, 12));       // OS code (large)
+        const FSS = Math.max(3.8, Math.min(lw * 0.040, 6));      // small fields
 
         // Outer border
         pdf.setLineWidth(0.8);
@@ -175,143 +177,147 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
         pdf.setTextColor(255, 255, 255);
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(FSH);
-        pdf.text('AXIA ENERGIA', lx + mg, ly + HEADER_H * 0.73);
+        pdf.text('AXIA ENERGIA', lx + mg, ly + HEADER_H * 0.74);
         const vtLabel = `VOL. ${vIdx + 1}/${vTotal}`;
         const vtW = pdf.getStringUnitWidth(vtLabel) * FSH / pdf.internal.scaleFactor;
-        pdf.text(vtLabel, lx + lw - mg - vtW, ly + HEADER_H * 0.73);
+        pdf.text(vtLabel, lx + lw - mg - vtW, ly + HEADER_H * 0.74);
         pdf.setTextColor(0, 0, 0);
 
-        // ====== TOP SECTION: Remetente / Destinatário ======
-        const topEnd = ly + TOP_H - 1.5; // don't draw below this
-        let ty = ly + HEADER_H + 1.5;
+        // ====== TOP SECTION ======
+        // Reserve space: REMETENTE label + name + addr + divider + DESTINATÁRIO label + name + addr
+        // Calculate per-line heights
+        const lhL = FSL * 0.48;
+        const lhN = FSN * 0.48;
+        const lhA = FSA * 0.48;
 
-        const writeText = (text, x, y, fs, bold = false, maxW = iw, maxLines = 1) => {
-          if (y >= topEnd) return y;
+        // How many lines fit: split TOP_H evenly between remetente and destinatário
+        const halfTop = TOP_H / 2 - 1.5;
+        const maxRemLines = Math.max(1, Math.floor((halfTop - lhL - 1) / lhN));
+        const maxDestLines = Math.max(1, Math.floor((halfTop - lhL - 1) / lhN));
+
+        let ty = ly + HEADER_H + 1.2;
+        const topBoundary = ly + HEADER_H + TOP_H - 1;
+
+        const printLine = (text, x, y, fs, bold = false, maxW = iw, maxLines = 1) => {
+          if (y > topBoundary) return y;
           pdf.setFont('helvetica', bold ? 'bold' : 'normal');
           pdf.setFontSize(fs);
           const lines = pdf.splitTextToSize(text, maxW).slice(0, maxLines);
           pdf.text(lines, x, y + fs * 0.38);
-          return y + lines.length * (fs * 0.46) + 0.8;
+          return y + lines.length * (fs * 0.48) + 0.6;
         };
 
-        // Remetente
-        ty = writeText('REMETENTE:', lx + mg, ty, FSS, true);
-        ty = writeText(instalacaoOrigem?.nome || '-', lx + mg, ty, FSN, false, iw, maxNomLines);
+        // REMETENTE
+        ty = printLine('REMETENTE:', lx + mg, ty, FSL, true, iw, 1);
+        ty = printLine(instalacaoOrigem?.nome || '-', lx + mg, ty, FSN, false, iw, maxRemLines);
         const onEnd = getEndereco(instalacaoOrigem);
-        if (onEnd && ty < topEnd) ty = writeText(onEnd, lx + mg, ty, FSS * 0.92, false, iw, maxAddrLines);
+        if (onEnd) ty = printLine(onEnd, lx + mg, ty, FSA, false, iw, 1);
 
         // Divider
         ty += 0.5;
-        if (ty < topEnd) {
-          pdf.setLineWidth(0.25);
+        if (ty < topBoundary) {
+          pdf.setLineWidth(0.2);
           pdf.line(lx + mg, ty, lx + lw - mg, ty);
-          ty += 2;
+          ty += 1.5;
         }
 
-        // Destinatário
-        ty = writeText('DESTINATÁRIO:', lx + mg, ty, FSS, true);
-        ty = writeText(instalacaoDestino?.nome || '-', lx + mg, ty, FSN, false, iw, maxNomLines);
+        // DESTINATÁRIO — always show at least label + name
+        const destStart = Math.min(ty, topBoundary - lhL - lhN - 1);
+        ty = destStart;
+        ty = printLine('DESTINATÁRIO:', lx + mg, ty, FSL, true, iw, 1);
+        ty = printLine(instalacaoDestino?.nome || '-', lx + mg, ty, FSN, false, iw, maxDestLines);
         const dnEnd = getEndereco(instalacaoDestino);
-        if (dnEnd && ty < topEnd) writeText(dnEnd, lx + mg, ty, FSS * 0.92, false, iw, maxAddrLines);
+        if (dnEnd) printLine(dnEnd, lx + mg, ty, FSA, false, iw, 1);
 
-        // Section divider line
-        pdf.setLineWidth(1.0);
-        pdf.line(lx, ly + TOP_H, lx + lw, ly + TOP_H);
+        // Section divider
+        const topEnd = ly + HEADER_H + TOP_H;
+        pdf.setLineWidth(0.9);
+        pdf.line(lx, topEnd, lx + lw, topEnd);
 
-        // ====== MID SECTION ======
-        const midStart = ly + TOP_H;
-        const midEnd = midStart + MID_H - SUMBAR_H; // boundary above summary bar
+        // ====== MIDDLE SECTION ======
+        const midStart = topEnd;
+        const midEnd = midStart + MID_H - SUMBAR_H;
         const hasSyms = selectedSymbols.length > 0;
-        const symZoneW = hasSyms ? Math.min(lw * 0.36, 40) : 0;
+        const symZoneW = hasSyms ? Math.min(lw * 0.34, 36) : 0;
         const dataW = iw - symZoneW;
         let my = midStart + 1.5;
 
-        const writeMid = (text, x, y, fs, bold = false, maxW = dataW, maxLines = 1) => {
-          if (y >= midEnd) return y;
+        const printMid = (text, x, y, fs, bold = false, maxW = dataW, maxLines = 1) => {
+          if (y > midEnd) return y;
           pdf.setFont('helvetica', bold ? 'bold' : 'normal');
           pdf.setFontSize(fs);
           const lines = pdf.splitTextToSize(text, maxW).slice(0, maxLines);
           pdf.text(lines, x, y + fs * 0.38);
-          return y + lines.length * (fs * 0.46) + 0.8;
+          return y + lines.length * (fs * 0.48) + 0.6;
         };
 
-        my = writeMid('ORDEM DE SERVIÇO:', lx + mg, my, FSS * 0.9, true);
-        my = writeMid(os?.codigo || '-', lx + mg, my, FSC, true, dataW, 1);
+        my = printMid('ORDEM DE SERVIÇO:', lx + mg, my, FSS * 0.9, true, dataW, 1);
+        my = printMid(os?.codigo || '-', lx + mg, my, FSC, true, dataW, 1);
 
-        const docFields = [];
-        if (os?.num_reserva) docFields.push(`Reserva: ${os.num_reserva}`);
-        if (os?.num_migo) docFields.push(`MIGO: ${os.num_migo}`);
-        if (os?.usuario_reserva) docFields.push(`Usuário: ${os.usuario_reserva}`);
-        for (const f of docFields) {
-          if (my >= midEnd) break;
-          my = writeMid(f, lx + mg, my, FSS, false, dataW, 1);
+        if (os?.num_reserva) my = printMid(`Reserva: ${os.num_reserva}`, lx + mg, my, FSS, false, dataW, 1);
+        if (os?.num_migo) my = printMid(`MIGO: ${os.num_migo}`, lx + mg, my, FSS, false, dataW, 1);
+        if (os?.usuario_reserva) my = printMid(`Usuário: ${os.usuario_reserva}`, lx + mg, my, FSS, false, dataW, 1);
+
+        if (my < midEnd - FSS * 0.6) {
+          my += 0.3;
+          pdf.setLineWidth(0.15);
+          pdf.line(lx + mg, my, lx + mg + dataW, my);
+          my += 1.2;
         }
 
-        if (my < midEnd - lhS * 2) {
-          my += 0.5;
-          pdf.setLineWidth(0.2); pdf.line(lx + mg, my, lx + mg + dataW, my); my += 1.5;
-          my = writeMid('DIMENSÕES:', lx + mg, my, FSS * 0.9, true, dataW, 1);
-        }
-        if (my < midEnd) {
-          my = writeMid(
-            `C: ${vol.comprimento || '—'} cm  L: ${vol.largura || '—'} cm  A: ${vol.altura || '—'} cm`,
-            lx + mg, my, FSS, false, dataW, 1
-          );
-        }
-        if (my < midEnd) {
-          writeMid(
-            `Peso Bruto: ${vol.peso_bruto || '—'} kg${vol.m3 ? `   M³: ${vol.m3}` : ''}`,
-            lx + mg, my, FSS, false, dataW, 1
-          );
-        }
+        // Dimensions on one line
+        const dimTxt = `C: ${vol.comprimento || '—'} cm  L: ${vol.largura || '—'} cm  A: ${vol.altura || '—'} cm`;
+        my = printMid(dimTxt, lx + mg, my, FSS, false, dataW, 1);
+        const pesoTxt = `Peso Bruto: ${vol.peso_bruto || '—'} kg${vol.m3 ? `   M³: ${vol.m3}` : ''}`;
+        printMid(pesoTxt, lx + mg, my, FSS, false, dataW, 1);
 
         // Symbols (right column)
         if (hasSyms && symZoneW > 0) {
           const symX = lx + mg + dataW + 1;
           const availH = MID_H - SUMBAR_H - 3;
-          const symCols = symZoneW >= 24 && selectedSymbols.length > 2 ? 2 : 1;
+          const symCols = symZoneW >= 22 && selectedSymbols.length > 2 ? 2 : 1;
           const symRows = Math.ceil(selectedSymbols.length / symCols);
           const colW = symZoneW / symCols;
           const rawSz = Math.min(colW - 2, (availH / symRows) - 4);
           const symSz = Math.max(5, rawSz);
-          const showLbl = symSz >= 11;
-          const rowSpacing = symSz + (showLbl ? 5 : 2);
+          const showLbl = symSz >= 12;
+          const rowH = symSz + (showLbl ? 5 : 2);
 
           selectedSymbols.forEach((sid, si) => {
             const col = si % symCols;
             const row = Math.floor(si / symCols);
             const sX = symX + col * colW;
-            const sY = midStart + 2 + row * rowSpacing;
-            if (sY + symSz > midEnd) return;
+            const sY = midStart + 2 + row * rowH;
+            if (sY + symSz > midEnd + SUMBAR_H) return;
             if (symImages[sid]) pdf.addImage(symImages[sid], 'PNG', sX, sY, symSz, symSz);
             if (showLbl) {
               const sym = ISO_SYMBOLS.find(s => s.id === sid);
               if (sym) {
-                pdf.setFontSize(Math.max(3, symSz * 0.22));
+                pdf.setFontSize(Math.max(3, symSz * 0.21));
                 pdf.setFont('helvetica', 'normal');
-                const lbl = pdf.splitTextToSize(sym.label, colW - 1).slice(0, 2);
-                pdf.text(lbl, sX, sY + symSz + 1.5);
+                pdf.text(pdf.splitTextToSize(sym.label, colW - 1).slice(0, 2), sX, sY + symSz + 1.5);
               }
             }
           });
         }
 
-        // Summary bar
+        // Summary bar (reduced height)
         const smY = midStart + MID_H - SUMBAR_H;
-        pdf.setFillColor(215, 215, 215);
+        pdf.setFillColor(210, 210, 210);
         pdf.rect(lx, smY, lw, SUMBAR_H, 'F');
-        pdf.setFontSize(Math.max(4, Math.min(lw * 0.044, 6)));
+        const fSum = Math.max(3.8, Math.min(lw * 0.042, 5.8));
+        pdf.setFontSize(fSum);
         pdf.setFont('helvetica', 'bold');
         pdf.setTextColor(0, 0, 0);
         pdf.text(
           `${vTotal} vol(s)  |  Peso Total: ${totalWeight.toFixed(1)} kg  |  Vol. ${vIdx + 1}/${vTotal}`,
-          lx + mg, smY + SUMBAR_H * 0.68
+          lx + mg, smY + SUMBAR_H * 0.72
         );
 
-        pdf.setLineWidth(1.0);
+        pdf.setLineWidth(0.9);
         pdf.line(lx, midStart + MID_H, lx + lw, midStart + MID_H);
 
-        // ====== BOTTOM: Barcode ======
+        // ====== BOTTOM SECTION — Barcode + single info line ======
         const botY = midStart + MID_H;
         const cnpjO = (instalacaoOrigem?.cnpj || '').replace(/\D/g, '').substring(0, 14).padEnd(14, '0');
         const cnpjD = (instalacaoDestino?.cnpj || '').replace(/\D/g, '').substring(0, 14).padEnd(14, '0');
@@ -319,20 +325,21 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
         const barcodeData = `${osCode} ${String(vIdx + 1).padStart(2, '0')}/${String(vTotal).padStart(2, '0')} ${cnpjO} ${cnpjD}`;
         const bcImg = genBarcode(barcodeData);
         if (bcImg) {
-          const bcH = Math.min(BOT_H * 0.52, 16);
+          const bcH = Math.min(BOT_H * 0.56, 16);
           pdf.addImage(bcImg, 'PNG', lx + mg, botY + 1.5, iw, bcH);
-          const hrY = botY + 1.5 + bcH + 1.5;
-          const fHR = Math.max(3.2, Math.min(lw * 0.032, 5));
+
+          // Single info line below barcode
+          const hrY = botY + 1.5 + bcH + 1.2;
+          const fHR = Math.max(3, Math.min(lw * 0.030, 4.5));
           pdf.setFontSize(fHR);
           pdf.setFont('helvetica', 'normal');
-          const hr1 = `OS: ${os?.codigo || '-'}  |  Vol: ${vIdx + 1}/${vTotal}  |  Peso: ${vol.peso_bruto || '-'} kg  |  Peso Total: ${totalWeight.toFixed(1)} kg`;
-          const hr2 = `CNPJ Origem: ${instalacaoOrigem?.cnpj || '-'}  |  CNPJ Destino: ${instalacaoDestino?.cnpj || '-'}`;
-          pdf.text(pdf.splitTextToSize(hr1, iw), lx + mg, hrY + fHR * 0.4);
-          pdf.text(pdf.splitTextToSize(hr2, iw), lx + mg, hrY + fHR * 0.4 + fHR * 0.56 + 1);
+          const hrLine = `OS: ${os?.codigo || '-'}  |  Vol: ${vIdx + 1}/${vTotal}  |  Peso: ${vol.peso_bruto || '-'} kg  |  Total: ${totalWeight.toFixed(1)} kg  |  CNPJ Orig: ${instalacaoOrigem?.cnpj || '-'}  |  CNPJ Dest: ${instalacaoDestino?.cnpj || '-'}`;
+          const hrLines = pdf.splitTextToSize(hrLine, iw);
+          // Always show max 2 lines
+          pdf.text(hrLines.slice(0, 2), lx + mg, hrY + fHR * 0.4);
         }
       };
 
-      // Render all labels
       expandedVolumes.forEach((vol, vIdx) => {
         const pos = vIdx % n;
         const col = pos % cols;
