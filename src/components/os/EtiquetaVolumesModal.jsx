@@ -326,9 +326,11 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
                           (symZoneW >= 22 && selectedSymbols.length > 2 ? 2 : 1);
           const symRows = Math.ceil(selectedSymbols.length / symCols);
           const colW    = symZoneW / symCols;
-          const symSz   = Math.max(5, Math.min(colW - 1.5, (availH / symRows) - 4));
+          // For 8/page use tighter row gap to fit all symbols in available height
+          const rowGap  = n === 8 ? 1.0 : 2.0;
+          const symSz   = Math.max(4, Math.min(colW - 1.0, (availH / symRows) - rowGap));
           const showLbl = symSz >= 12;
-          const rowH    = symSz + (showLbl ? 5.5 : 2);
+          const rowH    = symSz + (showLbl ? 5.0 : rowGap);
 
           selectedSymbols.forEach((sid, si) => {
             const col = si % symCols, row = Math.floor(si / symCols);
