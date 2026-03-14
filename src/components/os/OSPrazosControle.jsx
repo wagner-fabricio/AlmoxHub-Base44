@@ -44,7 +44,7 @@ export default function OSPrazosControle({
 
         {/* Prazo */}
         <div className="space-y-2">
-          <Label className="text-slate-700 dark:text-slate-300 font-medium">Prazo *</Label>
+          <Label className="text-slate-700 dark:text-slate-300 font-medium">Prazo <span className="text-red-500">*</span></Label>
           <Input
             type="date"
             value={formData.prazo}
@@ -58,7 +58,7 @@ export default function OSPrazosControle({
               }
               setFormData({ ...formData, prazo: novoPrazo });
             }}
-            className={prazoError ? 'border-red-500 rounded-lg' : 'border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600'}
+            className={(!formData.prazo || prazoError) ? 'border-red-300 dark:border-red-700 rounded-lg' : 'border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600'}
           />
           {prazoError && (
             <p className="text-xs text-red-600 dark:text-red-400 mt-1">{prazoError}</p>
