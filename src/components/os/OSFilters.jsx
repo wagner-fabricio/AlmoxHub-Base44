@@ -34,6 +34,7 @@ export default function OSFilters({
   isExpedicaoView = false,
   isRecebimentoView = false
 }) {
+  const isPendenciasView = viewMode === 'pendencias_expedicao';
   const [isOpen, setIsOpen] = React.useState(true);
 
   const clearFilters = () => {
