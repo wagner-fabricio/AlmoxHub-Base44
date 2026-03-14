@@ -30,8 +30,7 @@ import {
   FileText,
   Printer,
   Users,
-  Plus,
-  Tag
+  Plus
 } from 'lucide-react';
 import {
   DropdownMenu,
