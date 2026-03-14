@@ -968,6 +968,15 @@ export default function OSFormModal({
           </div>
         </ScrollArea>
 
+        {showEtiquetaModal && (
+          <EtiquetaVolumesModal
+            open={showEtiquetaModal}
+            onClose={() => setShowEtiquetaModal(false)}
+            os={{ ...formData, codigo: os?.codigo || formData.codigo }}
+            instalacoes={instalacoes}
+          />
+        )}
+
         <div className="border-t bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
           <div className="px-8 py-6 flex items-center justify-between gap-6">
             <p className="text-sm text-slate-600 dark:text-slate-400 font-medium flex-shrink-0">* Campos obrigatórios</p>
