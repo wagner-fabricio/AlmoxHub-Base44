@@ -289,9 +289,11 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
           { text: `Peso Bruto: ${vol.peso_bruto||'—'} kg${vol.m3 ? `   M³: ${vol.m3}` : ''}`, bold: false, big: false },
         ];
 
+        // For 4/page reduce starting font slightly to avoid overflow
+        const midFsMax  = n === 4 ? FSS * 0.82 : FSS;
         const midAvailH = midEnd - midStart - 3;
-        let midFs = FSS;
-        for (let testFs = FSS; testFs >= 5; testFs -= 0.5) {
+        let midFs = midFsMax;
+        for (let testFs = midFsMax; testFs >= 5; testFs -= 0.5) {
           const codeFsT = Math.min(FSC, testFs * 1.35);
           let h = 0;
           midLines.forEach(ln => {
