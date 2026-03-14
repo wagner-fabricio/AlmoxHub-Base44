@@ -148,20 +148,22 @@ export default function OSAssinaturaTab({ os, onSave }) {
                 </div>
                 <div className="flex gap-1">
                   <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleEdit(assinatura)}
-                    className="h-8 w-8 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                    title="Redesenhar"
+                   type="button"
+                   variant="ghost"
+                   size="icon"
+                   onClick={() => handleEdit(assinatura)}
+                   className="h-8 w-8 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                   title="Redesenhar"
                   >
-                    <PenLine className="w-4 h-4" />
+                   <PenLine className="w-4 h-4" />
                   </Button>
                   <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDelete(assinatura.id)}
-                    className="h-8 w-8 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                    title="Excluir"
+                   type="button"
+                   variant="ghost"
+                   size="icon"
+                   onClick={() => handleDelete(assinatura.id)}
+                   className="h-8 w-8 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                   title="Excluir"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
