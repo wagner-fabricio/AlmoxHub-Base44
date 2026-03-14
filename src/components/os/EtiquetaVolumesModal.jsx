@@ -240,14 +240,25 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
           const fs       = block.fs;
           pdf.setFontSize(fs);
           let y = startY;
+          const maxLines = Math.floor(blockH / lhOf(fs));
           const nameLines = pdf.splitTextToSize(nome, colW);
+          const addrLines = addrLine ? pdf.splitTextToSize(addrLine, colW) : [];
+          const allLines  = [...nameLines, ...addrLines].slice(0, maxLines);
+          // Render name lines (bold)
+          let lineIdx = 0;
           pdf.setFont('helvetica','bold');
-          pdf.text(nameLines.map(l => truncate(l, colW)), x, y + lhOf(fs)*0.76);
-          y += nameLines.length * lhOf(fs) + 0.4;
-          if (addrLine) {
-            const addrLines = pdf.splitTextToSize(addrLine, colW);
-            pdf.setFont('helvetica','normal');
-            pdf.text(addrLines.map(l => truncate(l, colW)), x, y + lhOf(fs)*0.76);
+          while (lineIdx < nameLines.length && lineIdx < allLines.length) {
+            pdf.text(truncate(allLines[lineIdx], colW), x, y + lhOf(fs)*0.76);
+            y += lhOf(fs);
+            lineIdx++;
+          }
+          y += 0.4;
+          // Render addr lines (normal)
+          pdf.setFont('helvetica','normal');
+          while (lineIdx < allLines.length) {
+            pdf.text(truncate(allLines[lineIdx], colW), x, y + lhOf(fs)*0.76);
+            y += lhOf(fs);
+            lineIdx++;
           }
         };
 
