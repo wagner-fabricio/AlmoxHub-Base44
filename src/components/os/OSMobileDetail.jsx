@@ -10,6 +10,7 @@ import MentionInput from '@/components/notifications/MentionInput';
 import PickingWMS from './PickingWMS';
 import ExpedicaoProgressTracker from './ExpedicaoProgressTracker';
 import MaterialesTab from '@/components/emfluxo/MaterialesTab';
+import OSAssinaturaTab from './OSAssinaturaTab';
 import {
   X,
   Clock,
