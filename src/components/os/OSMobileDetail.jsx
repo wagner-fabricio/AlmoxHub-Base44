@@ -30,7 +30,8 @@ import {
   Image as ImageIcon,
   Upload,
   Plus,
-  Download
+  Download,
+  PenLine
 } from 'lucide-react';
 import { format, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
