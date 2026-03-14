@@ -241,14 +241,17 @@ export default function OSFilters({
               <Button 
                 variant="outline"
                 className="justify-between bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-sm h-9"
+                disabled={isPendenciasView}
               >
                 <span className="truncate text-xs sm:text-sm">
-                  {!filters.statusList || filters.statusList.length === 0 ? 'Status' : 
+                  {isPendenciasView
+                    ? 'Elaboração + Execução'
+                    : !filters.statusList || filters.statusList.length === 0 ? 'Status' : 
                     filters.statusList.length === 1 ? 
                       ({ elaboracao: 'Elaboração', execucao: 'Execução', concluido: 'Concluído', cancelado: 'Cancelado' }[filters.statusList[0]] || 'Status') :
                     `${filters.statusList.length} status`}
                 </span>
-                <ChevronDown className="w-4 h-4 shrink-0 ml-1" />
+                {!isPendenciasView && <ChevronDown className="w-4 h-4 shrink-0 ml-1" />}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-56 p-3">
