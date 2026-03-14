@@ -671,10 +671,10 @@ export default function OSFormModal({
                       </Popover>
                     </div>
                     <div className="space-y-2">
-                      <Label>Instalação Destino</Label>
+                      <Label>Instalação Destino <span className="text-red-500">*</span></Label>
                       <Popover open={openDestinoCombo} onOpenChange={setOpenDestinoCombo}>
                         <PopoverTrigger asChild>
-                          <Button variant="outline" role="combobox" className="w-full justify-between">
+                          <Button variant="outline" role="combobox" className={`w-full justify-between ${!formData.instalacao_destino_id ? 'border-red-300 dark:border-red-700' : ''}`}>
                             {formData.instalacao_destino_id ? (instalacoes || []).find(i => i.id === formData.instalacao_destino_id)?.nome : "Selecione..."}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
