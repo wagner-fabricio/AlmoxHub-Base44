@@ -541,6 +541,15 @@ export default function OrdensServico() {
                   onOSClick={handleOSClick}
                 />
               )}
+              {viewMode === 'pendencias_recebimento' && (
+                <OSPendenciasRecebimento
+                  ordens={filteredOrdens}
+                  categorias={categorias}
+                  subcategorias={subcategorias}
+                  almoxarifados={almoxarifados}
+                  onOSClick={handleOSClick}
+                />
+              )}
             </>
           )}
         </div>
