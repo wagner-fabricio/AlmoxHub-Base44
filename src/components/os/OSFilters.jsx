@@ -252,7 +252,7 @@ export default function OSFilters({
                       ({ elaboracao: 'Elaboração', execucao: 'Execução', concluido: 'Concluído', cancelado: 'Cancelado' }[filters.statusList[0]] || 'Status') :
                     `${filters.statusList.length} status`}
                 </span>
-                {!isPendenciasView && <ChevronDown className="w-4 h-4 shrink-0 ml-1" />}
+                {!isPendenciasView && !isPendenciasRecebimentoView && <ChevronDown className="w-4 h-4 shrink-0 ml-1" />}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-56 p-3">
