@@ -218,8 +218,8 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
           return { fs: 4, lines: pdf.splitTextToSize(text, maxW) };
         };
 
-        // Available height per side for name+address block (after label row)
-        const blockH = TOP_H - lhOf(FSL) - 0.8 - 2.5;
+        // Available height per side for name+address+cnpj block (after label row)
+        const blockH = TOP_H - lhOf(FSL) - 0.8 - 2.0;
 
         // — Left: REMETENTE —
         pdf.setFont('helvetica','bold'); pdf.setFontSize(FSL);
