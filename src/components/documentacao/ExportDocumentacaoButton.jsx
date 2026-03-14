@@ -185,6 +185,7 @@ export default function ExportDocumentacaoButton() {
       
       addText('1.1 Visão Geral', 16, true);
       addText('O AlmoxHub é construído sobre a plataforma Base44, utilizando uma arquitetura moderna e escalável baseada em React, com backend serverless e banco de dados PostgreSQL gerenciado.', 11);
+      addText('A plataforma oferece infraestrutura completa de backend como serviço, permitindo desenvolvimento ágil e escalável sem preocupação com operações de infraestrutura.', 11);
       yPos += 3;
 
       addText('1.2 Stack Tecnológica', 16, true);
