@@ -226,6 +226,8 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
         };
 
         const blockH = TOP_H - lhOf(FSL) - 0.8 - 2.0;
+        // For n=1 cap font smaller so long names/addresses don't overflow the section
+        const blockMaxFs = n === 1 ? FSA * 0.72 : FSA;
 
         // Render name + address+CNPJ concatenated
         const renderAddrBlock = (inst, x, startY, colW) => {
@@ -234,7 +236,7 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
           const cnpjPart = inst?.cnpj ? ` — CNPJ: ${inst.cnpj}` : '';
           const addrLine = addr + cnpjPart;
           const fullText = [nome, addrLine].filter(Boolean).join('\n');
-          const block    = fitBlock(fullText, colW, blockH, FSA);
+          const block    = fitBlock(fullText, colW, blockH, blockMaxFs);
           const fs       = block.fs;
           pdf.setFontSize(fs);
           let y = startY;
