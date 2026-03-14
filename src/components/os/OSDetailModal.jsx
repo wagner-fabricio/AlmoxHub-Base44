@@ -98,6 +98,7 @@ export default function OSDetailModal({
   const [isEditing, setIsEditing] = useState(false);
   const [auditLogs, setAuditLogs] = useState([]);
   const [rotulos, setRotulos] = useState([]);
+  const [showEtiquetaModal, setShowEtiquetaModal] = useState(false);
 
   useEffect(() => {
     if (open && os) {
