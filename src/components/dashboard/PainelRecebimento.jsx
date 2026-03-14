@@ -881,10 +881,24 @@ export default function PainelRecebimento({
           subcategorias={subcategorias}
           instalacoes={instalacoes}
           projetos={projetos}
-          onEdit={() => setSelectedOS(null)}
+          onEdit={() => { setEditingOS(selectedOS); setSelectedOS(null); }}
           onDelete={() => setSelectedOS(null)}
           canDelete={false}
           onRefresh={() => {}}
+        />
+      )}
+      {editingOS && (
+        <OSFormModal
+          open={!!editingOS}
+          onClose={() => setEditingOS(null)}
+          os={editingOS}
+          regionais={regionais}
+          almoxarifados={almoxarifados}
+          pessoas={pessoas}
+          categorias={categorias}
+          subcategorias={subcategorias}
+          instalacoes={instalacoes}
+          onSave={() => setEditingOS(null)}
         />
       )}
     </div>
