@@ -121,10 +121,14 @@ export default function ExportDocumentacaoButton() {
       addNewPage();
       yPos = margin + 20;
       
+      // Título com linha decorativa
       doc.setFontSize(24);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(0, 0, 255);
       doc.text('Índice', margin, yPos);
+      doc.setDrawColor(0, 0, 255);
+      doc.setLineWidth(1);
+      doc.line(margin, yPos + 2, margin + 40, yPos + 2);
       yPos += 15;
 
       const sections = [
