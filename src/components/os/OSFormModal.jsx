@@ -26,6 +26,7 @@ import OSAtendimentoMateriais from './OSAtendimentoMateriais.jsx';
 import OSFluxoRecebimento from './OSFluxoRecebimento.jsx';
 import OSPrazosControle from './OSPrazosControle.jsx';
 import RotuloSelector from '@/components/rotulos/RotuloSelector';
+import OSAssinaturaTab from './OSAssinaturaTab.jsx';
 
 const EMPTY_FORM = {
   categoria_id: '', subcategorias_ids: [], regional_id: '', almoxarifado_id: '',
