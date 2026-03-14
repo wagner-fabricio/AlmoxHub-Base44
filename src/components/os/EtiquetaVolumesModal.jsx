@@ -295,25 +295,45 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
           return y + lines.length * lhOf(fs) + 0.7;
         };
 
-        my = printMid('ORDEM DE SERVIÇO:', lx+mg, my, FSS*0.88, true, dataW, 1);
+        // Build all mid-section lines and auto-fit font to available height
+        const midLines = [
+          { text: 'ORDEM DE SERVIÇO:', bold: true, big: false },
+          { text: os?.codigo || '-',   bold: true, big: true  },
+          ...(os?.num_reserva     ? [{ text: `Reserva: ${os.num_reserva}`,       bold: false, big: false }] : []),
+          ...(os?.num_migo        ? [{ text: `MIGO: ${os.num_migo}`,             bold: false, big: false }] : []),
+          ...(os?.usuario_reserva ? [{ text: `Usuário: ${os.usuario_reserva}`,   bold: false, big: false }] : []),
+          { text: '---divider---', bold: false, big: false },
+          { text: `C: ${vol.comprimento||'—'} cm  L: ${vol.largura||'—'} cm  A: ${vol.altura||'—'} cm`, bold: false, big: false },
+          { text: `Peso Bruto: ${vol.peso_bruto||'—'} kg${vol.m3 ? `   M³: ${vol.m3}` : ''}`, bold: false, big: false },
+        ];
 
-        // OS code: auto-fit to dataW
-        const codeText = os?.codigo || '-';
-        const codeFs   = fitFont(codeText, dataW, FSC, 7);
-        pdf.setFont('helvetica','bold'); pdf.setFontSize(codeFs);
-        pdf.text(truncate(codeText, dataW), lx+mg, my + lhOf(codeFs)*0.76);
-        my += lhOf(codeFs) + 0.7;
-
-        if (os?.num_reserva)     my = printMid(`Reserva: ${os.num_reserva}`,         lx+mg, my, FSS, false, dataW, 1);
-        if (os?.num_migo)        my = printMid(`MIGO: ${os.num_migo}`,               lx+mg, my, FSS, false, dataW, 1);
-        if (os?.usuario_reserva) my = printMid(`Usuário: ${os.usuario_reserva}`,     lx+mg, my, FSS, false, dataW, 1);
-
-        if (my < midEnd - lhOf(FSS)*2) {
-          my += 0.4;
-          pdf.setLineWidth(0.15); pdf.line(lx+mg, my, lx+mg+dataW, my); my += 1.2;
-          my = printMid(`C: ${vol.comprimento||'—'} cm  L: ${vol.largura||'—'} cm  A: ${vol.altura||'—'} cm`, lx+mg, my, FSS, false, dataW, 1);
-          printMid(`Peso Bruto: ${vol.peso_bruto||'—'} kg${vol.m3 ? `   M³: ${vol.m3}` : ''}`, lx+mg, my, FSS, false, dataW, 1);
+        // Compute total height needed for given fs, codeFs = fs * 1.3
+        const midAvailH = midEnd - midStart - 3;
+        let midFs = FSS;
+        for (let testFs = FSS; testFs >= 5; testFs -= 0.5) {
+          const codeFsT = Math.min(FSC, testFs * 1.35);
+          let h = 0;
+          midLines.forEach(ln => {
+            if (ln.text === '---divider---') { h += 2; return; }
+            const fs = ln.big ? codeFsT : testFs;
+            const lines = pdf.splitTextToSize(ln.text, dataW);
+            h += lines.length * lhOf(fs) + 0.7;
+          });
+          if (h <= midAvailH) { midFs = testFs; break; }
         }
+        const midCodeFs = Math.min(FSC, midFs * 1.35);
+
+        midLines.forEach(ln => {
+          if (my > midEnd) return;
+          if (ln.text === '---divider---') {
+            my += 0.4; pdf.setLineWidth(0.15); pdf.line(lx+mg, my, lx+mg+dataW, my); my += 1.6; return;
+          }
+          const fs = ln.big ? midCodeFs : midFs;
+          pdf.setFont('helvetica', ln.bold ? 'bold' : 'normal'); pdf.setFontSize(fs);
+          const lines = pdf.splitTextToSize(ln.text, dataW).map(l => truncate(l, dataW));
+          pdf.text(lines, lx+mg, my + lhOf(fs)*0.76);
+          my += lines.length * lhOf(fs) + 0.7;
+        });
 
         // Symbols
         if (hasSyms && symZoneW > 0) {
