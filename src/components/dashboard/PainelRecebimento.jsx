@@ -171,6 +171,7 @@ export default function PainelRecebimento({
   const { regionais, categorias, subcategorias, pessoas } = useApp();
   const [showHelp, setShowHelp] = useState(false);
   const [selectedOS, setSelectedOS] = useState(null);
+  const [editingOS, setEditingOS] = useState(null);
   const [tabelaPage, setTabelaPage] = useState(1);
   const TABELA_PAGE_SIZE = 200;
   const { sortConfig, handleSort } = useTableSort();
