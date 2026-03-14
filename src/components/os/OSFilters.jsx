@@ -20,7 +20,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Search, Filter, X, LayoutGrid, List, Image, Users, Calendar, ChevronDown, ChevronRight } from 'lucide-react';
+import { Search, Filter, X, LayoutGrid, List, Image, Users, Calendar, ChevronDown, ChevronRight, AlertCircle } from 'lucide-react';
 
 export default function OSFilters({ 
   filters, 
