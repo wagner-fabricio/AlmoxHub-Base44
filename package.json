@@ -82,7 +82,8 @@
     "dompurify": "^3.0.9",
     "jspdf-autotable": "^3.8.4",
     "react-google-recaptcha": "^3.1.0",
-    "pdf-parse": "^1.1.1"
+    "pdf-parse": "^1.1.1",
+    "jsbarcode": "^3.11.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
