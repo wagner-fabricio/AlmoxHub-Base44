@@ -33,10 +33,14 @@ export default function ExportDocumentacaoButton() {
 
       // Função para adicionar rodapé
       const addFooter = () => {
-        doc.setTextColor(128, 128, 128);
-        doc.setFontSize(9);
+        doc.setDrawColor(230, 230, 230);
+        doc.setLineWidth(0.5);
+        doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
+        
+        doc.setTextColor(120, 120, 120);
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
         doc.text(`Página ${pageNumber}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
-        doc.text('Confidencial - Axia Energia', pageWidth - margin, pageHeight - 10, { align: 'right' });
         doc.text(`Gerado em ${new Date().toLocaleDateString('pt-BR')}`, margin, pageHeight - 10);
       };
 
