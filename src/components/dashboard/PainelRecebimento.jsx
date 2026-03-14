@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useApp } from '@/components/contexts/AppContext';
 import OSDetailModal from '@/components/os/OSDetailModal';
+import OSFormModal from '@/components/os/OSFormModal';
 import { SortableTableHead, useTableSort, useColumnFilters } from '@/components/ui/table-sortable';
 
 // ─── Sub-components ─────────────────────────────────────────────────────────
