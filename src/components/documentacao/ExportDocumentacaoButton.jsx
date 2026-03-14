@@ -81,24 +81,41 @@ export default function ExportDocumentacaoButton() {
         yPos += 3;
       };
 
-      // CAPA
+      // CAPA com design elegante e clean
+      // Fundo gradiente (simulado com retângulos)
       doc.setFillColor(0, 0, 255);
-      doc.rect(0, 0, pageWidth, pageHeight, 'F');
+      doc.rect(0, 0, pageWidth, pageHeight / 2, 'F');
+      doc.setFillColor(10, 60, 180);
+      doc.rect(0, pageHeight / 2, pageWidth, pageHeight / 2, 'F');
       
+      // Círculo decorativo
+      doc.setFillColor(255, 255, 255);
+      doc.setDrawColor(255, 255, 255);
+      doc.setLineWidth(0);
+      
+      // Título principal
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(32);
+      doc.setFontSize(48);
       doc.setFont('helvetica', 'bold');
-      doc.text('AlmoxHub', pageWidth / 2, 80, { align: 'center' });
+      doc.text('AlmoxHub', pageWidth / 2, 70, { align: 'center' });
       
+      // Subtítulo
       doc.setFontSize(20);
-      doc.text('Documentação Técnica', pageWidth / 2, 100, { align: 'center' });
-      
-      doc.setFontSize(14);
       doc.setFont('helvetica', 'normal');
-      doc.text('Axia Energia', pageWidth / 2, 120, { align: 'center' });
+      doc.setTextColor(230, 240, 255);
+      doc.text('Documentação Técnica Completa', pageWidth / 2, 110, { align: 'center' });
       
+      // Descrição
+      doc.setFontSize(11);
+      doc.setTextColor(200, 220, 255);
+      doc.text('Arquitetura • Implementação • Segurança • Operações', pageWidth / 2, 130, { align: 'center' });
+      
+      // Versão e data
       doc.setFontSize(12);
-      doc.text(`Versão 1.0.0 - ${new Date().toLocaleDateString('pt-BR')}`, pageWidth / 2, 260, { align: 'center' });
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Versão 1.0.0 • Março 2026`, pageWidth / 2, pageHeight - 40, { align: 'center' });
+      doc.text(`Gerado em ${new Date().toLocaleDateString('pt-BR')}`, pageWidth / 2, pageHeight - 30, { align: 'center' });
 
       // ÍNDICE
       addNewPage();
