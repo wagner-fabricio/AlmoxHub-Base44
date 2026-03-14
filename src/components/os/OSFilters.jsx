@@ -351,115 +351,138 @@ export default function OSFilters({
         )}
 
         {/* View Mode Toggle */}
-        <div className="flex gap-2">
-          <div className="flex border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden w-fit">
-            <Button
-              variant={viewMode === 'kanban' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('kanban')}
-              className="rounded-none h-9"
-              title="Kanban"
-            >
-              <LayoutGrid className="w-4 h-4" />
-            </Button>
-            <Button
-              variant={viewMode === 'list' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('list')}
-              className="rounded-none border-x border-slate-200 dark:border-slate-700 h-9"
-              title="Lista"
-            >
-              <List className="w-4 h-4" />
-            </Button>
-            <Button
-              variant={viewMode === 'gallery' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('gallery')}
-              className="rounded-none border-x border-slate-200 dark:border-slate-700 h-9"
-              title="Galeria"
-            >
-              <Image className="w-4 h-4" />
-            </Button>
-            <Button
-              variant={viewMode === 'responsavel' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('responsavel')}
-              className="rounded-none h-9"
-              title="Por Responsável"
-            >
-              <Users className="w-4 h-4" />
-            </Button>
+        <div className="flex flex-wrap gap-3 items-end">
+          
+          {/* Visões gerais */}
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-medium text-slate-400 dark:text-slate-500 px-1">Visão Geral</span>
+            <div className="flex border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden w-fit">
+              <Button
+                variant={viewMode === 'kanban' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('kanban')}
+                className="rounded-none h-9"
+                title="Kanban"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+                className="rounded-none border-x border-slate-200 dark:border-slate-700 h-9"
+                title="Lista"
+              >
+                <List className="w-4 h-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'gallery' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('gallery')}
+                className="rounded-none border-x border-slate-200 dark:border-slate-700 h-9"
+                title="Galeria"
+              >
+                <Image className="w-4 h-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'responsavel' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('responsavel')}
+                className="rounded-none h-9"
+                title="Por Responsável"
+              >
+                <Users className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
-          <Button
-            variant={viewMode === 'kanban_expedicao' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => {
-              const expedicaoCategoria = categorias.find(c => c.nome === 'Expedição');
-              if (expedicaoCategoria) {
-                setFilters({ ...filters, categorias: [expedicaoCategoria.id] });
-              }
-              setViewMode('kanban_expedicao');
-            }}
-            className="h-9 gap-2"
-            title="Kanban Expedição"
-          >
-            <LayoutGrid className="w-4 h-4" />
-            <span className="text-xs">Expedição</span>
-          </Button>
-          <Button
-            variant={viewMode === 'kanban_recebimento' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => {
-              const recebimentoCategoria = categorias.find(c => c.nome === 'Recebimento');
-              if (recebimentoCategoria) {
-                setFilters({ ...filters, categorias: [recebimentoCategoria.id] });
-              }
-              setViewMode('kanban_recebimento');
-            }}
-            className="h-9 gap-2"
-            title="Kanban Recebimento"
-          >
-            <LayoutGrid className="w-4 h-4" />
-            <span className="text-xs">Recebimento</span>
-          </Button>
-          <Button
-            variant={viewMode === 'pendencias_expedicao' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => {
-              const expedicaoCategoria = categorias.find(c => c.nome === 'Expedição');
-              setFilters(prev => ({
-                ...prev,
-                categorias: expedicaoCategoria ? [expedicaoCategoria.id] : prev.categorias,
-                statusList: ['elaboracao', 'execucao'],
-                status: 'all'
-              }));
-              setViewMode('pendencias_expedicao');
-            }}
-            className="h-9 gap-2"
-            title="Pendências de Expedição"
-          >
-            <AlertCircle className="w-4 h-4" />
-            <span className="text-xs hidden sm:inline">Pend. Expedição</span>
-          </Button>
-          <Button
-            variant={viewMode === 'pendencias_recebimento' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => {
-              const recebimentoCategoria = categorias.find(c => c.nome === 'Recebimento');
-              setFilters(prev => ({
-                ...prev,
-                categorias: recebimentoCategoria ? [recebimentoCategoria.id] : prev.categorias,
-                statusList: ['elaboracao', 'execucao'],
-                status: 'all'
-              }));
-              setViewMode('pendencias_recebimento');
-            }}
-            className="h-9 gap-2"
-            title="Pendências de Recebimento"
-          >
-            <InboxIcon className="w-4 h-4" />
-            <span className="text-xs hidden sm:inline">Pend. Recebimento</span>
-          </Button>
+
+          {/* Divisor */}
+          <div className="h-9 w-px bg-slate-200 dark:bg-slate-700 self-end mb-0.5" />
+
+          {/* Expedição */}
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-medium text-orange-500 dark:text-orange-400 px-1 flex items-center gap-1">
+              <LayoutGrid className="w-3 h-3" /> Expedição
+            </span>
+            <div className="flex border border-orange-200 dark:border-orange-800/60 rounded-lg overflow-hidden w-fit">
+              <Button
+                variant={viewMode === 'kanban_expedicao' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => {
+                  const expedicaoCategoria = categorias.find(c => c.nome === 'Expedição');
+                  if (expedicaoCategoria) setFilters({ ...filters, categorias: [expedicaoCategoria.id] });
+                  setViewMode('kanban_expedicao');
+                }}
+                className={`rounded-none h-9 gap-1.5 text-xs ${viewMode === 'kanban_expedicao' ? 'bg-orange-500 hover:bg-orange-600 text-white' : 'text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20'}`}
+                title="Kanban Expedição"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span>Kanban</span>
+              </Button>
+              <Button
+                variant={viewMode === 'pendencias_expedicao' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => {
+                  const expedicaoCategoria = categorias.find(c => c.nome === 'Expedição');
+                  setFilters(prev => ({
+                    ...prev,
+                    categorias: expedicaoCategoria ? [expedicaoCategoria.id] : prev.categorias,
+                    statusList: ['elaboracao', 'execucao'],
+                    status: 'all'
+                  }));
+                  setViewMode('pendencias_expedicao');
+                }}
+                className={`rounded-none border-l border-orange-200 dark:border-orange-800/60 h-9 gap-1.5 text-xs ${viewMode === 'pendencias_expedicao' ? 'bg-orange-500 hover:bg-orange-600 text-white' : 'text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20'}`}
+                title="Pendências de Expedição"
+              >
+                <AlertCircle className="w-3.5 h-3.5" />
+                <span>Pendências</span>
+              </Button>
+            </div>
+          </div>
+
+          {/* Recebimento */}
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-medium text-blue-500 dark:text-blue-400 px-1 flex items-center gap-1">
+              <InboxIcon className="w-3 h-3" /> Recebimento
+            </span>
+            <div className="flex border border-blue-200 dark:border-blue-800/60 rounded-lg overflow-hidden w-fit">
+              <Button
+                variant={viewMode === 'kanban_recebimento' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => {
+                  const recebimentoCategoria = categorias.find(c => c.nome === 'Recebimento');
+                  if (recebimentoCategoria) setFilters({ ...filters, categorias: [recebimentoCategoria.id] });
+                  setViewMode('kanban_recebimento');
+                }}
+                className={`rounded-none h-9 gap-1.5 text-xs ${viewMode === 'kanban_recebimento' ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'}`}
+                title="Kanban Recebimento"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span>Kanban</span>
+              </Button>
+              <Button
+                variant={viewMode === 'pendencias_recebimento' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => {
+                  const recebimentoCategoria = categorias.find(c => c.nome === 'Recebimento');
+                  setFilters(prev => ({
+                    ...prev,
+                    categorias: recebimentoCategoria ? [recebimentoCategoria.id] : prev.categorias,
+                    statusList: ['elaboracao', 'execucao'],
+                    status: 'all'
+                  }));
+                  setViewMode('pendencias_recebimento');
+                }}
+                className={`rounded-none border-l border-blue-200 dark:border-blue-800/60 h-9 gap-1.5 text-xs ${viewMode === 'pendencias_recebimento' ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'}`}
+                title="Pendências de Recebimento"
+              >
+                <InboxIcon className="w-3.5 h-3.5" />
+                <span>Pendências</span>
+              </Button>
+            </div>
+          </div>
+
         </div>
       </CollapsibleContent>
     </Collapsible>
