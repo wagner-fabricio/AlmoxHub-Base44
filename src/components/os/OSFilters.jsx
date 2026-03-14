@@ -420,7 +420,16 @@ export default function OSFilters({
           <Button
             variant={viewMode === 'pendencias_expedicao' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setViewMode('pendencias_expedicao')}
+            onClick={() => {
+              const expedicaoCategoria = categorias.find(c => c.nome === 'Expedição');
+              setFilters(prev => ({
+                ...prev,
+                categorias: expedicaoCategoria ? [expedicaoCategoria.id] : prev.categorias,
+                statusList: ['elaboracao', 'execucao'],
+                status: 'all'
+              }));
+              setViewMode('pendencias_expedicao');
+            }}
             className="h-9 gap-2"
             title="Pendências de Expedição"
           >
