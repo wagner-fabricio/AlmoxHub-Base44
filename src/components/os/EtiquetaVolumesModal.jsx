@@ -376,18 +376,15 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
 
         // ══════════ BOTTOM — barcode + info line ══════════
         const botY   = midStart + MID_H;
-        const cnpjO  = (instalacaoOrigem?.cnpj||'').replace(/\D/g,'').substring(0,14).padEnd(14,'0');
-        const cnpjD  = (instalacaoDestino?.cnpj||'').replace(/\D/g,'').substring(0,14).padEnd(14,'0');
         const osCode = (os?.codigo||'OS').replace(/[^A-Z0-9\-_]/gi,'').toUpperCase();
-        const barcodeData = `${osCode} ${String(vIdx+1).padStart(2,'0')}/${String(vTotal).padStart(2,'0')} ${cnpjO} ${cnpjD}`;
+        const barcodeData = `${osCode} ${String(vIdx+1).padStart(2,'0')}/${String(vTotal).padStart(2,'0')}`;
         const bcImg  = genBarcode(barcodeData);
         if (bcImg) {
-          const bcH = Math.min(BOT_H * 0.58, 18);
-          pdf.addImage(bcImg, 'PNG', lx+mg, botY+1.2, iw, bcH);
-
-          // Info line: auto-fit font so the full string fills iw on ONE line
-          const hrTxt = `OS: ${os?.codigo||'-'}  |  Vol: ${vIdx+1}/${vTotal}  |  Peso: ${vol.peso_bruto||'-'} kg  |  Total: ${totalWeight.toFixed(1)} kg  |  CNPJ Orig: ${instalacaoOrigem?.cnpj||'-'}  |  CNPJ Dest: ${instalacaoDestino?.cnpj||'-'}`;
-          const hrY   = botY + 1.2 + bcH + 1.0;
+          const bcH = Math.min(BOT_H * 0.62, 18);
+          pdf.addImage(bcImg, 'PNG', lx+mg, botY+1.0, iw, bcH);
+          // Info line: OS + vol + peso only (CNPJs moved to section 1)
+          const hrTxt = `OS: ${os?.codigo||'-'}  |  Vol: ${vIdx+1}/${vTotal}  |  Peso: ${vol.peso_bruto||'-'} kg  |  Peso Total: ${totalWeight.toFixed(1)} kg`;
+          const hrY   = botY + 1.0 + bcH + 0.8;
           const hrFs  = fitFont(hrTxt, iw, 5.5, 2.5);
           pdf.setFont('helvetica','normal'); pdf.setFontSize(hrFs);
           pdf.text(truncate(hrTxt, iw), lx+mg, hrY + hrFs*0.38);
