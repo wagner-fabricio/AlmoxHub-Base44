@@ -13,7 +13,7 @@ import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, Command
 import { Slider } from '@/components/ui/slider';
 import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
-import { Save, Plus, Trash2, Upload, X, Loader2, Paperclip, Check, ChevronsUpDown, ExternalLink } from 'lucide-react';
+import { Save, Plus, Trash2, Upload, X, Loader2, Paperclip, Check, ChevronsUpDown, ExternalLink, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from "sonner";
 import OSItensDocumento from './OSItensDocumento';
