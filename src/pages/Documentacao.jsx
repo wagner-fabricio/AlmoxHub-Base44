@@ -39,6 +39,7 @@ export default function Documentacao() {
       case 'implementacao': return <ImplementacaoSection />;
       case 'operacoes': return <OperacoesSection />;
       case 'seguranca': return <SegurancaSection />;
+      case 'analytics': return <AnalyticsSection />;
       case 'roadmap': return <RoadmapImplementacao />;
       case 'privacy': return <PrivacyByDesignSection />;
       case 'melhorias': return <PlanoMelhoriasSeg />;
