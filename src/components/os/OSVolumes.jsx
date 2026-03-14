@@ -51,9 +51,16 @@ export default function OSVolumes({ volumes = [], onChange, onGerarEtiquetas }) 
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h4 className="font-semibold text-slate-900 dark:text-white">Dados dos Volumes</h4>
-        <Button onClick={addVolume} size="sm">
-          <Plus className="w-4 h-4 mr-2" /> Inserir Volume
-        </Button>
+        <div className="flex gap-2">
+          {onGerarEtiquetas && (
+            <Button onClick={onGerarEtiquetas} size="sm" disabled={volumes.length === 0} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              <Tag className="w-4 h-4 mr-2" /> Gerar Etiquetas
+            </Button>
+          )}
+          <Button onClick={addVolume} size="sm">
+            <Plus className="w-4 h-4 mr-2" /> Inserir Volume
+          </Button>
+        </div>
       </div>
 
       <div className="border rounded-xl overflow-hidden">
