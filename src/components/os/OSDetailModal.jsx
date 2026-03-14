@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import RelatorioSeparacao from './RelatorioSeparacao';
 import RelatorioConferencia from './RelatorioConferencia';
+import OSAssinaturaTab from './OSAssinaturaTab';
 import ExpedicaoProgressTracker from './ExpedicaoProgressTracker';
 import OSFluxoRecebimento from './OSFluxoRecebimento';
 import html2canvas from 'html2canvas';
