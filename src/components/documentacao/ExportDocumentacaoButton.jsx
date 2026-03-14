@@ -24,11 +24,17 @@ export default function ExportDocumentacaoButton() {
 
       // Função para adicionar cabeçalho
       const addHeader = () => {
+        // Fundo degradê visual com azul
         doc.setFillColor(0, 0, 255);
-        doc.rect(0, 0, pageWidth, 15, 'F');
+        doc.rect(0, 0, pageWidth, 12, 'F');
+        doc.setDrawColor(10, 100, 200);
+        doc.setLineWidth(1.5);
+        doc.line(0, 12, pageWidth, 12);
+        
         doc.setTextColor(255, 255, 255);
-        doc.setFontSize(10);
-        doc.text('AlmoxHub - Documentação Técnica', margin, 10);
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.text('AlmoxHub — Documentação Técnica', margin, 8.5);
       };
 
       // Função para adicionar rodapé
