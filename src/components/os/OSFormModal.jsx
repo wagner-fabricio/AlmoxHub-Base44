@@ -495,9 +495,9 @@ export default function OSFormModal({
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-slate-700 dark:text-slate-300 font-medium">Regional *</Label>
+                      <Label className="text-slate-700 dark:text-slate-300 font-medium">Regional <span className="text-red-500">*</span></Label>
                       <Select value={formData.regional_id} onValueChange={(v) => setFormData({ ...formData, regional_id: v, almoxarifado_id: '' })}>
-                        <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg"><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                        <SelectTrigger className={`rounded-lg ${!formData.regional_id ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`}><SelectValue placeholder="Selecione..." /></SelectTrigger>
                         <SelectContent>{(regionais || []).map(r => (<SelectItem key={r.id} value={r.id}>{r.sigla} - {r.descricao}</SelectItem>))}</SelectContent>
                       </Select>
                     </div>
