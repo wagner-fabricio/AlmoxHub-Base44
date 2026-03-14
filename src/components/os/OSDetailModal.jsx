@@ -719,7 +719,10 @@ export default function OSDetailModal({
                   <TabsTrigger value="volumes">Volumes</TabsTrigger>
                 )}
                 {isExpedicao && os.detalhamento_expedicao?.length > 0 && (
-                  <TabsTrigger value="expedicao">Expedição</TabsTrigger>
+                 <TabsTrigger value="expedicao">Expedição</TabsTrigger>
+                )}
+                {isExpedicao && (
+                 <TabsTrigger value="assinaturas">✍️ Assinaturas</TabsTrigger>
                 )}
                 <TabsTrigger value="comentarios">
                   Comentários ({comentarios.length})
