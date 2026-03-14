@@ -962,6 +962,17 @@ export default function OSDetailModal({
 
               {/* Volumes Tab */}
               <TabsContent value="volumes" className="space-y-4">
+                <div className="flex justify-end">
+                  <Button
+                    onClick={() => setShowEtiquetaModal(true)}
+                    disabled={!os.volumes?.length}
+                    size="sm"
+                    className="bg-blue-700 hover:bg-blue-800 text-white gap-2"
+                  >
+                    <Tag className="w-4 h-4" />
+                    Gerar Etiquetas
+                  </Button>
+                </div>
                 {os.volumes?.length > 0 ? (
                   <div className="border rounded-xl overflow-hidden">
                     <table className="w-full">
