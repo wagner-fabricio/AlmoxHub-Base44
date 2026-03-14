@@ -439,7 +439,26 @@ export default function OSFilters({
             title="Pendências de Expedição"
           >
             <AlertCircle className="w-4 h-4" />
-            <span className="text-xs hidden sm:inline">Pendências</span>
+            <span className="text-xs hidden sm:inline">Pend. Expedição</span>
+          </Button>
+          <Button
+            variant={viewMode === 'pendencias_recebimento' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => {
+              const recebimentoCategoria = categorias.find(c => c.nome === 'Recebimento');
+              setFilters(prev => ({
+                ...prev,
+                categorias: recebimentoCategoria ? [recebimentoCategoria.id] : prev.categorias,
+                statusList: ['elaboracao', 'execucao'],
+                status: 'all'
+              }));
+              setViewMode('pendencias_recebimento');
+            }}
+            className="h-9 gap-2"
+            title="Pendências de Recebimento"
+          >
+            <InboxIcon className="w-4 h-4" />
+            <span className="text-xs hidden sm:inline">Pend. Recebimento</span>
           </Button>
         </div>
       </CollapsibleContent>
