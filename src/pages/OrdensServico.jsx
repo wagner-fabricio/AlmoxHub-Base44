@@ -603,6 +603,14 @@ export default function OrdensServico() {
           instalacoes={instalacoes}
           onOSClick={handleOSClick}
         />
+      ) : viewMode === 'pendencias_recebimento' ? (
+        <OSPendenciasRecebimento
+          ordens={filteredOrdens}
+          categorias={categorias}
+          subcategorias={subcategorias}
+          almoxarifados={almoxarifados}
+          onOSClick={handleOSClick}
+        />
       ) : filteredOrdens.length === 0 ? (
         <div className="bg-white dark:bg-slate-800 rounded-2xl p-12 text-center">
           <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
