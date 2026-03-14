@@ -338,9 +338,11 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
           const showLbl = symSz >= 11;
           const rowH    = symSz + (showLbl ? 4.5 : rowGap);
 
+          // Right-align: start from the right edge of the sym zone
+          const symStartX = lx + lw - mg - symZoneW;
           selectedSymbols.forEach((sid, si) => {
             const col = si % symCols, row = Math.floor(si / symCols);
-            const sX  = symX + col * colW;
+            const sX  = symStartX + col * colW + (colW - symSz) / 2;
             const sY  = midStart + 2 + row * rowH;
             if (sY + symSz > midEnd + SUMBAR_H) return;
             if (symImages[sid]) pdf.addImage(symImages[sid], 'PNG', sX, sY, symSz, symSz);
