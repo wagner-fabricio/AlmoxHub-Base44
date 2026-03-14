@@ -481,9 +481,9 @@ export default function OSFormModal({
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     <div className="space-y-2">
-                      <Label className="text-slate-700 dark:text-slate-300 font-medium">Categoria *</Label>
+                      <Label className="text-slate-700 dark:text-slate-300 font-medium">Categoria <span className="text-red-500">*</span></Label>
                       <Select value={formData.categoria_id} onValueChange={(v) => setFormData({ ...formData, categoria_id: v, subcategorias_ids: [] })}>
-                        <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg"><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                        <SelectTrigger className={`rounded-lg ${!formData.categoria_id ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`}><SelectValue placeholder="Selecione..." /></SelectTrigger>
                         <SelectContent>{(categorias || []).sort((a, b) => a.nome.localeCompare(b.nome)).map(c => (<SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>))}</SelectContent>
                       </Select>
                     </div>
