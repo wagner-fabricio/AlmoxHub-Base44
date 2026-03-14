@@ -514,6 +514,7 @@ export default function OSMobileDetail({
     ...(isRecebimento && os.nfe_itens_conferencia?.length > 0 ? [{ id: 'materiais', label: 'Materiais', icon: Package }] : []),
     ...(isExpedicao ? [{ id: 'volumes', label: 'Volumes', icon: Package }] : []),
     ...(os.detalhamento_expedicao?.length > 0 ? [{ id: 'expedicao', label: 'Expedição', icon: Package }] : []),
+    ...(isExpedicao ? [{ id: 'assinaturas', label: 'Assinar', icon: PenLine }] : []),
     { id: 'comentarios', label: 'Chat', icon: MessageSquare },
     { id: 'anexos', label: 'Anexos', icon: Paperclip }
   ];
