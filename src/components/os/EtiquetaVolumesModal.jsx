@@ -202,44 +202,69 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
         let ty = topStart + 1.5;
         let ry = topStart + 1.5;
 
+        // Helper: find font size so ALL lines of text fit within maxW AND total height fits maxH
+        const fitBlock = (text, maxW, maxH, maxFs, bold = false) => {
+          let fs = maxFs;
+          while (fs > 4) {
+            pdf.setFont('helvetica', bold ? 'bold' : 'normal');
+            pdf.setFontSize(fs);
+            const lines = pdf.splitTextToSize(text, maxW);
+            const totalH = lines.length * lhOf(fs);
+            const allFit = lines.every(l => pdf.getStringUnitWidth(l) * fs / pdf.internal.scaleFactor <= maxW);
+            if (allFit && totalH <= maxH) return { fs, lines };
+            fs -= 0.4;
+          }
+          pdf.setFontSize(4);
+          return { fs: 4, lines: pdf.splitTextToSize(text, maxW) };
+        };
+
+        // Available height per side for name+address block (after label row)
+        const blockH = TOP_H - lhOf(FSL) - 0.8 - 2.5;
+
         // — Left: REMETENTE —
         pdf.setFont('helvetica','bold'); pdf.setFontSize(FSL);
         pdf.text('REMETENTE:', lx+mg, ty + lhOf(FSL)*0.76);
         ty += lhOf(FSL) + 0.8;
 
-        // Name: fit to column width
+        // Name + address share same font size, name is bold
         const rnText = instalacaoOrigem?.nome || '-';
-        const rnFs   = fitFont(rnText, leftColW, FSN, 5);
-        pdf.setFont('helvetica','normal'); pdf.setFontSize(rnFs);
-        pdf.text(truncate(rnText, leftColW), lx+mg, ty + lhOf(rnFs)*0.76);
-        ty += lhOf(rnFs) + 0.7;
-
-        // Address: split to 2 lines max, each truncated
         const rnAddr = getEndereco(instalacaoOrigem);
-        if (rnAddr) {
-          pdf.setFont('helvetica','normal'); pdf.setFontSize(FSA);
-          const rnLines = pdf.splitTextToSize(rnAddr, leftColW).slice(0,2)
-            .map(l => truncate(l, leftColW));
-          pdf.text(rnLines, lx+mg, ty + lhOf(FSA)*0.76);
+        const rnFull = rnAddr ? `${rnText}\n${rnAddr}` : rnText;
+        // Find fs where full block fits
+        const rnBlock = fitBlock(rnFull, leftColW, blockH, FSA, false);
+        const rnAllLines = rnBlock.lines;
+        // First line(s) = name (bold), rest = address (normal) — split at newline
+        const rnNameLines = pdf.splitTextToSize(rnText, leftColW);
+        const rnAddrLines = rnAddr ? pdf.splitTextToSize(rnAddr, leftColW) : [];
+        const sharedFsR   = rnBlock.fs;
+        pdf.setFontSize(sharedFsR);
+        pdf.setFont('helvetica','bold');
+        pdf.text(rnNameLines.map(l => truncate(l, leftColW)), lx+mg, ty + lhOf(sharedFsR)*0.76);
+        ty += rnNameLines.length * lhOf(sharedFsR) + 0.5;
+        if (rnAddrLines.length > 0) {
+          pdf.setFont('helvetica','normal');
+          pdf.text(rnAddrLines.map(l => truncate(l, leftColW)), lx+mg, ty + lhOf(sharedFsR)*0.76);
         }
 
-        // — Right: DESTINATÁRIO (same font size as remetente) —
+        // — Right: DESTINATÁRIO —
         pdf.setFont('helvetica','bold'); pdf.setFontSize(FSL);
         pdf.text('DESTINATÁRIO:', colX_R, ry + lhOf(FSL)*0.76);
         ry += lhOf(FSL) + 0.8;
 
         const dnText = instalacaoDestino?.nome || '-';
-        const dnFs   = fitFont(dnText, rightColW, FSN, 5);  // same max as remetente
-        pdf.setFont('helvetica','normal'); pdf.setFontSize(dnFs);
-        pdf.text(truncate(dnText, rightColW), colX_R, ry + lhOf(dnFs)*0.76);
-        ry += lhOf(dnFs) + 0.7;
-
         const dnAddr = getEndereco(instalacaoDestino);
-        if (dnAddr) {
-          pdf.setFont('helvetica','normal'); pdf.setFontSize(FSA);
-          const dnLines = pdf.splitTextToSize(dnAddr, rightColW).slice(0,2)
-            .map(l => truncate(l, rightColW));
-          pdf.text(dnLines, colX_R, ry + lhOf(FSA)*0.76);
+        const dnFull = dnAddr ? `${dnText}\n${dnAddr}` : dnText;
+        const dnBlock = fitBlock(dnFull, rightColW, blockH, FSA, false);
+        const dnNameLines = pdf.splitTextToSize(dnText, rightColW);
+        const dnAddrLines = dnAddr ? pdf.splitTextToSize(dnAddr, rightColW) : [];
+        const sharedFsD   = dnBlock.fs;
+        pdf.setFontSize(sharedFsD);
+        pdf.setFont('helvetica','bold');
+        pdf.text(dnNameLines.map(l => truncate(l, rightColW)), colX_R, ry + lhOf(sharedFsD)*0.76);
+        ry += dnNameLines.length * lhOf(sharedFsD) + 0.5;
+        if (dnAddrLines.length > 0) {
+          pdf.setFont('helvetica','normal');
+          pdf.text(dnAddrLines.map(l => truncate(l, rightColW)), colX_R, ry + lhOf(sharedFsD)*0.76);
         }
 
         // Column divider
