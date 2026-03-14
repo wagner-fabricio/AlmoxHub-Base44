@@ -900,6 +900,12 @@ export default function OSFormModal({
               {isRecebimentoCategory && (<TabsContent value="receb-transp" className="space-y-6"><OSRecebimentoTransportador transportador={formData.nfe_dados_transportador} onChange={(data) => setFormData(prev => ({ ...prev, nfe_dados_transportador: data }))} /></TabsContent>)}
               {isRecebimentoCategory && (<TabsContent value="receb-mat" className="space-y-6"><OSRecebimentoMateriais itens={formData.nfe_itens_conferencia} fluxo={formData.fluxo_recebimento} onChange={(data) => setFormData(prev => ({ ...prev, nfe_itens_conferencia: data.itens || prev.nfe_itens_conferencia, fluxo_recebimento: data.fluxo || prev.fluxo_recebimento }))} /></TabsContent>)}
 
+              {isExpedicaoCategory && os?.id && (
+                <TabsContent value="assinaturas" className="space-y-4">
+                  <OSAssinaturaTab os={os} onSave={onSave} />
+                </TabsContent>
+              )}
+
               {/* TAB: Anexos */}
               <TabsContent value="anexos" className="space-y-6">
                 {isRecebimentoCategory && (
