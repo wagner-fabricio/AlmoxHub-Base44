@@ -169,7 +169,7 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
 
         const HEADER_H = Math.max(6.5,  FSH  * 0.84);
         const SUMBAR_H = Math.max(5,    FSBar* 0.80);
-        const BOT_H    = Math.max(14,   lh   * 0.20);
+        const BOT_H    = Math.max(11,   lh   * 0.16);
 
         // ── Column layout ──
         const colGap   = 1.5;
