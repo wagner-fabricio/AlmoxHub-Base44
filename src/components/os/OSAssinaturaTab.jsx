@@ -180,6 +180,7 @@ export default function OSAssinaturaTab({ os, onSave }) {
       {/* Botão adicionar */}
       {!showPad && (
         <Button
+          type="button"
           onClick={() => { setShowPad(true); setEditingId(null); setNomeSignatario(''); setHasDrawing(false); }}
           className="w-full gap-2 py-5"
           style={{ backgroundColor: '#0000FF' }}
