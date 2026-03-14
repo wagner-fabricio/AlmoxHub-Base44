@@ -1463,6 +1463,13 @@ export default function OSDetailModal({
                 )}
               </TabsContent>
 
+              {/* Assinaturas Tab */}
+              {isExpedicao && (
+                <TabsContent value="assinaturas" className="space-y-4">
+                  <OSAssinaturaTab os={localOS} onSave={onRefresh} />
+                </TabsContent>
+              )}
+
               {/* Comentários Tab - Chat Style */}
               <TabsContent value="comentarios" className="flex flex-col">
                 {/* Messages Container */}
