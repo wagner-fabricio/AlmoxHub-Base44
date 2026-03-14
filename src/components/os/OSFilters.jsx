@@ -417,6 +417,16 @@ export default function OSFilters({
             <LayoutGrid className="w-4 h-4" />
             <span className="text-xs">Recebimento</span>
           </Button>
+          <Button
+            variant={viewMode === 'pendencias_expedicao' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setViewMode('pendencias_expedicao')}
+            className="h-9 gap-2"
+            title="Pendências de Expedição"
+          >
+            <AlertCircle className="w-4 h-4" />
+            <span className="text-xs hidden sm:inline">Pendências</span>
+          </Button>
         </div>
       </CollapsibleContent>
     </Collapsible>

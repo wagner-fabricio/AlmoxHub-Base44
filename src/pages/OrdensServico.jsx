@@ -12,6 +12,7 @@ import OSKanbanRecebimento from '@/components/os/OSKanbanRecebimento.jsx';
 import OSList from '@/components/os/OSList.jsx';
 import OSGallery from '@/components/os/OSGallery.jsx';
 import OSByResponsavel from '@/components/os/OSByResponsavel.jsx';
+import OSPendenciasExpedicao from '@/components/os/OSPendenciasExpedicao.jsx';
 import OSFormModal from '@/components/os/OSFormModal.jsx';
 import OSDetailModal from '@/components/os/OSDetailModal.jsx';
 import { notifyOSAssignment, notifyStatusChange } from '@/components/notifications/PushNotificationHelper';
