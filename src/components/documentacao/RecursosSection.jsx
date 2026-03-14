@@ -100,7 +100,7 @@ export default function RecursosSection() {
       color: 'purple',
       descricao: 'Visão executiva com KPIs, gráficos e insights',
       funcionalidades: [
-        '3 abas: Geral, Mapas, Torre de Controle',
+        '7 abas: Geral, Mapas, Torre de Controle, Painel Recebimento, Painel Expedição, Produtividade, Projetos',
         'KPIs principais: Total OS, Em Execução, Concluídas, Progresso Médio',
         'Comparação com ontem (variação percentual)',
         'Taxa de cumprimento de prazos',
@@ -115,6 +115,7 @@ export default function RecursosSection() {
         'Problemas de recebimento por regional',
         'Filtros persistidos por usuário (filtros_preferidos)',
         'Insights automáticos (DashboardInsights component)',
+        '📊 Documentação de Analytics: fórmulas, métricas, gráficos e filtros globais (aba dedicada)',
         '✨ Exportação de PDF profissional (KPIs, gráficos, tabelas)',
         '✨ Configuração de seções para exportar (KPIs, Gráficos)',
         '✨ Orientação configurável (retrato/paisagem)',
