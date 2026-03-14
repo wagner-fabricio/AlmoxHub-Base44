@@ -936,6 +936,10 @@ export default function OSMobileDetail({
           />
         )}
 
+        {activeTab === 'assinaturas' && isExpedicao && (
+          <OSAssinaturaTab os={os} onSave={onRefresh} />
+        )}
+
         {activeTab === 'comentarios' && (
           <div className="flex flex-col h-[calc(100vh-280px)]">
             {/* Messages Container */}
