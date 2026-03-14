@@ -226,6 +226,7 @@ export default function ExportDocumentacaoButton() {
       addText('• Anexos e galeria de imagens', 11);
       addText('• Histórico completo de alterações', 11);
       yPos += 3;
+      addScreenshotPlaceholder('Formulário de Ordem de Serviço');
 
       addText('2.2 Expedição e Recebimento', 16, true);
       addText('• Módulo de Expedição: separação, embalagem, definição de transporte', 11);
