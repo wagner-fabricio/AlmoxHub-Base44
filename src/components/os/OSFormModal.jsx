@@ -59,6 +59,7 @@ export default function OSFormModal({
 }) {
   const [loading, setSaving] = useState(false);
   const [importingPDF, setImportingPDF] = useState(false);
+  const [showEtiquetaModal, setShowEtiquetaModal] = useState(false);
   const [zmmtsePDF, setZmmtsePDF] = useState(null);
   const [openOrigemCombo, setOpenOrigemCombo] = useState(false);
   const [openDestinoCombo, setOpenDestinoCombo] = useState(false);
