@@ -392,10 +392,10 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
           const anotacoes = os?.anotacoes || '-';
 
           const infoItems = [
-            { label: 'Almoxarifado',   value: almoxNome },
-            { label: 'Resp. Separação', value: respSep  },
-            { label: 'Data Separação',  value: dataSep  },
-            { label: 'Anotações',       value: anotacoes },
+            { label: 'Almoxarifado',    value: almoxNome               },
+            { label: 'Resp. Separação', value: respSep                 },
+            { label: 'Data Separação',  value: dataSep                 },
+            { label: 'Anotações',       value: anotacoes, wrap: true   },
           ];
 
           // Auto-fit font to available height for all info items
