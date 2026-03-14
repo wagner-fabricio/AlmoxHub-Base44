@@ -322,16 +322,17 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
         if (hasSyms && symZoneW > 0) {
           const symX    = lx + mg + dataW + 1;
           const availH  = MID_H - SUMBAR_H - 3;
-          // Columns per layout: 1→1col, 2→3cols, 4→2cols(tight), 8→3cols
+          // Columns per layout: 1→1col, 2→3cols, 4→2cols, 8→3cols
           const symCols = n === 1 ? 1 :
                           n === 2 ? (selectedSymbols.length > 1 ? 3 : 1) :
                           n === 8 ? (selectedSymbols.length > 2 ? 3 : 2) :
                           (selectedSymbols.length > 2 ? 2 : 1);
           const symRows = Math.ceil(selectedSymbols.length / symCols);
           const colW    = symZoneW / symCols;
-          // Tight row gap for dense layouts
-          const rowGap  = (n === 4 || n === 8) ? 0.8 : 1.5;
-          const symSz   = Math.max(4, Math.min(colW - 0.8, (availH / symRows) - rowGap));
+          const rowGap  = (n === 4 || n === 8) ? 0.6 : 1.2;
+          // Scale factor to prevent overflow: n=4 tighter, n=1 slightly tighter
+          const symScale = n === 4 ? 0.72 : n === 1 ? 0.82 : 1.0;
+          const symSz   = Math.max(4, Math.min(colW - 0.6, (availH / symRows) - rowGap) * symScale);
           const showLbl = symSz >= 11;
           const rowH    = symSz + (showLbl ? 4.5 : rowGap);
 
