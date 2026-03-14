@@ -1853,6 +1853,16 @@ export default function OSDetailModal({
       </DialogContent>
       </Dialog>
 
+      {/* Etiqueta Modal */}
+      {showEtiquetaModal && (
+        <EtiquetaVolumesModal
+          open={showEtiquetaModal}
+          onClose={() => setShowEtiquetaModal(false)}
+          os={os}
+          instalacoes={instalacoes}
+        />
+      )}
+
       {/* Hidden Relatorio for PDF Generation */}
       {showRelatorio && (
       <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
