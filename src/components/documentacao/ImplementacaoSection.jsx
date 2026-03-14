@@ -74,6 +74,14 @@ export default function ImplementacaoSection() {
                   <Badge>2.5.2</Badge>
                 </div>
                 <div className="flex justify-between p-2 bg-slate-50 dark:bg-slate-800 rounded">
+                  <span className="text-slate-600 dark:text-slate-400">JsBarcode</span>
+                  <Badge>3.11.6</Badge>
+                </div>
+                <div className="flex justify-between p-2 bg-slate-50 dark:bg-slate-800 rounded">
+                  <span className="text-slate-600 dark:text-slate-400">qrcode</span>
+                  <Badge>1.5.3</Badge>
+                </div>
+                <div className="flex justify-between p-2 bg-slate-50 dark:bg-slate-800 rounded">
                   <span className="text-slate-600 dark:text-slate-400">xlsx</span>
                   <Badge>0.18.5</Badge>
                 </div>
