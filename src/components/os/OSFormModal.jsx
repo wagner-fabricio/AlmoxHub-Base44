@@ -640,7 +640,22 @@ export default function OSFormModal({
                 <TabsContent value="documento" className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div className="space-y-2"><Label>Número da Reserva <span className="text-red-500">*</span></Label><Input value={formData.num_reserva} onChange={(e) => setFormData({ ...formData, num_reserva: e.target.value })} className={!formData.num_reserva ? 'border-red-300 dark:border-red-700' : ''} /></div>
-                    <div className="space-y-2"><Label>Data da Reserva <span className="text-red-500">*</span></Label><Input type="date" value={formData.data_reserva} onChange={(e) => setFormData({ ...formData, data_reserva: e.target.value })} className={!formData.data_reserva ? 'border-red-300 dark:border-red-700' : ''} /></div>
+                    <div className="space-y-2"><Label>Data da Reserva <span className="text-red-500">*</span></Label><Input type="date" value={formData.data_reserva} onChange={(e) => {
+                      const newDate = e.target.value;
+                      const updates = { data_reserva: newDate };
+                      if (newDate && !formData.data_necessidade) {
+                        // Calcular 7 dias úteis
+                        const d = new Date(newDate + 'T12:00:00');
+                        let count = 0;
+                        while (count < 7) {
+                          d.setDate(d.getDate() + 1);
+                          const day = d.getDay();
+                          if (day !== 0 && day !== 6) count++;
+                        }
+                        updates.data_necessidade = d.toISOString().split('T')[0];
+                      }
+                      setFormData({ ...formData, ...updates });
+                    }} className={!formData.data_reserva ? 'border-red-300 dark:border-red-700' : ''} /></div>
                     <div className="space-y-2"><Label>Nome Usuário <span className="text-red-500">*</span></Label><Input value={formData.usuario_reserva} onChange={(e) => setFormData({ ...formData, usuario_reserva: e.target.value })} className={!formData.usuario_reserva ? 'border-red-300 dark:border-red-700' : ''} /></div>
                     <div className="space-y-2"><Label>Email Usuário</Label><Input type="email" value={formData.usuario_reserva_email} onChange={(e) => setFormData({ ...formData, usuario_reserva_email: e.target.value })} /></div>
                     <div className="space-y-2"><Label>Órgão <span className="text-red-500">*</span></Label><Input value={formData.orgao} onChange={(e) => setFormData({ ...formData, orgao: e.target.value })} className={!formData.orgao ? 'border-red-300 dark:border-red-700' : ''} /></div>
