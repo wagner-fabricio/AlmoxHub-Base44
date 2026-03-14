@@ -634,25 +634,25 @@ export default function OSFormModal({
               {isExpedicaoCategory && (
                 <TabsContent value="documento" className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div className="space-y-2"><Label>Número da Reserva *</Label><Input value={formData.num_reserva} onChange={(e) => setFormData({ ...formData, num_reserva: e.target.value })} /></div>
-                    <div className="space-y-2"><Label>Data da Reserva *</Label><Input type="date" value={formData.data_reserva} onChange={(e) => setFormData({ ...formData, data_reserva: e.target.value })} /></div>
-                    <div className="space-y-2"><Label>Nome Usuário *</Label><Input value={formData.usuario_reserva} onChange={(e) => setFormData({ ...formData, usuario_reserva: e.target.value })} /></div>
+                    <div className="space-y-2"><Label>Número da Reserva <span className="text-red-500">*</span></Label><Input value={formData.num_reserva} onChange={(e) => setFormData({ ...formData, num_reserva: e.target.value })} className={!formData.num_reserva ? 'border-red-300 dark:border-red-700' : ''} /></div>
+                    <div className="space-y-2"><Label>Data da Reserva <span className="text-red-500">*</span></Label><Input type="date" value={formData.data_reserva} onChange={(e) => setFormData({ ...formData, data_reserva: e.target.value })} className={!formData.data_reserva ? 'border-red-300 dark:border-red-700' : ''} /></div>
+                    <div className="space-y-2"><Label>Nome Usuário <span className="text-red-500">*</span></Label><Input value={formData.usuario_reserva} onChange={(e) => setFormData({ ...formData, usuario_reserva: e.target.value })} className={!formData.usuario_reserva ? 'border-red-300 dark:border-red-700' : ''} /></div>
                     <div className="space-y-2"><Label>Email Usuário</Label><Input type="email" value={formData.usuario_reserva_email} onChange={(e) => setFormData({ ...formData, usuario_reserva_email: e.target.value })} /></div>
-                    <div className="space-y-2"><Label>Órgão *</Label><Input value={formData.orgao} onChange={(e) => setFormData({ ...formData, orgao: e.target.value })} /></div>
-                    <div className="space-y-2"><Label>Data MIGO</Label><Input type="date" value={formData.data_migo} onChange={(e) => setFormData({ ...formData, data_migo: e.target.value })} /></div>
+                    <div className="space-y-2"><Label>Órgão <span className="text-red-500">*</span></Label><Input value={formData.orgao} onChange={(e) => setFormData({ ...formData, orgao: e.target.value })} className={!formData.orgao ? 'border-red-300 dark:border-red-700' : ''} /></div>
+                    <div className="space-y-2"><Label>Data MIGO {formData.num_migo && <span className="text-red-500">*</span>}</Label><Input type="date" value={formData.data_migo} onChange={(e) => setFormData({ ...formData, data_migo: e.target.value })} className={(formData.num_migo && !formData.data_migo) ? 'border-red-300 dark:border-red-700' : ''} /></div>
                     <div className="space-y-2"><Label>Número MIGO</Label><Input value={formData.num_migo} onChange={(e) => setFormData({ ...formData, num_migo: e.target.value })} /></div>
                     <div className="space-y-2">
-                      <Label>Vinculação</Label>
+                      <Label>Vinculação <span className="text-red-500">*</span></Label>
                       <Select value={formData.vinculacao} onValueChange={(v) => setFormData({ ...formData, vinculacao: v })}>
-                        <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                        <SelectTrigger className={!formData.vinculacao ? 'border-red-300 dark:border-red-700' : ''}><SelectValue placeholder="Selecione..." /></SelectTrigger>
                         <SelectContent><SelectItem value="custeio">Custeio</SelectItem><SelectItem value="investimento">Investimento</SelectItem></SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label>Instalação Origem</Label>
+                      <Label>Instalação Origem <span className="text-red-500">*</span></Label>
                       <Popover open={openOrigemCombo} onOpenChange={setOpenOrigemCombo}>
                         <PopoverTrigger asChild>
-                          <Button variant="outline" role="combobox" className="w-full justify-between">
+                          <Button variant="outline" role="combobox" className={`w-full justify-between ${!formData.instalacao_origem_id ? 'border-red-300 dark:border-red-700' : ''}`}>
                             {formData.instalacao_origem_id ? (filteredInstalacoes || []).find(i => i.id === formData.instalacao_origem_id)?.nome : "Selecione..."}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
