@@ -177,8 +177,8 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes })
         const rightColW= iw * 0.56 - colGap / 2;
         const colX_R   = lx + mg + leftColW + colGap;
 
-        // TOP height: enough for label + name + address (2 lines) each side
-        const TOP_H = lhOf(FSL)+0.8 + lhOf(FSN)+0.7 + lhOf(FSA)*2+0.4 + 3.5;
+        // TOP height: label + name + address (2 lines) + CNPJ line each side
+        const TOP_H = lhOf(FSL)+0.8 + lhOf(FSA)*4 + 3.5;
         const MID_H = lh - HEADER_H - TOP_H - SUMBAR_H - BOT_H;
 
         // ── Border ──
