@@ -170,7 +170,7 @@ export default function OSFilters({
               <Button 
                 variant="outline"
                 className="justify-between bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-sm h-9"
-                disabled={isExpedicaoView || isRecebimentoView || isPendenciasView}
+                disabled={isExpedicaoView || isRecebimentoView || isPendenciasView || isPendenciasRecebimentoView}
               >
                 <span className="truncate text-xs sm:text-sm">
                   {isExpedicaoView || isPendenciasView
