@@ -376,29 +376,36 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
         const bcImg  = genBarcode(osCode);
 
         if (bcImg) {
-          const bcH = Math.min(BOT_H * 0.42, 13);
+          const bcH = Math.min(BOT_H * 0.38, 12);
           pdf.addImage(bcImg, 'PNG', bcColX, botY + 1.0, bcColW, bcH);
-
-          // Info lines below barcode
-          const infoAvailH = BOT_H - bcH - 3.5;
-          const infoFs = Math.max(4, Math.min(FSS * 0.72, infoAvailH / 3 * 1.6));
-          let iy = botY + 1.0 + bcH + 1.0;
 
           const almoxNome = almoxarifado?.nome || '-';
           const respSep   = os?.responsavel_separacao || '-';
           const dataSep   = os?.separacao_concluida_em || os?.data_separacao || '-';
+          const anotacoes = os?.anotacoes || '-';
 
           const infoItems = [
-            { label: 'Almox', value: almoxNome },
-            { label: 'Resp.',  value: respSep  },
-            { label: 'Sep.',   value: dataSep  },
+            { label: 'Almoxarifado',   value: almoxNome },
+            { label: 'Resp. Separação', value: respSep  },
+            { label: 'Data Separação',  value: dataSep  },
+            { label: 'Anotações',       value: anotacoes },
           ];
 
+          // Auto-fit font to available height for all info items
+          const infoAvailH = BOT_H - bcH - 2.5;
+          const infoFsMax  = FSS * 0.75;
+          let infoFs = infoFsMax;
+          for (let tf = infoFsMax; tf >= 3.5; tf -= 0.3) {
+            const totalH = infoItems.length * (lhOf(tf) + 0.5);
+            if (totalH <= infoAvailH) { infoFs = tf; break; }
+          }
+
+          let iy = botY + 1.0 + bcH + 0.8;
           infoItems.forEach(({ label, value }) => {
-            if (iy > botY + BOT_H - 1) return;
+            if (iy > botY + BOT_H - 0.5) return;
             const lblStr = label + ': ';
-            pdf.setFont('helvetica','bold'); pdf.setFontSize(infoFs * 0.85);
-            const lblW = pdf.getStringUnitWidth(lblStr) * infoFs * 0.85 / pdf.internal.scaleFactor;
+            pdf.setFont('helvetica','bold'); pdf.setFontSize(infoFs * 0.88);
+            const lblW = pdf.getStringUnitWidth(lblStr) * infoFs * 0.88 / pdf.internal.scaleFactor;
             pdf.text(lblStr, bcColX, iy + lhOf(infoFs) * 0.76);
             pdf.setFont('helvetica','normal'); pdf.setFontSize(infoFs);
             pdf.text(truncate(value, bcColW - lblW), bcColX + lblW, iy + lhOf(infoFs) * 0.76);
