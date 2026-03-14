@@ -172,7 +172,7 @@ export default function OSFilters({
                 disabled={isExpedicaoView || isRecebimentoView || isPendenciasView}
               >
                 <span className="truncate text-xs sm:text-sm">
-                  {isExpedicaoView 
+                  {isExpedicaoView || isPendenciasView
                     ? 'Expedição'
                     : isRecebimentoView
                     ? 'Recebimento'
