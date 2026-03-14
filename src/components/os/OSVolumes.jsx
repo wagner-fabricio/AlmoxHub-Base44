@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, Trash2 } from 'lucide-react';
 
-export default function OSVolumes({ volumes = [], onChange }) {
+export default function OSVolumes({ volumes = [], onChange, onGerarEtiquetas }) {
   const addVolume = () => {
     const newId = `VOL-${String(volumes.length + 1).padStart(3, '0')}`;
     onChange([...volumes, {
