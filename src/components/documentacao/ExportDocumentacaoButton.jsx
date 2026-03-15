@@ -94,27 +94,27 @@ export default function ExportDocumentacaoButton() {
       };
 
       // Colored info box
+      const LH = 5.2; // standard line height
       const colorBox = (title, lines, bgColor, titleColor, textColor, borderColor) => {
-        // estimate height
-        let h = 7;
+        let h = 13; // title area
         lines.forEach(l => {
-          const wrapped = doc.splitTextToSize(l, CW - 8);
-          h += wrapped.length * 4.5 + 0.5;
+          const wrapped = doc.splitTextToSize(l, CW - 10);
+          h += wrapped.length * LH + 1;
         });
         chk(h + 4);
         const by = y;
         fill(bgColor); draw(borderColor || bgColor); doc.setLineWidth(0.3);
         doc.rect(M, by, CW, h, 'FD');
         doc.setFont('helvetica', 'bold'); doc.setFontSize(9.5); rgb(titleColor);
-        doc.text(title, M + 4, y + 5.5);
-        y += 7;
+        doc.text(title, M + 4, by + 8);
+        y = by + 13;
         doc.setFont('helvetica', 'normal'); doc.setFontSize(9); rgb(textColor);
         lines.forEach(l => {
-          const ws = doc.splitTextToSize(l, CW - 8);
-          ws.forEach(w => { chk(5); doc.text(w, M + 4, y); y += 4.5; });
-          y += 0.5;
+          const ws = doc.splitTextToSize(l, CW - 10);
+          ws.forEach(w => { chk(LH + 1); doc.text(w, M + 4, y); y += LH; });
+          y += 1;
         });
-        y = by + h + 3;
+        y = by + h + 4;
       };
 
       // Left-border colored block (camada style)
