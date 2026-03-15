@@ -273,12 +273,12 @@ export default function ExportDocumentacaoButton() {
       spacer(2);
       cardTitle('Princípios de Design');
       const princPairs = [
-        ['Security First', 'RLS em todas entidades, sanitização de inputs (DOMPurify), logs de auditoria.'],
-        ['Mobile-First', 'Design responsivo, detecção automática de mobile, páginas otimizadas.'],
-        ['Component-Driven', 'Componentes reutilizáveis, separação de concerns, shadcn/ui.'],
-        ['Performance', 'React Query para cache, lazy loading, virtualização de listas.'],
-        ['Real-time', 'Subscriptions em entidades críticas, notificações push, mensagens ao vivo.'],
-        ['Data-Driven', 'Dashboard com insights, torre de controle, analytics, audit logs.'],
+        ['[1] Security First', 'RLS em todas entidades, sanitizacao de inputs (DOMPurify), logs de auditoria.'],
+        ['[2] Mobile-First', 'Design responsivo, deteccao automatica de mobile, paginas otimizadas.'],
+        ['[3] Component-Driven', 'Componentes reutilizaveis, separacao de concerns, shadcn/ui.'],
+        ['[4] Performance', 'React Query para cache, lazy loading, virtualizacao de listas.'],
+        ['[5] Real-time', 'Subscriptions em entidades criticas, notificacoes push, mensagens ao vivo.'],
+        ['[6] Data-Driven', 'Dashboard com insights, torre de controle, analytics, audit logs.'],
       ];
       const hW = (CW - 3) / 2;
       princPairs.forEach(([title, desc], i) => {
@@ -303,7 +303,7 @@ export default function ExportDocumentacaoButton() {
 
       cardTitle('Gestão de Ordens de Serviço');
       colorBox('Sistema de OS — Workflow e Controle', [
-        '• Workflow em 4 estágios: Elaboracao > Execucao > Concluido / Cancelado',
+        '• Workflow em 4 estagios: Elaboracao > Execucao > Concluido / Cancelado',
         '• Priorização: baixa | média | alta | urgente',
         '• Atribuição de líder responsável e múltiplos executores',
         '• Controle de progresso percentual em tempo real',
@@ -427,10 +427,10 @@ export default function ExportDocumentacaoButton() {
       spacer(2);
       cardTitle('Troubleshooting Comum');
       colorBox('Erros Frequentes e Soluções', [
-        'Erro 429 (Too Many Requests): Rate limit atingido → implementar retry com backoff exponencial.',
-        'Usuário → PendingApproval: status_aprovacao != "aprovado" → Admin aprovar na UserApproval page.',
-        'RLS Forbidden: Usuário sem permissão → verificar role e ownership; usar asServiceRole no backend.',
-        'Push Notification falha: VAPID keys não configuradas → verificar env vars e PushSubscription entity.',
+        'Erro 429 (Too Many Requests): Rate limit atingido. Implementar retry com backoff exponencial.',
+        'Usuario > PendingApproval: status_aprovacao != "aprovado". Admin aprovar na UserApproval page.',
+        'RLS Forbidden: Usuario sem permissao. Verificar role e ownership; usar asServiceRole no backend.',
+        'Push Notification falha: VAPID keys nao configuradas. Verificar env vars e PushSubscription entity.',
       ], C.amberLight, C.amber, C.text, [253, 230, 138]);
 
       // ── 5. SEGURANÇA ─────────────────────────────────────────────
