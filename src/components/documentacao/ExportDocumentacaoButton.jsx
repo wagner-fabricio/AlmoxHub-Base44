@@ -273,12 +273,12 @@ export default function ExportDocumentacaoButton() {
       spacer(2);
       cardTitle('Princípios de Design');
       const princPairs = [
-        ['Security First', 'RLS em todas entidades, sanitização de inputs (DOMPurify), logs de auditoria.'],
-        ['Mobile-First', 'Design responsivo, detecção automática de mobile, páginas otimizadas.'],
-        ['Component-Driven', 'Componentes reutilizáveis, separação de concerns, shadcn/ui.'],
-        ['Performance', 'React Query para cache, lazy loading, virtualização de listas.'],
-        ['Real-time', 'Subscriptions em entidades críticas, notificações push, mensagens ao vivo.'],
-        ['Data-Driven', 'Dashboard com insights, torre de controle, analytics, audit logs.'],
+        ['[1] Security First', 'RLS em todas entidades, sanitizacao de inputs (DOMPurify), logs de auditoria.'],
+        ['[2] Mobile-First', 'Design responsivo, deteccao automatica de mobile, paginas otimizadas.'],
+        ['[3] Component-Driven', 'Componentes reutilizaveis, separacao de concerns, shadcn/ui.'],
+        ['[4] Performance', 'React Query para cache, lazy loading, virtualizacao de listas.'],
+        ['[5] Real-time', 'Subscriptions em entidades criticas, notificacoes push, mensagens ao vivo.'],
+        ['[6] Data-Driven', 'Dashboard com insights, torre de controle, analytics, audit logs.'],
       ];
       const hW = (CW - 3) / 2;
       princPairs.forEach(([title, desc], i) => {
@@ -303,7 +303,7 @@ export default function ExportDocumentacaoButton() {
 
       cardTitle('Gestão de Ordens de Serviço');
       colorBox('Sistema de OS — Workflow e Controle', [
-        '• Workflow em 4 estágios: Elaboracao > Execucao > Concluido / Cancelado',
+        '• Workflow em 4 estagios: Elaboracao > Execucao > Concluido / Cancelado',
         '• Priorização: baixa | média | alta | urgente',
         '• Atribuição de líder responsável e múltiplos executores',
         '• Controle de progresso percentual em tempo real',
@@ -513,8 +513,8 @@ export default function ExportDocumentacaoButton() {
         '• Total OS: count de ordens no período filtrado',
         '• Taxa de Conclusão: (OS concluídas / Total OS) × 100%',
         '• Em Execução: OS com status "execucao"',
-        '• Atrasadas: OS com prazo < hoje e status ≠ concluido/cancelado',
-        '• Tempo Médio de Resolução: Σ(data_conclusao - data_inicial) / OS concluídas',
+        '• Atrasadas: OS com prazo < hoje e status != concluido/cancelado',
+        '• Tempo Medio de Resolucao: soma(data_conclusao - data_inicial) / OS concluidas',
         '• OTIF (On-Time In-Full): entregas no prazo e completas / total expedições',
       ], C.greenLight, C.green, C.text, [134, 239, 172]);
 
