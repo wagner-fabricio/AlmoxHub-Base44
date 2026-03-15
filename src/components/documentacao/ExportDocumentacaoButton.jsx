@@ -273,12 +273,12 @@ export default function ExportDocumentacaoButton() {
       spacer(2);
       cardTitle('Princípios de Design');
       const princPairs = [
-        ['🔒 Security First', 'RLS em todas entidades, sanitização de inputs (DOMPurify), logs de auditoria.'],
-        ['📱 Mobile-First', 'Design responsivo, detecção automática de mobile, páginas otimizadas.'],
-        ['🧩 Component-Driven', 'Componentes reutilizáveis, separação de concerns, shadcn/ui.'],
-        ['⚡ Performance', 'React Query para cache, lazy loading, virtualização de listas.'],
-        ['🔄 Real-time', 'Subscriptions em entidades críticas, notificações push, mensagens ao vivo.'],
-        ['📊 Data-Driven', 'Dashboard com insights, torre de controle, analytics, audit logs.'],
+        ['[1] Security First', 'RLS em todas entidades, sanitizacao de inputs (DOMPurify), logs de auditoria.'],
+        ['[2] Mobile-First', 'Design responsivo, deteccao automatica de mobile, paginas otimizadas.'],
+        ['[3] Component-Driven', 'Componentes reutilizaveis, separacao de concerns, shadcn/ui.'],
+        ['[4] Performance', 'React Query para cache, lazy loading, virtualizacao de listas.'],
+        ['[5] Real-time', 'Subscriptions em entidades criticas, notificacoes push, mensagens ao vivo.'],
+        ['[6] Data-Driven', 'Dashboard com insights, torre de controle, analytics, audit logs.'],
       ];
       const hW = (CW - 3) / 2;
       princPairs.forEach(([title, desc], i) => {
