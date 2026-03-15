@@ -273,12 +273,12 @@ export default function ExportDocumentacaoButton() {
       spacer(2);
       cardTitle('Princípios de Design');
       const princPairs = [
-        ['Security First', 'RLS em todas entidades, sanitização de inputs (DOMPurify), logs de auditoria.'],
-        ['Mobile-First', 'Design responsivo, detecção automática de mobile, páginas otimizadas.'],
-        ['Component-Driven', 'Componentes reutilizáveis, separação de concerns, shadcn/ui.'],
-        ['Performance', 'React Query para cache, lazy loading, virtualização de listas.'],
-        ['Real-time', 'Subscriptions em entidades críticas, notificações push, mensagens ao vivo.'],
-        ['Data-Driven', 'Dashboard com insights, torre de controle, analytics, audit logs.'],
+        ['[1] Security First', 'RLS em todas entidades, sanitizacao de inputs (DOMPurify), logs de auditoria.'],
+        ['[2] Mobile-First', 'Design responsivo, deteccao automatica de mobile, paginas otimizadas.'],
+        ['[3] Component-Driven', 'Componentes reutilizaveis, separacao de concerns, shadcn/ui.'],
+        ['[4] Performance', 'React Query para cache, lazy loading, virtualizacao de listas.'],
+        ['[5] Real-time', 'Subscriptions em entidades criticas, notificacoes push, mensagens ao vivo.'],
+        ['[6] Data-Driven', 'Dashboard com insights, torre de controle, analytics, audit logs.'],
       ];
       const hW = (CW - 3) / 2;
       princPairs.forEach(([title, desc], i) => {
@@ -303,7 +303,7 @@ export default function ExportDocumentacaoButton() {
 
       cardTitle('Gestão de Ordens de Serviço');
       colorBox('Sistema de OS — Workflow e Controle', [
-        '• Workflow em 4 estágios: Elaboracao > Execucao > Concluido / Cancelado',
+        '• Workflow em 4 estagios: Elaboracao > Execucao > Concluido / Cancelado',
         '• Priorização: baixa | média | alta | urgente',
         '• Atribuição de líder responsável e múltiplos executores',
         '• Controle de progresso percentual em tempo real',
@@ -485,17 +485,17 @@ export default function ExportDocumentacaoButton() {
       spacer(2);
       cardTitle('Lacunas e Plano de Ação');
       colorBox('Alta Prioridade (30 dias)', [
-        '• MFA via SSO: Integrar Azure AD/Okta com MFA obrigatório',
+        '• MFA via SSO: Integrar Azure AD/Okta com MFA obrigatorio',
         '• WAF Externo: Cloudflare/AWS WAF com regras OWASP Top 10',
-        '✅ Backup Testado: IMPLEMENTADO — backup semanal automático',
-        '✅ Rate Limiting Ampliado: IMPLEMENTADO — CAPTCHA + bloqueio',
+        '[OK] Backup Testado: IMPLEMENTADO — backup semanal automatico',
+        '[OK] Rate Limiting Ampliado: IMPLEMENTADO — CAPTCHA + bloqueio',
       ], C.redLight, C.red, C.text, [252, 165, 165]);
 
-      colorBox('Média Prioridade (60 dias)', [
-        '• Integração SIEM Eletrobras: webhook para logs de segurança',
+      colorBox('Media Prioridade (60 dias)', [
+        '• Integracao SIEM Eletrobras: webhook para logs de seguranca',
         '• SAST/DAST: pipeline CI/CD com Snyk/SonarQube',
-        '✅ Timeout Sessão: IMPLEMENTADO — 15 minutos de inatividade',
-        '✅ Headers HTTP Seguros: IMPLEMENTADO — CSP, HSTS, X-Frame-Options',
+        '[OK] Timeout Sessao: IMPLEMENTADO — 15 minutos de inatividade',
+        '[OK] Headers HTTP Seguros: IMPLEMENTADO — CSP, HSTS, X-Frame-Options',
       ], C.amberLight, C.amber, C.text, [253, 230, 138]);
 
       // ── 6. ANALYTICS ─────────────────────────────────────────────
