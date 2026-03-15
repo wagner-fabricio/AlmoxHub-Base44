@@ -273,12 +273,12 @@ export default function ExportDocumentacaoButton() {
       spacer(2);
       cardTitle('Princípios de Design');
       const princPairs = [
-        ['Security First', 'RLS em todas entidades, sanitização de inputs (DOMPurify), logs de auditoria.'],
-        ['Mobile-First', 'Design responsivo, detecção automática de mobile, páginas otimizadas.'],
-        ['Component-Driven', 'Componentes reutilizáveis, separação de concerns, shadcn/ui.'],
-        ['Performance', 'React Query para cache, lazy loading, virtualização de listas.'],
-        ['Real-time', 'Subscriptions em entidades críticas, notificações push, mensagens ao vivo.'],
-        ['Data-Driven', 'Dashboard com insights, torre de controle, analytics, audit logs.'],
+        ['[1] Security First', 'RLS em todas entidades, sanitizacao de inputs (DOMPurify), logs de auditoria.'],
+        ['[2] Mobile-First', 'Design responsivo, deteccao automatica de mobile, paginas otimizadas.'],
+        ['[3] Component-Driven', 'Componentes reutilizaveis, separacao de concerns, shadcn/ui.'],
+        ['[4] Performance', 'React Query para cache, lazy loading, virtualizacao de listas.'],
+        ['[5] Real-time', 'Subscriptions em entidades criticas, notificacoes push, mensagens ao vivo.'],
+        ['[6] Data-Driven', 'Dashboard com insights, torre de controle, analytics, audit logs.'],
       ];
       const hW = (CW - 3) / 2;
       princPairs.forEach(([title, desc], i) => {
@@ -303,7 +303,7 @@ export default function ExportDocumentacaoButton() {
 
       cardTitle('Gestão de Ordens de Serviço');
       colorBox('Sistema de OS — Workflow e Controle', [
-        '• Workflow em 4 estágios: Elaboracao > Execucao > Concluido / Cancelado',
+        '• Workflow em 4 estagios: Elaboracao > Execucao > Concluido / Cancelado',
         '• Priorização: baixa | média | alta | urgente',
         '• Atribuição de líder responsável e múltiplos executores',
         '• Controle de progresso percentual em tempo real',
@@ -455,31 +455,31 @@ export default function ExportDocumentacaoButton() {
 
       spacer(2);
       cardTitle('Controles de Segurança Implementados');
-      colorBox('🔐 Autenticação e Autorização', [
+      colorBox('Autenticacao e Autorizacao', [
         '• Base44 Auth (gerenciada) — senhas mascaradas',
         '• RBAC implementado: 5 roles (admin, gestor, lider, almoxarife, user)',
-        '• Row Level Security (RLS) em entidades sensíveis',
-        '• Aprovação manual de novos usuários por admin',
-        '• Timeout 15min inatividade com aviso 2min antes ✅',
-        '• Delegação de permissões temporária com controle de vigência ✅',
+        '• Row Level Security (RLS) em entidades sensiveis',
+        '• Aprovacao manual de novos usuarios por admin',
+        '• Timeout 15min inatividade com aviso 2min antes [OK]',
+        '• Delegacao de permissoes temporaria com controle de vigencia [OK]',
       ], C.greenLight, C.green, C.text, [134, 239, 172]);
 
-      colorBox('🔒 Criptografia e Proteção', [
-        '• DB criptografado em repouso (padrão indústria)',
-        '• TLS 1.2+ para dados em trânsito',
-        '• Sanitização de inputs com DOMPurify (proteção XSS)',
-        '• Queries parametrizadas (proteção SQL Injection)',
-        '• Soft-delete com recuperação em 30 dias',
-        '• CSP completo | HSTS | X-Frame-Options | Referrer-Policy ✅',
+      colorBox('Criptografia e Protecao', [
+        '• DB criptografado em repouso (padrao industria)',
+        '• TLS 1.2+ para dados em transito',
+        '• Sanitizacao de inputs com DOMPurify (protecao XSS)',
+        '• Queries parametrizadas (protecao SQL Injection)',
+        '• Soft-delete com recuperacao em 30 dias',
+        '• CSP completo | HSTS | X-Frame-Options | Referrer-Policy [OK]',
       ], C.blueLight, C.blue, C.text, C.blueMid);
 
-      colorBox('⚡ Rate Limiting e Rastreabilidade', [
+      colorBox('Rate Limiting e Rastreabilidade', [
         '• LoginAttempt entity rastreia tentativas de login',
-        '• CAPTCHA após 3 falhas (reCAPTCHA v2) ✅',
-        '• Bloqueio temporário após 10 falhas consecutivas ✅',
-        '• Cleanup automático diário de tentativas antigas ✅',
-        '• AuditLog entity: todas ações críticas com IP e user-agent',
-        '• Página AuditLogs (somente admin)',
+        '• CAPTCHA apos 3 falhas (reCAPTCHA v2) [OK]',
+        '• Bloqueio temporario apos 10 falhas consecutivas [OK]',
+        '• Cleanup automatico diario de tentativas antigas [OK]',
+        '• AuditLog entity: todas acoes criticas com IP e user-agent',
+        '• Pagina AuditLogs (somente admin)',
       ], C.tealLight, C.teal, C.text, [94, 234, 212]);
 
       spacer(2);
