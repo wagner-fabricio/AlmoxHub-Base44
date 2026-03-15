@@ -700,7 +700,7 @@ export default function ExportDocumentacaoButton() {
     <Button
       onClick={generatePDF}
       disabled={isGenerating}
-      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+      className="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300"
     >
       {isGenerating ? (
         <>
