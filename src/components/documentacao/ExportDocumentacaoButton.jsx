@@ -155,16 +155,16 @@ export default function ExportDocumentacaoButton() {
       const startBadgeRow = () => { badgeX = 0; chk(8); };
       const endBadgeRow = () => { y += 7; };
 
-      // Key-value row
+      // Key-value row — renders key bold, then value on next line indented
       const kv = (key, val, valColor) => {
-        chk(5);
+        chk(LH * 3);
         doc.setFont('helvetica', 'bold'); doc.setFontSize(9); rgb(C.text);
-        doc.text(key + ': ', M + 2, y);
-        const kw = doc.getStringUnitWidth(key + ': ') * 9 / doc.internal.scaleFactor;
+        doc.text(key + ':', M + 2, y);
+        y += LH;
         doc.setFont('helvetica', 'normal'); rgb(valColor || C.text);
-        const ws = doc.splitTextToSize(val, CW - kw - 4);
-        ws.forEach((w, i) => { doc.text(w, M + 2 + (i === 0 ? kw : 0), y + (i > 0 ? 4.5 * i : 0)); });
-        y += ws.length * 4.5;
+        const ws = doc.splitTextToSize(val, CW - 8);
+        ws.forEach(w => { chk(LH + 1); doc.text(w, M + 6, y); y += LH; });
+        y += 2;
       };
 
       // Bullet
