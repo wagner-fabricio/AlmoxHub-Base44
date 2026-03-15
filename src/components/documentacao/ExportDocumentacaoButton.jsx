@@ -273,12 +273,12 @@ export default function ExportDocumentacaoButton() {
       spacer(2);
       cardTitle('Princípios de Design');
       const princPairs = [
-        ['Security First', 'RLS em todas entidades, sanitização de inputs (DOMPurify), logs de auditoria.'],
-        ['Mobile-First', 'Design responsivo, detecção automática de mobile, páginas otimizadas.'],
-        ['Component-Driven', 'Componentes reutilizáveis, separação de concerns, shadcn/ui.'],
-        ['Performance', 'React Query para cache, lazy loading, virtualização de listas.'],
-        ['Real-time', 'Subscriptions em entidades críticas, notificações push, mensagens ao vivo.'],
-        ['Data-Driven', 'Dashboard com insights, torre de controle, analytics, audit logs.'],
+        ['[1] Security First', 'RLS em todas entidades, sanitizacao de inputs (DOMPurify), logs de auditoria.'],
+        ['[2] Mobile-First', 'Design responsivo, deteccao automatica de mobile, paginas otimizadas.'],
+        ['[3] Component-Driven', 'Componentes reutilizaveis, separacao de concerns, shadcn/ui.'],
+        ['[4] Performance', 'React Query para cache, lazy loading, virtualizacao de listas.'],
+        ['[5] Real-time', 'Subscriptions em entidades criticas, notificacoes push, mensagens ao vivo.'],
+        ['[6] Data-Driven', 'Dashboard com insights, torre de controle, analytics, audit logs.'],
       ];
       const hW = (CW - 3) / 2;
       princPairs.forEach(([title, desc], i) => {
@@ -303,7 +303,7 @@ export default function ExportDocumentacaoButton() {
 
       cardTitle('Gestão de Ordens de Serviço');
       colorBox('Sistema de OS — Workflow e Controle', [
-        '• Workflow em 4 estágios: Elaboracao > Execucao > Concluido / Cancelado',
+        '• Workflow em 4 estagios: Elaboracao > Execucao > Concluido / Cancelado',
         '• Priorização: baixa | média | alta | urgente',
         '• Atribuição de líder responsável e múltiplos executores',
         '• Controle de progresso percentual em tempo real',
@@ -572,28 +572,28 @@ export default function ExportDocumentacaoButton() {
       spacer(2);
       cardTitle('Implementações LGPD');
       colorBox('Portal do Titular — Direitos dos Titulares', [
-        '✅ Acesso: Geração automática do relatório de dados do usuário',
-        '✅ Retificação: Edição de dados via perfil',
-        '✅ Exclusão: Anonimização via backend function (masking/hashing)',
-        '✅ Portabilidade: Exportação de dados em JSON',
-        '✅ Revogação: Consentimentos podem ser revogados com registro',
-        '✅ Prazo de resposta: 15 dias configurado no workflow',
+        '[OK] Acesso: Geracao automatica do relatorio de dados do usuario',
+        '[OK] Retificacao: Edicao de dados via perfil',
+        '[OK] Exclusao: Anonimizacao via backend function (masking/hashing)',
+        '[OK] Portabilidade: Exportacao de dados em JSON',
+        '[OK] Revogacao: Consentimentos podem ser revogados com registro',
+        '[OK] Prazo de resposta: 15 dias configurado no workflow',
       ], C.blueLight, C.blue, C.text, C.blueMid);
 
-      colorBox('RIPD — Relatório de Impacto à Proteção de Dados', [
-        '✅ Wizard completo de 10 seções para novos recursos',
-        '✅ Geração de PDF profissional com assinatura',
-        '✅ Versionamento de RIPDs',
-        '✅ Bases legais mapeadas por finalidade de tratamento',
-        '✅ Medidas de mitigação documentadas',
+      colorBox('RIPD — Relatorio de Impacto a Protecao de Dados', [
+        '[OK] Wizard completo de 10 secoes para novos recursos',
+        '[OK] Geracao de PDF profissional com assinatura',
+        '[OK] Versionamento de RIPDs',
+        '[OK] Bases legais mapeadas por finalidade de tratamento',
+        '[OK] Medidas de mitigacao documentadas',
       ], C.greenLight, C.green, C.text, [134, 239, 172]);
 
       colorBox('Consentimentos e Registros', [
-        '✅ Modal de consentimento no primeiro acesso aprovado',
-        '✅ Consentimentos granulares: uso_basico, analytics, notificacoes, etc.',
-        '✅ Registro com IP, user-agent, data e hora',
-        '✅ Revogação individual por finalidade',
-        '✅ Página "Meus Consentimentos" para usuário',
+        '[OK] Modal de consentimento no primeiro acesso aprovado',
+        '[OK] Consentimentos granulares: uso_basico, analytics, notificacoes, etc.',
+        '[OK] Registro com IP, user-agent, data e hora',
+        '[OK] Revogacao individual por finalidade',
+        '[OK] Pagina "Meus Consentimentos" para usuario',
       ], C.purpleLight, C.purple, C.text, [216, 180, 254]);
 
       // ── 8. DISASTER RECOVERY ─────────────────────────────────────
