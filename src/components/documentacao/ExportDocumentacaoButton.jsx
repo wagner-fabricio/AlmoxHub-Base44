@@ -273,12 +273,12 @@ export default function ExportDocumentacaoButton() {
       spacer(2);
       cardTitle('Princípios de Design');
       const princPairs = [
-        ['Security First', 'RLS em todas entidades, sanitização de inputs (DOMPurify), logs de auditoria.'],
-        ['Mobile-First', 'Design responsivo, detecção automática de mobile, páginas otimizadas.'],
-        ['Component-Driven', 'Componentes reutilizáveis, separação de concerns, shadcn/ui.'],
-        ['Performance', 'React Query para cache, lazy loading, virtualização de listas.'],
-        ['Real-time', 'Subscriptions em entidades críticas, notificações push, mensagens ao vivo.'],
-        ['Data-Driven', 'Dashboard com insights, torre de controle, analytics, audit logs.'],
+        ['[1] Security First', 'RLS em todas entidades, sanitizacao de inputs (DOMPurify), logs de auditoria.'],
+        ['[2] Mobile-First', 'Design responsivo, deteccao automatica de mobile, paginas otimizadas.'],
+        ['[3] Component-Driven', 'Componentes reutilizaveis, separacao de concerns, shadcn/ui.'],
+        ['[4] Performance', 'React Query para cache, lazy loading, virtualizacao de listas.'],
+        ['[5] Real-time', 'Subscriptions em entidades criticas, notificacoes push, mensagens ao vivo.'],
+        ['[6] Data-Driven', 'Dashboard com insights, torre de controle, analytics, audit logs.'],
       ];
       const hW = (CW - 3) / 2;
       princPairs.forEach(([title, desc], i) => {
@@ -303,7 +303,7 @@ export default function ExportDocumentacaoButton() {
 
       cardTitle('Gestão de Ordens de Serviço');
       colorBox('Sistema de OS — Workflow e Controle', [
-        '• Workflow em 4 estágios: Elaboracao > Execucao > Concluido / Cancelado',
+        '• Workflow em 4 estagios: Elaboracao > Execucao > Concluido / Cancelado',
         '• Priorização: baixa | média | alta | urgente',
         '• Atribuição de líder responsável e múltiplos executores',
         '• Controle de progresso percentual em tempo real',
@@ -414,14 +414,14 @@ export default function ExportDocumentacaoButton() {
 
       spacer(2);
       cardTitle('Backup e Recuperação');
-      colorBox('✅ Política de Backup Implementada', [
-        '• Soft-delete: 30 dias de recuperação para dados excluídos',
-        '• Backup Base44: Automático pela plataforma',
+      colorBox('Politica de Backup Implementada [OK]', [
+        '• Soft-delete: 30 dias de recuperacao para dados excluidos',
+        '• Backup Base44: Automatico pela plataforma',
         '• Backup Semanal Preventivo: Automation exportBackupCritico (domingos 02:00 UTC)',
-        '• Storage Privado: 4 semanas de retenção, criptografado',
-        '• Formato: JSON + Metadata (timestamp, versão)',
+        '• Storage Privado: 4 semanas de retencao, criptografado',
+        '• Formato: JSON + Metadata (timestamp, versao)',
         '• Entidades exportadas: OrdemServico, Pessoa, Regional, Almoxarifado, e mais',
-        '• Retenção de logs: recomendado 90 dias mínimo, 2 anos SOx',
+        '• Retencao de logs: recomendado 90 dias minimo, 2 anos SOx',
       ], C.greenLight, C.green, C.text, [134, 239, 172]);
 
       spacer(2);
