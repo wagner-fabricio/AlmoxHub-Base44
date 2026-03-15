@@ -119,27 +119,26 @@ export default function ExportDocumentacaoButton() {
 
       // Left-border colored block (camada style)
       const borderBlock = (title, rows, borderRgb) => {
-        let h = 7;
+        let h = 13; // title area
         rows.forEach(r => {
           const ws = doc.splitTextToSize(r, CW - 12);
-          h += ws.length * 4.2 + 0.5;
+          h += ws.length * LH + 1;
         });
         chk(h + 4);
         const by = y;
         fill(C.slate50); draw(C.slate200); doc.setLineWidth(0.3);
         doc.rect(M, by, CW, h, 'FD');
-        // colored left bar
         fill(borderRgb); doc.rect(M, by, 3, h, 'F');
         doc.setFont('helvetica', 'bold'); doc.setFontSize(10); rgb(C.slate800);
-        doc.text(title, M + 6, y + 5.5);
-        y += 7;
+        doc.text(title, M + 6, by + 8);
+        y = by + 13;
         doc.setFont('helvetica', 'normal'); doc.setFontSize(9); rgb(C.text);
         rows.forEach(r => {
           const ws = doc.splitTextToSize(r, CW - 12);
-          ws.forEach(w => { chk(5); doc.text(w, M + 6, y); y += 4.2; });
-          y += 0.5;
+          ws.forEach(w => { chk(LH + 1); doc.text(w, M + 6, y); y += LH; });
+          y += 1;
         });
-        y = by + h + 3;
+        y = by + h + 4;
       };
 
       // Badge pill
