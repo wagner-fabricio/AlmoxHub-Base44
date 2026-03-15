@@ -84,13 +84,13 @@ export default function ExportDocumentacaoButton() {
 
       // Card-style section (white bg with border, title bar)
       const cardTitle = (text, iconLabel = '') => {
-        chk(10);
+        chk(14);
         doc.setFont('helvetica', 'bold'); doc.setFontSize(11); rgb(C.slate800);
         doc.text((iconLabel ? iconLabel + ' ' : '') + text, M, y);
-        y += 2;
+        y += 3;
         draw(C.slate200); doc.setLineWidth(0.3);
         doc.line(M, y, M + CW, y);
-        y += 4;
+        y += 5;
       };
 
       // Colored info box
