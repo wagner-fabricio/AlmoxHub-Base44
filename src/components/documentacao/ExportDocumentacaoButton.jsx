@@ -143,27 +143,8 @@ export default function ExportDocumentacaoButton() {
         yPos = boxStartY + boxHeight + 4;
       };
 
-      const addScreenshotBox = (label) => {
-        if (yPos + 40 > pageHeight - 15) addNewPage();
-
-        // Screenshot placeholder - large box
-        doc.setFillColor(230, 230, 230);
-        doc.setDrawColor(170, 170, 170);
-        doc.setLineWidth(0.8);
-        doc.rect(margin, yPos, contentWidth, 38, 'FD');
-
-        // Text
-        doc.setFont('helvetica', 'italic');
-        doc.setFontSize(9);
-        doc.setTextColor(120, 120, 120);
-        const lines = doc.splitTextToSize(label, contentWidth - 10);
-        let textY = yPos + (38 - lines.length * 4) / 2;
-        lines.forEach((line) => {
-          doc.text('[Screenshot: ' + line + ']', pageWidth / 2, textY, { align: 'center' });
-          textY += 4;
-        });
-
-        yPos += 42;
+      const addScreenshotBox = (_label) => {
+        // Screenshots removidos a pedido do usuário
       };
 
       // ===== CAPA =====
