@@ -53,6 +53,7 @@ export default function Dashboard() {
   const [heatmapInstalacao, setHeatmapInstalacao] = useState('destino');
   const [currentUser, setCurrentUser] = useState(null);
   const [activeTab, setActiveTab] = useState('geral');
+  const [fullscreen, setFullscreen] = useState(false);
   const [filters, setFilters] = useState({
     regional: 'all',
     almoxarifado: 'all',
