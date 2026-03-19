@@ -540,7 +540,7 @@ export default function Dashboard() {
           </div>
         </div>
         
-        {filters.periodo === 'customizado' && (
+        {!fullscreen && filters.periodo === 'customizado' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="text-sm text-slate-600 dark:text-slate-400 mb-1 block">Data Início</label>
