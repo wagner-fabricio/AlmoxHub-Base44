@@ -431,7 +431,7 @@ export default function Dashboard() {
         </div>
         
         {/* Filtros - Mobile First */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+        <div className={`grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-2 ${fullscreen ? 'hidden' : ''}`}>
           <Select value={filters.regional} onValueChange={(v) => updateFilters({ ...filters, regional: v, almoxarifado: 'all' })}>
             <SelectTrigger className="w-full bg-white dark:bg-slate-800">
               <SelectValue placeholder="Regional" />
