@@ -419,6 +419,14 @@ export default function Dashboard() {
               currentUser={currentUser}
               onUpdate={loadData}
             />
+            <button
+              onClick={() => setFullscreen(f => !f)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-medium transition-colors"
+              title={fullscreen ? 'Sair da tela cheia' : 'Tela cheia'}
+            >
+              {fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+              <span className="hidden sm:inline">{fullscreen ? 'Sair' : 'Tela Cheia'}</span>
+            </button>
           </div>
         </div>
         
