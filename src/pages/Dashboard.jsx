@@ -384,7 +384,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-8">
+    <div className={`space-y-8 ${fullscreen ? 'fixed inset-0 z-50 bg-slate-50 dark:bg-slate-900 overflow-auto p-6 lg:p-8' : 'p-6 lg:p-8'}`}>
       {/* Header */}
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
