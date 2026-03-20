@@ -282,6 +282,14 @@ export default function Notifications() {
           })}
         </div>
       )}
+      {selectedOS && (
+        <OSFormModal
+          os={selectedOS}
+          onClose={() => setSelectedOS(null)}
+          onSave={() => setSelectedOS(null)}
+          readOnly={true}
+        />
+      )}
     </div>
   );
 }
