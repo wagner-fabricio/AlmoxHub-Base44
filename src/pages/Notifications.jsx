@@ -108,11 +108,36 @@ export default function Notifications() {
     if (!notif.lida) {
       await markAsRead(notif.id);
     }
+  };
 
-    // Navegar para o contexto correto
-    if (notif.referencia_tipo === 'tarefa' && notif.referencia_id) {
-      window.location.href = createPageUrl('OrdensServico') + `?os_id=${notif.referencia_id}`;
+  const handleOSLinkClick = async (e, notif) => {
+    e.stopPropagation();
+    if (!notif.lida) {
+      await markAsRead(notif.id);
     }
+    if (notif.referencia_id) {
+      try {
+        const osData = await base44.entities.OrdemServico.filter({ id: notif.referencia_id });
+        if (osData[0]) setSelectedOS(osData[0]);
+      } catch {}
+    }
+  };
+
+  // Renderiza a mensagem substituindo o código ALMHUB por um link clicável
+  const renderMensagem = (mensagem, notif) => {
+    const regex = /(ALMHUB-\d{8}-\d+)/g;
+    const parts = mensagem.split(regex);
+    return parts.map((part, i) =>
+      regex.test(part) ? (
+        <button
+          key={i}
+          onClick={(e) => handleOSLinkClick(e, notif)}
+          className="font-bold text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-300 cursor-pointer"
+        >
+          {part}
+        </button>
+      ) : part
+    );
   };
 
   const getRemetente = (remetenteId) => {
