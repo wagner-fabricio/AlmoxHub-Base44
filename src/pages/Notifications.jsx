@@ -244,9 +244,9 @@ export default function Notifications() {
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-3 mb-1">
-                      <p className={`text-sm ${!notif.lida ? 'font-semibold' : 'font-medium'} text-slate-900 dark:text-white`}>
-                        {notif.mensagem}
-                      </p>
+                       <p className={`text-sm ${!notif.lida ? 'font-semibold' : 'font-medium'} text-slate-900 dark:text-white`}>
+                         {renderMensagem(notif.mensagem, notif)}
+                       </p>
                       {!notif.lida && (
                         <Badge className="bg-blue-500 text-white shrink-0">Nova</Badge>
                       )}
