@@ -8,6 +8,7 @@ import { CheckCheck, Loader2, MessageSquare, UserPlus, RefreshCw, Bell, Trash2 }
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { createPageUrl } from '@/utils';
+import OSFormModal from '@/components/os/OSFormModal';
 
 const notificationIcons = {
   mencao: MessageSquare,
