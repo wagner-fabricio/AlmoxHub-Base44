@@ -28,6 +28,7 @@ export default function Notifications() {
   const [pessoas, setPessoas] = useState([]);
   const [currentUserPessoa, setCurrentUserPessoa] = useState(null);
   const [filter, setFilter] = useState('all'); // all, unread
+  const [selectedOS, setSelectedOS] = useState(null);
 
   useEffect(() => {
     loadData();
