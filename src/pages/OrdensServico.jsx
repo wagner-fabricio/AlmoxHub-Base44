@@ -117,6 +117,13 @@ export default function OrdensServico() {
           savedFilters.categorias = [];
         }
         setFilters(savedFilters);
+        // Sincronizar debounced filters com os valores salvos
+        setDebouncedTextFilters({
+          search: savedFilters.search || '',
+          migo: savedFilters.migo || '',
+          reserva: savedFilters.reserva || '',
+          codigoMaterial: savedFilters.codigoMaterial || '',
+        });
       }
       
       setOrdens(ordensData);
