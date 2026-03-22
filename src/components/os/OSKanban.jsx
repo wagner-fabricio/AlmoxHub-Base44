@@ -10,25 +10,33 @@ const columns = [
 ];
 
 export default function OSKanban({ ordens, pessoas, categorias, regionais, instalacoes, onOSClick, onStatusChange }) {
-  const getOSByStatus = (status) => {
-    return ordens.filter(os => os.status === status);
-  };
+  // Mapas O(1) memoizados
+  const pessoasMap = useMemo(() => new Map(pessoas.map(p => [p.id, p])), [pessoas]);
+  const categoriasMap = useMemo(() => new Map(categorias.map(c => [c.id, c])), [categorias]);
+  const regionaisMap = useMemo(() => new Map(regionais.map(r => [r.id, r])), [regionais]);
+
+  // Agrupar OS por status uma única vez
+  const osByStatus = useMemo(() => {
+    const map = { elaboracao: [], execucao: [], concluido: [] };
+    ordens.forEach(os => { if (map[os.status]) map[os.status].push(os); });
+    return map;
+  }, [ordens]);
+
+  const getOSByStatus = (status) => osByStatus[status] || [];
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
-    
     const { draggableId, destination } = result;
     const newStatus = destination.droppableId;
     const os = ordens.find(o => o.id === draggableId);
-    
     if (os && os.status !== newStatus) {
       onStatusChange?.(os.id, newStatus);
     }
   };
 
-  const getLider = (liderId) => pessoas.find(p => p.id === liderId);
-  const getCategoria = (catId) => categorias.find(c => c.id === catId);
-  const getRegional = (regId) => regionais.find(r => r.id === regId);
+  const getLider = (liderId) => pessoasMap.get(liderId);
+  const getCategoria = (catId) => categoriasMap.get(catId);
+  const getRegional = (regId) => regionaisMap.get(regId);
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
