@@ -348,7 +348,7 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
                 </Popover>
               </div>
             </TableHead>
-            <TableHead className="font-semibold">
+            <TableHead className="font-semibold w-28">
               <button
                 onClick={() => handleSort('data_inicial')}
                 className="flex items-center gap-1 hover:text-blue-600 transition-colors"
