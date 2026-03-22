@@ -670,18 +670,19 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
           })}
         </TableBody>
       </Table>
-      <div className="bg-slate-100 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 px-6 py-3 flex items-center justify-between">
+      </div>
+      <div className="bg-slate-100 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 px-6 py-3 flex items-center justify-between gap-6 flex-wrap">
         <span className="font-semibold text-slate-900 dark:text-white">
           {filteredOrdens.length} OS
         </span>
-        <span className="font-semibold text-slate-900 dark:text-white">
-          Total Tempo Decorrido: {filteredOrdens.reduce((sum, os) => {
-            if (os.data_inicial && os.prazo) {
-              return sum + differenceInDays(new Date(os.prazo), new Date(os.data_inicial));
-            }
-            return sum;
-          }, 0)} dias
-        </span>
+        <div className="flex items-center gap-6 text-sm font-semibold text-slate-700 dark:text-slate-300">
+          <span>
+            Valor Total: {filteredOrdens.reduce((sum, os) => sum + (os.itens_documento || []).reduce((s, i) => s + (i.r_total || 0), 0), 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+          </span>
+          <span>
+            Peso Total: {filteredOrdens.reduce((sum, os) => sum + (os.volumes || []).reduce((s, v) => s + (v.peso_bruto || 0), 0), 0).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} kg
+          </span>
+        </div>
       </div>
     </div>
   );
