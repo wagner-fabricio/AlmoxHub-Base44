@@ -336,8 +336,13 @@ export default function TorreControleTab({
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-700" />
                 <XAxis dataKey="mes" tick={{ fill: '#64748b', fontSize: 12 }} />
                 <YAxis 
-                  tick={{ fill: '#64748b', fontSize: 12 }}
-                  tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
+                  tick={{ fill: '#64748b', fontSize: 11 }}
+                  width={80}
+                  tickFormatter={(value) => {
+                    if (value >= 1_000_000) return `R$ ${(value / 1_000_000).toFixed(1)}M`;
+                    if (value >= 1_000) return `R$ ${(value / 1_000).toFixed(0)}k`;
+                    return `R$ ${value}`;
+                  }}
                 />
                 <Tooltip 
                   contentStyle={{ 
@@ -346,8 +351,12 @@ export default function TorreControleTab({
                     borderRadius: '12px',
                     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
                   }}
-                  formatter={(value) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                  formatter={(value, name) => [
+                    `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                    name
+                  ]}
                 />
+                <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
                 <Bar dataKey="No Prazo" stackId="total" fill="#22c55e" radius={[0, 0, 0, 0]}>
                   <LabelList position="center" content={(props) => {
                     const { x, y, width, height } = props;
