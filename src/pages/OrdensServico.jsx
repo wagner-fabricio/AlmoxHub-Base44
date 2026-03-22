@@ -144,103 +144,115 @@ export default function OrdensServico() {
     }
   };
 
-  // Apply filters
-  const filteredOrdens = ordens.filter(os => {
-    // Search
-    if (filters.search) {
-      const search = filters.search.toLowerCase();
-      const matchesSearch = 
-        os.codigo?.toLowerCase().includes(search) ||
-        os.descricao_resumida?.toLowerCase().includes(search);
-      if (!matchesSearch) return false;
-    }
+  // Filtros memoizados — só recalculam quando ordens ou filtros relevantes mudam
+  const filteredOrdens = useMemo(() => {
+    // Calcular cutoff de período uma única vez fora do loop
+    let periodoCutoff = null;
+    let periodoStartMonth = null;
+    let periodoEndMonth = null;
+    let periodoStartCustom = null;
+    let periodoEndCustom = null;
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
 
-    // MIGO filter
-    if (filters.migo) {
-      const migoMatch = 
-        os.num_migo?.toString().includes(filters.migo) ||
-        os.numero_migo_receb?.toString().includes(filters.migo);
-      if (!migoMatch) return false;
-    }
-
-    // Reserva filter
-    if (filters.reserva) {
-      if (!os.num_reserva?.toString().includes(filters.reserva)) return false;
-    }
-
-    // Código Material filter
-    if (filters.codigoMaterial) {
-      const codMat = filters.codigoMaterial.toLowerCase();
-      const hasItem = (os.itens_documento || []).some(item =>
-        item.codigo?.toLowerCase().includes(codMat)
-      );
-      if (!hasItem) return false;
-    }
-    
-    // Regional filter - OS Global sempre passa
-    if (filters.regional !== 'all' && !os.is_global && os.regional_id !== filters.regional) return false;
-    
-    // Almoxarifado filter - OS Global sempre passa
-    if (filters.almoxarifado !== 'all' && !os.is_global && os.almoxarifado_id !== filters.almoxarifado) return false;
-    
-    // Categoria filter (múltiplas)
-    const categorias = filters.categorias || [];
-    if (categorias.length > 0 && !categorias.includes(os.categoria_id)) return false;
-    
-    // Subcategoria filter
-    if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
-    
-    // Status filter (antigo - mantido para compatibilidade)
-    if (filters.status !== 'all' && os.status !== filters.status) return false;
-    
-    // Status filter (novo - múltiplos status)
-    if (filters.statusList?.length > 0 && !filters.statusList.includes(os.status)) return false;
-    
-    // Period filter
-    if (filters.periodo === 'hoje') {
-      // Filtrar por prazo de vencimento = hoje
-      if (!os.prazo) return false;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const prazoDate = new Date(os.prazo);
-      prazoDate.setHours(0, 0, 0, 0);
-      if (prazoDate.getTime() !== today.getTime()) return false;
-    } else if (filters.periodo === 'mes_atual') {
+    if (filters.periodo === 'mes_atual') {
       const now = new Date();
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-      const osDate = new Date(os.created_date);
-      if (osDate < startOfMonth || osDate > endOfMonth) return false;
+      periodoStartMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      periodoEndMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     } else if (filters.periodo === 'customizado') {
-      if (filters.dataInicio) {
-        const startDate = new Date(filters.dataInicio);
-        if (new Date(os.created_date) < startDate) return false;
-      }
+      if (filters.dataInicio) periodoStartCustom = new Date(filters.dataInicio);
       if (filters.dataFim) {
-        const endDate = new Date(filters.dataFim);
-        endDate.setHours(23, 59, 59, 999);
-        if (new Date(os.created_date) > endDate) return false;
+        periodoEndCustom = new Date(filters.dataFim);
+        periodoEndCustom.setHours(23, 59, 59, 999);
       }
-    } else if (filters.periodo !== 'all') {
+    } else if (filters.periodo !== 'all' && filters.periodo !== 'hoje') {
       const days = parseInt(filters.periodo);
-      const cutoff = new Date();
-      cutoff.setDate(cutoff.getDate() - days);
-      if (new Date(os.created_date) < cutoff) return false;
+      periodoCutoff = new Date();
+      periodoCutoff.setDate(periodoCutoff.getDate() - days);
     }
-    
-    // Visão filter (permission based)
-    if (filters.visao === 'regional' && currentPessoa) {
-      if (os.regional_id !== currentPessoa.regional_id) return false;
-    }
-    if (filters.visao === 'meus' && currentPessoa) {
-      const isLider = os.lider_id === currentPessoa.id;
-      const isExecutor = os.executores_ids?.includes(currentPessoa.id);
-      const isOutroEnvolvido = os.outros_envolvidos_ids?.includes(currentPessoa.id);
-      if (!isLider && !isExecutor && !isOutroEnvolvido) return false;
-    }
-    
-    return true;
-  });
+
+    const { search, migo, reserva, codigoMaterial } = debouncedTextFilters;
+    const searchLower = search ? search.toLowerCase() : '';
+    const codMatLower = codigoMaterial ? codigoMaterial.toLowerCase() : '';
+    const categoriasFilter = filters.categorias || [];
+
+    return ordens.filter(os => {
+      // Search (debounced)
+      if (searchLower) {
+        if (
+          !os.codigo?.toLowerCase().includes(searchLower) &&
+          !os.descricao_resumida?.toLowerCase().includes(searchLower)
+        ) return false;
+      }
+
+      // MIGO filter (debounced)
+      if (migo) {
+        if (
+          !os.num_migo?.toString().includes(migo) &&
+          !os.numero_migo_receb?.toString().includes(migo)
+        ) return false;
+      }
+
+      // Reserva filter (debounced)
+      if (reserva) {
+        if (!os.num_reserva?.toString().includes(reserva)) return false;
+      }
+
+      // Código Material filter (debounced) — mais custoso, fica por último
+      if (codMatLower) {
+        const hasItem = (os.itens_documento || []).some(item =>
+          item.codigo?.toLowerCase().includes(codMatLower)
+        );
+        if (!hasItem) return false;
+      }
+
+      // Regional filter
+      if (filters.regional !== 'all' && !os.is_global && os.regional_id !== filters.regional) return false;
+
+      // Almoxarifado filter
+      if (filters.almoxarifado !== 'all' && !os.is_global && os.almoxarifado_id !== filters.almoxarifado) return false;
+
+      // Categoria filter
+      if (categoriasFilter.length > 0 && !categoriasFilter.includes(os.categoria_id)) return false;
+
+      // Subcategoria filter
+      if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
+
+      // Status filter
+      if (filters.status !== 'all' && os.status !== filters.status) return false;
+      if (filters.statusList?.length > 0 && !filters.statusList.includes(os.status)) return false;
+
+      // Period filter (usando valores pré-calculados)
+      if (filters.periodo === 'hoje') {
+        if (!os.prazo) return false;
+        const prazoDate = new Date(os.prazo);
+        prazoDate.setHours(0, 0, 0, 0);
+        if (prazoDate.getTime() !== hoje.getTime()) return false;
+      } else if (periodoStartMonth) {
+        const osDate = new Date(os.created_date);
+        if (osDate < periodoStartMonth || osDate > periodoEndMonth) return false;
+      } else if (periodoStartCustom || periodoEndCustom) {
+        const osDate = new Date(os.created_date);
+        if (periodoStartCustom && osDate < periodoStartCustom) return false;
+        if (periodoEndCustom && osDate > periodoEndCustom) return false;
+      } else if (periodoCutoff) {
+        if (new Date(os.created_date) < periodoCutoff) return false;
+      }
+
+      // Visão filter
+      if (filters.visao === 'regional' && currentPessoa) {
+        if (os.regional_id !== currentPessoa.regional_id) return false;
+      }
+      if (filters.visao === 'meus' && currentPessoa) {
+        const isLider = os.lider_id === currentPessoa.id;
+        const isExecutor = os.executores_ids?.includes(currentPessoa.id);
+        const isOutroEnvolvido = os.outros_envolvidos_ids?.includes(currentPessoa.id);
+        if (!isLider && !isExecutor && !isOutroEnvolvido) return false;
+      }
+
+      return true;
+    });
+  }, [ordens, filters, debouncedTextFilters, currentPessoa]);
 
   const handleOSClick = (os) => {
     setSelectedOS(os);
