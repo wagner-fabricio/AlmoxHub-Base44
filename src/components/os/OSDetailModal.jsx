@@ -114,11 +114,12 @@ export default function OSDetailModal({
 
   const loadUser = async () => {
     try {
-      const user = await base44.auth.me();
+      // Usar dados do contexto via prop quando disponíveis (evita round-trip desnecessário)
+      const [user, pessoaData] = await Promise.all([
+        base44.auth.me(),
+        base44.entities.Pessoa.filter({ user_id: (await base44.auth.me().catch(() => null))?.id }).catch(() => [])
+      ]);
       setCurrentUser(user);
-      
-      // Buscar dados da pessoa para obter foto de perfil
-      const pessoaData = await base44.entities.Pessoa.filter({ user_id: user.id });
       if (Array.isArray(pessoaData) && pessoaData[0]) {
         setCurrentUserPessoa(pessoaData[0]);
       }
