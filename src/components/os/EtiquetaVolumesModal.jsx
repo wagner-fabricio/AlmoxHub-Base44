@@ -296,7 +296,7 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
           { text: os?.codigo || '-',   bold: true, big: true  },
           ...(os?.num_reserva     ? [{ text: `Reserva: ${os.num_reserva}`,     bold: false, big: false }] : []),
           ...(os?.num_migo        ? [{ text: `MIGO: ${os.num_migo}`,           bold: false, big: false }] : []),
-          ...(os?.usuario_reserva ? [{ text: `Usuário: ${os.usuario_reserva}`, bold: false, big: false }] : []),
+          ...(os?.usuario_reserva ? [{ text: `Usuário: ${os.usuario_reserva}${os.orgao ? ` (${os.orgao})` : ''}`, bold: false, big: false }] : []),
           { text: '---divider---', bold: false, big: false },
           { text: `C: ${vol.comprimento||'—'} cm  L: ${vol.largura||'—'} cm  A: ${vol.altura||'—'} cm`, bold: false, big: false },
           { text: `Peso Bruto: ${vol.peso_bruto||'—'} kg${vol.m3 ? `   M³: ${vol.m3}` : ''}`, bold: false, big: false },
