@@ -76,7 +76,7 @@ export default function Documentacao() {
               <span className="text-blue-200">Versão</span> 1.0.0
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/15 backdrop-blur-sm rounded-lg text-white text-xs font-medium">
-              <span className="text-blue-200">Atualizado</span> Fevereiro 2026
+              <span className="text-blue-200">Atualizado</span> Março 2026
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-400/30 backdrop-blur-sm rounded-lg text-green-100 text-xs font-semibold">
               <span className="w-1.5 h-1.5 bg-green-300 rounded-full inline-block"></span>

@@ -73,7 +73,7 @@ export default function StatusRecursosSection() {
         { nome: 'Gráficos de OS', status: 'implementado', obs: 'Por regional, categoria, status' },
         { nome: 'Mapas de instalações', status: 'implementado', obs: 'Leaflet com markers e filtros' },
         { nome: 'Heatmap de expedições', status: 'implementado', obs: 'Por origem/destino, critérios configuráveis' },
-        { nome: 'Torre de Controle', status: 'implementado', obs: 'Volumetrias e resultados mensais' },
+        { nome: 'Torre de Controle', status: 'implementado', obs: 'Volumetrias, resultados mensais, peso/prazo e gráfico de peso anual' },
         { nome: 'Insights automáticos', status: 'implementado', obs: 'DashboardInsights component com alertas' },
         { nome: 'Esforço por pessoa', status: 'implementado', obs: 'Gráfico de OS por pessoa' },
         { nome: 'Filtros persistidos', status: 'implementado', obs: 'Salvos em user.filtros_preferidos' },

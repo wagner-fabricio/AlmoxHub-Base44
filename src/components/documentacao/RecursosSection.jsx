@@ -112,6 +112,7 @@ export default function RecursosSection() {
         'Heatmap de expedições (por origem/destino)',
         'Torre de Controle: Volumetrias (itens, valores, tempo médio)',
         'Resultados mensais: OS, Itens, Valores (no prazo vs fora do prazo)',
+        '✨ Torre de Controle: Gráfico de Peso Total de Materiais por Prazo (mensal + rosca anual)',
         'Problemas de recebimento por regional',
         'Filtros persistidos por usuário (filtros_preferidos)',
         'Insights automáticos (DashboardInsights component)',
