@@ -135,6 +135,26 @@ export default function TorreControleTab({
   const valorTotalAnual = valorTotalNoPrazo + valorTotalForaPrazo;
   const percentualValorNoPrazo = valorTotalAnual > 0 ? ((valorTotalNoPrazo / valorTotalAnual) * 100).toFixed(2) : 0;
 
+  // Dados mensais — peso total por prazo
+  const dadosMensaisPeso = meses.map((mes, index) => {
+    const osMes = filteredOrdens.filter(os => {
+      const dataCreated = new Date(os.created_date);
+      return dataCreated.getFullYear() === currentYear && dataCreated.getMonth() === index;
+    });
+    const pesoNoPrazo = osMes.filter(os => isNoPrazo(os, hoje)).reduce((sum, os) =>
+      sum + (os.volumes || []).reduce((s, v) => s + (v.peso_bruto || 0), 0), 0);
+    const pesoForaPrazo = osMes.filter(os => isForaPrazo(os, hoje)).reduce((sum, os) =>
+      sum + (os.volumes || []).reduce((s, v) => s + (v.peso_bruto || 0), 0), 0);
+    return { mes, 'No Prazo': pesoNoPrazo, 'Fora do Prazo': pesoForaPrazo };
+  });
+
+  const pesoTotalNoPrazo = osAnoCorrente.filter(os => isNoPrazo(os, hoje)).reduce((sum, os) =>
+    sum + (os.volumes || []).reduce((s, v) => s + (v.peso_bruto || 0), 0), 0);
+  const pesoTotalForaPrazo = osAnoCorrente.filter(os => isForaPrazo(os, hoje)).reduce((sum, os) =>
+    sum + (os.volumes || []).reduce((s, v) => s + (v.peso_bruto || 0), 0), 0);
+  const pesoTotalAnual = pesoTotalNoPrazo + pesoTotalForaPrazo;
+  const percentualPesoNoPrazo = pesoTotalAnual > 0 ? ((pesoTotalNoPrazo / pesoTotalAnual) * 100).toFixed(2) : 0;
+
   return (
     <div className="space-y-6">
       {/* Seção Volumetrias */}
