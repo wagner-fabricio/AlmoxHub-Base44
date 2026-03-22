@@ -299,7 +299,7 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
                 </Popover>
               </div>
             </TableHead>
-            <TableHead className="font-semibold">
+            <TableHead className="font-semibold w-40">
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleSort('lider')}
