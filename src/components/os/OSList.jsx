@@ -365,7 +365,7 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
                 )}
               </button>
             </TableHead>
-            <TableHead className="font-semibold">
+            <TableHead className="font-semibold w-28">
               <button
                 onClick={() => handleSort('prazo')}
                 className="flex items-center gap-1 hover:text-blue-600 transition-colors"
