@@ -533,7 +533,20 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
                 )}
               </button>
             </TableHead>
-            <TableHead className="font-semibold text-right">
+            <TableHead className="font-semibold w-32">
+              <button
+                onClick={() => handleSort('tempo_decorrido')}
+                className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+              >
+                Tempo Decorrido
+                {sortConfig.column === 'tempo_decorrido' ? (
+                  sortConfig.direction === 'asc' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />
+                ) : <ArrowUpDown className="w-4 h-4 opacity-30" />}
+              </button>
+            </TableHead>
+            <TableHead className="font-semibold w-36">Valor Total</TableHead>
+            <TableHead className="font-semibold w-32">Peso Total (kg)</TableHead>
+            <TableHead className="font-semibold w-36 text-right">
               <button
                 onClick={() => handleSort('progresso')}
                 className="flex items-center gap-1 hover:text-blue-600 transition-colors ml-auto"
