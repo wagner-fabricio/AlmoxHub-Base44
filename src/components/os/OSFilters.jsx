@@ -70,6 +70,8 @@ export default function OSFilters({
   const hasActiveFilters = 
     filters.search || 
     filters.migo ||
+    filters.reserva ||
+    filters.codigoMaterial ||
     filters.regional !== 'all' ||
     filters.almoxarifado !== 'all' || 
     filters.categorias?.length > 0 || 
