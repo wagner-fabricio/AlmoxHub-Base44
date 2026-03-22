@@ -138,17 +138,14 @@ export default function OSDetailModal({
 
   const loadAuditLogs = async () => {
     try {
-      console.log('Carregando audit logs para OS:', os.id);
       const logs = await base44.entities.AuditLog.filter({ 
         entity_type: 'OrdemServico',
         entity_id: os.id 
-      });
-      console.log('Audit logs recebidos:', logs);
+      }, '-created_date', 50);
       const logsArray = Array.isArray(logs) ? logs : [];
-      console.log('Total de logs:', logsArray.length);
       setAuditLogs(logsArray.sort((a, b) => new Date(b.timestamp || b.created_date) - new Date(a.timestamp || a.created_date)));
     } catch (e) {
-      console.error('Error loading audit logs:', e);
+      // silently fail — audit log is non-critical
     }
   };
 
