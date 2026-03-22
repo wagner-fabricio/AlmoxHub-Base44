@@ -572,16 +572,21 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
             const categoria = getCategoria(os.categoria_id);
             const regional = getRegional(os.regional_id);
 
+            const valorTotal = (os.itens_documento || []).reduce((sum, item) => sum + (item.r_total || 0), 0);
+            const pesoTotal = (os.volumes || []).reduce((sum, v) => sum + (v.peso_bruto || 0), 0);
+
             return (
               <TableRow 
                 key={os.id} 
-                className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
-                onClick={() => onOSClick?.(os)}
+                className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
               >
-                <TableCell>
-                  <span className="font-mono text-sm text-slate-600 dark:text-slate-400">
+                <TableCell className="whitespace-nowrap">
+                  <button
+                    onClick={() => onOSClick?.(os)}
+                    className="font-mono text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 hover:underline font-semibold transition-colors text-left"
+                  >
                     {os.codigo}
-                  </span>
+                  </button>
                 </TableCell>
                 <TableCell>
                   <span className="font-medium text-slate-900 dark:text-white">
