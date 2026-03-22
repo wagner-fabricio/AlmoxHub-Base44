@@ -124,7 +124,7 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
 
   // Apply sorting
   if (sortConfig.column && sortConfig.direction) {
-    filteredOrdens = [...filteredOrdens].sort((a, b) => {
+    result = [...result].sort((a, b) => {
       let aValue, bValue;
       
       if (sortConfig.column === 'codigo') {
