@@ -171,6 +171,9 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
     });
   }
 
+  return result;
+  }, [ordens, columnFilters, sortConfig, pessoasMap, categoriasMap, regionaisMap]);
+
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
       <Table>
