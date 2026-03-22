@@ -35,32 +35,41 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
   
   const [sortConfig, setSortConfig] = useState({ column: null, direction: null });
 
-  const getLider = (liderId) => pessoas.find(p => p.id === liderId);
-  const getCategoria = (catId) => categorias.find(c => c.id === catId);
-  const getRegional = (regId) => regionais.find(r => r.id === regId);
+  // Mapas de lookup memoizados — O(1) ao invés de O(n) por acesso
+  const pessoasMap = useMemo(() => new Map(pessoas.map(p => [p.id, p])), [pessoas]);
+  const categoriasMap = useMemo(() => new Map(categorias.map(c => [c.id, c])), [categorias]);
+  const regionaisMap = useMemo(() => new Map(regionais.map(r => [r.id, r])), [regionais]);
 
-  // Get unique values for each column
-  const getUniqueValues = (column) => {
-    const values = new Set();
+  const getLider = (liderId) => pessoasMap.get(liderId);
+  const getCategoria = (catId) => categoriasMap.get(catId);
+  const getRegional = (regId) => regionaisMap.get(regId);
+
+  // Unique values memoizados — só recalcula quando ordens mudam
+  const uniqueValues = useMemo(() => {
+    const codigos = new Set(), categoriaSet = new Set(), regionalSet = new Set();
+    const liderSet = new Set(), prioridadeSet = new Set(), statusSet = new Set();
     ordens.forEach(os => {
-      if (column === 'codigo') values.add(os.codigo);
-      if (column === 'categoria') {
-        const cat = getCategoria(os.categoria_id);
-        if (cat) values.add(cat.nome);
-      }
-      if (column === 'regional') {
-        const reg = getRegional(os.regional_id);
-        if (reg) values.add(reg.sigla);
-      }
-      if (column === 'lider') {
-        const lid = getLider(os.lider_id);
-        if (lid) values.add(lid.nome);
-      }
-      if (column === 'prioridade') values.add(os.prioridade);
-      if (column === 'status') values.add(os.status);
+      if (os.codigo) codigos.add(os.codigo);
+      const cat = categoriasMap.get(os.categoria_id);
+      if (cat) categoriaSet.add(cat.nome);
+      const reg = regionaisMap.get(os.regional_id);
+      if (reg) regionalSet.add(reg.sigla);
+      const lid = pessoasMap.get(os.lider_id);
+      if (lid) liderSet.add(lid.nome);
+      if (os.prioridade) prioridadeSet.add(os.prioridade);
+      if (os.status) statusSet.add(os.status);
     });
-    return Array.from(values).sort();
-  };
+    return {
+      codigo: Array.from(codigos).sort(),
+      categoria: Array.from(categoriaSet).sort(),
+      regional: Array.from(regionalSet).sort(),
+      lider: Array.from(liderSet).sort(),
+      prioridade: Array.from(prioridadeSet).sort(),
+      status: Array.from(statusSet).sort(),
+    };
+  }, [ordens, pessoasMap, categoriasMap, regionaisMap]);
+
+  const getUniqueValues = (column) => uniqueValues[column] || [];
 
   // Toggle filter value
   const toggleFilter = (column, value) => {
