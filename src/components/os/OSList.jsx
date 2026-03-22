@@ -264,7 +264,7 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
                 </Popover>
               </div>
             </TableHead>
-            <TableHead className="font-semibold">
+            <TableHead className="font-semibold w-28">
               <div className="flex items-center gap-2">
                 Regional
                 <Popover>
