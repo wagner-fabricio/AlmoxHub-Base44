@@ -117,7 +117,21 @@ export default function OSFilters({
             value={filters.migo}
             onChange={(e) => setFilters({ ...filters, migo: e.target.value.replace(/\D/g, '') })}
             maxLength="20"
-            className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 w-full sm:w-32 md:w-40"
+            className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 w-full sm:w-28"
+          />
+          <Input
+            placeholder="Reserva"
+            value={filters.reserva || ''}
+            onChange={(e) => setFilters({ ...filters, reserva: e.target.value.replace(/\D/g, '') })}
+            maxLength="20"
+            className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 w-full sm:w-28"
+          />
+          <Input
+            placeholder="Cód. Material"
+            value={filters.codigoMaterial || ''}
+            onChange={(e) => setFilters({ ...filters, codigoMaterial: e.target.value })}
+            maxLength="30"
+            className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 w-full sm:w-32"
           />
         </div>
 
