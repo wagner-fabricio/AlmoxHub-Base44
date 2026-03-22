@@ -657,6 +657,18 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
                      })()}
                    </span>
                  </TableCell>
+                 <TableCell>
+                   <span className="text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                     {valorTotal > 0
+                       ? valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                       : '-'}
+                   </span>
+                 </TableCell>
+                 <TableCell>
+                   <span className="text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                     {pesoTotal > 0 ? `${pesoTotal.toLocaleString('pt-BR', { maximumFractionDigits: 2 })} kg` : '-'}
+                   </span>
+                 </TableCell>
                  <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">
                     <div className="w-20 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
