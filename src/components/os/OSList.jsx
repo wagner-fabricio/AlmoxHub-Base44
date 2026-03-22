@@ -176,10 +176,11 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-      <Table>
+      <div className="overflow-x-auto">
+      <Table style={{ minWidth: '1600px' }}>
         <TableHeader>
           <TableRow className="bg-slate-50 dark:bg-slate-800/50">
-            <TableHead className="font-semibold">
+            <TableHead className="font-semibold w-44">
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleSort('codigo')}
