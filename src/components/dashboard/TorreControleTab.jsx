@@ -463,6 +463,114 @@ export default function TorreControleTab({
           </div>
         </div>
       </div>
+
+      {/* Seção Evolução Mensal por Peso */}
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-6 flex items-center gap-2">
+          <div className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(to bottom, #0000FF, #4169E1)' }}></div>
+          Evolução Mensal - Peso por Prazo
+        </h3>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/50 dark:to-slate-800/30 rounded-xl p-6 border border-slate-100 dark:border-slate-700/50">
+            <h4 className="text-base font-semibold text-slate-700 dark:text-slate-300 mb-6">Peso Total de Materiais por Prazo - Ano Corrente</h4>
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart data={dadosMensaisPeso} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="mes" tick={{ fill: '#64748b', fontSize: 12 }} />
+                <YAxis
+                  tick={{ fill: '#64748b', fontSize: 11 }}
+                  width={80}
+                  tickFormatter={(value) => {
+                    if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}Mt`;
+                    if (value >= 1_000) return `${(value / 1_000).toFixed(0)}t`;
+                    return `${value} kg`;
+                  }}
+                />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  formatter={(value, name) => [`${value.toLocaleString('pt-BR', { maximumFractionDigits: 2 })} kg`, name]}
+                />
+                <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
+                <Bar dataKey="No Prazo" stackId="total" fill="#22c55e" radius={[0, 0, 0, 0]}>
+                  <LabelList position="center" content={(props) => {
+                    const { x, y, width, height } = props;
+                    const row = dadosMensaisPeso[props.index];
+                    if (!row) return null;
+                    const noPrazo = row['No Prazo'];
+                    const total = noPrazo + row['Fora do Prazo'];
+                    if (total === 0 || noPrazo === 0 || height < 16) return null;
+                    const percent = Math.round((noPrazo / total) * 100);
+                    return <text x={x + width / 2} y={y + height / 2} fill="#fff" textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="700">{percent}%</text>;
+                  }} />
+                </Bar>
+                <Bar dataKey="Fora do Prazo" stackId="total" fill="#ef4444" radius={[8, 8, 0, 0]}>
+                  <LabelList position="center" content={(props) => {
+                    const { x, y, width, height } = props;
+                    const row = dadosMensaisPeso[props.index];
+                    if (!row) return null;
+                    const foraPrazo = row['Fora do Prazo'];
+                    const total = row['No Prazo'] + foraPrazo;
+                    if (total === 0 || foraPrazo === 0 || height < 16) return null;
+                    const percent = Math.round((foraPrazo / total) * 100);
+                    return <text x={x + width / 2} y={y + height / 2} fill="#fff" textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="700">{percent}%</text>;
+                  }} />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/50 dark:to-slate-800/30 rounded-xl p-6 border border-slate-100 dark:border-slate-700/50">
+            <h4 className="text-base font-semibold text-slate-700 dark:text-slate-300 mb-6">Resumo Anual - Peso</h4>
+            {pesoTotalAnual === 0 ? (
+              <div className="h-96 flex items-center justify-center text-slate-400">Sem dados</div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full">
+                <div className="relative">
+                  <ResponsiveContainer width={280} height={280}>
+                    <PieChart>
+                      <Pie
+                        data={[
+                          { name: 'No Prazo', value: pesoTotalNoPrazo, fill: '#22c55e' },
+                          { name: 'Fora do Prazo', value: pesoTotalForaPrazo, fill: '#ef4444' }
+                        ]}
+                        cx="50%" cy="50%" innerRadius={85} outerRadius={110} paddingAngle={2} dataKey="value"
+                      >
+                        {[{ fill: '#22c55e' }, { fill: '#ef4444' }].map((entry, index) => (
+                          <Cell key={`cell-peso-${index}`} fill={entry.fill} />
+                        ))}
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <p className="text-4xl font-bold text-slate-900 dark:text-white">{percentualPesoNoPrazo}%</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">No Prazo</p>
+                  </div>
+                </div>
+                <div className="mt-6 space-y-3 w-full">
+                  <div className="flex items-center justify-between text-sm p-3 rounded-lg bg-green-50 dark:bg-green-900/10">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                      <span className="text-slate-700 dark:text-slate-300 font-medium">No Prazo</span>
+                    </div>
+                    <span className="font-bold text-slate-900 dark:text-white">
+                      {pesoTotalNoPrazo >= 1000 ? `${(pesoTotalNoPrazo / 1000).toFixed(1)}t` : `${pesoTotalNoPrazo.toFixed(0)} kg`}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm p-3 rounded-lg bg-red-50 dark:bg-red-900/10">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                      <span className="text-slate-700 dark:text-slate-300 font-medium">Fora do Prazo</span>
+                    </div>
+                    <span className="font-bold text-slate-900 dark:text-white">
+                      {pesoTotalForaPrazo >= 1000 ? `${(pesoTotalForaPrazo / 1000).toFixed(1)}t` : `${pesoTotalForaPrazo.toFixed(0)} kg`}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
