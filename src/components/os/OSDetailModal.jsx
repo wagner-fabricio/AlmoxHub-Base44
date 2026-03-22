@@ -487,65 +487,31 @@ export default function OSDetailModal({
   const handleSaveSeparacao = async () => {
     setSavingSeparacao(true);
     try {
-      console.log('Iniciando salvamento de separação para OS:', os.id);
-      
-      // Primeiro atualizar a OS
-      await base44.entities.OrdemServico.update(os.id, {
-        itens_documento: localOS.itens_documento
-      });
-      console.log('OS atualizada com sucesso');
-      
-      // Aguardar um pouco para garantir que a atualização foi processada
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Registrar no histórico
       const itensSeparados = (localOS.itens_documento || []).filter(item => item.separado).length;
       const totalItens = (localOS.itens_documento || []).length;
-      
-      console.log('=== INICIANDO REGISTRO DE AUDIT LOG ===');
-      console.log('OS ID:', os.id);
-      console.log('Itens separados:', itensSeparados, 'de', totalItens);
-      
-      try {
-        const auditResult = await base44.functions.invoke('registrarAuditLog', {
+
+      // Executar em paralelo: salvar OS e registrar audit log
+      await Promise.all([
+        base44.entities.OrdemServico.update(os.id, {
+          itens_documento: localOS.itens_documento
+        }),
+        base44.functions.invoke('registrarAuditLog', {
           action: 'separacao_update',
           entity_type: 'OrdemServico',
           entity_id: os.id,
-          details: {
-            descricao: `Marcou ${itensSeparados} de ${totalItens} materiais como separados`
-          }
-        });
-        console.log('=== AUDIT LOG CRIADO COM SUCESSO ===');
-        console.log('Result completo:', auditResult);
-        console.log('Result.data:', auditResult?.data);
-        console.log('Result.status:', auditResult?.status);
-      } catch (auditError) {
-        console.error('=== ERRO AO CRIAR AUDIT LOG ===');
-        console.error('Erro:', auditError);
-        console.error('Message:', auditError.message);
-        console.error('Stack:', auditError.stack);
-      }
-      
-      // Atualizar fluxo de expedição se aplicável
+          details: { descricao: `Marcou ${itensSeparados} de ${totalItens} materiais como separados` }
+        }).catch(() => {}) // audit log é não-crítico
+      ]);
+
       if (isExpedicao) {
         await base44.functions.invoke('atualizarFluxoExpedicao', { os_id: os.id });
       }
-      
-      // Aguardar mais tempo antes de recarregar
-      console.log('=== AGUARDANDO ANTES DE RECARREGAR ===');
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Recarregar os logs de auditoria
-      console.log('=== RECARREGANDO AUDIT LOGS ===');
+
       await loadAuditLogs();
-      console.log('=== LOGS RECARREGADOS ===');
-      
       if (onRefresh) onRefresh();
-      
       setIsEditing(false);
     } catch (error) {
       console.error('Erro ao salvar separação:', error);
-      console.error('Stack trace:', error.stack);
     } finally {
       setSavingSeparacao(false);
     }
