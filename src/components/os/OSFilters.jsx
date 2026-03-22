@@ -52,6 +52,8 @@ export default function OSFilters({
     setFilters({
       search: '',
       migo: '',
+      reserva: '',
+      codigoMaterial: '',
       regional: 'all',
       almoxarifado: 'all',
       categorias: expedicaoCategoria ? [expedicaoCategoria.id] : (recebimentoCategoria ? [recebimentoCategoria.id] : []),
