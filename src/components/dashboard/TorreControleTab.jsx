@@ -253,21 +253,25 @@ export default function TorreControleTab({
                 />
                 <Bar dataKey="No Prazo" stackId="total" fill="#22c55e" radius={[0, 0, 0, 0]}>
                   <LabelList position="center" content={(props) => {
-                    const { x, y, width, height, value } = props;
+                    const { x, y, width, height } = props;
                     const row = dadosMensaisOSContagem[props.index];
-                    const total = row['No Prazo'] + row['Fora do Prazo'];
-                    if (total === 0 || value === 0 || height < 16) return null;
-                    const percent = ((value / total) * 100).toFixed(0);
+                    if (!row) return null;
+                    const noPrazo = row['No Prazo'];
+                    const total = noPrazo + row['Fora do Prazo'];
+                    if (total === 0 || noPrazo === 0 || height < 16) return null;
+                    const percent = Math.round((noPrazo / total) * 100);
                     return <text x={x + width / 2} y={y + height / 2} fill="#fff" textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="700">{percent}%</text>;
                   }} />
                 </Bar>
                 <Bar dataKey="Fora do Prazo" stackId="total" fill="#ef4444" radius={[8, 8, 0, 0]}>
                   <LabelList position="center" content={(props) => {
-                    const { x, y, width, height, value } = props;
+                    const { x, y, width, height } = props;
                     const row = dadosMensaisOSContagem[props.index];
-                    const total = row['No Prazo'] + row['Fora do Prazo'];
-                    if (total === 0 || value === 0 || height < 16) return null;
-                    const percent = ((value / total) * 100).toFixed(0);
+                    if (!row) return null;
+                    const foraPrazo = row['Fora do Prazo'];
+                    const total = row['No Prazo'] + foraPrazo;
+                    if (total === 0 || foraPrazo === 0 || height < 16) return null;
+                    const percent = Math.round((foraPrazo / total) * 100);
                     return <text x={x + width / 2} y={y + height / 2} fill="#fff" textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="700">{percent}%</text>;
                   }} />
                 </Bar>
