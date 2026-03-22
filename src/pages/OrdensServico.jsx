@@ -47,8 +47,24 @@ export default function OrdensServico() {
     dataFim: ''
   });
 
-  const updateFilters = async (newFilters) => {
+  // Debounced text filters — só recalcular filtros após parar de digitar
+  const [debouncedTextFilters, setDebouncedTextFilters] = useState({
+    search: '', migo: '', reserva: '', codigoMaterial: ''
+  });
+  const debounceRef = useRef(null);
+
+  const updateFilters = useCallback(async (newFilters) => {
     setFilters(newFilters);
+    // Debounce apenas para campos de texto livres
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setDebouncedTextFilters({
+        search: newFilters.search || '',
+        migo: newFilters.migo || '',
+        reserva: newFilters.reserva || '',
+        codigoMaterial: newFilters.codigoMaterial || '',
+      });
+    }, 300);
     try {
       const savedFilters = currentUser?.filtros_preferidos || {};
       await base44.auth.updateMe({
@@ -58,9 +74,9 @@ export default function OrdensServico() {
         }
       });
     } catch (e) {
-      console.error('Error saving filters:', e);
+      // silently fail — preference saving is not critical
     }
-  };
+  }, [currentUser]);
 
   const [showFormModal, setShowFormModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
