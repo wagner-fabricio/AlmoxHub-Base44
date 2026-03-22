@@ -238,34 +238,37 @@ export default function TorreControleTab({
           <div className="lg:col-span-2 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/50 dark:to-slate-800/30 rounded-xl p-6 border border-slate-100 dark:border-slate-700/50">
             <h4 className="text-base font-semibold text-slate-700 dark:text-slate-300 mb-6">Total de OS por Prazo - Ano Corrente</h4>
             <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={dadosMensaisOS} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <BarChart data={dadosMensaisOSContagem} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-700" />
                 <XAxis dataKey="mes" tick={{ fill: '#64748b', fontSize: 12 }} />
-                <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
+                <YAxis tick={{ fill: '#64748b', fontSize: 12 }} allowDecimals={false} />
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: '#fff', 
                     border: '1px solid #e2e8f0', 
                     borderRadius: '12px',
                     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
-                  }} 
+                  }}
+                  formatter={(value) => [`${value} OS`]}
                 />
                 <Bar dataKey="No Prazo" stackId="total" fill="#22c55e" radius={[0, 0, 0, 0]}>
                   <LabelList position="center" content={(props) => {
                     const { x, y, width, height, value } = props;
-                    const total = dadosMensaisOS[props.index]['No Prazo'] + dadosMensaisOS[props.index]['Fora do Prazo'];
-                    if (total === 0 || value === 0) return null;
+                    const row = dadosMensaisOSContagem[props.index];
+                    const total = row['No Prazo'] + row['Fora do Prazo'];
+                    if (total === 0 || value === 0 || height < 16) return null;
                     const percent = ((value / total) * 100).toFixed(0);
-                    return <text x={x + width / 2} y={y + height / 2} fill="#fff" textAnchor="middle" dominantBaseline="middle" fontSize="12" fontWeight="600">{percent}%</text>;
+                    return <text x={x + width / 2} y={y + height / 2} fill="#fff" textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="700">{percent}%</text>;
                   }} />
                 </Bar>
                 <Bar dataKey="Fora do Prazo" stackId="total" fill="#ef4444" radius={[8, 8, 0, 0]}>
                   <LabelList position="center" content={(props) => {
                     const { x, y, width, height, value } = props;
-                    const total = dadosMensaisOS[props.index]['No Prazo'] + dadosMensaisOS[props.index]['Fora do Prazo'];
-                    if (total === 0 || value === 0) return null;
+                    const row = dadosMensaisOSContagem[props.index];
+                    const total = row['No Prazo'] + row['Fora do Prazo'];
+                    if (total === 0 || value === 0 || height < 16) return null;
                     const percent = ((value / total) * 100).toFixed(0);
-                    return <text x={x + width / 2} y={y + height / 2} fill="#fff" textAnchor="middle" dominantBaseline="middle" fontSize="12" fontWeight="600">{percent}%</text>;
+                    return <text x={x + width / 2} y={y + height / 2} fill="#fff" textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="700">{percent}%</text>;
                   }} />
                 </Bar>
               </BarChart>
