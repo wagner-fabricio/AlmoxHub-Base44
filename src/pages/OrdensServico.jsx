@@ -33,6 +33,8 @@ export default function OrdensServico() {
   const [filters, setFilters] = useState({
     search: '',
     migo: '',
+    reserva: '',
+    codigoMaterial: '',
     regional: 'all',
     almoxarifado: 'all',
     categorias: [],
