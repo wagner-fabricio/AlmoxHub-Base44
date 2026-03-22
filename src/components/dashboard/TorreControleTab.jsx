@@ -69,7 +69,20 @@ export default function TorreControleTab({
   // KPI: Tempo Médio Previsto (apenas informativo, sem comparação histórica confiável)
   const variacaoTempo = 0; // Não há dados históricos suficientes para comparação confiável
   
-  // Dados mensais para OS (valores totais)
+  // Dados mensais para OS — contagem de OS (para o gráfico de barras por quantidade)
+  const dadosMensaisOSContagem = meses.map((mes, index) => {
+    const osMes = filteredOrdens.filter(os => {
+      const dataCreated = new Date(os.created_date);
+      return dataCreated.getFullYear() === currentYear && dataCreated.getMonth() === index;
+    });
+    return {
+      mes,
+      'No Prazo': osMes.filter(os => isNoPrazo(os, hoje)).length,
+      'Fora do Prazo': osMes.filter(os => isForaPrazo(os, hoje)).length,
+    };
+  });
+
+  // Dados mensais para OS — valores monetários (para o gráfico de evolução de valores)
   const dadosMensaisOS = meses.map((mes, index) => {
     const osMes = filteredOrdens.filter(os => {
       const dataCreated = new Date(os.created_date);
