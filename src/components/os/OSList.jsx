@@ -158,6 +158,12 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
       } else if (sortConfig.column === 'progresso') {
         aValue = a.progresso || 0;
         bValue = b.progresso || 0;
+      } else if (sortConfig.column === 'valor_total') {
+        aValue = (a.itens_documento || []).reduce((s, i) => s + (i.r_total || 0), 0);
+        bValue = (b.itens_documento || []).reduce((s, i) => s + (i.r_total || 0), 0);
+      } else if (sortConfig.column === 'peso_total') {
+        aValue = (a.volumes || []).reduce((s, v) => s + (v.peso_bruto || 0), 0);
+        bValue = (b.volumes || []).reduce((s, v) => s + (v.peso_bruto || 0), 0);
       } else if (sortConfig.column === 'tempo_decorrido') {
         const aDataFinal = a.status === 'concluido' ? (a.data_conclusao || a.prazo) : new Date().toISOString().split('T')[0];
         const bDataFinal = b.status === 'concluido' ? (b.data_conclusao || b.prazo) : new Date().toISOString().split('T')[0];
@@ -527,8 +533,28 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
                 ) : <ArrowUpDown className="w-4 h-4 opacity-30" />}
               </button>
             </TableHead>
-            <TableHead className="font-semibold w-36">Valor Total</TableHead>
-            <TableHead className="font-semibold w-32">Peso Total (kg)</TableHead>
+            <TableHead className="font-semibold w-36">
+              <button
+                onClick={() => handleSort('valor_total')}
+                className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+              >
+                Valor Total
+                {sortConfig.column === 'valor_total' ? (
+                  sortConfig.direction === 'asc' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />
+                ) : <ArrowUpDown className="w-4 h-4 opacity-30" />}
+              </button>
+            </TableHead>
+            <TableHead className="font-semibold w-32">
+              <button
+                onClick={() => handleSort('peso_total')}
+                className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+              >
+                Peso Total (kg)
+                {sortConfig.column === 'peso_total' ? (
+                  sortConfig.direction === 'asc' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />
+                ) : <ArrowUpDown className="w-4 h-4 opacity-30" />}
+              </button>
+            </TableHead>
             <TableHead className="font-semibold w-36 text-right">
               <button
                 onClick={() => handleSort('progresso')}
