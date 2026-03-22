@@ -102,8 +102,9 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
     setSortConfig({ column, direction });
   };
 
-  // Apply filters to orders
-  let filteredOrdens = ordens.filter(os => {
+  // Apply filters + sort memoizados
+  const filteredOrdens = useMemo(() => {
+  let result = ordens.filter(os => {
     if (columnFilters.codigo.length > 0 && !columnFilters.codigo.includes(os.codigo)) return false;
     
     const categoria = getCategoria(os.categoria_id);
