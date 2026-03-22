@@ -146,6 +146,20 @@ export default function OrdensServico() {
         os.numero_migo_receb?.toString().includes(filters.migo);
       if (!migoMatch) return false;
     }
+
+    // Reserva filter
+    if (filters.reserva) {
+      if (!os.num_reserva?.toString().includes(filters.reserva)) return false;
+    }
+
+    // Código Material filter
+    if (filters.codigoMaterial) {
+      const codMat = filters.codigoMaterial.toLowerCase();
+      const hasItem = (os.itens_documento || []).some(item =>
+        item.codigo?.toLowerCase().includes(codMat)
+      );
+      if (!hasItem) return false;
+    }
     
     // Regional filter - OS Global sempre passa
     if (filters.regional !== 'all' && !os.is_global && os.regional_id !== filters.regional) return false;
