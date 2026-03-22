@@ -382,7 +382,7 @@ export default function OSList({ ordens, pessoas, categorias, regionais, onOSCli
                 )}
               </button>
             </TableHead>
-            <TableHead className="font-semibold">
+            <TableHead className="font-semibold w-32">
               <button
                 onClick={() => handleSort('data_conclusao')}
                 className="flex items-center gap-1 hover:text-blue-600 transition-colors"
