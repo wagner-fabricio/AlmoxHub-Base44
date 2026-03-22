@@ -114,14 +114,18 @@ export default function OSDetailModal({
 
   const loadUser = async () => {
     try {
-      // Usar dados do contexto via prop quando disponíveis (evita round-trip desnecessário)
-      const [user, pessoaData] = await Promise.all([
-        base44.auth.me(),
-        base44.entities.Pessoa.filter({ user_id: (await base44.auth.me().catch(() => null))?.id }).catch(() => [])
-      ]);
+      const user = await base44.auth.me();
       setCurrentUser(user);
-      if (Array.isArray(pessoaData) && pessoaData[0]) {
-        setCurrentUserPessoa(pessoaData[0]);
+      // Tentar encontrar a pessoa no array já carregado no contexto (zero custo)
+      const pessoaFromContext = Array.isArray(pessoas) ? pessoas.find(p => p?.user_id === user.id) : null;
+      if (pessoaFromContext) {
+        setCurrentUserPessoa(pessoaFromContext);
+      } else {
+        // Fallback: buscar só se não encontrou no contexto
+        const pessoaData = await base44.entities.Pessoa.filter({ user_id: user.id });
+        if (Array.isArray(pessoaData) && pessoaData[0]) {
+          setCurrentUserPessoa(pessoaData[0]);
+        }
       }
     } catch (e) {}
   };
