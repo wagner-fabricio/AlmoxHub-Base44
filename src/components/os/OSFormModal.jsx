@@ -769,7 +769,7 @@ export default function OSFormModal({
                         <Label>Status Atendimento</Label>
                         <Select value={formData.status_separacao} onValueChange={(v) => setFormData({ ...formData, status_separacao: v })}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
-                          <SelectContent><SelectItem value="pendente">Pendente</SelectItem><SelectItem value="em_separacao">Em separação</SelectItem><SelectItem value="separado">Separado</SelectItem><SelectItem value="em_rota">Em rota</SelectItem><SelectItem value="entregue">Entregue</SelectItem></SelectContent>
+                          <SelectContent><SelectItem value="pendente">Pendente</SelectItem><SelectItem value="em_separacao">Em separação</SelectItem><SelectItem value="separado">Separado</SelectItem><SelectItem value="embalando">Embalando</SelectItem><SelectItem value="aguardando_transporte">Aguardando Transporte</SelectItem><SelectItem value="em_rota">Em rota</SelectItem><SelectItem value="entregue">Entregue</SelectItem></SelectContent>
                         </Select>
                       </div>
                       <div className="space-y-2">
