@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Info } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, differenceInDays } from 'date-fns';
 
 export default function OSPrazosControle({ 
   formData, 
@@ -65,6 +65,21 @@ export default function OSPrazosControle({
           )}
         </div>
 
+        {/* Tempo Previsto */}
+        <div className="space-y-2">
+          <Label className="text-slate-700 dark:text-slate-300 font-medium">Tempo Previsto</Label>
+          <div className="h-9 flex items-center px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-slate-300">
+            {formData.data_inicial && formData.prazo ? (
+              (() => {
+                const dias = differenceInDays(new Date(formData.prazo), new Date(formData.data_inicial));
+                return <span className={dias < 0 ? 'text-red-500' : ''}>{dias} dia{Math.abs(dias) !== 1 ? 's' : ''}</span>;
+              })()
+            ) : (
+              <span className="text-slate-400">Preencha Data Inicial e Prazo</span>
+            )}
+          </div>
+        </div>
+
         {/* Data de Conclusão */}
          <div className="space-y-2">
            <div className="flex items-center gap-2">
@@ -104,6 +119,27 @@ export default function OSPrazosControle({
            )}
          </div>
 
+        {/* Tempo Decorrido */}
+        <div className="space-y-2">
+          <Label className="text-slate-700 dark:text-slate-300 font-medium">Tempo Decorrido</Label>
+          <div className="h-9 flex items-center px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-slate-300">
+            {formData.data_inicial ? (
+              (() => {
+                const dataFim = formData.status === 'concluido' && formData.data_conclusao
+                  ? new Date(formData.data_conclusao)
+                  : new Date();
+                const dias = differenceInDays(dataFim, new Date(formData.data_inicial));
+                return <span className={dias < 0 ? 'text-red-500' : ''}>{dias} dia{Math.abs(dias) !== 1 ? 's' : ''}</span>;
+              })()
+            ) : (
+              <span className="text-slate-400">Aguardando data inicial</span>
+            )}
+          </div>
+          <p className="text-xs text-slate-400">
+            {formData.status === 'concluido' ? 'Até a conclusão' : 'Até hoje'}
+          </p>
+        </div>
+
         {/* Prioridade */}
         <div className="space-y-2">
           <Label className="text-slate-700 dark:text-slate-300 font-medium">Prioridade</Label>
@@ -119,6 +155,24 @@ export default function OSPrazosControle({
               <SelectItem value="media">Média</SelectItem>
               <SelectItem value="alta">Alta</SelectItem>
               <SelectItem value="urgente">Urgente</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Complexidade */}
+        <div className="space-y-2">
+          <Label className="text-slate-700 dark:text-slate-300 font-medium">Complexidade</Label>
+          <Select
+            value={formData.complexidade || ''}
+            onValueChange={(v) => setFormData({ ...formData, complexidade: v })}
+          >
+            <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg">
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="baixa">Baixa</SelectItem>
+              <SelectItem value="media">Média</SelectItem>
+              <SelectItem value="alta">Alta</SelectItem>
             </SelectContent>
           </Select>
         </div>
