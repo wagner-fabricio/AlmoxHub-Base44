@@ -343,7 +343,7 @@ export default function OSFormHelp({ activeTab }) {
           className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg px-3 py-1.5 text-xs font-medium transition-all"
         >
           <HelpCircle className="w-3.5 h-3.5" />
-          Ajuda desta aba
+          Ajuda
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg p-0 overflow-hidden">
