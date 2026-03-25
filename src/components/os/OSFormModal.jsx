@@ -448,7 +448,7 @@ export default function OSFormModal({
     (formData.num_migo && !formData.data_migo)
   );
   const migoRecebIncompleto = isRecebimentoCategory && formData.numero_migo_receb && !formData.data_migo_receb;
-  const isValid = formData.categoria_id && formData.subcategorias_ids?.length > 0 && formData.regional_id && formData.almoxarifado_id && formData.lider_id && formData.prazo && !prazoError && !problemasNaoPreenchidos && !separacaoIncompleta && !documentoIncompleto && !migoRecebIncompleto;
+  const isValid = formData.categoria_id && formData.subcategorias_ids?.length > 0 && formData.regional_id && formData.almoxarifado_id && formData.lider_id && formData.prazo && formData.complexidade && !prazoError && !problemasNaoPreenchidos && !separacaoIncompleta && !documentoIncompleto && !migoRecebIncompleto;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

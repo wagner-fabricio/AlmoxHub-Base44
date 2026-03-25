@@ -161,12 +161,12 @@ export default function OSPrazosControle({
 
         {/* Complexidade */}
         <div className="space-y-2">
-          <Label className="text-slate-700 dark:text-slate-300 font-medium">Complexidade</Label>
+          <Label className="text-slate-700 dark:text-slate-300 font-medium">Complexidade <span className="text-red-500">*</span></Label>
           <Select
             value={formData.complexidade || ''}
             onValueChange={(v) => setFormData({ ...formData, complexidade: v })}
           >
-            <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg">
+            <SelectTrigger className={`rounded-lg ${!formData.complexidade ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`}>
               <SelectValue placeholder="Selecione..." />
             </SelectTrigger>
             <SelectContent>
