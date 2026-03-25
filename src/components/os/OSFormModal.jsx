@@ -28,6 +28,7 @@ import OSPrazosControle from './OSPrazosControle.jsx';
 import RotuloSelector from '@/components/rotulos/RotuloSelector';
 import OSAssinaturaTab from './OSAssinaturaTab.jsx';
 import EtiquetaVolumesModal from './EtiquetaVolumesModal';
+import OSFormHelp from './OSFormHelp';
 
 const EMPTY_FORM = {
   categoria_id: '', subcategorias_ids: [], regional_id: '', almoxarifado_id: '',
@@ -58,6 +59,7 @@ export default function OSFormModal({
   projetos, instalacoes, currentUser, onSave
 }) {
   const [loading, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState('geral');
   const [importingPDF, setImportingPDF] = useState(false);
   const [showEtiquetaModal, setShowEtiquetaModal] = useState(false);
   const [zmmtsePDF, setZmmtsePDF] = useState(null);
@@ -459,8 +461,9 @@ export default function OSFormModal({
 
         <ScrollArea className="max-h-[calc(90vh-200px)]">
           <div className="p-8 bg-slate-50/30 dark:bg-slate-900/30">
-            <Tabs defaultValue="geral" className="w-full">
-              <TabsList className="mb-8 bg-transparent border-b border-slate-200 dark:border-slate-700 rounded-none h-auto p-0 space-x-8">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <div className="flex items-end justify-between border-b border-slate-200 dark:border-slate-700 mb-8">
+              <TabsList className="bg-transparent rounded-none h-auto p-0 space-x-8 border-b-0">
                 <TabsTrigger value="geral" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Dados Gerais</TabsTrigger>
                 {isAtendimentoCategory && (<TabsTrigger value="materiais" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Materiais ({formData.itens_documento?.length || 0})</TabsTrigger>)}
                 {isExpedicaoCategory && (<>
@@ -480,6 +483,10 @@ export default function OSFormModal({
                 </>)}
                 <TabsTrigger value="anexos" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Anexos</TabsTrigger>
               </TabsList>
+              <div className="pb-2 flex-shrink-0">
+                <OSFormHelp activeTab={activeTab} />
+              </div>
+              </div>
 
               {/* TAB: Dados Gerais */}
               <TabsContent value="geral" className="space-y-8">
