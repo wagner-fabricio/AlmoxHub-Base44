@@ -445,7 +445,8 @@ export default function OSFormModal({
     !formData.orgao || !formData.vinculacao || !formData.instalacao_origem_id || !formData.instalacao_destino_id ||
     (formData.num_migo && !formData.data_migo)
   );
-  const isValid = formData.categoria_id && formData.subcategorias_ids?.length > 0 && formData.regional_id && formData.almoxarifado_id && formData.lider_id && formData.prazo && !prazoError && !problemasNaoPreenchidos && !separacaoIncompleta && !documentoIncompleto;
+  const migoRecebIncompleto = isRecebimentoCategory && formData.numero_migo_receb && !formData.data_migo_receb;
+  const isValid = formData.categoria_id && formData.subcategorias_ids?.length > 0 && formData.regional_id && formData.almoxarifado_id && formData.lider_id && formData.prazo && !prazoError && !problemasNaoPreenchidos && !separacaoIncompleta && !documentoIncompleto && !migoRecebIncompleto;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -886,7 +887,11 @@ export default function OSFormModal({
                     <div className="space-y-2"><Label>Número da NF</Label><Input value={formData.nfe_numero_receb} onChange={(e) => setFormData({ ...formData, nfe_numero_receb: e.target.value })} placeholder="Preenchido automaticamente pelo XML ou digite manualmente" /></div>
                     <div className="space-y-2"><Label>Data da NF</Label><Input type="date" value={formData.nfe_data_receb} onChange={(e) => setFormData({ ...formData, nfe_data_receb: e.target.value })} /></div>
                     <div className="space-y-2"><Label>Número MIGO</Label><Input type="text" inputMode="numeric" value={formData.numero_migo_receb} onChange={(e) => setFormData({ ...formData, numero_migo_receb: e.target.value.replace(/\D/g, '') })} placeholder="Somente números" /></div>
-                    <div className="space-y-2"><Label>Data MIGO</Label><Input type="date" value={formData.data_migo_receb} onChange={(e) => setFormData({ ...formData, data_migo_receb: e.target.value })} /></div>
+                    <div className="space-y-2">
+                      <Label>Data MIGO {formData.numero_migo_receb && <span className="text-red-500">*</span>}</Label>
+                      <Input type="date" value={formData.data_migo_receb} onChange={(e) => setFormData({ ...formData, data_migo_receb: e.target.value })} className={formData.numero_migo_receb && !formData.data_migo_receb ? 'border-red-500' : ''} />
+                      {formData.numero_migo_receb && !formData.data_migo_receb && <p className="text-xs text-red-500">Obrigatório quando Número MIGO é preenchido</p>}
+                    </div>
                     <div className="space-y-2">
                       <Label>Número ID V360</Label>
                       <div className="flex gap-2">
