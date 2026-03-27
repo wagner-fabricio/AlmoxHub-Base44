@@ -70,9 +70,12 @@ export default function OSFormModal({
   const [problemasRecebimento, setProblemasRecebimento] = useState([]);
   const [equipes, setEquipes] = useState([]);
   const isMountedRef = React.useRef(true);
+  const initializedForRef = React.useRef(null); // tracks which os.id (or 'new') was last initialized
   const [formData, setFormData] = useState(EMPTY_FORM);
 
+  // Load auxiliary data only once when modal opens
   useEffect(() => {
+    if (!open) return;
     isMountedRef.current = true;
     const loadData = async () => {
       try {
@@ -87,6 +90,20 @@ export default function OSFormModal({
       } catch (error) { console.error('Erro ao carregar dados:', error); }
     };
     loadData();
+    return () => { isMountedRef.current = false; };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) {
+      // Reset tracker when modal closes so next open reinitializes
+      initializedForRef.current = null;
+      return;
+    }
+
+    const currentKey = os?.id || (os && !os.id ? 'new' : 'empty');
+    // Only reinitialize if the modal just opened for a different OS
+    if (initializedForRef.current === currentKey) return;
+    initializedForRef.current = currentKey;
 
     const formatDateForInput = (d) => {
       if (!d) return '';
@@ -160,9 +177,7 @@ export default function OSFormModal({
       setFormData({ ...EMPTY_FORM, fluxo_expedicao: { ...EMPTY_FORM.fluxo_expedicao, solicitacao_data: new Date().toISOString() } });
     }
 
-    return () => { isMountedRef.current = false; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, os?.id]);
+  }, [open, os?.id, os]);
 
   const filteredSubcategorias = Array.isArray(subcategorias) ? subcategorias.filter(s => s?.categoria_id === formData.categoria_id) : [];
   const filteredAlmoxarifados = Array.isArray(almoxarifados) ? almoxarifados.filter(a => a?.regional_id === formData.regional_id) : [];
