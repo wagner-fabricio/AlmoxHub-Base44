@@ -90,11 +90,15 @@ export default function OSFormModal({
 
     const formatDateForInput = (d) => {
       if (!d) return '';
-      // Se já está no formato yyyy-MM-dd, retorna diretamente sem conversão
+      // Se já está no formato yyyy-MM-dd puro, retorna direto
       if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
-      // Para strings ISO, extrai apenas a parte da data sem converter fuso
-      if (typeof d === 'string') return d.substring(0, 10);
-      return '';
+      // Para qualquer string ISO, interpreta no fuso local do browser (igual ao modo de exibição)
+      const date = new Date(d);
+      if (isNaN(date.getTime())) return '';
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
     };
 
     if (os && os.id) {
