@@ -733,6 +733,21 @@ export default function OSDetailModal({
 
                 {/* Info Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {os.subcategorias_ids && os.subcategorias_ids.length > 0 && (() => {
+                    const subcats = Array.isArray(subcategorias) ? subcategorias.filter(s => os.subcategorias_ids.includes(s?.id)) : [];
+                    return subcats.length > 0 ? (
+                      <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center shrink-0">
+                          <Tag className="w-5 h-5 text-indigo-600" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs text-slate-500 dark:text-slate-400">Subcategoria</p>
+                          <p className="font-medium text-slate-900 dark:text-white text-sm">{subcats.map(s => s.nome).join(', ')}</p>
+                        </div>
+                      </div>
+                    ) : null;
+                  })()}
+
                   <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                     <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center shrink-0">
                       <MapPin className="w-5 h-5 text-blue-600" />
