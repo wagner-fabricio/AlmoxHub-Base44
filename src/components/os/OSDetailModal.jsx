@@ -799,6 +799,16 @@ export default function OSDetailModal({
                     </div>
                   </div>
 
+                  <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center shrink-0">
+                      <span className="text-orange-600 font-bold text-sm">C</span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Complexidade</p>
+                      <p className="font-medium text-slate-900 dark:text-white text-sm">{os.complexidade || '-'}</p>
+                    </div>
+                  </div>
+
                   {os.num_reserva && (
                     <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                       <div className="w-10 h-10 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg flex items-center justify-center shrink-0">
