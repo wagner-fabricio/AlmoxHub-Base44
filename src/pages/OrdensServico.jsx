@@ -89,8 +89,8 @@ export default function OrdensServico() {
     loadData();
   }, []);
 
-  const loadData = async () => {
-    setLoading(true);
+  const loadData = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const [user, ordensData, almoxarifadosData, projetosData, instalacoesData, rotulosData] = await Promise.all([
         base44.auth.me(),
@@ -412,7 +412,7 @@ export default function OrdensServico() {
       }
     }
     
-    await loadData();
+    await loadData(true);
     
     // Se é nova OS e tem executores, criar notificações de atribuição
     if (isNew && osData?.executores_ids?.length > 0 && currentPessoa) {
@@ -456,7 +456,7 @@ export default function OrdensServico() {
       setShowDetailModal(false);
       setDeletingOS(null);
       setSelectedOS(null);
-      await loadData();
+      await loadData(true);
     } catch (error) {
       console.error('Error deleting OS:', error);
     }
@@ -784,7 +784,7 @@ export default function OrdensServico() {
         onDelete={handleDeleteOS}
         onCreateRelated={handleCreateRelated}
         canDelete={selectedOS ? canDeleteOS(selectedOS) : false}
-        onRefresh={loadData}
+        onRefresh={() => loadData(true)}
       />
 
       {/* Delete Confirmation Dialog */}
