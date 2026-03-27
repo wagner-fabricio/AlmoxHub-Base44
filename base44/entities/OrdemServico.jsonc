@@ -1,0 +1,455 @@
+{
+  "name": "OrdemServico",
+  "type": "object",
+  "properties": {
+    "codigo": {
+      "type": "string",
+      "description": "ID \u00fanico autom\u00e1tico (ALMHUB-YYYYMMDD-XXXX)"
+    },
+    "categoria_id": {
+      "type": "string",
+      "description": "ID da categoria"
+    },
+    "subcategorias_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs das subcategorias selecionadas"
+    },
+    "regional_id": {
+      "type": "string",
+      "description": "ID da regional"
+    },
+    "almoxarifado_id": {
+      "type": "string",
+      "description": "ID do almoxarifado"
+    },
+    "is_global": {
+      "type": "boolean",
+      "default": false,
+      "description": "OS Global"
+    },
+    "lider_id": {
+      "type": "string",
+      "description": "ID do l\u00edder respons\u00e1vel"
+    },
+    "atendente_nome": {
+      "type": "string",
+      "description": "Nome do atendente"
+    },
+    "executores_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs dos executores"
+    },
+    "outros_envolvidos_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs de outras pessoas envolvidas"
+    },
+    "prazo": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de prazo"
+    },
+    "data_inicial": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de in\u00edcio"
+    },
+    "data_conclusao": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de conclus\u00e3o"
+    },
+    "progresso": {
+      "type": "number",
+      "default": 0,
+      "description": "Percentual de progresso (0-100)"
+    },
+    "prioridade": {
+      "type": "string",
+      "enum": [
+        "baixa",
+        "media",
+        "alta",
+        "urgente"
+      ],
+      "default": "media"
+    },
+    "complexidade": {
+      "type": "string",
+      "enum": [
+        "baixa",
+        "media",
+        "alta"
+      ],
+      "description": "Complexidade da OS"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "elaboracao",
+        "execucao",
+        "concluido",
+        "cancelado"
+      ],
+      "default": "elaboracao"
+    },
+    "anotacoes": {
+      "type": "string"
+    },
+    "anexos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "imagens": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "projetos_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "rotulos_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "num_reserva": {
+      "type": "string"
+    },
+    "data_reserva": {
+      "type": "string",
+      "format": "date"
+    },
+    "usuario_reserva": {
+      "type": "string"
+    },
+    "usuario_reserva_email": {
+      "type": "string"
+    },
+    "orgao": {
+      "type": "string"
+    },
+    "data_migo": {
+      "type": "string",
+      "format": "date"
+    },
+    "num_migo": {
+      "type": "string"
+    },
+    "descricao_resumida": {
+      "type": "string"
+    },
+    "vinculacao": {
+      "type": "string",
+      "enum": [
+        "custeio",
+        "investimento"
+      ]
+    },
+    "instalacao_origem_id": {
+      "type": "string"
+    },
+    "instalacao_destino_id": {
+      "type": "string"
+    },
+    "itens_documento": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string"
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "quantidade": {
+            "type": "number"
+          },
+          "unidade": {
+            "type": "string"
+          },
+          "r_unit": {
+            "type": "number"
+          },
+          "r_total": {
+            "type": "number"
+          },
+          "deposito": {
+            "type": "string"
+          },
+          "endereco": {
+            "type": "string"
+          },
+          "saldo": {
+            "type": "number"
+          },
+          "seguravel": {
+            "type": "boolean"
+          },
+          "separado": {
+            "type": "boolean",
+            "default": false
+          },
+          "quantidade_separada": {
+            "type": "number",
+            "default": 0,
+            "description": "Quantidade separada do item"
+          }
+        }
+      },
+      "description": "Itens do documento"
+    },
+    "volumes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id_volume": {
+            "type": "string"
+          },
+          "quantidade": {
+            "type": "number",
+            "default": 1
+          },
+          "largura": {
+            "type": "number"
+          },
+          "altura": {
+            "type": "number"
+          },
+          "comprimento": {
+            "type": "number"
+          },
+          "peso_bruto": {
+            "type": "number"
+          },
+          "m3": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "detalhamento_expedicao": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "num_expedicao": {
+            "type": "number"
+          },
+          "tipo_doc": {
+            "type": "string"
+          },
+          "num_doc": {
+            "type": "string"
+          },
+          "num_vol": {
+            "type": "number"
+          },
+          "peso": {
+            "type": "number"
+          },
+          "valor_total": {
+            "type": "number"
+          },
+          "detalhes_remessa": {
+            "type": "string"
+          },
+          "data_expedicao": {
+            "type": "string",
+            "format": "date"
+          },
+          "modal_transporte": {
+            "type": "string",
+            "enum": [
+              "Terrestre",
+              "A\u00e9reo",
+              "Mar\u00edtimo",
+              "Misto"
+            ]
+          },
+          "responsavel_transporte": {
+            "type": "string",
+            "enum": [
+              "Transportadora",
+              "Arrematante",
+              "Empreiteira",
+              "Locadora",
+              "Portador",
+              "Axia",
+              "Correios"
+            ]
+          },
+          "aproveitando_carona": {
+            "type": "boolean",
+            "default": false
+          },
+          "usar_seguro": {
+            "type": "boolean",
+            "default": false
+          },
+          "transportadora": {
+            "type": "object"
+          },
+          "veiculo": {
+            "type": "object"
+          },
+          "motorista": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "status_separacao": {
+      "type": "string",
+      "enum": [
+        "pendente",
+        "em_separacao",
+        "separado",
+        "embalando",
+        "aguardando_transporte",
+        "em_rota",
+        "entregue"
+      ],
+      "default": "pendente"
+    },
+    "responsavel_separacao": {
+      "type": "string"
+    },
+    "data_separacao": {
+      "type": "string",
+      "format": "date"
+    },
+    "data_entrega": {
+      "type": "string",
+      "format": "date"
+    },
+    "data_necessidade": {
+      "type": "string",
+      "format": "date"
+    },
+    "separacao_concluida_em": {
+      "type": "string",
+      "format": "date"
+    },
+    "nfe_numero": {
+      "type": "string"
+    },
+    "nfe_serie": {
+      "type": "string"
+    },
+    "nfe_data_emissao": {
+      "type": "string",
+      "format": "date"
+    },
+    "nfe_chave_acesso": {
+      "type": "string"
+    },
+    "nfe_natureza_operacao": {
+      "type": "string"
+    },
+    "nfe_dados_emissor": {
+      "type": "object"
+    },
+    "nfe_dados_destinatario": {
+      "type": "object"
+    },
+    "nfe_dados_transportador": {
+      "type": "object"
+    },
+    "nfe_info_complementares": {
+      "type": "string"
+    },
+    "nfe_itens_conferencia": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "fluxo_recebimento": {
+      "type": "object"
+    },
+    "nfe_numero_receb": {
+      "type": "string"
+    },
+    "nfe_data_receb": {
+      "type": "string",
+      "format": "date"
+    },
+    "numero_migo_receb": {
+      "type": "string"
+    },
+    "data_migo_receb": {
+      "type": "string",
+      "format": "date"
+    },
+    "numero_v360": {
+      "type": "string"
+    },
+    "doc_referencia": {
+      "type": "string"
+    },
+    "data_recebimento": {
+      "type": "string",
+      "format": "date"
+    },
+    "problema_recebimento": {
+      "type": "boolean",
+      "default": false
+    },
+    "problemas_recebimento_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "resumo_pendencias": {
+      "type": "string"
+    },
+    "acoes_acompanhamento": {
+      "type": "string"
+    },
+    "como_foi_solucionado": {
+      "type": "string"
+    },
+    "data_solucao": {
+      "type": "string",
+      "format": "date"
+    },
+    "problemas_anexos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "responsavel_recebimento": {
+      "type": "string"
+    },
+    "fluxo_expedicao": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "categoria_id",
+    "regional_id",
+    "almoxarifado_id",
+    "lider_id",
+    "prazo"
+  ]
+}
