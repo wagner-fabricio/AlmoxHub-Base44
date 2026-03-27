@@ -161,7 +161,8 @@ export default function OSFormModal({
     }
 
     return () => { isMountedRef.current = false; };
-  }, [os]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, os?.id]);
 
   const filteredSubcategorias = Array.isArray(subcategorias) ? subcategorias.filter(s => s?.categoria_id === formData.categoria_id) : [];
   const filteredAlmoxarifados = Array.isArray(almoxarifados) ? almoxarifados.filter(a => a?.regional_id === formData.regional_id) : [];
