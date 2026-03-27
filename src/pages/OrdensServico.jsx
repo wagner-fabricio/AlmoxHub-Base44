@@ -391,6 +391,10 @@ export default function OrdensServico() {
   };
 
   const handleFormSave = async (isNew, osData) => {
+    // Atualizar selectedOS com os dados mais recentes para o OSDetailModal refletir corretamente
+    if (!isNew && osData) {
+      setSelectedOS(prev => prev ? { ...prev, ...osData } : prev);
+    }
 
     // Se é OS relacionada, atualizar a OS original
     if (isNew && selectedOS?._relatedToOS) {
