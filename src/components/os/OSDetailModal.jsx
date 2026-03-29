@@ -99,13 +99,42 @@ export default function OSDetailModal({
   const [auditLogs, setAuditLogs] = useState([]);
   const [rotulos, setRotulos] = useState([]);
   const [showEtiquetaModal, setShowEtiquetaModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('detalhes');
+  const [loadedTabs, setLoadedTabs] = useState(new Set(['detalhes']));
+  // Pagination
+  const [comentariosPage, setComentariosPage] = useState(1);
+  const [auditPage, setAuditPage] = useState(1);
+  const PAGE_SIZE = 20;
+
+  const parseDate = (d) => {
+    if (!d) return null;
+    // Prevent UTC offset shift: treat yyyy-MM-dd as local noon
+    if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return new Date(d + 'T12:00:00');
+    return new Date(d);
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    if (!loadedTabs.has(tab)) {
+      setLoadedTabs(prev => new Set([...prev, tab]));
+      if (tab === 'comentarios') loadComentarios();
+      if (tab === 'historico') loadAuditLogs();
+      if (tab === 'rotulos' || (tab === 'detalhes' && os.rotulos_ids?.length > 0)) {
+        base44.entities.Rotulo.filter({ ativo: true }).then(setRotulos).catch(() => {});
+      }
+    }
+  };
 
   useEffect(() => {
     if (open && os) {
-      loadComentarios();
       loadUser();
-      loadAuditLogs();
       setLocalOS(os);
+      setActiveTab('detalhes');
+      setLoadedTabs(new Set(['detalhes']));
+      setComentariosPage(1);
+      setAuditPage(1);
+      setComentarios([]);
+      setAuditLogs([]);
       if (os.rotulos_ids?.length > 0) {
         base44.entities.Rotulo.filter({ ativo: true }).then(setRotulos).catch(() => {});
       }
@@ -146,7 +175,7 @@ export default function OSDetailModal({
       const logs = await base44.entities.AuditLog.filter({ 
         entity_type: 'OrdemServico',
         entity_id: os.id 
-      }, '-created_date', 50);
+      }, '-created_date', 200);
       const logsArray = Array.isArray(logs) ? logs : [];
       setAuditLogs(logsArray.sort((a, b) => new Date(b.timestamp || b.created_date) - new Date(a.timestamp || a.created_date)));
     } catch (e) {
@@ -677,7 +706,7 @@ export default function OSDetailModal({
           <div className="p-6">
             <Tabs defaultValue="detalhes">
               <TabsList className="mb-6">
-                <TabsTrigger value="detalhes">Detalhes</TabsTrigger>
+                <TabsTrigger value="detalhes" onClick={() => handleTabChange('detalhes')}>Detalhes</TabsTrigger>
                 {isRecebimento && (
                   <TabsTrigger value="receb-doc">Cabeçalho NF</TabsTrigger>
                 )}
@@ -702,14 +731,14 @@ export default function OSDetailModal({
                 {isExpedicao && (
                  <TabsTrigger value="assinaturas">✍️ Assinaturas</TabsTrigger>
                 )}
-                <TabsTrigger value="comentarios">
+                <TabsTrigger value="comentarios" onClick={() => handleTabChange('comentarios')}>
                   Comentários ({comentarios.length})
                 </TabsTrigger>
-                <TabsTrigger value="anexos">
+                <TabsTrigger value="anexos" onClick={() => handleTabChange('anexos')}>
                   Anexos ({(os.anexos?.length || 0) + (os.imagens?.length || 0)})
                 </TabsTrigger>
-                <TabsTrigger value="historico">
-                  Histórico ({auditLogs.length})
+                <TabsTrigger value="historico" onClick={() => handleTabChange('historico')}>
+                  Histórico
                 </TabsTrigger>
               </TabsList>
 
@@ -778,7 +807,7 @@ export default function OSDetailModal({
                     <div className="min-w-0">
                       <p className="text-xs text-slate-500 dark:text-slate-400">Prazo</p>
                       <p className="font-medium text-slate-900 dark:text-white text-sm">
-                        {os.prazo ? format(new Date(os.prazo), "dd/MM/yyyy", { locale: ptBR }) : '-'}
+                        {os.prazo ? format(parseDate(os.prazo), "dd/MM/yyyy", { locale: ptBR }) : '-'}
                       </p>
                     </div>
                   </div>
@@ -790,7 +819,7 @@ export default function OSDetailModal({
                     <div className="min-w-0">
                       <p className="text-xs text-slate-500 dark:text-slate-400">Data Inicial</p>
                       <p className="font-medium text-slate-900 dark:text-white text-sm">
-                        {os.data_inicial ? format(new Date(os.data_inicial), "dd/MM/yyyy", { locale: ptBR }) : '-'}
+                        {os.data_inicial ? format(parseDate(os.data_inicial), "dd/MM/yyyy", { locale: ptBR }) : '-'}
                       </p>
                     </div>
                   </div>
@@ -802,7 +831,7 @@ export default function OSDetailModal({
                     <div className="min-w-0">
                       <p className="text-xs text-slate-500 dark:text-slate-400">Data de Conclusão</p>
                       <p className="font-medium text-slate-900 dark:text-white text-sm">
-                        {os.data_conclusao ? format(new Date(os.data_conclusao), "dd/MM/yyyy", { locale: ptBR }) : '-'}
+                        {os.data_conclusao ? format(parseDate(os.data_conclusao), "dd/MM/yyyy", { locale: ptBR }) : '-'}
                       </p>
                     </div>
                   </div>
@@ -1015,7 +1044,7 @@ export default function OSDetailModal({
                           <tr key={i} className="border-t border-slate-100 dark:border-slate-700">
                             <td className="p-3 text-center text-sm font-medium">{exp.num_expedicao || i + 1}</td>
                             <td className="p-3 text-sm">
-                              {exp.data_expedicao ? format(new Date(exp.data_expedicao), 'dd/MM/yy') : '-'}
+                              {exp.data_expedicao ? format(parseDate(exp.data_expedicao), 'dd/MM/yy') : '-'}
                             </td>
                             <td className="p-3 text-sm">{exp.tipo_doc || '-'}</td>
                             <td className="p-3 text-sm">{exp.num_doc || '-'}</td>
@@ -1101,7 +1130,7 @@ export default function OSDetailModal({
                         <div>
                           <span className="text-slate-500 block mb-1">Data da NF:</span>
                           <span className="font-medium text-slate-900 dark:text-white">
-                            {format(new Date(os.nfe_data_receb), 'dd/MM/yyyy')}
+                            {format(parseDate(os.nfe_data_receb), 'dd/MM/yyyy')}
                           </span>
                         </div>
                       )}
@@ -1115,7 +1144,7 @@ export default function OSDetailModal({
                         <div>
                           <span className="text-slate-500 block mb-1">Data MIGO:</span>
                           <span className="font-medium text-slate-900 dark:text-white">
-                            {format(new Date(os.data_migo_receb), 'dd/MM/yyyy')}
+                            {format(parseDate(os.data_migo_receb), 'dd/MM/yyyy')}
                           </span>
                         </div>
                       )}
@@ -1474,14 +1503,26 @@ export default function OSDetailModal({
                 {/* Messages Container */}
                 <ScrollArea className="flex-1 pr-4">
                   <div className="space-y-1">
-                    {comentarios.length === 0 ? (
+                    {!loadedTabs.has('comentarios') ? (
+                      <div className="text-center py-12 text-slate-400">Carregando...</div>
+                    ) : comentarios.length === 0 ? (
                       <div className="text-center py-12 text-slate-400">
                         <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-50" />
                         <p>Nenhuma mensagem ainda</p>
                         <p className="text-sm mt-1">Seja o primeiro a comentar</p>
                       </div>
                     ) : (
-                      groupMessagesByDate(comentarios).map((item, idx) => {
+                      <>
+                      {comentarios.length > PAGE_SIZE && (
+                        <div className="flex items-center justify-between mb-3 px-1">
+                          <button onClick={() => setComentariosPage(p => Math.max(1, p - 1))} disabled={comentariosPage === 1} className="text-xs text-blue-600 disabled:text-slate-300 hover:underline">← Anteriores</button>
+                          <span className="text-xs text-slate-500">{comentariosPage}/{Math.ceil(comentarios.length / PAGE_SIZE)}</span>
+                          <button onClick={() => setComentariosPage(p => Math.min(Math.ceil(comentarios.length / PAGE_SIZE), p + 1))} disabled={comentariosPage >= Math.ceil(comentarios.length / PAGE_SIZE)} className="text-xs text-blue-600 disabled:text-slate-300 hover:underline">Próximos →</button>
+                        </div>
+                      )}
+                      {groupMessagesByDate(
+                        comentarios.slice((comentariosPage - 1) * PAGE_SIZE, comentariosPage * PAGE_SIZE)
+                      ).map((item, idx) => {
                         if (item.type === 'separator') {
                           return (
                             <div key={`sep-${idx}`} className="flex items-center gap-3 my-4">
@@ -1617,7 +1658,8 @@ export default function OSDetailModal({
                             </div>
                           </div>
                         );
-                      })
+                      })}
+                      </>
                     )}
                     <div ref={messagesEndRef} />
                   </div>
@@ -1666,9 +1708,18 @@ export default function OSDetailModal({
 
               {/* Histórico Tab */}
               <TabsContent value="historico" className="space-y-3">
-                {auditLogs.length > 0 ? (
+                {!loadedTabs.has('historico') ? (
+                  <div className="text-center py-12 text-slate-400">Clique na aba para carregar o histórico</div>
+                ) : auditLogs.length > 0 ? (
                   <div className="space-y-3">
-                    {auditLogs.map((log, idx) => {
+                    {auditLogs.length > PAGE_SIZE && (
+                      <div className="flex items-center justify-between mb-2 px-1">
+                        <button onClick={() => setAuditPage(p => Math.max(1, p - 1))} disabled={auditPage === 1} className="text-xs text-blue-600 disabled:text-slate-300 hover:underline">← Anteriores</button>
+                        <span className="text-xs text-slate-500">{auditPage}/{Math.ceil(auditLogs.length / PAGE_SIZE)}</span>
+                        <button onClick={() => setAuditPage(p => Math.min(Math.ceil(auditLogs.length / PAGE_SIZE), p + 1))} disabled={auditPage >= Math.ceil(auditLogs.length / PAGE_SIZE)} className="text-xs text-blue-600 disabled:text-slate-300 hover:underline">Próximos →</button>
+                      </div>
+                    )}
+                    {auditLogs.slice((auditPage - 1) * PAGE_SIZE, auditPage * PAGE_SIZE).map((log, idx) => {
                       const logUser = log.user_id ? (Array.isArray(pessoas) ? pessoas.find(p => p?.user_id === log.user_id) : null) : null;
                       const actionLabels = {
                         create: 'criou a OS',
