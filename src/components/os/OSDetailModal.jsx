@@ -41,6 +41,7 @@ import {
 import RelatorioSeparacao from './RelatorioSeparacao';
 import RelatorioConferencia from './RelatorioConferencia';
 import TimeSheetButton from '@/components/timesheet/TimeSheetButton';
+import TimeSheetTab from '@/components/timesheet/TimeSheetTab';
 import OSAssinaturaTab from './OSAssinaturaTab';
 import EtiquetaVolumesModal from './EtiquetaVolumesModal';
 import ExpedicaoProgressTracker from './ExpedicaoProgressTracker';
@@ -761,6 +762,9 @@ export default function OSDetailModal({
                 </TabsTrigger>
                 <TabsTrigger value="anexos" onClick={() => handleTabChange('anexos')}>
                   Anexos ({(os.anexos?.length || 0) + (os.imagens?.length || 0)})
+                </TabsTrigger>
+                <TabsTrigger value="timesheet" onClick={() => handleTabChange('timesheet')}>
+                  TimeSheet
                 </TabsTrigger>
                 <TabsTrigger value="historico" onClick={() => handleTabChange('historico')}>
                   Histórico
@@ -1729,6 +1733,15 @@ export default function OSDetailModal({
                     </div>
                   </div>
                 </div>
+              </TabsContent>
+
+              {/* TimeSheet Tab */}
+              <TabsContent value="timesheet">
+                <TimeSheetTab
+                  os={localOS}
+                  currentPessoa={currentUserPessoa}
+                  onRefresh={onRefresh}
+                />
               </TabsContent>
 
               {/* Histórico Tab */}

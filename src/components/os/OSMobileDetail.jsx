@@ -11,6 +11,7 @@ import PickingWMS from './PickingWMS';
 import ExpedicaoProgressTracker from './ExpedicaoProgressTracker';
 import MaterialesTab from '@/components/emfluxo/MaterialesTab';
 import OSAssinaturaTab from './OSAssinaturaTab';
+import TimeSheetButton from '@/components/timesheet/TimeSheetButton';
 import {
   X,
   Clock,
@@ -677,6 +678,21 @@ export default function OSMobileDetail({
             {/* Fluxo de Expedição */}
             {isExpedicao && (
               <ExpedicaoProgressTracker os={os} isMobile={true} />
+            )}
+
+            {/* TimeSheet Button */}
+            {currentUserPessoa && (
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm flex items-center justify-between">
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">TimeSheet</span>
+                <TimeSheetButton
+                  os={os}
+                  currentPessoa={currentUserPessoa}
+                  size="sm"
+                  showTimer={true}
+                  stopOnConcluido={true}
+                  onUpdate={onRefresh}
+                />
+              </div>
             )}
 
             {/* Status Badge */}

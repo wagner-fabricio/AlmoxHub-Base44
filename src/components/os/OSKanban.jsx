@@ -9,7 +9,7 @@ const columns = [
   { id: 'concluido', title: 'Concluído', color: 'bg-green-500' },
 ];
 
-export default function OSKanban({ ordens, pessoas, categorias, regionais, instalacoes, onOSClick, onStatusChange }) {
+export default function OSKanban({ ordens, pessoas, categorias, regionais, instalacoes, onOSClick, onStatusChange, currentPessoa }) {
   // Mapas O(1) memoizados
   const pessoasMap = useMemo(() => new Map(pessoas.map(p => [p.id, p])), [pessoas]);
   const categoriasMap = useMemo(() => new Map(categorias.map(c => [c.id, c])), [categorias]);
@@ -90,6 +90,7 @@ export default function OSKanban({ ordens, pessoas, categorias, regionais, insta
                               regional={getRegional(os.regional_id)}
                               instalacoes={instalacoes}
                               onClick={onOSClick}
+                              currentPessoa={currentPessoa}
                             />
                           </div>
                         )}
