@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import RelatorioSeparacao from './RelatorioSeparacao';
 import RelatorioConferencia from './RelatorioConferencia';
+import TimeSheetButton from '@/components/timesheet/TimeSheetButton';
 import OSAssinaturaTab from './OSAssinaturaTab';
 import EtiquetaVolumesModal from './EtiquetaVolumesModal';
 import ExpedicaoProgressTracker from './ExpedicaoProgressTracker';
@@ -636,11 +637,35 @@ export default function OSDetailModal({
                   <StatusIcon className="w-4 h-4" />
                   <span className="text-sm font-medium">{statusConfig[os.status]?.label}</span>
                 </div>
+                {(localOS.timesheet_total_minutos > 0 || localOS.timesheet_status === 'playing') && (() => {
+                  const total = localOS.timesheet_total_minutos || 0;
+                  const h = Math.floor(total / 60);
+                  const m = total % 60;
+                  return (
+                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium ${
+                      localOS.timesheet_status === 'playing'
+                        ? 'bg-amber-100 text-amber-700 animate-pulse'
+                        : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
+                    }`}>
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>{h > 0 ? `${h}h ${m}min` : `${m}min`}</span>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
 
             {/* Linha 2: Ações */}
             <div className="flex flex-wrap items-center gap-2">
+              {currentUserPessoa && (
+                <TimeSheetButton
+                  os={localOS}
+                  currentPessoa={currentUserPessoa}
+                  onUpdate={onRefresh}
+                  size="sm"
+                  showTimer={true}
+                />
+              )}
               <Button variant="outline" onClick={handleShareOS} id="share-btn" size="sm">
                 <Share2 className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Compartilhar</span>
