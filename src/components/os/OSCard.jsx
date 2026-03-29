@@ -43,8 +43,11 @@ export default function OSCard({ os, onClick, lider, categoria, regional, instal
 
   return (
     <Card 
-      className="p-4 cursor-pointer hover:shadow-lg transition-all duration-200 border-2 bg-white dark:bg-slate-800 group"
-      style={{ borderColor: getBorderColor() }}
+      className="p-4 cursor-pointer hover:shadow-lg transition-all duration-200 border-2 group"
+      style={{
+        borderColor: getBorderColor(),
+        backgroundColor: os.timesheet_status === 'playing' ? 'rgba(251, 191, 36, 0.08)' : undefined,
+      }}
       onClick={() => onClick?.(os)}
     >
       {/* Badge Global */}
