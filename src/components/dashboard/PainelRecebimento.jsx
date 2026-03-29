@@ -367,7 +367,7 @@ export default function PainelRecebimento({
   const nfPorUfOrigem = useMemo(() => {
     const map = {};
     osComXml.forEach(os => {
-      const uf = os.nfe_dados_emissor?.UF || os.nfe_dados_emissor?.uf || 'N/D';
+      const uf = os.nfe_dados_emissor?.estado || os.nfe_dados_emissor?.UF || os.nfe_dados_emissor?.uf || 'N/D';
       map[uf] = (map[uf] || 0) + 1;
     });
     return Object.entries(map).map(([uf, qtd]) => ({ name: uf, value: qtd })).sort((a, b) => b.value - a.value);
@@ -377,7 +377,7 @@ export default function PainelRecebimento({
   const nfPorUfDestino = useMemo(() => {
     const map = {};
     osComXml.forEach(os => {
-      const uf = os.nfe_dados_destinatario?.UF || os.nfe_dados_destinatario?.uf || 'N/D';
+      const uf = os.nfe_dados_destinatario?.estado || os.nfe_dados_destinatario?.UF || os.nfe_dados_destinatario?.uf || 'N/D';
       map[uf] = (map[uf] || 0) + 1;
     });
     return Object.entries(map).map(([uf, qtd]) => ({ name: uf, value: qtd })).sort((a, b) => b.value - a.value);
