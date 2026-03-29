@@ -330,6 +330,74 @@ export default function PainelRecebimento({
       }));
   }, [osComProblemaArr]);
 
+  // ── OS com XML importado (base para gráficos de fornecedor/UF) ────────────
+  const osComXml = useMemo(
+    () => osReceb.filter(os => os.fluxo_recebimento?.xml_importado === true),
+    [osReceb]
+  );
+
+  // ── Chart: Top 20 Fornecedores por qtd NF ────────────────────────────────
+  const top20FornecedoresQtd = useMemo(() => {
+    const map = {};
+    osComXml.forEach(os => {
+      const nome = os.nfe_dados_emissor?.xNome || os.nfe_dados_emissor?.razao_social || 'Desconhecido';
+      map[nome] = (map[nome] || 0) + 1;
+    });
+    return Object.entries(map)
+      .map(([nome, qtd]) => ({ nome: nome.length > 30 ? nome.substring(0, 28) + '…' : nome, nomeCompleto: nome, qtd }))
+      .sort((a, b) => b.qtd - a.qtd)
+      .slice(0, 20);
+  }, [osComXml]);
+
+  // ── Chart: Top 20 Fornecedores por valor total ───────────────────────────
+  const top20FornecedoresValor = useMemo(() => {
+    const map = {};
+    osComXml.forEach(os => {
+      const nome = os.nfe_dados_emissor?.xNome || os.nfe_dados_emissor?.razao_social || 'Desconhecido';
+      const valor = (os.nfe_itens_conferencia || []).reduce((s, i) => s + (parseFloat(i.valor_total || i.vProd || 0)), 0);
+      map[nome] = (map[nome] || 0) + valor;
+    });
+    return Object.entries(map)
+      .map(([nome, valor]) => ({ nome: nome.length > 30 ? nome.substring(0, 28) + '…' : nome, nomeCompleto: nome, valor: parseFloat(valor.toFixed(2)) }))
+      .sort((a, b) => b.valor - a.valor)
+      .slice(0, 20);
+  }, [osComXml]);
+
+  // ── Chart: NF por UF de Origem ────────────────────────────────────────────
+  const nfPorUfOrigem = useMemo(() => {
+    const map = {};
+    osComXml.forEach(os => {
+      const uf = os.nfe_dados_emissor?.UF || os.nfe_dados_emissor?.uf || 'N/D';
+      map[uf] = (map[uf] || 0) + 1;
+    });
+    return Object.entries(map).map(([uf, qtd]) => ({ name: uf, value: qtd })).sort((a, b) => b.value - a.value);
+  }, [osComXml]);
+
+  // ── Chart: NF por UF de Destino ──────────────────────────────────────────
+  const nfPorUfDestino = useMemo(() => {
+    const map = {};
+    osComXml.forEach(os => {
+      const uf = os.nfe_dados_destinatario?.UF || os.nfe_dados_destinatario?.uf || 'N/D';
+      map[uf] = (map[uf] || 0) + 1;
+    });
+    return Object.entries(map).map(([uf, qtd]) => ({ name: uf, value: qtd })).sort((a, b) => b.value - a.value);
+  }, [osComXml]);
+
+  const UF_COLORS = [
+    '#0000FF','#3B5BDB','#4C6EF5','#748FFC','#91A7FF',
+    '#0C8599','#15AABF','#22B8CF','#3BC9DB','#66D9E8',
+    '#2F9E44','#40C057','#51CF66','#69DB7C','#8CE99A',
+    '#E67700','#F59F00','#FAB005','#FCC419','#FFD43B',
+    '#C92A2A','#E03131','#F03E3E','#FA5252','#FF6B6B',
+    '#862E9C','#9C36B5','#AE3EC9','#BE4BDB','#CC5DE8',
+  ];
+
+  const fmtValor = (v) => {
+    if (v >= 1_000_000) return `R$ ${(v / 1_000_000).toFixed(1)}M`;
+    if (v >= 1_000) return `R$ ${(v / 1_000).toFixed(0)}k`;
+    return `R$ ${v.toFixed(0)}`;
+  };
+
   // ── Chart: Ranking Problemas ──────────────────────────────────────────────
   const problemasChartData = useMemo(() => {
     const pMap = {};
@@ -656,6 +724,117 @@ export default function PainelRecebimento({
           </>
         )}
       </div>
+
+      {/* ── Gráficos de Fornecedores e UF (apenas OS com XML) ── */}
+      {osComXml.length > 0 && (
+        <div className="space-y-6">
+          <p className="text-xs text-slate-500 italic">
+            Gráficos abaixo consideram apenas as {osComXml.length} OS de recebimento com XML importado.
+          </p>
+
+          {/* Top 20 Fornecedores por Qtd NF + por Valor */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            {/* Qtd */}
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <SectionHeader title="Top 20 Fornecedores — Quantidade de NF" />
+              {top20FornecedoresQtd.length === 0 ? EMPTY : (
+                <ResponsiveContainer width="100%" height={Math.max(300, top20FornecedoresQtd.length * 30)}>
+                  <BarChart data={top20FornecedoresQtd} layout="vertical"
+                    margin={{ top: 5, right: 50, left: 10, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
+                    <XAxis type="number" tick={{ fill: '#64748b', fontSize: 11 }} allowDecimals={false} />
+                    <YAxis type="category" dataKey="nome" tick={{ fill: '#64748b', fontSize: 11 }} width={160} />
+                    <Tooltip
+                      contentStyle={TOOLTIP_STYLE}
+                      labelFormatter={(l, p) => p?.[0]?.payload?.nomeCompleto || l}
+                      formatter={v => [v, 'Notas Fiscais']}
+                    />
+                    <Bar dataKey="qtd" radius={[0, 4, 4, 0]}>
+                      {top20FornecedoresQtd.map((_, i) => (
+                        <Cell key={i} fill={`hsl(220, 80%, ${Math.round(75 - i * 2.5)}%)`} />
+                      ))}
+                      <LabelList dataKey="qtd" position="right"
+                        style={{ fill: '#475569', fontSize: 11, fontWeight: 600 }} />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+
+            {/* Valor */}
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <SectionHeader title="Top 20 Fornecedores — Valor Total (R$)" />
+              {top20FornecedoresValor.length === 0 ? EMPTY : (
+                <ResponsiveContainer width="100%" height={Math.max(300, top20FornecedoresValor.length * 30)}>
+                  <BarChart data={top20FornecedoresValor} layout="vertical"
+                    margin={{ top: 5, right: 80, left: 10, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
+                    <XAxis type="number" tick={{ fill: '#64748b', fontSize: 11 }}
+                      tickFormatter={fmtValor} />
+                    <YAxis type="category" dataKey="nome" tick={{ fill: '#64748b', fontSize: 11 }} width={160} />
+                    <Tooltip
+                      contentStyle={TOOLTIP_STYLE}
+                      labelFormatter={(l, p) => p?.[0]?.payload?.nomeCompleto || l}
+                      formatter={v => [new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v), 'Valor Total']}
+                    />
+                    <Bar dataKey="valor" radius={[0, 4, 4, 0]}>
+                      {top20FornecedoresValor.map((_, i) => (
+                        <Cell key={i} fill={`hsl(160, 65%, ${Math.round(68 - i * 2.2)}%)`} />
+                      ))}
+                      <LabelList dataKey="valor" position="right"
+                        formatter={fmtValor}
+                        style={{ fill: '#475569', fontSize: 10, fontWeight: 600 }} />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+
+          {/* Rosca UF Origem + Destino */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {[
+              { title: 'NF por UF de Origem (Emissor)', data: nfPorUfOrigem },
+              { title: 'NF por UF de Destino (Destinatário)', data: nfPorUfDestino },
+            ].map(({ title, data }) => (
+              <div key={title} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                <SectionHeader title={title} />
+                {data.length === 0 ? EMPTY : (
+                  <div className="flex flex-col lg:flex-row items-center gap-4">
+                    <div className="shrink-0">
+                      <ResponsiveContainer width={200} height={200}>
+                        <PieChart>
+                          <Pie data={data} cx="50%" cy="50%" innerRadius={60} outerRadius={90}
+                            paddingAngle={2} dataKey="value">
+                            {data.map((_, i) => (
+                              <Cell key={i} fill={UF_COLORS[i % UF_COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v, n) => [v, `UF: ${n}`]} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="flex-1 grid grid-cols-2 gap-1 w-full">
+                      {data.map((e, i) => (
+                        <div key={e.name} className="flex items-center gap-1.5 text-xs py-1 px-2 rounded-lg"
+                          style={{ backgroundColor: `${UF_COLORS[i % UF_COLORS.length]}18` }}>
+                          <div className="w-2.5 h-2.5 rounded-full shrink-0"
+                            style={{ backgroundColor: UF_COLORS[i % UF_COLORS.length] }} />
+                          <span className="font-semibold text-slate-700 dark:text-slate-300 w-7">{e.name}</span>
+                          <span className="text-slate-500">{e.value} NF</span>
+                          <span className="text-slate-400 ml-auto">
+                            {osComXml.length > 0 ? Math.round(e.value / osComXml.length * 100) : 0}%
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── Tabela de Dados dos Indicadores ── */}
       {(() => {
