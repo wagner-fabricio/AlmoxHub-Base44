@@ -354,7 +354,7 @@ export default function PainelRecebimento({
     const map = {};
     osComXml.forEach(os => {
       const nome = os.nfe_dados_emissor?.xNome || os.nfe_dados_emissor?.razao_social || 'Desconhecido';
-      const valor = (os.nfe_itens_conferencia || []).reduce((s, i) => s + (parseFloat(i.valor_total || i.vProd || 0)), 0);
+      const valor = (os.nfe_itens_conferencia || []).reduce((s, i) => s + ((parseFloat(i.quantidade_esperada) || 0) * (parseFloat(i.valor_unitario) || 0)), 0);
       map[nome] = (map[nome] || 0) + valor;
     });
     return Object.entries(map)
