@@ -6,7 +6,6 @@ import { Calendar, User, Paperclip, MessageSquare, AlertTriangle, Clock, Package
 import { format, isPast, isToday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import RotuloBadges from '@/components/rotulos/RotuloBadges';
-import TimeSheetButton from '@/components/timesheet/TimeSheetButton';
 
 const prioridadeConfig = {
   baixa: { color: 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300', label: 'Baixa' },
@@ -29,7 +28,7 @@ const parseLocalDate = (str) => {
   return new Date(y, m - 1, d);
 };
 
-export default function OSCard({ os, onClick, lider, categoria, regional, instalacoes, rotulos = [], currentPessoa }) {
+export default function OSCard({ os, onClick, lider, categoria, regional, instalacoes, rotulos = [] }) {
   const prazoDate = parseLocalDate(os.prazo);
   const isOverdue = prazoDate && isPast(prazoDate) && os.status !== 'concluido';
   const isDueToday = prazoDate && isToday(prazoDate);
@@ -44,11 +43,8 @@ export default function OSCard({ os, onClick, lider, categoria, regional, instal
 
   return (
     <Card 
-      className="p-4 cursor-pointer hover:shadow-lg transition-all duration-200 border-2 group"
-      style={{
-        borderColor: getBorderColor(),
-        backgroundColor: os.timesheet_status === 'playing' ? 'rgba(251, 191, 36, 0.08)' : undefined,
-      }}
+      className="p-4 cursor-pointer hover:shadow-lg transition-all duration-200 border-2 bg-white dark:bg-slate-800 group"
+      style={{ borderColor: getBorderColor() }}
       onClick={() => onClick?.(os)}
     >
       {/* Badge Global */}
@@ -177,19 +173,6 @@ export default function OSCard({ os, onClick, lider, categoria, regional, instal
               <span className="font-medium text-slate-900 dark:text-white">{os.numero_v360}</span>
             </div>
           )}
-        </div>
-      )}
-
-      {/* TimeSheet Button */}
-      {currentPessoa && (
-        <div className="mb-3" onClick={e => e.stopPropagation()}>
-          <TimeSheetButton
-            os={os}
-            currentPessoa={currentPessoa}
-            size="xs"
-            showTimer={true}
-            stopOnConcluido={true}
-          />
         </div>
       )}
 

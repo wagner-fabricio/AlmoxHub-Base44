@@ -82,14 +82,10 @@ export default function TimeSheetButton({
     try {
       const action = euEstajoPlaying ? 'pause' : 'play';
 
-      // Timeout de 15s para não travar em caso de falha de rede
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Tempo limite excedido. Tente novamente.')), 15000)
-      );
-      const response = await Promise.race([
-        base44.functions.invoke('registrarTimeSheet', { action, os_id: os.id }),
-        timeoutPromise
-      ]);
+      const response = await base44.functions.invoke('registrarTimeSheet', {
+        action,
+        os_id: os.id
+      });
 
       if (response.data?.success) {
         // Atualizar estado local otimisticamente

@@ -528,7 +528,6 @@ export default function OrdensServico() {
                   instalacoes={instalacoes}
                   onOSClick={handleOSClick}
                   onStatusChange={handleStatusChange}
-                  currentPessoa={currentPessoa}
                 />
               )}
               {viewMode === 'kanban_expedicao' && (
@@ -699,7 +698,6 @@ export default function OrdensServico() {
               instalacoes={instalacoes}
               onOSClick={handleOSClick}
               onStatusChange={handleStatusChange}
-              currentPessoa={currentPessoa}
             />
           )}
           {viewMode === 'kanban_expedicao' && (
