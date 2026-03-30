@@ -46,7 +46,8 @@ export default function OrdensServico() {
     visao: 'todos',
     periodo: 'all',
     dataInicio: '',
-    dataFim: ''
+    dataFim: '',
+    pessoa_id: ''
   });
 
   // Debounced text filters — só recalcular filtros após parar de digitar
@@ -655,6 +656,7 @@ export default function OrdensServico() {
         almoxarifados={almoxarifados}
         categorias={categorias}
         subcategorias={subcategorias}
+        pessoas={pessoas}
         viewMode={viewMode}
         setViewMode={setViewMode}
         isExpedicaoView={viewMode === 'kanban_expedicao'}
@@ -681,7 +683,15 @@ export default function OrdensServico() {
       ) : viewMode === 'timesheet' ? (
         <div className="space-y-2">
           <OSTimeSheetView
-            osEmPlay={filteredOrdens.filter(o => o.timesheet_status === 'playing')}
+            osEmPlay={filteredOrdens.filter(o => {
+              if (o.timesheet_status !== 'playing') return false;
+              if (filters.pessoa_id) {
+                return (o.timesheet_sessoes_ativas || []).some(s => s.pessoa_id === filters.pessoa_id) ||
+                  o.lider_id === filters.pessoa_id ||
+                  (o.executores_ids || []).includes(filters.pessoa_id);
+              }
+              return true;
+            })}
             pessoas={pessoas}
             categorias={categorias}
             subcategorias={subcategorias}
@@ -691,7 +701,7 @@ export default function OrdensServico() {
         </div>
       ) : viewMode === 'timesheet_relatorio' ? (
         <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-          <OSTimeSheetRelatorio pessoas={pessoas} categorias={categorias} subcategorias={subcategorias} almoxarifados={almoxarifados} ordens={ordens} />
+          <OSTimeSheetRelatorio pessoas={pessoas} categorias={categorias} subcategorias={subcategorias} almoxarifados={almoxarifados} ordens={ordens} filters={filters} />
         </div>
       ) : filteredOrdens.length === 0 ? (
         <div className="bg-white dark:bg-slate-800 rounded-2xl p-12 text-center">

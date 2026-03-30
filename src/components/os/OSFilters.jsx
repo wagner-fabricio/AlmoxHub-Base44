@@ -29,6 +29,7 @@ export default function OSFilters({
   almoxarifados,
   categorias,
   subcategorias,
+  pessoas,
   viewMode,
   setViewMode,
   isExpedicaoView = false,
@@ -63,7 +64,8 @@ export default function OSFilters({
       visao: 'todos',
       periodo: 'all',
       dataInicio: '',
-      dataFim: ''
+      dataFim: '',
+      pessoa_id: ''
     });
   };
 
@@ -78,7 +80,8 @@ export default function OSFilters({
     filters.subcategoria !== 'all' ||
     filters.status !== 'all' ||
     filters.statusList?.length > 0 ||
-    filters.periodo !== 'all';
+    filters.periodo !== 'all' ||
+    filters.pessoa_id;
 
   const filteredSubcategorias = !filters.categorias || filters.categorias.length === 0
     ? subcategorias 
@@ -331,6 +334,23 @@ export default function OSFilters({
               <SelectItem value="customizado">Customizado</SelectItem>
             </SelectContent>
           </Select>
+
+          {(viewMode === 'timesheet' || viewMode === 'timesheet_relatorio') && pessoas?.length > 0 && (
+            <Select
+              value={filters.pessoa_id || 'all'}
+              onValueChange={(v) => setFilters({ ...filters, pessoa_id: v === 'all' ? '' : v })}
+            >
+              <SelectTrigger className="bg-slate-50 dark:bg-slate-900 text-sm">
+                <SelectValue placeholder="Pessoa" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas as pessoas</SelectItem>
+                {(pessoas || []).filter(p => p).sort((a,b) => a.nome.localeCompare(b.nome)).map((p) => (
+                  <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
 
           {hasActiveFilters && (
             <Button 

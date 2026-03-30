@@ -3,59 +3,48 @@ import { base44 } from '@/api/base44Client';
 import { formatarTempo } from './TimeSheetButton';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Clock, Filter, ChevronDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Clock, ChevronDown } from 'lucide-react';
 
-const PERIODOS = [
-  { label: 'Hoje', value: 'hoje' },
-  { label: 'Esta semana', value: 'semana' },
-  { label: 'Este mês', value: 'mes' },
-  { label: 'Mês passado', value: 'mes_passado' },
-  { label: 'Todos', value: 'todos' },
-];
-
-export default function OSTimeSheetRelatorio({ pessoas, categorias, subcategorias, almoxarifados, ordens }) {
+export default function OSTimeSheetRelatorio({ pessoas, categorias, subcategorias, almoxarifados, ordens, filters }) {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filtro, setFiltro] = useState({ periodo: 'mes', pessoa_id: '', os_id: '' });
-  const [pesquisaOS, setPesquisaOS] = useState('');
+
+  // Derivar período dos filtros principais
+  const periodo = filters?.periodo || 'all';
 
   useEffect(() => {
     carregarEntries();
-  }, [filtro.periodo]);
+  }, [periodo]);
 
   const carregarEntries = async () => {
     setLoading(true);
     try {
       const agora = new Date();
       let dataInicio = null;
+      let dataFim = null;
 
-      if (filtro.periodo === 'hoje') {
+      if (periodo === 'hoje') {
         dataInicio = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate()).toISOString();
-      } else if (filtro.periodo === 'semana') {
-        const d = new Date(agora);
-        d.setDate(d.getDate() - 7);
+      } else if (periodo === '7') {
+        const d = new Date(agora); d.setDate(d.getDate() - 7);
         dataInicio = d.toISOString();
-      } else if (filtro.periodo === 'mes') {
+      } else if (periodo === '30') {
+        const d = new Date(agora); d.setDate(d.getDate() - 30);
+        dataInicio = d.toISOString();
+      } else if (periodo === '90') {
+        const d = new Date(agora); d.setDate(d.getDate() - 90);
+        dataInicio = d.toISOString();
+      } else if (periodo === 'mes_atual') {
         dataInicio = startOfMonth(agora).toISOString();
-      } else if (filtro.periodo === 'mes_passado') {
-        const mesPassado = subMonths(agora, 1);
-        dataInicio = startOfMonth(mesPassado).toISOString();
+      } else if (periodo === 'customizado') {
+        if (filters?.dataInicio) dataInicio = new Date(filters.dataInicio).toISOString();
+        if (filters?.dataFim) { const d = new Date(filters.dataFim); d.setHours(23,59,59,999); dataFim = d.toISOString(); }
       }
 
-      // Buscar entradas fechadas
       const data = await base44.entities.TimeSheetEntry.filter({ status: 'closed' }, '-inicio', 500);
       let filtered = data || [];
-
-      if (dataInicio) {
-        filtered = filtered.filter(e => e.inicio >= dataInicio);
-        if (filtro.periodo === 'mes_passado') {
-          const mesPassado = subMonths(new Date(), 1);
-          const fimMes = endOfMonth(mesPassado).toISOString();
-          filtered = filtered.filter(e => e.inicio <= fimMes);
-        }
-      }
+      if (dataInicio) filtered = filtered.filter(e => e.inicio >= dataInicio);
+      if (dataFim) filtered = filtered.filter(e => e.inicio <= dataFim);
 
       setEntries(filtered);
     } catch (err) {
@@ -65,18 +54,29 @@ export default function OSTimeSheetRelatorio({ pessoas, categorias, subcategoria
     }
   };
 
-  // Filtros locais (pessoa, OS)
+  // Aplicar filtros principais nas entries/OS
+  const pessoaFiltroId = filters?.pessoa_id || '';
+  const searchLower = filters?.search?.toLowerCase() || '';
+
   const entriesFiltradas = entries.filter(e => {
-    if (filtro.pessoa_id && e.pessoa_id !== filtro.pessoa_id) return false;
-    if (pesquisaOS && !e.os_codigo?.toLowerCase().includes(pesquisaOS.toLowerCase())) return false;
+    if (pessoaFiltroId && e.pessoa_id !== pessoaFiltroId) return false;
     return true;
   });
 
-  // Consolidar por OS
+  // Consolidar por OS, aplicando filtros de regional/almoxarifado/categoria/busca
   const porOS = {};
   for (const e of entriesFiltradas) {
     if (!porOS[e.os_id]) {
       const os = (ordens || []).find(o => o.id === e.os_id);
+      // Aplicar filtros de OS
+      if (os) {
+        if (filters?.regional && filters.regional !== 'all' && os.regional_id !== filters.regional) continue;
+        if (filters?.almoxarifado && filters.almoxarifado !== 'all' && os.almoxarifado_id !== filters.almoxarifado) continue;
+        if (filters?.categorias?.length > 0 && !filters.categorias.includes(os.categoria_id)) continue;
+        if (filters?.statusList?.length > 0 && !filters.statusList.includes(os.status)) continue;
+        if (filters?.status && filters.status !== 'all' && os.status !== filters.status) continue;
+        if (searchLower && !os.codigo?.toLowerCase().includes(searchLower) && !os.descricao_resumida?.toLowerCase().includes(searchLower)) continue;
+      }
       porOS[e.os_id] = { os_id: e.os_id, os_codigo: e.os_codigo, os, total_minutos: 0, sessoes: 0, pessoas: new Set() };
     }
     porOS[e.os_id].total_minutos += e.duracao_minutos || 0;
@@ -85,44 +85,17 @@ export default function OSTimeSheetRelatorio({ pessoas, categorias, subcategoria
   }
 
   const listaOS = Object.values(porOS).sort((a, b) => b.total_minutos - a.total_minutos);
-  const totalGeral = entriesFiltradas.reduce((s, e) => s + (e.duracao_minutos || 0), 0);
-
-  const pessoasFiltro = [...new Set(entries.map(e => e.pessoa_id))]
-    .map(id => ({ id, nome: entries.find(e => e.pessoa_id === id)?.pessoa_nome || id }));
+  const totalGeral = Object.values(porOS).reduce((s, item) => s + item.total_minutos, 0);
+  const totalSessoes = Object.values(porOS).reduce((s, item) => s + item.sessoes, 0);
 
   return (
     <div className="space-y-5">
-      {/* Filtros */}
-      <div className="flex flex-wrap items-center gap-3">
-        <Select value={filtro.periodo} onValueChange={v => setFiltro(f => ({ ...f, periodo: v }))}>
-          <SelectTrigger className="w-36 h-8 text-xs"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            {PERIODOS.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
-          </SelectContent>
-        </Select>
-
-        <Select value={filtro.pessoa_id} onValueChange={v => setFiltro(f => ({ ...f, pessoa_id: v === '_todos' ? '' : v }))}>
-          <SelectTrigger className="w-44 h-8 text-xs"><SelectValue placeholder="Todas as pessoas" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="_todos">Todas as pessoas</SelectItem>
-            {pessoasFiltro.map(p => <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>)}
-          </SelectContent>
-        </Select>
-
-        <input
-          type="text"
-          placeholder="Filtrar por código OS..."
-          value={pesquisaOS}
-          onChange={e => setPesquisaOS(e.target.value)}
-          className="h-8 px-3 text-xs border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-        />
-
-        <div className="ml-auto flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-          <Clock className="w-4 h-4" />
-          <span>Total: <strong className="text-slate-900 dark:text-white">{formatarTempo(totalGeral)}</strong></span>
-          <span className="text-slate-400">|</span>
-          <span>{listaOS.length} OS · {entriesFiltradas.length} sessões</span>
-        </div>
+      {/* Totalizador */}
+      <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+        <Clock className="w-4 h-4" />
+        <span>Total: <strong className="text-slate-900 dark:text-white">{formatarTempo(totalGeral)}</strong></span>
+        <span className="text-slate-400">|</span>
+        <span>{listaOS.length} OS · {totalSessoes} sessões</span>
       </div>
 
       {/* Tabela consolidada por OS */}
