@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { formatarTempo } from './TimeSheetButton';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Radio, Clock, Building2, Users, Calendar, AlertCircle, Tag, FileText, BarChart2, Play } from 'lucide-react';
+import { Radio, Clock, Building2, Users, Calendar, AlertCircle, Tag, FileText, BarChart2, Play, ChevronDown, ChevronRight } from 'lucide-react';
 
 const minutosDesde = (inicio) => {
   if (!inicio) return 0;
@@ -10,21 +10,22 @@ const minutosDesde = (inicio) => {
 };
 
 const prioridadeConfig = {
-  baixa:   { label: 'Baixa',   color: 'bg-slate-100 text-slate-600' },
-  media:   { label: 'Média',   color: 'bg-blue-100 text-blue-700' },
-  alta:    { label: 'Alta',    color: 'bg-amber-100 text-amber-700' },
-  urgente: { label: 'Urgente', color: 'bg-red-100 text-red-700' },
+  baixa:   { label: 'Baixa',   color: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300' },
+  media:   { label: 'Média',   color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' },
+  alta:    { label: 'Alta',    color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' },
+  urgente: { label: 'Urgente', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' },
 };
 
 const statusConfig = {
-  elaboracao: { label: 'Em Elaboração', color: 'bg-slate-100 text-slate-600' },
-  execucao:   { label: 'Em Execução',   color: 'bg-blue-100 text-blue-700' },
-  concluido:  { label: 'Concluído',     color: 'bg-green-100 text-green-700' },
-  cancelado:  { label: 'Cancelado',     color: 'bg-red-100 text-red-700' },
+  elaboracao: { label: 'Em Elaboração', color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300' },
+  execucao:   { label: 'Em Execução',   color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' },
+  concluido:  { label: 'Concluído',     color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' },
+  cancelado:  { label: 'Cancelado',     color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' },
 };
 
 export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxarifados, subcategorias, onClickOS }) {
   const [tick, setTick] = useState(0);
+  const [expandedPessoas, setExpandedPessoas] = useState({});
 
   useEffect(() => {
     const interval = setInterval(() => setTick(t => t + 1), 60000);
@@ -41,33 +42,48 @@ export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxar
     );
   }
 
-  const pessoasComSessao = new Set();
-  osEmPlay.forEach(os => (os.timesheet_sessoes_ativas || []).forEach(s => pessoasComSessao.add(s.pessoa_id)));
-
+  // Todos os envolvidos de uma OS (líder + executores + sessões ativas)
   const getEnvolvidos = (os) => {
     const ids = new Set();
     if (os.lider_id) ids.add(os.lider_id);
     (os.executores_ids || []).forEach(id => ids.add(id));
     (os.timesheet_sessoes_ativas || []).forEach(s => ids.add(s.pessoa_id));
     return Array.from(ids).map(id => {
-      const pessoa = (pessoas || []).find(p => p.id === id);
+      const p = (pessoas || []).find(x => x.id === id);
       const sessaoAtiva = (os.timesheet_sessoes_ativas || []).find(s => s.pessoa_id === id);
-      return { id, nome: pessoa?.nome || 'Desconhecido', foto: pessoa?.foto_perfil, sessaoAtiva };
+      return { id, nome: p?.nome || 'Desconhecido', foto: p?.foto_perfil, sessaoAtiva };
     });
   };
 
-  // Horário de início mais antigo das sessões ativas (quando o play foi dado)
+  // Horário de início mais antigo das sessões ativas
   const getInicioPlay = (os) => {
     const sessoes = os.timesheet_sessoes_ativas || [];
     if (!sessoes.length) return null;
     const datas = sessoes.map(s => new Date(s.inicio)).filter(d => !isNaN(d));
-    if (!datas.length) return null;
-    return new Date(Math.min(...datas.map(d => d.getTime())));
+    return datas.length ? new Date(Math.min(...datas.map(d => d.getTime()))) : null;
   };
 
+  // Agrupamento por pessoa (todos os envolvidos)
+  const porPessoa = {};
+  for (const os of osEmPlay) {
+    const envolvidos = getEnvolvidos(os);
+    for (const env of envolvidos) {
+      if (!porPessoa[env.id]) {
+        porPessoa[env.id] = { nome: env.nome, foto: env.foto, temSessaoAtiva: false, osList: [] };
+      }
+      if (env.sessaoAtiva) porPessoa[env.id].temSessaoAtiva = true;
+      porPessoa[env.id].osList.push(os);
+    }
+  }
+
+  const pessoasComSessao = new Set();
+  osEmPlay.forEach(os => (os.timesheet_sessoes_ativas || []).forEach(s => pessoasComSessao.add(s.pessoa_id)));
+
+  const togglePessoa = (id) => setExpandedPessoas(prev => ({ ...prev, [id]: !prev[id] }));
+
   return (
-    <div className="space-y-4">
-      {/* Header ao vivo */}
+    <div className="space-y-6">
+      {/* Badge ao vivo */}
       <div className="flex items-center gap-3">
         <span className="flex items-center gap-1.5 px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full text-xs font-semibold">
           <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
@@ -78,136 +94,186 @@ export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxar
         </span>
       </div>
 
-      {/* Lista de OS */}
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-700 overflow-hidden">
-        {osEmPlay.map(os => {
-          const cat = categorias?.find(c => c.id === os.categoria_id);
-          const almox = almoxarifados?.find(a => a.id === os.almoxarifado_id);
-          const subcats = (subcategorias || []).filter(s => (os.subcategorias_ids || []).includes(s.id));
-          const sessoes = os.timesheet_sessoes_ativas || [];
-          const minutosCorrente = sessoes.length > 0 ? Math.max(...sessoes.map(s => minutosDesde(s.inicio))) : 0;
-          const totalMins = (os.timesheet_total_minutos || 0) + minutosCorrente;
-          const envolvidos = getEnvolvidos(os);
-          const prio = prioridadeConfig[os.prioridade];
-          const stat = statusConfig[os.status];
-          const inicioPlay = getInicioPlay(os);
+      {/* ── TABELA DE OS ── */}
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="px-5 py-3 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+          <h3 className="font-bold text-slate-900 dark:text-white text-base">OS em Andamento</h3>
+          <span className="px-2.5 py-1 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 text-xs font-semibold rounded-full">{osEmPlay.length} OS</span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs border-collapse">
+            <thead>
+              <tr className="bg-slate-50 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300">
+                <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-left w-32">Código</th>
+                <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-left w-28">Status</th>
+                <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-left w-28">Prioridade</th>
+                <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-left w-32">Categoria</th>
+                <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-left">Subcategoria</th>
+                <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-left">Descrição</th>
+                <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-left w-24 hidden md:table-cell">Almoxarifado</th>
+                <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-center w-28">Início Prazo</th>
+                <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-center w-28">Prazo</th>
+                <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-center w-36">Play em</th>
+                <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-right w-24">Tempo Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {osEmPlay.map((os, idx) => {
+                const cat = categorias?.find(c => c.id === os.categoria_id);
+                const almox = almoxarifados?.find(a => a.id === os.almoxarifado_id);
+                const subcats = (subcategorias || []).filter(s => (os.subcategorias_ids || []).includes(s.id));
+                const sessoes = os.timesheet_sessoes_ativas || [];
+                const minutosCorrente = sessoes.length > 0 ? Math.max(...sessoes.map(s => minutosDesde(s.inicio))) : 0;
+                const totalMins = (os.timesheet_total_minutos || 0) + minutosCorrente;
+                const inicioPlay = getInicioPlay(os);
+                const stat = statusConfig[os.status];
+                const prio = prioridadeConfig[os.prioridade];
 
-          return (
-            <div
-              key={os.id}
-              onClick={() => onClickOS?.(os)}
-              className="flex flex-col md:flex-row md:items-start gap-4 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors"
-            >
-              {/* Coluna esquerda: código + tempo */}
-              <div className="flex items-start gap-3 min-w-0 md:w-56 shrink-0">
-                <span className="w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse mt-1.5 shrink-0" />
-                <div className="min-w-0">
-                  <p className="font-mono text-xs text-slate-500 dark:text-slate-400">{os.codigo}</p>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">{cat?.nome || 'OS'}</p>
-                  <div className="flex items-center gap-1 mt-1 text-amber-600 dark:text-amber-400 font-bold text-sm">
-                    <Clock className="w-3.5 h-3.5" />
-                    {formatarTempo(totalMins)}
-                  </div>
-                  {inicioPlay && (
-                    <div className="flex items-center gap-1 mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-                      <Play className="w-3 h-3" />
-                      {format(inicioPlay, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Coluna central: detalhes */}
-              <div className="flex-1 min-w-0 space-y-2">
-                {/* Badges */}
-                <div className="flex flex-wrap gap-1.5">
-                  {stat && (
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${stat.color}`}>{stat.label}</span>
-                  )}
-                  {prio && (
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${prio.color}`}>{prio.label}</span>
-                  )}
-                  {os.complexidade && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
-                      <BarChart2 className="w-3 h-3" />{os.complexidade}
-                    </span>
-                  )}
-                  {subcats.map(s => (
-                    <span key={s.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
-                      <Tag className="w-3 h-3" />{s.nome}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Descrição */}
-                {os.descricao_resumida && (
-                  <p className="text-sm text-slate-700 dark:text-slate-300 flex gap-1.5">
-                    <FileText className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
-                    <span className="line-clamp-2">{os.descricao_resumida}</span>
-                  </p>
-                )}
-
-                {/* Anotações */}
-                {os.anotacoes && (
-                  <p className="text-xs text-slate-500 dark:text-slate-400 flex gap-1.5 italic">
-                    <FileText className="w-3 h-3 shrink-0 mt-0.5" />
-                    <span className="line-clamp-1">{os.anotacoes}</span>
-                  </p>
-                )}
-
-                {/* Meta info: almoxarifado, datas, progresso */}
-                <div className="flex flex-wrap gap-3 text-xs text-slate-500 dark:text-slate-400">
-                  {almox && (
-                    <span className="flex items-center gap-1"><Building2 className="w-3 h-3" />{almox.nome}</span>
-                  )}
-                  {os.data_inicial && (
-                    <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />Início: {format(new Date(os.data_inicial + 'T12:00:00'), 'dd/MM/yyyy')}</span>
-                  )}
-                  {os.prazo && (
-                    <span className="flex items-center gap-1"><AlertCircle className="w-3 h-3" />Prazo: {format(new Date(os.prazo + 'T12:00:00'), 'dd/MM/yyyy')}</span>
-                  )}
-                  {os.progresso > 0 && (
-                    <span className="flex items-center gap-1.5">
-                      <div className="w-16 h-1.5 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
-                        <div className="h-full bg-blue-500 rounded-full" style={{ width: `${os.progresso}%` }} />
+                return (
+                  <tr
+                    key={os.id}
+                    onClick={() => onClickOS?.(os)}
+                    className={`border-b border-slate-100 dark:border-slate-700/50 cursor-pointer hover:bg-amber-50/40 dark:hover:bg-amber-900/10 transition-colors ${idx % 2 !== 0 ? 'bg-slate-50/40 dark:bg-slate-700/20' : ''}`}
+                  >
+                    <td className="px-3 py-2.5 whitespace-nowrap">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse shrink-0" />
+                        <span className="font-mono text-blue-600 dark:text-blue-400 font-semibold">{os.codigo}</span>
                       </div>
-                      {os.progresso}%
-                    </span>
+                    </td>
+                    <td className="px-3 py-2.5 whitespace-nowrap">
+                      {stat && <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${stat.color}`}>{stat.label}</span>}
+                    </td>
+                    <td className="px-3 py-2.5 whitespace-nowrap">
+                      {prio && <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${prio.color}`}>{prio.label}</span>}
+                    </td>
+                    <td className="px-3 py-2.5 text-slate-700 dark:text-slate-300 whitespace-nowrap">{cat?.nome || '—'}</td>
+                    <td className="px-3 py-2.5 max-w-[140px] truncate text-slate-600 dark:text-slate-400" title={subcats.map(s => s.nome).join(', ')}>
+                      {subcats.length ? subcats.map(s => s.nome).join(', ') : '—'}
+                    </td>
+                    <td className="px-3 py-2.5 max-w-[200px] truncate text-slate-600 dark:text-slate-400" title={os.descricao_resumida}>
+                      {os.descricao_resumida || '—'}
+                    </td>
+                    <td className="px-3 py-2.5 text-slate-600 dark:text-slate-400 hidden md:table-cell whitespace-nowrap">{almox?.nome || '—'}</td>
+                    <td className="px-3 py-2.5 text-center text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                      {os.data_inicial ? format(new Date(os.data_inicial + 'T12:00:00'), 'dd/MM/yyyy') : '—'}
+                    </td>
+                    <td className="px-3 py-2.5 text-center text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                      {os.prazo ? format(new Date(os.prazo + 'T12:00:00'), 'dd/MM/yyyy') : '—'}
+                    </td>
+                    <td className="px-3 py-2.5 text-center whitespace-nowrap text-slate-600 dark:text-slate-400">
+                      {inicioPlay ? format(inicioPlay, "dd/MM 'às' HH:mm", { locale: ptBR }) : '—'}
+                    </td>
+                    <td className="px-3 py-2.5 text-right font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap">
+                      {formatarTempo(totalMins)}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* ── AGRUPAMENTO POR PESSOA ── */}
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="px-5 py-3 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+          <h3 className="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
+            <Users className="w-4 h-4 text-slate-500" /> Por Colaborador
+          </h3>
+          <span className="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold rounded-full">
+            {Object.keys(porPessoa).length} envolvidos
+          </span>
+        </div>
+
+        <div className="divide-y divide-slate-100 dark:divide-slate-700">
+          {Object.entries(porPessoa)
+            .sort(([, a], [, b]) => (b.temSessaoAtiva ? 1 : 0) - (a.temSessaoAtiva ? 1 : 0))
+            .map(([pessoaId, dados]) => {
+              const isExpanded = expandedPessoas[pessoaId] !== false; // aberto por padrão
+              return (
+                <div key={pessoaId}>
+                  {/* Cabeçalho da pessoa */}
+                  <button
+                    className="w-full flex items-center gap-3 px-5 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors text-left"
+                    onClick={() => togglePessoa(pessoaId)}
+                  >
+                    {dados.foto ? (
+                      <img src={dados.foto} alt={dados.nome} className="w-8 h-8 rounded-full object-cover shrink-0" />
+                    ) : (
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0 ${dados.temSessaoAtiva ? 'bg-amber-500' : 'bg-slate-400'}`}>
+                        {dados.nome.charAt(0)}
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-sm text-slate-900 dark:text-white">{dados.nome}</span>
+                        {dados.temSessaoAtiva && (
+                          <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full text-xs font-medium">
+                            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
+                            em sessão
+                          </span>
+                        )}
+                        <span className="text-xs text-slate-400">{dados.osList.length} OS</span>
+                      </div>
+                    </div>
+                    {isExpanded
+                      ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
+                      : <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
+                    }
+                  </button>
+
+                  {/* OS da pessoa */}
+                  {isExpanded && (
+                    <div className="bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700">
+                      <table className="w-full text-xs border-collapse">
+                        <tbody>
+                          {dados.osList.map((os, idx) => {
+                            const cat = categorias?.find(c => c.id === os.categoria_id);
+                            const sessoes = os.timesheet_sessoes_ativas || [];
+                            const sessaoMinha = sessoes.find(s => s.pessoa_id === pessoaId);
+                            const minutosCorrente = sessaoMinha ? minutosDesde(sessaoMinha.inicio) : 0;
+                            const totalMins = (os.timesheet_total_minutos || 0) + minutosCorrente;
+                            const stat = statusConfig[os.status];
+                            const prio = prioridadeConfig[os.prioridade];
+                            const inicioPlay = sessaoMinha ? new Date(sessaoMinha.inicio) : null;
+
+                            return (
+                              <tr
+                                key={os.id}
+                                onClick={() => onClickOS?.(os)}
+                                className={`border-b border-slate-100 dark:border-slate-700/40 cursor-pointer hover:bg-amber-50/40 dark:hover:bg-amber-900/10 transition-colors ${idx % 2 !== 0 ? 'bg-white dark:bg-slate-800/30' : ''}`}
+                              >
+                                <td className="pl-16 pr-3 py-2.5 whitespace-nowrap">
+                                  <span className="font-mono text-blue-600 dark:text-blue-400 font-semibold">{os.codigo}</span>
+                                </td>
+                                <td className="px-3 py-2.5 whitespace-nowrap">
+                                  {stat && <span className={`inline-block px-2 py-0.5 rounded-full font-medium ${stat.color}`}>{stat.label}</span>}
+                                </td>
+                                <td className="px-3 py-2.5 whitespace-nowrap">
+                                  {prio && <span className={`inline-block px-2 py-0.5 rounded-full font-medium ${prio.color}`}>{prio.label}</span>}
+                                </td>
+                                <td className="px-3 py-2.5 text-slate-600 dark:text-slate-400 whitespace-nowrap">{cat?.nome || '—'}</td>
+                                <td className="px-3 py-2.5 max-w-[220px] truncate text-slate-600 dark:text-slate-400" title={os.descricao_resumida}>
+                                  {os.descricao_resumida || '—'}
+                                </td>
+                                <td className="px-3 py-2.5 text-center whitespace-nowrap text-slate-500 dark:text-slate-400">
+                                  {inicioPlay ? format(inicioPlay, "dd/MM 'às' HH:mm", { locale: ptBR }) : '—'}
+                                </td>
+                                <td className="px-3 py-2.5 text-right font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap pr-5">
+                                  {formatarTempo(totalMins)}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
                   )}
                 </div>
-              </div>
-
-              {/* Coluna direita: equipe */}
-              <div className="shrink-0">
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5 flex items-center gap-1">
-                  <Users className="w-3 h-3" /> Equipe
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {envolvidos.map(({ id, nome, foto, sessaoAtiva }) => (
-                    <div
-                      key={id}
-                      className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
-                        sessaoAtiva
-                          ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 ring-1 ring-amber-400'
-                          : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
-                      }`}
-                    >
-                      {foto ? (
-                        <img src={foto} alt={nome} className="w-4 h-4 rounded-full object-cover" />
-                      ) : (
-                        <div className={`w-4 h-4 rounded-full flex items-center justify-center text-white text-[9px] font-bold ${sessaoAtiva ? 'bg-amber-500' : 'bg-slate-400'}`}>
-                          {nome.charAt(0)}
-                        </div>
-                      )}
-                      {nome.split(' ')[0]}
-                      {sessaoAtiva && <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          );
-        })}
+              );
+            })}
+        </div>
       </div>
     </div>
   );
