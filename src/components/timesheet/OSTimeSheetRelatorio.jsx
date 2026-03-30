@@ -140,7 +140,6 @@ export default function OSTimeSheetRelatorio({ pessoas, categorias, subcategoria
               <tr>
                 <th className="text-left px-3 py-2.5 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">OS</th>
                 <th className="text-left px-3 py-2.5 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Descrição</th>
-                <th className="text-left px-3 py-2.5 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Anotações</th>
                 <th className="text-left px-3 py-2.5 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Categoria</th>
                 <th className="text-left px-3 py-2.5 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Subcategoria</th>
                 <th className="text-left px-3 py-2.5 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Almoxarifado</th>
@@ -162,7 +161,6 @@ export default function OSTimeSheetRelatorio({ pessoas, categorias, subcategoria
                   <tr key={item.os_id} className={`border-b border-slate-100 dark:border-slate-700/50 ${idx % 2 !== 0 ? 'bg-slate-50/40 dark:bg-slate-700/20' : ''}`}>
                     <td className="px-3 py-2 font-mono font-semibold text-blue-600 dark:text-blue-400 whitespace-nowrap">{item.os_codigo || item.os_id}</td>
                     <td className="px-3 py-2 max-w-[160px] truncate text-slate-600 dark:text-slate-400" title={os?.descricao_resumida}>{os?.descricao_resumida || '—'}</td>
-                    <td className="px-3 py-2 max-w-[160px] truncate text-slate-500 dark:text-slate-500 italic" title={os?.anotacoes}>{os?.anotacoes || '—'}</td>
                     <td className="px-3 py-2 text-slate-700 dark:text-slate-300 whitespace-nowrap">{cat?.nome || '—'}</td>
                     <td className="px-3 py-2 max-w-[120px] truncate text-slate-600 dark:text-slate-400">{subcats.length ? subcats.map(s => s.nome).join(', ') : '—'}</td>
                     <td className="px-3 py-2 text-slate-600 dark:text-slate-400 whitespace-nowrap">{almox?.nome || '—'}</td>
@@ -182,7 +180,7 @@ export default function OSTimeSheetRelatorio({ pessoas, categorias, subcategoria
             </tbody>
             <tfoot className="bg-slate-50 dark:bg-slate-700/50 border-t-2 border-slate-200 dark:border-slate-600">
               <tr>
-                <td colSpan={9} className="px-3 py-2.5 text-right text-xs font-semibold text-slate-700 dark:text-slate-300">Total geral:</td>
+                <td colSpan={8} className="px-3 py-2.5 text-right text-xs font-semibold text-slate-700 dark:text-slate-300">Total geral:</td>
                 <td className="px-3 py-2.5 text-right font-bold text-blue-600 dark:text-blue-400">{formatarTempo(totalGeral)}</td>
               </tr>
             </tfoot>
