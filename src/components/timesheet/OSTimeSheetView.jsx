@@ -245,7 +245,15 @@ export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxar
                                 className={`border-b border-slate-100 dark:border-slate-700/40 cursor-pointer hover:bg-amber-50/40 dark:hover:bg-amber-900/10 transition-colors ${idx % 2 !== 0 ? 'bg-white dark:bg-slate-800/30' : ''}`}
                               >
                                 <td className="pl-16 pr-3 py-2.5 whitespace-nowrap">
-                                  <span className="font-mono text-blue-600 dark:text-blue-400 font-semibold">{os.codigo}</span>
+                                  <div>
+                                    <span className="font-mono text-blue-600 dark:text-blue-400 font-semibold block">{os.codigo}</span>
+                                    {os.descricao_resumida && (
+                                      <span className="text-slate-600 dark:text-slate-400 block truncate max-w-[200px]" title={os.descricao_resumida}>{os.descricao_resumida}</span>
+                                    )}
+                                    {os.anotacoes && (
+                                      <span className="text-slate-400 dark:text-slate-500 block truncate max-w-[200px] italic" title={os.anotacoes}>{os.anotacoes}</span>
+                                    )}
+                                  </div>
                                 </td>
                                 <td className="px-3 py-2.5 whitespace-nowrap">
                                   {stat && <span className={`inline-block px-2 py-0.5 rounded-full font-medium ${stat.color}`}>{stat.label}</span>}
@@ -254,9 +262,6 @@ export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxar
                                   {prio && <span className={`inline-block px-2 py-0.5 rounded-full font-medium ${prio.color}`}>{prio.label}</span>}
                                 </td>
                                 <td className="px-3 py-2.5 text-slate-600 dark:text-slate-400 whitespace-nowrap">{cat?.nome || '—'}</td>
-                                <td className="px-3 py-2.5 max-w-[220px] truncate text-slate-600 dark:text-slate-400" title={os.descricao_resumida}>
-                                  {os.descricao_resumida || '—'}
-                                </td>
                                 <td className="px-3 py-2.5 text-center whitespace-nowrap text-slate-500 dark:text-slate-400">
                                   {inicioPlay ? format(inicioPlay, "dd/MM 'às' HH:mm", { locale: ptBR }) : '—'}
                                 </td>
