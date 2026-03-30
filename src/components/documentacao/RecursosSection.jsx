@@ -21,12 +21,8 @@ export default function RecursosSection() {
         'Anexos e imagens (upload via Base44)',
         'Comentários e menções (@pessoa)',
         'Histórico de alterações (audit log)',
-        'Visualizações: Lista, Kanban, Kanban Expedição, Kanban Recebimento, Galeria, Por Responsável',
-        'Filtros avançados: regional, almoxarifado, categoria, status, período',
-        '✨ TimeSheet integrado: controle de tempo por OS e por pessoa',
-        '✨ Visão "Ao Vivo": lista todas OS em andamento com quem está em sessão, colunas de código, descrição, status, prioridade, categoria, almoxarifado, datas e tempo total',
-        '✨ Visão "Por Colaborador": agrupa OS por pessoa envolvida, mostra sessão ativa e tempo trabalhado',
-        '✨ Relatório TimeSheet: histórico consolidado de horas fechadas, filtros por período/pessoa/OS, totais por OS e logs detalhados'
+        'Visualizações: Lista, Kanban, Kanban Expedição, Kanban Recebimento',
+        'Filtros avançados: regional, almoxarifado, categoria, status, período'
       ],
       permissoes: {
         admin: 'Criar, editar, excluir qualquer OS. Acesso a todas regionais.',
