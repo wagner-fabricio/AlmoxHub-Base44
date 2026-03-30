@@ -6,9 +6,8 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ChevronDown, ChevronRight, Plus, Clock, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
-import TimeSheetButton from '@/components/timesheet/TimeSheetButton';
 
-export default function OSByResponsavel({ ordensServico, pessoas, onSelectOS, onNovaOS, filteredOrdens, currentPessoa, onOSChange }) {
+export default function OSByResponsavel({ ordensServico, pessoas, onSelectOS, onNovaOS, filteredOrdens }) {
   const [expandedStatus, setExpandedStatus] = useState({});
   
   // Usar as OSs filtradas se fornecidas, senão usar todas
@@ -217,46 +216,29 @@ export default function OSByResponsavel({ ordensServico, pessoas, onSelectOS, on
                     {isStatusExpanded && (
                       <div className="pb-2">
                         {oss.map((os) => (
-                          <div
+                          <button
                             key={os.id}
-                            className="w-full flex items-start gap-3 px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"
+                            onClick={() => onSelectOS(os)}
+                            className="w-full flex items-start gap-3 px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"
                           >
                             <Checkbox 
                               checked={os.status === 'concluido'}
-                              className="mt-1 shrink-0"
+                              className="mt-0.5"
                               onClick={(e) => e.stopPropagation()}
                             />
-                            <div
-                              className="flex-1 min-w-0 cursor-pointer"
-                              onClick={() => onSelectOS(os)}
-                            >
-                              <p className={`text-sm font-medium text-slate-900 dark:text-white leading-tight ${
+                            <div className="flex-1 min-w-0">
+                              <p className={`text-sm text-slate-900 dark:text-white leading-tight ${
                                 os.status === 'concluido' ? 'line-through opacity-60' : ''
                               }`}>
                                 {os.codigo}
                               </p>
-                              {os.descricao_resumida && (
-                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate" title={os.descricao_resumida}>
-                                  {os.descricao_resumida}
-                                </p>
-                              )}
                               {os.prazo && (
-                                <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                                   {format(new Date(os.prazo), 'dd/MM/yyyy')}
                                 </p>
                               )}
                             </div>
-                            {currentPessoa && (
-                              <div onClick={(e) => e.stopPropagation()} className="shrink-0">
-                                <TimeSheetButton
-                                  os={os}
-                                  currentPessoa={currentPessoa}
-                                  onStateChange={onOSChange}
-                                  size="sm"
-                                />
-                              </div>
-                            )}
-                          </div>
+                          </button>
                         ))}
                       </div>
                     )}

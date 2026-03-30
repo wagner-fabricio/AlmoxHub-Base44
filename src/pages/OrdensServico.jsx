@@ -772,8 +772,6 @@ export default function OrdensServico() {
               ordensServico={filteredOrdens}
               pessoas={pessoas}
               onSelectOS={handleOSClick}
-              currentPessoa={currentPessoa}
-              onOSChange={(updatedOS) => setOrdens(prev => prev.map(o => o.id === updatedOS.id ? { ...o, ...updatedOS } : o))}
               onNovaOS={(pessoa) => {
                 setSelectedOS({ lider_id: pessoa?.id });
                 setShowFormModal(true);
