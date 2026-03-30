@@ -186,93 +186,109 @@ export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxar
           </span>
         </div>
 
-        <div className="divide-y divide-slate-100 dark:divide-slate-700">
-          {Object.entries(porPessoa)
-            .sort(([, a], [, b]) => (b.temSessaoAtiva ? 1 : 0) - (a.temSessaoAtiva ? 1 : 0))
-            .map(([pessoaId, dados]) => {
-              const isExpanded = expandedPessoas[pessoaId] !== false; // aberto por padrão
-              return (
-                <div key={pessoaId}>
-                  {/* Cabeçalho da pessoa */}
-                  <button
-                    className="w-full flex items-center gap-3 px-5 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors text-left"
-                    onClick={() => togglePessoa(pessoaId)}
-                  >
-                    {dados.foto ? (
-                      <img src={dados.foto} alt={dados.nome} className="w-8 h-8 rounded-full object-cover shrink-0" />
-                    ) : (
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0 ${dados.temSessaoAtiva ? 'bg-amber-500' : 'bg-slate-400'}`}>
-                        {dados.nome.charAt(0)}
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-sm text-slate-900 dark:text-white">{dados.nome}</span>
-                        {dados.temSessaoAtiva && (
-                          <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full text-xs font-medium">
-                            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
-                            em sessão
-                          </span>
-                        )}
-                        <span className="text-xs text-slate-400">{dados.osList.length} OS</span>
-                      </div>
-                    </div>
-                    {isExpanded
-                      ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
-                      : <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
-                    }
-                  </button>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs border-collapse">
+            {/* Cabeçalho idêntico ao da tabela "OS em Andamento" */}
+            <thead>
+              <tr className="bg-slate-50 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300">
+                <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-left w-32">Código</th>
+                <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-left w-28">Status</th>
+                <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-left w-28">Prioridade</th>
+                <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-left w-32">Categoria</th>
+                <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-left">Subcategoria</th>
+                <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-left">Descrição</th>
+                <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-left w-24 hidden md:table-cell">Almoxarifado</th>
+                <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-center w-36">Play em</th>
+                <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-right w-24">Tempo Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(porPessoa)
+                .sort(([, a], [, b]) => (b.temSessaoAtiva ? 1 : 0) - (a.temSessaoAtiva ? 1 : 0))
+                .map(([pessoaId, dados]) => {
+                  const isExpanded = expandedPessoas[pessoaId] !== false;
+                  return (
+                    <React.Fragment key={pessoaId}>
+                      {/* Linha cabeçalho da pessoa */}
+                      <tr
+                        className="bg-slate-100/70 dark:bg-slate-700/50 cursor-pointer hover:bg-slate-200/50 dark:hover:bg-slate-700/80 transition-colors"
+                        onClick={() => togglePessoa(pessoaId)}
+                      >
+                        <td colSpan={9} className="px-5 py-2.5">
+                          <div className="flex items-center gap-3">
+                            {isExpanded
+                              ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
+                              : <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
+                            }
+                            {dados.foto ? (
+                              <img src={dados.foto} alt={dados.nome} className="w-7 h-7 rounded-full object-cover shrink-0" />
+                            ) : (
+                              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 ${dados.temSessaoAtiva ? 'bg-amber-500' : 'bg-slate-400'}`}>
+                                {dados.nome.charAt(0)}
+                              </div>
+                            )}
+                            <span className="font-semibold text-sm text-slate-900 dark:text-white">{dados.nome}</span>
+                            {dados.temSessaoAtiva && (
+                              <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full text-xs font-medium">
+                                <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
+                                em sessão
+                              </span>
+                            )}
+                            <span className="text-xs text-slate-400">{dados.osList.length} OS</span>
+                          </div>
+                        </td>
+                      </tr>
 
-                  {/* OS da pessoa */}
-                  {isExpanded && (
-                    <div className="bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700">
-                      <table className="w-full text-xs border-collapse">
-                        <tbody>
-                          {dados.osList.map((os, idx) => {
-                            const cat = categorias?.find(c => c.id === os.categoria_id);
-                            const sessoes = os.timesheet_sessoes_ativas || [];
-                            const sessaoMinha = sessoes.find(s => s.pessoa_id === pessoaId);
-                            const minutosCorrente = sessaoMinha ? minutosDesde(sessaoMinha.inicio) : 0;
-                            const totalMins = (os.timesheet_total_minutos || 0) + minutosCorrente;
-                            const stat = statusConfig[os.status];
-                            const prio = prioridadeConfig[os.prioridade];
-                            const inicioPlay = sessaoMinha ? new Date(sessaoMinha.inicio) : null;
+                      {/* Linhas de OS da pessoa */}
+                      {isExpanded && dados.osList.map((os, idx) => {
+                        const cat = categorias?.find(c => c.id === os.categoria_id);
+                        const almox = almoxarifados?.find(a => a.id === os.almoxarifado_id);
+                        const subcats = (subcategorias || []).filter(s => (os.subcategorias_ids || []).includes(s.id));
+                        const sessoes = os.timesheet_sessoes_ativas || [];
+                        const sessaoMinha = sessoes.find(s => s.pessoa_id === pessoaId);
+                        const minutosCorrente = sessaoMinha ? minutosDesde(sessaoMinha.inicio) : 0;
+                        const totalMins = (os.timesheet_total_minutos || 0) + minutosCorrente;
+                        const stat = statusConfig[os.status];
+                        const prio = prioridadeConfig[os.prioridade];
+                        const inicioPlay = sessaoMinha ? new Date(sessaoMinha.inicio) : null;
 
-                            return (
-                              <tr
-                                key={os.id}
-                                onClick={() => onClickOS?.(os)}
-                                className={`border-b border-slate-100 dark:border-slate-700/40 cursor-pointer hover:bg-amber-50/40 dark:hover:bg-amber-900/10 transition-colors ${idx % 2 !== 0 ? 'bg-white dark:bg-slate-800/30' : ''}`}
-                              >
-                                <td className="pl-16 pr-3 py-2.5 whitespace-nowrap">
-                                  <span className="font-mono text-blue-600 dark:text-blue-400 font-semibold">{os.codigo}</span>
-                                </td>
-                                <td className="px-3 py-2.5 max-w-[200px] truncate text-slate-600 dark:text-slate-400" title={os.descricao_resumida}>
-                                  {os.descricao_resumida || '—'}
-                                </td>
-                                <td className="px-3 py-2.5 whitespace-nowrap">
-                                  {stat && <span className={`inline-block px-2 py-0.5 rounded-full font-medium ${stat.color}`}>{stat.label}</span>}
-                                </td>
-                                <td className="px-3 py-2.5 whitespace-nowrap">
-                                  {prio && <span className={`inline-block px-2 py-0.5 rounded-full font-medium ${prio.color}`}>{prio.label}</span>}
-                                </td>
-                                <td className="px-3 py-2.5 text-slate-600 dark:text-slate-400 whitespace-nowrap">{cat?.nome || '—'}</td>
-                                <td className="px-3 py-2.5 text-center whitespace-nowrap text-slate-500 dark:text-slate-400">
-                                  {inicioPlay ? format(inicioPlay, "dd/MM 'às' HH:mm", { locale: ptBR }) : '—'}
-                                </td>
-                                <td className="px-3 py-2.5 text-right font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap pr-5">
-                                  {formatarTempo(totalMins)}
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                        return (
+                          <tr
+                            key={os.id}
+                            onClick={() => onClickOS?.(os)}
+                            className={`border-b border-slate-100 dark:border-slate-700/40 cursor-pointer hover:bg-amber-50/40 dark:hover:bg-amber-900/10 transition-colors ${idx % 2 !== 0 ? 'bg-slate-50/40 dark:bg-slate-700/20' : ''}`}
+                          >
+                            <td className="pl-16 pr-3 py-2.5 whitespace-nowrap">
+                              <span className="font-mono text-blue-600 dark:text-blue-400 font-semibold">{os.codigo}</span>
+                            </td>
+                            <td className="px-3 py-2.5 whitespace-nowrap">
+                              {stat && <span className={`inline-block px-2 py-0.5 rounded-full font-medium ${stat.color}`}>{stat.label}</span>}
+                            </td>
+                            <td className="px-3 py-2.5 whitespace-nowrap">
+                              {prio && <span className={`inline-block px-2 py-0.5 rounded-full font-medium ${prio.color}`}>{prio.label}</span>}
+                            </td>
+                            <td className="px-3 py-2.5 text-slate-700 dark:text-slate-300 whitespace-nowrap">{cat?.nome || '—'}</td>
+                            <td className="px-3 py-2.5 max-w-[140px] truncate text-slate-600 dark:text-slate-400" title={subcats.map(s => s.nome).join(', ')}>
+                              {subcats.length ? subcats.map(s => s.nome).join(', ') : '—'}
+                            </td>
+                            <td className="px-3 py-2.5 max-w-[200px] truncate text-slate-600 dark:text-slate-400" title={os.descricao_resumida}>
+                              {os.descricao_resumida || '—'}
+                            </td>
+                            <td className="px-3 py-2.5 text-slate-600 dark:text-slate-400 hidden md:table-cell whitespace-nowrap">{almox?.nome || '—'}</td>
+                            <td className="px-3 py-2.5 text-center whitespace-nowrap text-slate-500 dark:text-slate-400">
+                              {inicioPlay ? format(inicioPlay, "dd/MM 'às' HH:mm", { locale: ptBR }) : '—'}
+                            </td>
+                            <td className="px-3 py-2.5 text-right font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap pr-5">
+                              {formatarTempo(totalMins)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </React.Fragment>
+                  );
+                })}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
