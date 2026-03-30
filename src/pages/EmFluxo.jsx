@@ -598,17 +598,19 @@ export default function EmFluxo() {
                     key={os.id}
                     onSwipeRight={() => handleOpenOS(os)}
                     onLongPress={() => handleOpenOS(os)}
-                    onTap={() => handleOpenOS(os)}
                   >
                     <div
                       className="w-full bg-white dark:bg-slate-800 rounded-2xl shadow-md border-l-4 text-left transition-all active:scale-95"
                       style={{ borderLeftColor: categoria?.cor || '#3b82f6' }}
+                      onClick={() => handleOpenOS(os)}
                     >
-                      {/* Layout: conteúdo + botão TimeSheet isolado no topo direito */}
                       <div className="relative">
-                        {/* Botão TimeSheet — marcado com data-no-tap para ser ignorado pelo TouchGestures */}
+                        {/* Botão TimeSheet — stopPropagation para não abrir a OS */}
                         {currentPessoa && (
-                          <div className="absolute top-3 right-3 z-10" data-no-tap>
+                          <div
+                            className="absolute top-3 right-3 z-10"
+                            onClick={e => e.stopPropagation()}
+                          >
                             <TimeSheetButton
                               os={os}
                               currentPessoa={currentPessoa}
@@ -618,7 +620,6 @@ export default function EmFluxo() {
                           </div>
                         )}
 
-                        {/* Conteúdo do card (sem onClick — o toque é tratado pelo TouchGestures) */}
                         <div className="p-4 pr-16 cursor-pointer">
                           <div className="mb-3">
                             <p className="text-xs font-mono text-slate-500 dark:text-slate-400">{os.codigo}</p>
