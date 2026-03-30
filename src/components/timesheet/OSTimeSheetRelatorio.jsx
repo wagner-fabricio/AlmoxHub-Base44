@@ -15,7 +15,7 @@ const PERIODOS = [
   { label: 'Todos', value: 'todos' },
 ];
 
-export default function OSTimeSheetRelatorio({ pessoas, categorias }) {
+export default function OSTimeSheetRelatorio({ pessoas, categorias, subcategorias, almoxarifados, ordens }) {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState({ periodo: 'mes', pessoa_id: '', os_id: '' });
@@ -76,7 +76,8 @@ export default function OSTimeSheetRelatorio({ pessoas, categorias }) {
   const porOS = {};
   for (const e of entriesFiltradas) {
     if (!porOS[e.os_id]) {
-      porOS[e.os_id] = { os_id: e.os_id, os_codigo: e.os_codigo, total_minutos: 0, sessoes: 0, pessoas: new Set() };
+      const os = (ordens || []).find(o => o.id === e.os_id);
+      porOS[e.os_id] = { os_id: e.os_id, os_codigo: e.os_codigo, os, total_minutos: 0, sessoes: 0, pessoas: new Set() };
     }
     porOS[e.os_id].total_minutos += e.duracao_minutos || 0;
     porOS[e.os_id].sessoes += 1;
@@ -134,37 +135,55 @@ export default function OSTimeSheetRelatorio({ pessoas, categorias }) {
         </div>
       ) : (
         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
+          <table className="w-full text-xs border-collapse">
             <thead className="bg-slate-50 dark:bg-slate-700/50">
               <tr>
-                <th className="text-left p-3 text-xs font-semibold text-slate-600 dark:text-slate-300">OS</th>
-                <th className="text-center p-3 text-xs font-semibold text-slate-600 dark:text-slate-300">Sessões</th>
-                <th className="text-left p-3 text-xs font-semibold text-slate-600 dark:text-slate-300">Pessoas envolvidas</th>
-                <th className="text-right p-3 text-xs font-semibold text-slate-600 dark:text-slate-300">Tempo total</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">OS</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Descrição</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Anotações</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Categoria</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Subcategoria</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Almoxarifado</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Líder</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Executores</th>
+                <th className="text-center px-3 py-2.5 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Sessões</th>
+                <th className="text-right px-3 py-2.5 font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">Tempo total</th>
               </tr>
             </thead>
             <tbody>
-              {listaOS.map(item => (
-                <tr key={item.os_id} className="border-t border-slate-100 dark:border-slate-700">
-                  <td className="p-3 font-mono text-xs font-medium text-slate-700 dark:text-slate-300">{item.os_codigo || item.os_id}</td>
-                  <td className="p-3 text-center text-slate-600 dark:text-slate-400">{item.sessoes}</td>
-                  <td className="p-3">
-                    <div className="flex flex-wrap gap-1">
-                      {[...item.pessoas].map(nome => (
-                        <span key={nome} className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded text-xs">
-                          {nome.split(' ')[0]}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="p-3 text-right font-semibold text-slate-900 dark:text-white">{formatarTempo(item.total_minutos)}</td>
-                </tr>
-              ))}
+              {listaOS.map((item, idx) => {
+                const os = item.os;
+                const cat = os ? (categorias || []).find(c => c.id === os.categoria_id) : null;
+                const subcats = os ? (subcategorias || []).filter(s => (os.subcategorias_ids || []).includes(s.id)) : [];
+                const almox = os ? (almoxarifados || []).find(a => a.id === os.almoxarifado_id) : null;
+                const lider = os ? (pessoas || []).find(p => p.id === os.lider_id) : null;
+                const executores = os ? (pessoas || []).filter(p => (os.executores_ids || []).includes(p.id)) : [];
+                return (
+                  <tr key={item.os_id} className={`border-b border-slate-100 dark:border-slate-700/50 ${idx % 2 !== 0 ? 'bg-slate-50/40 dark:bg-slate-700/20' : ''}`}>
+                    <td className="px-3 py-2 font-mono font-semibold text-blue-600 dark:text-blue-400 whitespace-nowrap">{item.os_codigo || item.os_id}</td>
+                    <td className="px-3 py-2 max-w-[160px] truncate text-slate-600 dark:text-slate-400" title={os?.descricao_resumida}>{os?.descricao_resumida || '—'}</td>
+                    <td className="px-3 py-2 max-w-[160px] truncate text-slate-500 dark:text-slate-500 italic" title={os?.anotacoes}>{os?.anotacoes || '—'}</td>
+                    <td className="px-3 py-2 text-slate-700 dark:text-slate-300 whitespace-nowrap">{cat?.nome || '—'}</td>
+                    <td className="px-3 py-2 max-w-[120px] truncate text-slate-600 dark:text-slate-400">{subcats.length ? subcats.map(s => s.nome).join(', ') : '—'}</td>
+                    <td className="px-3 py-2 text-slate-600 dark:text-slate-400 whitespace-nowrap">{almox?.nome || '—'}</td>
+                    <td className="px-3 py-2 text-slate-700 dark:text-slate-300 whitespace-nowrap">{lider?.nome?.split(' ')[0] || '—'}</td>
+                    <td className="px-3 py-2">
+                      <div className="flex flex-wrap gap-1">
+                        {executores.length ? executores.map(e => (
+                          <span key={e.id} className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded text-xs">{e.nome.split(' ')[0]}</span>
+                        )) : <span className="text-slate-400">—</span>}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2 text-center text-slate-600 dark:text-slate-400">{item.sessoes}</td>
+                    <td className="px-3 py-2 text-right font-semibold text-slate-900 dark:text-white whitespace-nowrap">{formatarTempo(item.total_minutos)}</td>
+                  </tr>
+                );
+              })}
             </tbody>
             <tfoot className="bg-slate-50 dark:bg-slate-700/50 border-t-2 border-slate-200 dark:border-slate-600">
               <tr>
-                <td colSpan={3} className="p-3 text-right text-sm font-semibold text-slate-700 dark:text-slate-300">Total geral:</td>
-                <td className="p-3 text-right font-bold text-blue-600 dark:text-blue-400">{formatarTempo(totalGeral)}</td>
+                <td colSpan={9} className="px-3 py-2.5 text-right text-xs font-semibold text-slate-700 dark:text-slate-300">Total geral:</td>
+                <td className="px-3 py-2.5 text-right font-bold text-blue-600 dark:text-blue-400">{formatarTempo(totalGeral)}</td>
               </tr>
             </tfoot>
           </table>
