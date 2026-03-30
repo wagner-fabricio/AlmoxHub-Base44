@@ -681,7 +681,7 @@ export default function OrdensServico() {
       ) : viewMode === 'timesheet' ? (
         <div className="space-y-2">
           <OSTimeSheetView
-            osEmPlay={ordens.filter(o => o.timesheet_status === 'playing')}
+            osEmPlay={filteredOrdens.filter(o => o.timesheet_status === 'playing')}
             pessoas={pessoas}
             categorias={categorias}
             subcategorias={subcategorias}
