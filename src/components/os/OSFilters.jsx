@@ -335,7 +335,7 @@ export default function OSFilters({
             </SelectContent>
           </Select>
 
-          {(viewMode === 'timesheet' || viewMode === 'timesheet_relatorio') && pessoas?.length > 0 && (
+          {pessoas?.length > 0 && (
             <Select
               value={filters.pessoa_id || 'all'}
               onValueChange={(v) => setFilters({ ...filters, pessoa_id: v === 'all' ? '' : v })}

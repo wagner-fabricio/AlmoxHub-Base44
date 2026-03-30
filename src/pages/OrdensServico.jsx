@@ -260,6 +260,14 @@ export default function OrdensServico() {
         if (!isLider && !isExecutor && !isOutroEnvolvido) return false;
       }
 
+      // Pessoa filter
+      if (filters.pessoa_id) {
+        const isLider = os.lider_id === filters.pessoa_id;
+        const isExecutor = os.executores_ids?.includes(filters.pessoa_id);
+        const isOutroEnvolvido = os.outros_envolvidos_ids?.includes(filters.pessoa_id);
+        if (!isLider && !isExecutor && !isOutroEnvolvido) return false;
+      }
+
       return true;
     });
   }, [ordens, filters, debouncedTextFilters, currentPessoa]);
