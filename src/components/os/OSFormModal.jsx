@@ -263,6 +263,10 @@ export default function OSFormModal({
         if (isExpedicaoCategory) {
           try { await base44.functions.invoke('atualizarFluxoExpedicao', { os_id: os.id }); } catch (e) {}
         }
+        // Encerrar TimeSheet se status mudou para concluído ou cancelado
+        if ((dataToSave.status === 'concluido' || dataToSave.status === 'cancelado') && (os.status !== dataToSave.status)) {
+          try { await base44.functions.invoke('encerrarTimeSheetOS', { os_id: os.id }); } catch (e) {}
+        }
         try {
           const camposSignificativos = ['status', 'prioridade', 'progresso', 'prazo', 'lider_id', 'almoxarifado_id', 'categoria_id', 'regional_id', 'data_inicial', 'data_conclusao', 'anotacoes', 'descricao_resumida', 'atendente_nome'];
           const camposAlterados = {};

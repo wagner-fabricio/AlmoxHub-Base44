@@ -287,6 +287,11 @@ export default function OrdensServico() {
       
       await base44.entities.OrdemServico.update(osId, updateData);
       setOrdens(ordens.map(o => o.id === osId ? { ...o, ...updateData } : o));
+
+      // Encerrar TimeSheet se OS foi concluída ou cancelada
+      if (!isExpedicaoView && !isRecebimentoView && (newStatus === 'concluido' || newStatus === 'cancelado')) {
+        try { await base44.functions.invoke('encerrarTimeSheetOS', { os_id: osId }); } catch (e) {}
+      }
       
       // Registrar mudança de status no histórico
       try {
