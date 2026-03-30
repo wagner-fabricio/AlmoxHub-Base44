@@ -226,7 +226,16 @@ export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxar
                   {/* OS da pessoa */}
                   {isExpanded && (
                     <div className="bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700">
-                      <table className="w-full text-xs border-collapse">
+                      <table className="w-full text-xs border-collapse table-fixed">
+                        <colgroup>
+                          <col className="w-40" />
+                          <col className="w-52" />
+                          <col className="w-32" />
+                          <col className="w-28" />
+                          <col className="w-28" />
+                          <col className="w-36" />
+                          <col className="w-24" />
+                        </colgroup>
                         <tbody>
                           {dados.osList.map((os, idx) => {
                             const cat = categorias?.find(c => c.id === os.categoria_id);
