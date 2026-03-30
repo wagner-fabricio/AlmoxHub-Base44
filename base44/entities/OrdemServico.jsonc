@@ -443,6 +443,45 @@
     },
     "fluxo_expedicao": {
       "type": "object"
+    },
+    "timesheet_total_minutos": {
+      "type": "number",
+      "default": 0,
+      "description": "Total de minutos trabalhados acumulados (sess\u00f5es fechadas)"
+    },
+    "timesheet_status": {
+      "type": "string",
+      "enum": [
+        "idle",
+        "playing",
+        "paused"
+      ],
+      "default": "idle",
+      "description": "Estado atual do TimeSheet desta OS"
+    },
+    "timesheet_sessoes_ativas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "pessoa_id": {
+            "type": "string"
+          },
+          "pessoa_nome": {
+            "type": "string"
+          },
+          "inicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "entry_id": {
+            "type": "string",
+            "description": "ID do TimeSheetEntry correspondente"
+          }
+        }
+      },
+      "default": [],
+      "description": "Sess\u00f5es ativas no momento (quem est\u00e1 trabalhando agora)"
     }
   },
   "required": [

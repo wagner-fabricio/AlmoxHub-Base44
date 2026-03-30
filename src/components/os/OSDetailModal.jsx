@@ -48,6 +48,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { notifyCommentMention } from '@/components/notifications/PushNotificationHelper';
 import { createPageUrl } from '@/utils';
+import TimeSheetButton, { formatarTempo } from '@/components/timesheet/TimeSheetButton';
 
 const prioridadeConfig = {
   baixa: { color: 'bg-slate-100 text-slate-700', label: 'Baixa' },
@@ -639,8 +640,30 @@ export default function OSDetailModal({
               </div>
             </div>
 
-            {/* Linha 2: Ações */}
+            {/* Linha 2: TimeSheet + Ações */}
             <div className="flex flex-wrap items-center gap-2">
+              {/* Badge de horas totais */}
+              {(os.timesheet_total_minutos > 0 || os.timesheet_status === 'playing') && (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-full">
+                  <Clock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                    {formatarTempo(os.timesheet_total_minutos || 0)}
+                  </span>
+                  {os.timesheet_status === 'playing' && (
+                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                  )}
+                </div>
+              )}
+              {currentUserPessoa && (
+                <TimeSheetButton
+                  os={localOS}
+                  currentPessoa={currentUserPessoa}
+                  onStateChange={(updatedOS) => {
+                    setLocalOS(updatedOS);
+                    if (onRefresh) onRefresh();
+                  }}
+                />
+              )}
               <Button variant="outline" onClick={handleShareOS} id="share-btn" size="sm">
                 <Share2 className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Compartilhar</span>

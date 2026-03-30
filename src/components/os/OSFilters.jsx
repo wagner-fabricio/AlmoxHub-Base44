@@ -20,7 +20,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Search, Filter, X, LayoutGrid, List, Image, Users, ChevronDown, ChevronRight, AlertCircle, InboxIcon } from 'lucide-react';
+import { Search, Filter, X, LayoutGrid, List, Image, Users, ChevronDown, ChevronRight, AlertCircle, InboxIcon, Clock } from 'lucide-react';
 
 export default function OSFilters({ 
   filters, 
@@ -497,6 +497,38 @@ export default function OSFilters({
               >
                 <InboxIcon className="w-3.5 h-3.5" />
                 <span>Pendências</span>
+              </Button>
+            </div>
+          </div>
+
+          {/* Divisor */}
+          <div className="h-9 w-px bg-slate-200 dark:bg-slate-700 self-end mb-0.5" />
+
+          {/* TimeSheet */}
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 px-1 flex items-center gap-1">
+              <Clock className="w-3 h-3" /> TimeSheet
+            </span>
+            <div className="flex border border-emerald-200 dark:border-emerald-800/60 rounded-lg overflow-hidden w-fit">
+              <Button
+                variant={viewMode === 'timesheet' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('timesheet')}
+                className={`rounded-none h-9 gap-1.5 text-xs ${viewMode === 'timesheet' ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20'}`}
+                title="TimeSheet ao vivo"
+              >
+                <span className={`w-2 h-2 rounded-full ${viewMode === 'timesheet' ? 'bg-white animate-pulse' : 'bg-emerald-500'}`} />
+                <span>Ao Vivo</span>
+              </Button>
+              <Button
+                variant={viewMode === 'timesheet_relatorio' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('timesheet_relatorio')}
+                className={`rounded-none border-l border-emerald-200 dark:border-emerald-800/60 h-9 gap-1.5 text-xs ${viewMode === 'timesheet_relatorio' ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20'}`}
+                title="Relatório de horas"
+              >
+                <Clock className="w-3.5 h-3.5" />
+                <span>Relatório</span>
               </Button>
             </div>
           </div>

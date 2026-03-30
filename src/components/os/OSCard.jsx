@@ -6,6 +6,7 @@ import { Calendar, User, Paperclip, MessageSquare, AlertTriangle, Clock, Package
 import { format, isPast, isToday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import RotuloBadges from '@/components/rotulos/RotuloBadges';
+import TimeSheetButton from '@/components/timesheet/TimeSheetButton';
 
 const prioridadeConfig = {
   baixa: { color: 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300', label: 'Baixa' },
@@ -28,7 +29,7 @@ const parseLocalDate = (str) => {
   return new Date(y, m - 1, d);
 };
 
-export default function OSCard({ os, onClick, lider, categoria, regional, instalacoes, rotulos = [] }) {
+export default function OSCard({ os, onClick, lider, categoria, regional, instalacoes, rotulos = [], currentPessoa, onOSChange }) {
   const prazoDate = parseLocalDate(os.prazo);
   const isOverdue = prazoDate && isPast(prazoDate) && os.status !== 'concluido';
   const isDueToday = prazoDate && isToday(prazoDate);
@@ -189,7 +190,17 @@ export default function OSCard({ os, onClick, lider, categoria, regional, instal
           </span>
         </div>
 
-        <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400">
+        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+          {/* TimeSheet Button */}
+          {currentPessoa && (
+            <TimeSheetButton
+              os={os}
+              currentPessoa={currentPessoa}
+              onStateChange={onOSChange}
+              size="sm"
+            />
+          )}
+
           {os.anexos?.length > 0 && (
             <div className="flex items-center gap-1 text-xs">
               <Paperclip className="w-3.5 h-3.5" />

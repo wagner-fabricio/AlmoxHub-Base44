@@ -17,6 +17,8 @@ import OSPendenciasRecebimento from '@/components/os/OSPendenciasRecebimento.jsx
 import OSFormModal from '@/components/os/OSFormModal.jsx';
 import OSDetailModal from '@/components/os/OSDetailModal.jsx';
 import { notifyOSAssignment, notifyStatusChange } from '@/components/notifications/PushNotificationHelper';
+import OSTimeSheetView from '@/components/timesheet/OSTimeSheetView.jsx';
+import OSTimeSheetRelatorio from '@/components/timesheet/OSTimeSheetRelatorio.jsx';
 
 export default function OrdensServico() {
   const { regionais, categorias, subcategorias, pessoas, currentUser: ctxUser, currentPessoa: ctxPessoa } = useApp();
@@ -671,6 +673,20 @@ export default function OrdensServico() {
           almoxarifados={almoxarifados}
           onOSClick={handleOSClick}
         />
+      ) : viewMode === 'timesheet' ? (
+        <div className="space-y-2">
+          <OSTimeSheetView
+            osEmPlay={ordens.filter(o => o.timesheet_status === 'playing')}
+            pessoas={pessoas}
+            categorias={categorias}
+            almoxarifados={almoxarifados}
+            onClickOS={handleOSClick}
+          />
+        </div>
+      ) : viewMode === 'timesheet_relatorio' ? (
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+          <OSTimeSheetRelatorio pessoas={pessoas} categorias={categorias} />
+        </div>
       ) : filteredOrdens.length === 0 ? (
         <div className="bg-white dark:bg-slate-800 rounded-2xl p-12 text-center">
           <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
@@ -698,6 +714,8 @@ export default function OrdensServico() {
               instalacoes={instalacoes}
               onOSClick={handleOSClick}
               onStatusChange={handleStatusChange}
+              currentPessoa={currentPessoa}
+              onOSChange={(updatedOS) => setOrdens(prev => prev.map(o => o.id === updatedOS.id ? { ...o, ...updatedOS } : o))}
             />
           )}
           {viewMode === 'kanban_expedicao' && (

@@ -29,6 +29,8 @@ import RotuloSelector from '@/components/rotulos/RotuloSelector';
 import OSAssinaturaTab from './OSAssinaturaTab.jsx';
 import EtiquetaVolumesModal from './EtiquetaVolumesModal';
 import OSFormHelp from './OSFormHelp';
+import useTimeSheetEdit from '@/components/timesheet/useTimeSheetEdit';
+import { formatarTempo } from '@/components/timesheet/TimeSheetButton';
 
 const EMPTY_FORM = {
   categoria_id: '', subcategorias_ids: [], regional_id: '', almoxarifado_id: '',
@@ -459,6 +461,24 @@ export default function OSFormModal({
   };
 
   const currentPessoa = pessoas?.find(p => p.user_id === currentUser?.id);
+
+  // TimeSheet: play automático ao abrir para edição
+  useTimeSheetEdit({
+    os,
+    currentPessoa,
+    open,
+    onOSChange: (updatedOS) => {
+      // Atualizar apenas os campos de timesheet no formData para não sobrescrever edições
+      setFormData(prev => ({
+        ...prev,
+        timesheet_status: updatedOS.timesheet_status,
+        timesheet_sessoes_ativas: updatedOS.timesheet_sessoes_ativas,
+        timesheet_total_minutos: updatedOS.timesheet_total_minutos
+      }));
+      onSave?.(false, updatedOS);
+    }
+  });
+
   const problemasNaoPreenchidos = formData.problema_recebimento && (!formData.problemas_recebimento_ids || formData.problemas_recebimento_ids.length === 0);
   const hasVolumes = (formData.volumes?.length || 0) > 0;
   const separacaoIncompleta = isExpedicaoCategory && hasVolumes && (!formData.responsavel_separacao || !formData.data_separacao || !formData.separacao_concluida_em);
@@ -474,9 +494,21 @@ export default function OSFormModal({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-5xl max-h-[90vh] p-0 overflow-hidden">
         <DialogHeader className="px-6 py-5 border-b" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
-          <DialogTitle className="text-xl font-semibold text-white">
-            {os?.id ? `Editar OS: ${os.codigo}` : 'Nova Ordem de Serviço'}
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="text-xl font-semibold text-white">
+              {os?.id ? `Editar OS: ${os.codigo}` : 'Nova Ordem de Serviço'}
+            </DialogTitle>
+            {os?.id && (formData.timesheet_total_minutos > 0 || formData.timesheet_status === 'playing') && (
+              <div className="flex items-center gap-1.5 px-3 py-1 bg-white/20 rounded-full">
+                <span className="text-xs font-medium text-white">
+                  ⏱ {formatarTempo(formData.timesheet_total_minutos || 0)}
+                </span>
+                {formData.timesheet_status === 'playing' && (
+                  <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+                )}
+              </div>
+            )}
+          </div>
         </DialogHeader>
 
         <ScrollArea className="max-h-[calc(90vh-200px)]">

@@ -1,0 +1,75 @@
+{
+  "name": "TimeSheetEntry",
+  "type": "object",
+  "properties": {
+    "os_id": {
+      "type": "string",
+      "description": "ID da Ordem de Servi\u00e7o"
+    },
+    "os_codigo": {
+      "type": "string",
+      "description": "C\u00f3digo da OS (para exibi\u00e7\u00e3o sem join)"
+    },
+    "pessoa_id": {
+      "type": "string",
+      "description": "ID da pessoa que iniciou a sess\u00e3o"
+    },
+    "pessoa_nome": {
+      "type": "string",
+      "description": "Nome da pessoa"
+    },
+    "pessoa_id_pausa": {
+      "type": "string",
+      "description": "ID da pessoa que pausou/parou"
+    },
+    "pessoa_nome_pausa": {
+      "type": "string",
+      "description": "Nome da pessoa que pausou/parou"
+    },
+    "inicio": {
+      "type": "string",
+      "format": "date-time",
+      "description": "In\u00edcio da sess\u00e3o"
+    },
+    "fim": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Fim da sess\u00e3o (null se ainda em play)"
+    },
+    "duracao_minutos": {
+      "type": "number",
+      "description": "Dura\u00e7\u00e3o em minutos (calculado ao pausar)"
+    },
+    "tipo_encerramento": {
+      "type": "string",
+      "enum": [
+        "pause",
+        "stop",
+        "auto_fim_expediente",
+        "auto_edicao"
+      ],
+      "description": "Como a sess\u00e3o foi encerrada"
+    },
+    "iniciado_por_edicao": {
+      "type": "boolean",
+      "default": false,
+      "description": "Se o play foi iniciado automaticamente pela abertura do formul\u00e1rio de edi\u00e7\u00e3o"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "playing",
+        "closed"
+      ],
+      "default": "playing",
+      "description": "Status da sess\u00e3o"
+    }
+  },
+  "required": [
+    "os_id",
+    "pessoa_id",
+    "pessoa_nome",
+    "inicio",
+    "status"
+  ]
+}
