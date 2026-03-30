@@ -679,6 +679,7 @@ export default function OrdensServico() {
             osEmPlay={ordens.filter(o => o.timesheet_status === 'playing')}
             pessoas={pessoas}
             categorias={categorias}
+            subcategorias={subcategorias}
             almoxarifados={almoxarifados}
             onClickOS={handleOSClick}
           />
