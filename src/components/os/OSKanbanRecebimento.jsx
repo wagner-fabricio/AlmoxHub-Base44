@@ -12,7 +12,7 @@ const columns = [
   { id: 'concluido', title: 'Concluído', color: 'bg-green-500', etapa: 5 },
 ];
 
-export default function OSKanbanRecebimento({ ordens, pessoas, categorias, regionais, instalacoes, onOSClick, onStatusChange }) {
+export default function OSKanbanRecebimento({ ordens, pessoas, categorias, regionais, instalacoes, onOSClick, onStatusChange, currentPessoa, onOSChange }) {
   const getOSByEtapaRecebimento = (columnId) => {
     return ordens.filter(os => {
       const fluxo = os.fluxo_recebimento || {};
@@ -127,12 +127,14 @@ export default function OSKanbanRecebimento({ ordens, pessoas, categorias, regio
                             className={snapshot.isDragging ? 'rotate-2 scale-105' : ''}
                           >
                             <OSCard
-                              os={os}
-                              lider={getLider(os.lider_id)}
-                              categoria={getCategoria(os.categoria_id)}
-                              regional={getRegional(os.regional_id)}
-                              instalacoes={instalacoes}
-                              onClick={onOSClick}
+                             os={os}
+                             lider={getLider(os.lider_id)}
+                             categoria={getCategoria(os.categoria_id)}
+                             regional={getRegional(os.regional_id)}
+                             instalacoes={instalacoes}
+                             onClick={onOSClick}
+                             currentPessoa={currentPessoa}
+                             onOSChange={onOSChange}
                             />
                           </div>
                         )}

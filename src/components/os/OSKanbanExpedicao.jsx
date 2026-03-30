@@ -13,7 +13,7 @@ const columns = [
   { id: 'entregue', title: 'Entregue', color: 'bg-green-500' },
 ];
 
-export default function OSKanbanExpedicao({ ordens, pessoas, categorias, regionais, instalacoes, onOSClick, onStatusChange }) {
+export default function OSKanbanExpedicao({ ordens, pessoas, categorias, regionais, instalacoes, onOSClick, onStatusChange, currentPessoa, onOSChange }) {
   const getOSByStatusSeparacao = (status) => {
     return ordens.filter(os => (os.status_separacao || 'pendente') === status);
   };
@@ -80,12 +80,14 @@ export default function OSKanbanExpedicao({ ordens, pessoas, categorias, regiona
                             className={snapshot.isDragging ? 'rotate-2 scale-105' : ''}
                           >
                             <OSCard
-                              os={os}
-                              lider={getLider(os.lider_id)}
-                              categoria={getCategoria(os.categoria_id)}
-                              regional={getRegional(os.regional_id)}
-                              instalacoes={instalacoes}
-                              onClick={onOSClick}
+                             os={os}
+                             lider={getLider(os.lider_id)}
+                             categoria={getCategoria(os.categoria_id)}
+                             regional={getRegional(os.regional_id)}
+                             instalacoes={instalacoes}
+                             onClick={onOSClick}
+                             currentPessoa={currentPessoa}
+                             onOSChange={onOSChange}
                             />
                           </div>
                         )}

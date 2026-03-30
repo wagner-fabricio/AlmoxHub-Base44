@@ -32,6 +32,7 @@ import OSFormModal from '@/components/os/OSFormModal';
 import EmFluxoInsights from '@/components/emfluxo/EmFluxoInsights';
 import MeuDesempenhoMobile from '@/components/emfluxo/MeuDesempenhoMobile';
 import TouchGestures from '@/components/emfluxo/TouchGestures';
+import TimeSheetButton from '@/components/timesheet/TimeSheetButton';
 
 const statusConfig = {
   elaboracao: { icon: Clock, color: 'bg-slate-500', label: 'Em Elaboração' },
@@ -632,18 +633,30 @@ export default function EmFluxo() {
                         <p className="text-sm text-slate-600 dark:text-slate-300 line-clamp-2">{os.descricao_resumida}</p>
                       )}
 
-                      <div className="mt-3 flex items-center justify-between">
+                      <div className="mt-3 flex items-center justify-between gap-2">
                         <div className="text-xs text-slate-500 dark:text-slate-400">
                           Prazo: {os.prazo ? format(new Date(os.prazo), 'dd/MM/yyyy') : '-'}
                         </div>
-                        <div className="flex items-center gap-1 text-xs">
-                          <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 w-16">
-                            <div 
-                              className="bg-blue-500 h-2 rounded-full"
-                              style={{ width: `${os.progresso || 0}%` }}
-                            />
+                        <div className="flex items-center gap-2">
+                          {currentPessoa && (
+                            <span onClick={e => e.stopPropagation()}>
+                              <TimeSheetButton
+                                os={os}
+                                currentPessoa={currentPessoa}
+                                onStateChange={(updatedOS) => setOrdens(prev => prev.map(o => o.id === updatedOS.id ? { ...o, ...updatedOS } : o))}
+                                size="sm"
+                              />
+                            </span>
+                          )}
+                          <div className="flex items-center gap-1 text-xs">
+                            <div className="bg-slate-200 dark:bg-slate-700 rounded-full h-2 w-16">
+                              <div 
+                                className="bg-blue-500 h-2 rounded-full"
+                                style={{ width: `${os.progresso || 0}%` }}
+                              />
+                            </div>
+                            <span className="text-slate-600 dark:text-slate-300 font-medium">{os.progresso || 0}%</span>
                           </div>
-                          <span className="text-slate-600 dark:text-slate-300 font-medium">{os.progresso || 0}%</span>
                         </div>
                       </div>
                     </div>

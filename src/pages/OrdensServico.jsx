@@ -727,6 +727,8 @@ export default function OrdensServico() {
               instalacoes={instalacoes}
               onOSClick={handleOSClick}
               onStatusChange={handleStatusChange}
+              currentPessoa={currentPessoa}
+              onOSChange={(updatedOS) => setOrdens(prev => prev.map(o => o.id === updatedOS.id ? { ...o, ...updatedOS } : o))}
             />
           )}
           {viewMode === 'kanban_recebimento' && (
@@ -738,6 +740,8 @@ export default function OrdensServico() {
               instalacoes={instalacoes}
               onOSClick={handleOSClick}
               onStatusChange={handleStatusChange}
+              currentPessoa={currentPessoa}
+              onOSChange={(updatedOS) => setOrdens(prev => prev.map(o => o.id === updatedOS.id ? { ...o, ...updatedOS } : o))}
             />
           )}
           {viewMode === 'list' && (
@@ -758,6 +762,8 @@ export default function OrdensServico() {
               instalacoes={instalacoes}
               onOSClick={handleOSClick}
               rotulos={rotulos}
+              currentPessoa={currentPessoa}
+              onOSChange={(updatedOS) => setOrdens(prev => prev.map(o => o.id === updatedOS.id ? { ...o, ...updatedOS } : o))}
             />
           )}
           {viewMode === 'responsavel' && (
