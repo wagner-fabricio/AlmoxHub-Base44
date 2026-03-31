@@ -196,8 +196,12 @@ export default function Pessoas() {
       } else {
         await base44.entities.Pessoa.create(dadosAtualizados);
       }
-      await refreshPessoas();
-      loadData();
+      // Buscar dados atualizados diretamente do backend
+      const [updatedPessoas] = await Promise.all([
+        base44.entities.Pessoa.list(),
+        refreshPessoas()
+      ]);
+      setPessoas(updatedPessoas);
       setShowModal(false);
     } catch (error) {
       console.error('Error saving:', error);
@@ -245,13 +249,8 @@ export default function Pessoas() {
         funcoes: editingFuncoes.funcoes
       });
       
-      // Atualizar estado local sem recarregar tudo
-      setPessoas(pessoas.map(p => 
-        p.id === editingFuncoes.pessoa.id 
-          ? { ...p, funcoes: editingFuncoes.funcoes }
-          : p
-      ));
-      
+      setPessoas(prev => prev.map(p => p.id === editingFuncoes.pessoa.id ? { ...p, funcoes: editingFuncoes.funcoes } : p));
+      refreshPessoas();
       setShowFuncoesModal(false);
     } catch (error) {
       console.error('Erro ao atualizar funções');
@@ -274,12 +273,9 @@ export default function Pessoas() {
 
       await base44.entities.Pessoa.update(pessoa.id, updateData);
       
-      // Atualizar estado local sem recarregar tudo
-      setPessoas(pessoas.map(p => 
-        p.id === pessoa.id 
-          ? { ...p, ...updateData }
-          : p
-      ));
+      // Atualizar estado local imediatamente e sincronizar contexto
+      setPessoas(prev => prev.map(p => p.id === pessoa.id ? { ...p, ...updateData } : p));
+      refreshPessoas();
     } catch (error) {
       console.error('Erro ao atualizar status');
       alert('Erro ao atualizar status. Tente novamente.');
@@ -297,12 +293,9 @@ export default function Pessoas() {
         status_aprovacao: nextStatus
       });
 
-      // Atualizar estado local imediatamente
-      setPessoas(pessoas.map(p => 
-        p.id === pessoa.id 
-          ? { ...p, status_aprovacao: nextStatus }
-          : p
-      ));
+      // Atualizar estado local imediatamente e sincronizar contexto
+      setPessoas(prev => prev.map(p => p.id === pessoa.id ? { ...p, status_aprovacao: nextStatus } : p));
+      refreshPessoas();
 
       // Enviar e-mail se for aprovado ou rejeitado (em background)
       if (nextStatus === 'aprovado' || nextStatus === 'rejeitado') {
