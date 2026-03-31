@@ -17,9 +17,9 @@ export default function ColaboradoresDisponiveis({ pessoas, regionais, almoxarif
     if (!p) return false;
     if (!p.ativo) return false;
     if (p.status_aprovacao !== 'aprovado') return false;
-    // Excluir quem tem APENAS função gestor (ou seja, gestores)
+    // Excluir qualquer pessoa que tenha a função gestor (mesmo combinada com outras)
     const funcoes = p.funcoes || [];
-    if (funcoes.length === 1 && funcoes[0] === 'gestor') return false;
+    if (funcoes.includes('gestor')) return false;
     if (funcoes.length === 0) return false; // sem função definida, pular
     // Excluir quem está em sessão ativa
     if (pessoasEmSessao.has(p.id)) return false;
@@ -74,7 +74,7 @@ export default function ColaboradoresDisponiveis({ pessoas, regionais, almoxarif
               const almoxsNomes = (almoxarifados || [])
                 .filter(a => (p.almoxarifados_ids || []).includes(a.id))
                 .map(a => a.nome);
-              const funcoesFiltradas = (p.funcoes || []).filter(f => f !== 'gestor');
+              const funcoesFiltradas = p.funcoes || [];
 
               return (
                 <tr
