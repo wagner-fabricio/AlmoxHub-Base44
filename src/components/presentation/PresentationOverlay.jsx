@@ -306,7 +306,7 @@ export default function PresentationOverlay({ slides, dashData, osData, onStop }
 
   return (
     <div
-      className="fixed inset-0 z-[100] bg-slate-900 flex flex-col"
+      className="fixed inset-0 z-[9999] bg-slate-900 flex flex-col"
       onMouseMove={showControls}
       onTouchStart={showControls}
     >
