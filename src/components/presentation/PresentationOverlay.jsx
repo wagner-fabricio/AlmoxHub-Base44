@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { Square, ChevronLeft, ChevronRight, Clock, Tv2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -304,7 +305,7 @@ export default function PresentationOverlay({ slides, dashData, osData, onStop }
   const remMin = Math.floor(remaining / 60);
   const remSec = remaining % 60;
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[9999] bg-slate-900 flex flex-col"
       onMouseMove={showControls}
@@ -387,6 +388,7 @@ export default function PresentationOverlay({ slides, dashData, osData, onStop }
           osData={osData}
         />
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
