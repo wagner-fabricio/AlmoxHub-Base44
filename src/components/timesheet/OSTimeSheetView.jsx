@@ -77,8 +77,13 @@ export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxar
     }
   }
 
+  // Pessoas "em atividade": quem tem sessão ativa OU é líder/executor de OS em play
   const pessoasComSessao = new Set();
-  osEmPlay.forEach(os => (os.timesheet_sessoes_ativas || []).forEach(s => pessoasComSessao.add(s.pessoa_id)));
+  osEmPlay.forEach(os => {
+    (os.timesheet_sessoes_ativas || []).forEach(s => pessoasComSessao.add(s.pessoa_id));
+    if (os.lider_id) pessoasComSessao.add(os.lider_id);
+    (os.executores_ids || []).forEach(id => pessoasComSessao.add(id));
+  });
 
   const togglePessoa = (id) => setExpandedPessoas(prev => ({ ...prev, [id]: !prev[id] }));
 
