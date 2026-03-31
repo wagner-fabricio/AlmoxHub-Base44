@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tv2, Plus, Trash2, GripVertical, Play, Clock } from 'lucide-react';
+import { Tv2, Trash2, GripVertical, Play, Clock } from 'lucide-react';
 
 export const DASHBOARD_SLIDES = [
   { id: 'dash_geral', label: 'Dashboard — Geral', source: 'dashboard' },
@@ -43,6 +43,14 @@ export default function PresentationSetupModal({ open, onClose, onStart }) {
   };
 
   const removeSlide = (idx) => setSlides(prev => prev.filter((_, i) => i !== idx));
+
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+    const reordered = Array.from(slides);
+    const [moved] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, moved);
+    setSlides(reordered);
+  };
 
   const updateDuration = (idx, val) => {
     const num = Math.max(1, parseInt(val) || 1);
@@ -103,28 +111,47 @@ export default function PresentationSetupModal({ open, onClose, onStart }) {
             {slides.length === 0 && (
               <p className="text-sm text-slate-400 text-center py-4">Adicione pelo menos uma tela acima.</p>
             )}
-            {slides.map((s, idx) => (
-              <div key={s.id} className="flex items-center gap-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2.5">
-                <GripVertical className="w-4 h-4 text-slate-300 shrink-0" />
-                <span className={`w-2 h-2 rounded-full shrink-0 ${s.source === 'dashboard' ? 'bg-blue-500' : 'bg-amber-500'}`} />
-                <span className="flex-1 text-sm text-slate-700 dark:text-slate-300 truncate">{s.label}</span>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <Clock className="w-3.5 h-3.5 text-slate-400" />
-                  <Input
-                    type="number"
-                    min="1"
-                    max="60"
-                    value={s.duration}
-                    onChange={e => updateDuration(idx, e.target.value)}
-                    className="w-14 h-7 text-xs text-center px-1"
-                  />
-                  <span className="text-xs text-slate-400">min</span>
-                </div>
-                <button onClick={() => removeSlide(idx)} className="text-slate-400 hover:text-red-500 transition-colors">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
+            <DragDropContext onDragEnd={onDragEnd}>
+              <Droppable droppableId="slides-list">
+                {(provided) => (
+                  <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-2">
+                    {slides.map((s, idx) => (
+                      <Draggable key={s.id} draggableId={s.id} index={idx}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            className={`flex items-center gap-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2.5 transition-shadow ${snapshot.isDragging ? 'shadow-lg ring-2 ring-blue-300' : ''}`}
+                          >
+                            <span {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
+                              <GripVertical className="w-4 h-4 text-slate-300 hover:text-slate-500 shrink-0" />
+                            </span>
+                            <span className={`w-2 h-2 rounded-full shrink-0 ${s.source === 'dashboard' ? 'bg-blue-500' : 'bg-amber-500'}`} />
+                            <span className="flex-1 text-sm text-slate-700 dark:text-slate-300 truncate">{s.label}</span>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <Clock className="w-3.5 h-3.5 text-slate-400" />
+                              <Input
+                                type="number"
+                                min="1"
+                                max="60"
+                                value={s.duration}
+                                onChange={e => updateDuration(idx, e.target.value)}
+                                className="w-14 h-7 text-xs text-center px-1"
+                              />
+                              <span className="text-xs text-slate-400">min</span>
+                            </div>
+                            <button onClick={() => removeSlide(idx)} className="text-slate-400 hover:text-red-500 transition-colors">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
           </div>
 
           {/* Legenda */}
