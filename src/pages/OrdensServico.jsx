@@ -633,6 +633,46 @@ export default function OrdensServico() {
             </>
           )}
         </div>
+
+        {/* Presentation Modal (dentro do fullscreen) */}
+        <PresentationSetupModal
+          open={showPresentationSetup}
+          onClose={() => setShowPresentationSetup(false)}
+          onStart={(slides) => {
+            setShowPresentationSetup(false);
+            setPresentationSlides(slides);
+          }}
+        />
+        {presentationSlides && (
+          <PresentationOverlay
+            slides={presentationSlides}
+            dashData={{
+              filteredOrdens,
+              pessoas,
+              categorias,
+              subcategorias: subcategorias || [],
+              regionais,
+              almoxarifados,
+              problemasRecebimento: [],
+              categoriaRecebimento: categorias?.find(c => c.nome?.toLowerCase().includes('recebimento')),
+              categoriaExpedicao: categorias?.find(c => c.nome?.toLowerCase().includes('expedição')),
+              tempoMedioRegularizacaoCompra: 0,
+              numItensNFCompra: 0,
+              filters,
+            }}
+            osData={{
+              ordens,
+              categorias,
+              subcategorias: subcategorias || [],
+              pessoas,
+              regionais,
+              almoxarifados,
+              instalacoes,
+              osFilters: filters,
+            }}
+            onStop={() => setPresentationSlides(null)}
+          />
+        )}
       </div>
     );
   }
