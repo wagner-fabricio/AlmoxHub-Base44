@@ -312,7 +312,7 @@ export default function PresentationOverlay({ slides, dashData, osData, onStop }
     >
       {/* Header bar — minimal */}
       <div
-        className={`flex items-center justify-between px-5 py-2.5 bg-slate-800/90 border-b border-slate-700/50 transition-opacity duration-500 ${controlsVisible ? 'opacity-100' : 'opacity-0'}`}
+        className="flex items-center justify-between px-5 py-2.5 bg-slate-800/90 border-b border-slate-700/50"
         style={{ minHeight: '48px' }}
       >
         <div className="flex items-center gap-3">
