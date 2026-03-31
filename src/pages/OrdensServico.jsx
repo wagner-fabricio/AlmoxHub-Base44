@@ -2,7 +2,9 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { base44 } from '@/api/base44Client';
 import { useApp } from '@/components/contexts/AppContext';
 import { Button } from '@/components/ui/button';
-import { Plus, Loader2, Maximize2, Minimize2 } from 'lucide-react';
+import { Plus, Loader2, Maximize2, Minimize2, Tv2 } from 'lucide-react';
+import PresentationSetupModal from '@/components/presentation/PresentationSetupModal';
+import PresentationOverlay from '@/components/presentation/PresentationOverlay';
 import ExportOSButton from '@/components/os/ExportOSButton';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import OSFilters from '@/components/os/OSFilters.jsx';
@@ -21,7 +23,7 @@ import OSTimeSheetView from '@/components/timesheet/OSTimeSheetView.jsx';
 import OSTimeSheetRelatorio from '@/components/timesheet/OSTimeSheetRelatorio.jsx';
 
 export default function OrdensServico() {
-  const { regionais, categorias, subcategorias, pessoas, currentUser: ctxUser, currentPessoa: ctxPessoa } = useApp();
+  const { regionais, categorias, subcategorias = [], pessoas, currentUser: ctxUser, currentPessoa: ctxPessoa } = useApp();
   const [loading, setLoading] = useState(true);
   const [ordens, setOrdens] = useState([]);
   const [almoxarifados, setAlmoxarifados] = useState([]);
@@ -87,6 +89,8 @@ export default function OrdensServico() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deletingOS, setDeletingOS] = useState(null);
   const [fullscreenMode, setFullscreenMode] = useState(false);
+  const [showPresentationSetup, setShowPresentationSetup] = useState(false);
+  const [presentationSlides, setPresentationSlides] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -512,6 +516,15 @@ export default function OrdensServico() {
         {/* Fullscreen Header */}
         <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4 flex items-center justify-between shadow-sm z-10">
           <h1 className="text-xl font-bold text-slate-900 dark:text-white">Ordens de Serviço</h1>
+          <Button
+            onClick={() => setShowPresentationSetup(true)}
+            variant="outline"
+            size="sm"
+            className="border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-300"
+          >
+            <Tv2 className="w-4 h-4 mr-2" />
+            Apresentação
+          </Button>
           <Button 
             onClick={() => setFullscreenMode(false)} 
             variant="outline"
@@ -840,6 +853,46 @@ export default function OrdensServico() {
         canDelete={selectedOS ? canDeleteOS(selectedOS) : false}
         onRefresh={() => loadData(true)}
       />
+
+      {/* Presentation */}
+      <PresentationSetupModal
+        open={showPresentationSetup}
+        onClose={() => setShowPresentationSetup(false)}
+        onStart={(slides) => {
+          setShowPresentationSetup(false);
+          setPresentationSlides(slides);
+        }}
+      />
+      {presentationSlides && (
+        <PresentationOverlay
+          slides={presentationSlides}
+          dashData={{
+            filteredOrdens,
+            pessoas,
+            categorias,
+            subcategorias: subcategorias || [],
+            regionais,
+            almoxarifados,
+            problemasRecebimento: [],
+            categoriaRecebimento: categorias?.find(c => c.nome?.toLowerCase().includes('recebimento')),
+            categoriaExpedicao: categorias?.find(c => c.nome?.toLowerCase().includes('expedição')),
+            tempoMedioRegularizacaoCompra: 0,
+            numItensNFCompra: 0,
+            filters,
+          }}
+          osData={{
+            ordens,
+            categorias,
+            subcategorias: subcategorias || [],
+            pessoas,
+            regionais,
+            almoxarifados,
+            instalacoes,
+            osFilters: filters,
+          }}
+          onStop={() => setPresentationSlides(null)}
+        />
+      )}
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

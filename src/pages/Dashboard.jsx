@@ -6,7 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend, AreaChart, Area, LabelList } from 'recharts';
-import { ClipboardList, CheckCircle, Clock, AlertTriangle, TrendingUp, Building2, MapPin, Loader2, Zap, Warehouse, Grid, Users, Package, DollarSign, Timer, X, Maximize2, Minimize2 } from 'lucide-react';
+import { ClipboardList, CheckCircle, Clock, AlertTriangle, TrendingUp, Building2, MapPin, Loader2, Zap, Warehouse, Grid, Users, Package, DollarSign, Timer, X, Maximize2, Minimize2, Tv2 } from 'lucide-react';
+import PresentationSetupModal from '@/components/presentation/PresentationSetupModal';
+import PresentationOverlay from '@/components/presentation/PresentationOverlay';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format, subDays, differenceInDays } from 'date-fns';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
@@ -54,6 +56,8 @@ export default function Dashboard() {
   const [currentUser, setCurrentUser] = useState(null);
   const [activeTab, setActiveTab] = useState('geral');
   const [fullscreen, setFullscreen] = useState(false);
+  const [showPresentationSetup, setShowPresentationSetup] = useState(false);
+  const [presentationSlides, setPresentationSlides] = useState(null);
   const [filters, setFilters] = useState({
     regional: 'all',
     almoxarifado: 'all',
@@ -419,6 +423,16 @@ export default function Dashboard() {
               currentUser={currentUser}
               onUpdate={loadData}
             />
+            {fullscreen && (
+              <button
+                onClick={() => setShowPresentationSetup(true)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-md border border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-sm font-medium transition-colors"
+                title="Iniciar Apresentação para TV"
+              >
+                <Tv2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Apresentação</span>
+              </button>
+            )}
             <button
               onClick={() => setFullscreen(f => !f)}
               className="flex items-center gap-1.5 px-3 py-2 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-medium transition-colors"
@@ -1321,6 +1335,46 @@ export default function Dashboard() {
                 </Card>
               </TabsContent>
               </Tabs>
-              </div>
-              );
-              }
+
+      {/* Presentation */}
+      <PresentationSetupModal
+        open={showPresentationSetup}
+        onClose={() => setShowPresentationSetup(false)}
+        onStart={(slides) => {
+          setShowPresentationSetup(false);
+          setPresentationSlides(slides);
+        }}
+      />
+      {presentationSlides && (
+        <PresentationOverlay
+          slides={presentationSlides}
+          dashData={{
+            filteredOrdens,
+            pessoas,
+            categorias,
+            subcategorias,
+            regionais,
+            almoxarifados,
+            problemasRecebimento,
+            categoriaRecebimento,
+            categoriaExpedicao,
+            tempoMedioRegularizacaoCompra,
+            numItensNFCompra,
+            filters,
+          }}
+          osData={{
+            ordens,
+            categorias,
+            subcategorias,
+            pessoas,
+            regionais,
+            almoxarifados,
+            instalacoes,
+            osFilters: filters,
+          }}
+          onStop={() => setPresentationSlides(null)}
+        />
+      )}
+    </div>
+  );
+}
