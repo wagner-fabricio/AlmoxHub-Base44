@@ -23,33 +23,9 @@ Deno.serve(async (req) => {
     const pessoa = pessoas[0];
     if (!pessoa) return Response.json({ error: 'Pessoa não encontrada' }, { status: 404 });
 
-    // Verificar permissão
-    const isAdmin = user.role === 'admin';
-    const isGestor = pessoa.funcoes?.includes('gestor');
-    const isLider = os.lider_id === pessoa.id;
-    const isExecutor = os.executores_ids?.includes(pessoa.id);
-    const mesmRegional = os.regional_id === pessoa.regional_id;
-
-    const temPermissao = isAdmin || isLider || isExecutor || (isGestor && mesmRegional);
-    if (!temPermissao) return Response.json({ error: 'Sem permissão para esta OS' }, { status: 403 });
-
     // OS concluída ou cancelada não pode ter play
     if (acao === 'play' && (os.status === 'concluido' || os.status === 'cancelado')) {
       return Response.json({ error: 'Não é possível iniciar TimeSheet em OS concluída ou cancelada' }, { status: 400 });
-    }
-
-    // Se gestor sem ser executor, adicionar como executor automaticamente
-    if (isGestor && !isLider && !isExecutor && !isAdmin) {
-      const novosExecutores = [...(os.executores_ids || []), pessoa.id];
-      await base44.asServiceRole.entities.OrdemServico.update(os_id, { executores_ids: novosExecutores });
-      await base44.asServiceRole.entities.AuditLog.create({
-        action: 'timesheet_gestor_added_executor',
-        entity_type: 'OrdemServico',
-        entity_id: os_id,
-        user_id: user.id,
-        details: JSON.stringify({ pessoa_nome: pessoa.nome, descricao: 'Gestor adicionado como executor ao dar play no TimeSheet' }),
-        timestamp: new Date().toISOString()
-      });
     }
 
     const agora = new Date().toISOString();
