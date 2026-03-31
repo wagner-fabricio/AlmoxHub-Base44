@@ -3,6 +3,7 @@ import { formatarTempo } from './TimeSheetButton';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Radio, Clock, Building2, Users, Calendar, AlertCircle, Tag, FileText, BarChart2, Play, ChevronDown, ChevronRight } from 'lucide-react';
+import ColaboradoresDisponiveis from './ColaboradoresDisponiveis';
 
 const minutosDesde = (inicio) => {
   if (!inicio) return 0;
@@ -23,7 +24,7 @@ const statusConfig = {
   cancelado:  { label: 'Cancelado',     color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' },
 };
 
-export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxarifados, subcategorias, onClickOS }) {
+export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxarifados, subcategorias, regionais, filters, onClickOS }) {
   const [tick, setTick] = useState(0);
   const [expandedPessoas, setExpandedPessoas] = useState({});
 
@@ -291,6 +292,14 @@ export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxar
           </table>
         </div>
       </div>
+      {/* ── COLABORADORES DISPONÍVEIS ── */}
+      <ColaboradoresDisponiveis
+        pessoas={pessoas}
+        regionais={regionais}
+        almoxarifados={almoxarifados}
+        pessoasEmSessao={pessoasComSessao}
+        filters={filters}
+      />
     </div>
   );
 }

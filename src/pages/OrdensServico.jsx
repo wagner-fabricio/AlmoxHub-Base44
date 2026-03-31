@@ -704,6 +704,8 @@ export default function OrdensServico() {
             categorias={categorias}
             subcategorias={subcategorias}
             almoxarifados={almoxarifados}
+            regionais={regionais}
+            filters={filters}
             onClickOS={handleOSClick}
           />
         </div>
