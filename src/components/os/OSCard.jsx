@@ -192,14 +192,12 @@ export default function OSCard({ os, onClick, lider, categoria, regional, instal
 
         <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
           {/* TimeSheet Button */}
-          {currentPessoa && (
-            <TimeSheetButton
-              os={os}
-              currentPessoa={currentPessoa}
-              onStateChange={onOSChange}
-              size="sm"
-            />
-          )}
+          <TimeSheetButton
+            os={os}
+            currentPessoa={currentPessoa}
+            onStateChange={onOSChange}
+            size="sm"
+          />
 
           {os.anexos?.length > 0 && (
             <div className="flex items-center gap-1 text-xs">

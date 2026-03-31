@@ -57,7 +57,7 @@ export default function TimeSheetButton({
 
   const acionar = async (e) => {
     e.stopPropagation(); // não abrir a OS ao clicar no botão
-    if (loading || osConcluida) return;
+    if (loading || osConcluida || !currentPessoa) return;
 
     setLoading(true);
     try {
