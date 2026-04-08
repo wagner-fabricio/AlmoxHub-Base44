@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import RelatorioSeparacao from './RelatorioSeparacao';
 import RelatorioConferencia from './RelatorioConferencia';
+import RelatorioOS from './RelatorioOS';
 import OSAssinaturaTab from './OSAssinaturaTab';
 import EtiquetaVolumesModal from './EtiquetaVolumesModal';
 import ExpedicaoProgressTracker from './ExpedicaoProgressTracker';
@@ -94,6 +95,8 @@ export default function OSDetailModal({
   const [showRelatorio, setShowRelatorio] = useState(false);
   const [generatingConferenciaPDF, setGeneratingConferenciaPDF] = useState(false);
   const [showRelatorioConferencia, setShowRelatorioConferencia] = useState(false);
+  const [generatingOSPDF, setGeneratingOSPDF] = useState(false);
+  const [showRelatorioOS, setShowRelatorioOS] = useState(false);
   const [localOS, setLocalOS] = useState(os);
   const [savingSeparacao, setSavingSeparacao] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -462,6 +465,37 @@ export default function OSDetailModal({
     } finally {
       setGeneratingConferenciaPDF(false);
       setShowRelatorioConferencia(false);
+    }
+  };
+
+  const handleGenerateOSPDF = async () => {
+    setGeneratingOSPDF(true);
+    setShowRelatorioOS(true);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    try {
+      const element = document.getElementById('relatorio-os');
+      if (!element) return;
+      const canvas = await html2canvas(element, {
+        scale: 1.2, useCORS: true, backgroundColor: '#ffffff',
+        windowWidth: element.scrollWidth, windowHeight: element.scrollHeight, allowTaint: true
+      });
+      const imgData = canvas.toDataURL('image/jpeg', 0.75);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const ratio = canvas.width / canvas.height;
+      const scaledHeight = pdfWidth / ratio;
+      const totalPages = Math.ceil(scaledHeight / pdfHeight);
+      for (let i = 0; i < totalPages; i++) {
+        if (i > 0) pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, -(pdfHeight * i), pdfWidth, scaledHeight, '', 'FAST');
+      }
+      pdf.save(`Dados_Gerais_${os.codigo}.pdf`);
+    } catch (error) {
+      console.error('Error generating OS PDF:', error);
+    } finally {
+      setGeneratingOSPDF(false);
+      setShowRelatorioOS(false);
     }
   };
 
@@ -1940,14 +1974,13 @@ export default function OSDetailModal({
       {/* Hidden Relatorio Conferencia for PDF Generation */}
       {showRelatorioConferencia && (
       <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
-        <RelatorioConferencia
-          os={os}
-          regional={regional}
-          almoxarifado={almoxarifado}
-          lider={lider}
-          categoria={categoria}
-          currentUser={currentUser}
-        />
+        <RelatorioConferencia os={os} regional={regional} almoxarifado={almoxarifado} lider={lider} categoria={categoria} currentUser={currentUser} />
+      </div>
+      )}
+      {/* Hidden Relatorio OS Dados Gerais */}
+      {showRelatorioOS && (
+      <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+        <RelatorioOS os={os} regional={regional} almoxarifado={almoxarifado} lider={lider} categoria={categoria} subcategorias={subcategorias} executores={pessoas} projetos={projetos} instalacoes={instalacoes} rotulos={rotulos} currentUser={currentUser} />
       </div>
       )}
       </>

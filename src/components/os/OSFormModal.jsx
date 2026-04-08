@@ -13,7 +13,7 @@ import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, Command
 import { Slider } from '@/components/ui/slider';
 import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
-import { Save, Plus, Trash2, Upload, X, Loader2, Paperclip, Check, ChevronsUpDown, ExternalLink, Tag } from 'lucide-react';
+import { Save, Plus, Trash2, Upload, X, Loader2, Paperclip, Check, ChevronsUpDown, ExternalLink, Tag, Printer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from "sonner";
 import OSItensDocumento from './OSItensDocumento';
@@ -31,6 +31,9 @@ import EtiquetaVolumesModal from './EtiquetaVolumesModal';
 import OSFormHelp from './OSFormHelp';
 import useTimeSheetEdit from '@/components/timesheet/useTimeSheetEdit';
 import { formatarTempo } from '@/components/timesheet/TimeSheetButton';
+import RelatorioOS from './RelatorioOS';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 const EMPTY_FORM = {
   categoria_id: '', subcategorias_ids: [], regional_id: '', almoxarifado_id: '',
@@ -62,6 +65,8 @@ export default function OSFormModal({
 }) {
   const [loading, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('geral');
+  const [generatingOSPDF, setGeneratingOSPDF] = useState(false);
+  const [showRelatorioOS, setShowRelatorioOS] = useState(false);
   const [importingPDF, setImportingPDF] = useState(false);
   const [showEtiquetaModal, setShowEtiquetaModal] = useState(false);
   const [zmmtsePDF, setZmmtsePDF] = useState(null);
@@ -466,6 +471,29 @@ export default function OSFormModal({
 
   const currentPessoa = pessoas?.find(p => p.user_id === currentUser?.id);
 
+  const handleGenerateOSPDF = async () => {
+    setGeneratingOSPDF(true);
+    setShowRelatorioOS(true);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    try {
+      const element = document.getElementById('relatorio-os');
+      if (!element) return;
+      const canvas = await html2canvas(element, { scale: 1.2, useCORS: true, backgroundColor: '#ffffff', windowWidth: element.scrollWidth, windowHeight: element.scrollHeight, allowTaint: true });
+      const imgData = canvas.toDataURL('image/jpeg', 0.75);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const scaledHeight = pdfWidth / (canvas.width / canvas.height);
+      const totalPages = Math.ceil(scaledHeight / pdfHeight);
+      for (let i = 0; i < totalPages; i++) {
+        if (i > 0) pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, -(pdfHeight * i), pdfWidth, scaledHeight, '', 'FAST');
+      }
+      pdf.save(`Dados_Gerais_${formData.codigo || os?.codigo || 'OS'}.pdf`);
+    } catch (error) { console.error('Error generating OS PDF:', error); }
+    finally { setGeneratingOSPDF(false); setShowRelatorioOS(false); }
+  };
+
   // TimeSheet: play automático ao abrir para edição
   useTimeSheetEdit({
     os,
@@ -512,6 +540,15 @@ export default function OSFormModal({
                 )}
               </div>
             )}
+            <button
+              type="button"
+              onClick={handleGenerateOSPDF}
+              disabled={generatingOSPDF}
+              className="flex items-center gap-1.5 px-3 py-1 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-medium transition-colors"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              {generatingOSPDF ? 'Gerando...' : 'Dados Gerais'}
+            </button>
           </div>
         </DialogHeader>
 
@@ -1032,6 +1069,24 @@ export default function OSFormModal({
             instalacoes={instalacoes}
             almoxarifados={almoxarifados}
           />
+        )}
+
+        {showRelatorioOS && (
+          <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+            <RelatorioOS
+              os={{ ...formData, codigo: os?.codigo || formData.codigo }}
+              regional={(regionais || []).find(r => r.id === formData.regional_id)}
+              almoxarifado={(almoxarifados || []).find(a => a.id === formData.almoxarifado_id)}
+              lider={(pessoas || []).find(p => p.id === formData.lider_id)}
+              categoria={(categorias || []).find(c => c.id === formData.categoria_id)}
+              subcategorias={subcategorias}
+              executores={pessoas}
+              projetos={projetos}
+              instalacoes={instalacoes}
+              rotulos={[]}
+              currentUser={currentUser}
+            />
+          </div>
         )}
 
         <div className="border-t bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
