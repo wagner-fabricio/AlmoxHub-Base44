@@ -55,10 +55,16 @@ Deno.serve(async (req) => {
         entry_id: entry.id
       }];
 
-      const osAtualizada = await base44.asServiceRole.entities.OrdemServico.update(os_id, {
+      // Se é o primeiro play (nenhuma sessão ativa antes) e a OS está em 'elaboracao', mudar para 'execucao'
+      const updatePayload = {
         timesheet_status: 'playing',
         timesheet_sessoes_ativas: novasSessoes
-      });
+      };
+      if (sessoesAtivas.length === 0 && os.status === 'elaboracao') {
+        updatePayload.status = 'execucao';
+      }
+
+      const osAtualizada = await base44.asServiceRole.entities.OrdemServico.update(os_id, updatePayload);
 
       // Registrar no audit log
       await base44.asServiceRole.entities.AuditLog.create({
