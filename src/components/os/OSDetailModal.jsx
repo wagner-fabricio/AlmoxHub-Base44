@@ -745,6 +745,17 @@ export default function OSDetailModal({
                   )}
                 </Button>
               )}
+              <Button
+                variant="outline"
+                onClick={handleGenerateOSPDF}
+                disabled={generatingOSPDF}
+                size="sm"
+                className="border-purple-500 text-purple-600 hover:bg-purple-50"
+              >
+                <Printer className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">{generatingOSPDF ? 'Gerando...' : 'Imprimir OS'}</span>
+                <span className="sm:hidden">{generatingOSPDF ? '...' : 'OS'}</span>
+              </Button>
               <Button onClick={handleEdit} size="sm">
                 <Edit className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Editar</span>
