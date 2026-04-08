@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { base44 } from '@/api/base44Client';
 import { useApp } from '@/components/contexts/AppContext';
 import OSDetailModal from '@/components/os/OSDetailModal';
 import OSFormModal from '@/components/os/OSFormModal';
@@ -168,7 +167,7 @@ export default function PainelRecebimento({
   problemasRecebimento,
 }) {
   // Filtrar apenas OS de recebimento
-  const { regionais, categorias, subcategorias, pessoas } = useApp();
+  const { regionais, categorias, subcategorias, pessoas, instalacoes: ctxInstalacoes, projetos: ctxProjetos } = useApp();
   const [showHelp, setShowHelp] = useState(false);
   const [selectedOS, setSelectedOS] = useState(null);
   const [editingOS, setEditingOS] = useState(null);
@@ -176,13 +175,10 @@ export default function PainelRecebimento({
   const TABELA_PAGE_SIZE = 200;
   const { sortConfig, handleSort } = useTableSort();
   const { columnFilters, toggleFilter, clearFilter } = useColumnFilters();
-  const [instalacoes, setInstalacoes] = useState([]);
-  const [projetos, setProjetos] = useState([]);
 
-  useEffect(() => {
-    base44.entities.Instalacao.list().then(setInstalacoes).catch(() => {});
-    base44.entities.Projeto.list().then(setProjetos).catch(() => {});
-  }, []);
+  // Use AppContext data — no extra requests needed
+  const instalacoes = ctxInstalacoes || [];
+  const projetos = ctxProjetos || [];
 
   const osReceb = useMemo(
     () => filteredOrdens.filter(os => os.categoria_id === categoriaRecebimento?.id),

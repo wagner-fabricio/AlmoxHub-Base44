@@ -11,6 +11,10 @@ export function AppProvider({ children }) {
   const [categorias, setCategorias] = useState([]);
   const [subcategorias, setSubcategorias] = useState([]);
   const [ordens, setOrdens] = useState([]);
+  const [almoxarifados, setAlmoxarifados] = useState([]);
+  const [instalacoes, setInstalacoes] = useState([]);
+  const [projetos, setProjetos] = useState([]);
+  const [rotulos, setRotulos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,13 +52,28 @@ export function AppProvider({ children }) {
 
   const loadGlobalData = async () => {
     try {
-      const [user, regionaisData, pessoasData, categoriasData, subcategoriasData, ordensData] = await Promise.all([
+      const [
+        user,
+        regionaisData,
+        pessoasData,
+        categoriasData,
+        subcategoriasData,
+        ordensData,
+        almoxarifadosData,
+        instalacoesData,
+        projetosData,
+        rotulosData
+      ] = await Promise.all([
         base44.auth.me().catch(() => null),
         base44.entities.Regional.list(),
         base44.entities.Pessoa.list(),
         base44.entities.Categoria.list(),
         base44.entities.Subcategoria.list(),
-        base44.entities.OrdemServico.list('-created_date', 2000)
+        base44.entities.OrdemServico.list('-created_date', 2000),
+        base44.entities.Almoxarifado.list(),
+        base44.entities.Instalacao.list(),
+        base44.entities.Projeto.list(),
+        base44.entities.Rotulo.filter({ ativo: true })
       ]);
 
       setCurrentUser(user);
@@ -63,6 +82,10 @@ export function AppProvider({ children }) {
       setCategorias(categoriasData);
       setSubcategorias(subcategoriasData);
       setOrdens(ordensData);
+      setAlmoxarifados(almoxarifadosData);
+      setInstalacoes(instalacoesData);
+      setProjetos(projetosData);
+      setRotulos(rotulosData);
 
       if (user) {
         const pessoa = pessoasData.find(p => p.user_id === user.id);
@@ -99,7 +122,7 @@ export function AppProvider({ children }) {
   };
 
   const refreshOrdens = async () => {
-    const ordensData = await base44.entities.OrdemServico.list();
+    const ordensData = await base44.entities.OrdemServico.list('-created_date', 2000);
     setOrdens(ordensData);
   };
 
@@ -113,6 +136,10 @@ export function AppProvider({ children }) {
       subcategorias,
       ordens,
       setOrdens,
+      almoxarifados,
+      instalacoes,
+      projetos,
+      rotulos,
       loading,
       refreshPessoas,
       refreshRegionais,

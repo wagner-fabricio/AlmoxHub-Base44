@@ -23,7 +23,7 @@ import OSTimeSheetView from '@/components/timesheet/OSTimeSheetView.jsx';
 import OSTimeSheetRelatorio from '@/components/timesheet/OSTimeSheetRelatorio.jsx';
 
 export default function OrdensServico() {
-  const { regionais, categorias, subcategorias = [], pessoas, currentUser: ctxUser, currentPessoa: ctxPessoa, ordens, setOrdens } = useApp();
+  const { regionais, categorias, subcategorias = [], pessoas, currentUser: ctxUser, currentPessoa: ctxPessoa, ordens, setOrdens, almoxarifados: ctxAlmox, instalacoes: ctxInstalacoes, projetos: ctxProjetos, rotulos: ctxRotulos } = useApp();
   const [loading, setLoading] = useState(true);
   const [almoxarifados, setAlmoxarifados] = useState([]);
   const [projetos, setProjetos] = useState([]);
@@ -103,14 +103,12 @@ export default function OrdensServico() {
   const loadData = async (silent = false) => {
     if (!silent) setLoading(true);
     try {
-      // ordens come from AppContext — no need to fetch them again
-      const [almoxarifadosData, projetosData, instalacoesData, rotulosData] = await Promise.all([
-        base44.entities.Almoxarifado.list(),
-        base44.entities.Projeto.list(),
-        base44.entities.Instalacao.list(),
-        base44.entities.Rotulo.filter({ ativo: true })
-      ]);
-      
+      // Use data from AppContext when available — avoids redundant requests
+      setAlmoxarifados(ctxAlmox?.length > 0 ? ctxAlmox : await base44.entities.Almoxarifado.list());
+      setProjetos(ctxProjetos?.length > 0 ? ctxProjetos : await base44.entities.Projeto.list());
+      setInstalacoes(ctxInstalacoes?.length > 0 ? ctxInstalacoes : await base44.entities.Instalacao.list());
+      setRotulos(ctxRotulos?.length > 0 ? ctxRotulos : await base44.entities.Rotulo.filter({ ativo: true }));
+
       const user = ctxUser || (await base44.auth.me());
       setCurrentUser(user);
       const pessoa = ctxPessoa || (Array.isArray(pessoas) ? pessoas.find(p => p?.user_id === user?.id) : null);
@@ -136,22 +134,16 @@ export default function OrdensServico() {
           codigoMaterial: savedFilters.codigoMaterial || '',
         });
       }
-      
-      setAlmoxarifados(almoxarifadosData);
-      setProjetos(projetosData);
-      setInstalacoes(instalacoesData);
-      setRotulos(rotulosData);
 
       // Check for OS ID in URL params (from notification or external link)
       const urlParams = new URLSearchParams(window.location.search);
       const osId = urlParams.get('os_id');
       if (osId) {
-        const os = ordensData.find(o => o.id === osId);
+        const os = ordens.find(o => o.id === osId);
         if (os) {
           setSelectedOS(os);
-          setShowFormModal(true);
+          setShowDetailModal(true);
         }
-        // Limpar URL
         window.history.replaceState({}, '', window.location.pathname);
       }
     } catch (error) {
@@ -302,56 +294,36 @@ export default function OrdensServico() {
       }
       
       await base44.entities.OrdemServico.update(osId, updateData);
+      // Optimistic update — immediate visual feedback
       setOrdens(ordens.map(o => o.id === osId ? { ...o, ...updateData } : o));
 
-      // Encerrar TimeSheet se OS foi concluída ou cancelada
+      // Fire-and-forget: audit log, notifications, timesheet — don't block UI
+      const statusLabels = {
+        elaboracao: 'Em Elaboração', execucao: 'Em Execução',
+        concluido: 'Concluído', cancelado: 'Cancelado',
+        pendente: 'Pendente', em_separacao: 'Em Separação',
+        separado: 'Separado', em_rota: 'Em Rota', entregue: 'Entregue'
+      };
+      const campo = isExpedicaoView ? 'status_separacao' : 'status';
+      const valorAnterior = isExpedicaoView ? os?.status_separacao : os?.status;
+
+      base44.functions.invoke('registrarAuditLog', {
+        action: 'status_change',
+        entity_type: 'OrdemServico',
+        entity_id: osId,
+        details: {
+          campo,
+          valor_anterior: statusLabels[valorAnterior] || valorAnterior,
+          valor_novo: statusLabels[newStatus] || newStatus,
+        }
+      }).catch(() => {});
+
       if (!isExpedicaoView && !isRecebimentoView && (newStatus === 'concluido' || newStatus === 'cancelado')) {
-        try { await base44.functions.invoke('encerrarTimeSheetOS', { os_id: osId }); } catch (e) {}
+        base44.functions.invoke('encerrarTimeSheetOS', { os_id: osId }).catch(() => {});
       }
-      
-      // Registrar mudança de status no histórico
-      try {
-        const statusLabels = {
-          elaboracao: 'Em Elaboração',
-          execucao: 'Em Execução',
-          concluido: 'Concluído',
-          cancelado: 'Cancelado',
-          pendente: 'Pendente',
-          em_separacao: 'Em Separação',
-          separado: 'Separado',
-          em_rota: 'Em Rota',
-          entregue: 'Entregue'
-        };
-        
-        const campo = isExpedicaoView ? 'status_separacao' : 'status';
-        const valorAnterior = isExpedicaoView ? os.status_separacao : os.status;
-        
-        await base44.functions.invoke('registrarAuditLog', {
-          action: 'status_change',
-          entity_type: 'OrdemServico',
-          entity_id: osId,
-          details: {
-            campo: campo,
-            valor_anterior: statusLabels[valorAnterior] || valorAnterior,
-            valor_novo: statusLabels[newStatus] || newStatus,
-            descricao: `Status alterado de ${statusLabels[valorAnterior] || valorAnterior} para ${statusLabels[newStatus] || newStatus}`
-          }
-        });
-      } catch (auditError) {
-        console.error('Erro ao registrar mudança de status no histórico:', auditError);
-      }
-      
-      // Criar notificações para líder e executores
+
       if (os && currentPessoa) {
         const destinatarios = [os.lider_id, ...(os.executores_ids || [])].filter(id => id !== currentPessoa.id);
-        
-        const statusLabels = {
-          elaboracao: 'Em Elaboração',
-          execucao: 'Em Execução',
-          concluido: 'Concluído',
-          cancelado: 'Cancelado'
-        };
-        
         if (destinatarios.length > 0) {
           const notificacoes = destinatarios.map(destId => ({
             destinatario_id: destId,
@@ -361,20 +333,11 @@ export default function OrdensServico() {
             referencia_tipo: 'tarefa',
             mensagem: `Status da tarefa ${os.codigo} mudou para ${statusLabels[newStatus]}`,
             lida: false,
-            contexto_adicional: {
-              os_codigo: os.codigo,
-              status_anterior: os.status,
-              status_novo: newStatus
-            }
+            contexto_adicional: { os_codigo: os.codigo, status_anterior: os.status, status_novo: newStatus }
           }));
-          
-          await base44.entities.Notificacao.bulkCreate(notificacoes);
-          
-          // Enviar push notifications
+          base44.entities.Notificacao.bulkCreate(notificacoes).catch(() => {});
           const oldStatus = isExpedicaoView ? os.status_separacao : os.status;
-          for (const destId of destinatarios) {
-            notifyStatusChange(os, destId, oldStatus, newStatus);
-          }
+          destinatarios.forEach(destId => notifyStatusChange(os, destId, oldStatus, newStatus));
         }
       }
     } catch (error) {
@@ -881,40 +844,44 @@ export default function OrdensServico() {
         </>
       )}
 
-      {/* Form Modal */}
-      <OSFormModal
-        open={showFormModal}
-        onClose={handleFormClose}
-        os={selectedOS}
-        regionais={regionais}
-        almoxarifados={almoxarifados}
-        pessoas={pessoas}
-        categorias={categorias}
-        subcategorias={subcategorias}
-        projetos={projetos}
-        instalacoes={instalacoes}
-        currentUser={currentUser}
-        onSave={handleFormSave}
-      />
+      {/* Form Modal — lazy mount */}
+      {showFormModal && (
+        <OSFormModal
+          open={showFormModal}
+          onClose={handleFormClose}
+          os={selectedOS}
+          regionais={regionais}
+          almoxarifados={almoxarifados}
+          pessoas={pessoas}
+          categorias={categorias}
+          subcategorias={subcategorias}
+          projetos={projetos}
+          instalacoes={instalacoes}
+          currentUser={currentUser}
+          onSave={handleFormSave}
+        />
+      )}
 
-      {/* Detail Modal */}
-      <OSDetailModal
-        open={showDetailModal}
-        onClose={() => setShowDetailModal(false)}
-        os={selectedOS}
-        regionais={regionais}
-        almoxarifados={almoxarifados}
-        pessoas={pessoas}
-        categorias={categorias}
-        subcategorias={subcategorias}
-        instalacoes={instalacoes}
-        projetos={projetos}
-        onEdit={handleEditOS}
-        onDelete={handleDeleteOS}
-        onCreateRelated={handleCreateRelated}
-        canDelete={selectedOS ? canDeleteOS(selectedOS) : false}
-        onRefresh={() => loadData(true)}
-      />
+      {/* Detail Modal — lazy mount */}
+      {showDetailModal && (
+        <OSDetailModal
+          open={showDetailModal}
+          onClose={() => setShowDetailModal(false)}
+          os={selectedOS}
+          regionais={regionais}
+          almoxarifados={almoxarifados}
+          pessoas={pessoas}
+          categorias={categorias}
+          subcategorias={subcategorias}
+          instalacoes={instalacoes}
+          projetos={projetos}
+          onEdit={handleEditOS}
+          onDelete={handleDeleteOS}
+          onCreateRelated={handleCreateRelated}
+          canDelete={selectedOS ? canDeleteOS(selectedOS) : false}
+          onRefresh={() => loadData(true)}
+        />
+      )}
 
       {/* Presentation */}
       <PresentationSetupModal

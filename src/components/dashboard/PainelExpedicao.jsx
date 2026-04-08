@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, Legend, LineChart, Line, ReferenceLine, LabelList,
@@ -11,7 +11,6 @@ import { format, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { SortableTableHead, useTableSort, useColumnFilters } from '@/components/ui/table-sortable';
 import { useApp } from '@/components/contexts/AppContext';
-import { base44 } from '@/api/base44Client';
 import OSDetailModal from '@/components/os/OSDetailModal';
 import OSFormModal from '@/components/os/OSFormModal';
 
@@ -227,19 +226,16 @@ function HelpModalExpedicao({ open, onClose }) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function PainelExpedicao({ filteredOrdens, almoxarifados }) {
-  const { regionais, categorias, subcategorias, pessoas } = useApp();
+  const { regionais, categorias, subcategorias, pessoas, instalacoes: ctxInstalacoes, projetos: ctxProjetos } = useApp();
   const [selectedOS, setSelectedOS] = useState(null);
   const [editingOS, setEditingOS] = useState(null);
   const [showHelp, setShowHelp] = useState(false);
   const [tabelaPage, setTabelaPage] = useState(1);
   const TABELA_PAGE_SIZE = 200;
-  const [instalacoes, setInstalacoes] = useState([]);
-  const [projetos, setProjetos] = useState([]);
 
-  useEffect(() => {
-    base44.entities.Instalacao.list().then(setInstalacoes).catch(() => {});
-    base44.entities.Projeto.list().then(setProjetos).catch(() => {});
-  }, []);
+  // Use AppContext data — no extra requests needed
+  const instalacoes = ctxInstalacoes || [];
+  const projetos = ctxProjetos || [];
 
   // ── OTIF ──────────────────────────────────────────────────────────────────
   const { otRate, ifRate, otifRate, otCount, ifCount, otifCount, totalOT, totalIF, totalOTIF, entregues, isOnTime, isInFull } =
