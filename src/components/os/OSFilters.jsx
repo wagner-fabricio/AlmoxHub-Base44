@@ -345,9 +345,21 @@ export default function OSFilters({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas as pessoas</SelectItem>
-                {(pessoas || []).filter(p => p).sort((a,b) => a.nome.localeCompare(b.nome)).map((p) => (
-                  <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
-                ))}
+                {(pessoas || [])
+                  .filter(p => {
+                    if (!p) return false;
+                    if (filters.almoxarifado !== 'all') {
+                      return p.almoxarifados_ids?.includes(filters.almoxarifado);
+                    }
+                    if (filters.regional !== 'all') {
+                      return p.regional_id === filters.regional;
+                    }
+                    return true;
+                  })
+                  .sort((a, b) => a.nome.localeCompare(b.nome))
+                  .map((p) => (
+                    <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
+                  ))}
               </SelectContent>
             </Select>
           )}
