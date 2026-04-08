@@ -537,7 +537,30 @@ export default function OrdensServico() {
 
         {/* Fullscreen Content */}
         <div className="p-6">
-          {filteredOrdens.length === 0 ? (
+          {viewMode === 'timesheet' ? (
+            <OSTimeSheetView
+              osEmPlay={filteredOrdens.filter(o => {
+                if (o.timesheet_status !== 'playing') return false;
+                if (filters.pessoa_id) {
+                  return (o.timesheet_sessoes_ativas || []).some(s => s.pessoa_id === filters.pessoa_id) ||
+                    o.lider_id === filters.pessoa_id ||
+                    (o.executores_ids || []).includes(filters.pessoa_id);
+                }
+                return true;
+              })}
+              pessoas={pessoas}
+              categorias={categorias}
+              subcategorias={subcategorias}
+              almoxarifados={almoxarifados}
+              regionais={regionais}
+              filters={filters}
+              onClickOS={handleOSClick}
+            />
+          ) : viewMode === 'timesheet_relatorio' ? (
+            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+              <OSTimeSheetRelatorio pessoas={pessoas} categorias={categorias} subcategorias={subcategorias} almoxarifados={almoxarifados} ordens={ordens} filters={filters} />
+            </div>
+          ) : filteredOrdens.length === 0 ? (
             <div className="bg-white dark:bg-slate-800 rounded-2xl p-12 text-center">
               <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
                 <Plus className="w-8 h-8 text-slate-400" />
