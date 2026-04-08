@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useApp } from '@/components/contexts/AppContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -87,6 +86,22 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadData();
+
+    // Real-time sync: keep OS list updated without manual reloads
+    const unsub = base44.entities.OrdemServico.subscribe((event) => {
+      if (event.type === 'create' && event.data) {
+        setOrdens(prev => {
+          if (prev.some(o => o.id === event.id)) return prev;
+          return [event.data, ...prev];
+        });
+      } else if (event.type === 'update' && event.data) {
+        setOrdens(prev => prev.map(o => o.id === event.id ? { ...o, ...event.data } : o));
+      } else if (event.type === 'delete') {
+        setOrdens(prev => prev.filter(o => o.id !== event.id));
+      }
+    });
+
+    return () => unsub();
   }, []);
 
   const loadData = async () => {

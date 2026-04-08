@@ -27,7 +27,7 @@ function OSCard({ os, pessoas, categorias, regionais, instalacoes, onOSClick, cu
     >
       <div className="aspect-video bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 relative overflow-hidden">
         {coverImage ? (
-          <img src={coverImage} alt={os.codigo} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+          <img src={coverImage} alt={os.codigo} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <ImageIcon className="w-12 h-12 text-slate-300 dark:text-slate-600" />

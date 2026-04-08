@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -83,9 +83,22 @@ export default function OSFilters({
     filters.periodo !== 'all' ||
     filters.pessoa_id;
 
-  const filteredSubcategorias = !filters.categorias || filters.categorias.length === 0
-    ? subcategorias 
-    : subcategorias.filter(s => filters.categorias.includes(s.categoria_id));
+  const filteredSubcategorias = useMemo(() =>
+    !filters.categorias || filters.categorias.length === 0
+      ? subcategorias
+      : subcategorias.filter(s => filters.categorias.includes(s.categoria_id)),
+    [filters.categorias, subcategorias]
+  );
+
+  const filteredPessoas = useMemo(() =>
+    (pessoas || []).filter(p => {
+      if (!p) return false;
+      if (filters.almoxarifado !== 'all') return p.almoxarifados_ids?.includes(filters.almoxarifado);
+      if (filters.regional !== 'all') return p.regional_id === filters.regional;
+      return true;
+    }).sort((a, b) => a.nome.localeCompare(b.nome)),
+    [pessoas, filters.almoxarifado, filters.regional]
+  );
 
   return (
     <Collapsible
@@ -345,21 +358,9 @@ export default function OSFilters({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas as pessoas</SelectItem>
-                {(pessoas || [])
-                  .filter(p => {
-                    if (!p) return false;
-                    if (filters.almoxarifado !== 'all') {
-                      return p.almoxarifados_ids?.includes(filters.almoxarifado);
-                    }
-                    if (filters.regional !== 'all') {
-                      return p.regional_id === filters.regional;
-                    }
-                    return true;
-                  })
-                  .sort((a, b) => a.nome.localeCompare(b.nome))
-                  .map((p) => (
-                    <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
-                  ))}
+                {filteredPessoas.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           )}

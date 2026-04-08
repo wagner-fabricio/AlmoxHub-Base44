@@ -57,6 +57,7 @@ export default function OrdensServico() {
     search: '', migo: '', reserva: '', codigoMaterial: ''
   });
   const debounceRef = useRef(null);
+  const savePrefsRef = useRef(null);
 
   const updateFilters = useCallback(async (newFilters) => {
     setFilters(newFilters);
@@ -70,17 +71,21 @@ export default function OrdensServico() {
         codigoMaterial: newFilters.codigoMaterial || '',
       });
     }, 300);
-    try {
-      const savedFilters = currentUser?.filtros_preferidos || {};
-      await base44.auth.updateMe({
-        filtros_preferidos: {
-          ...savedFilters,
-          OrdensServico: newFilters
-        }
-      });
-    } catch (e) {
-      // silently fail — preference saving is not critical
-    }
+    // Debounce preference saving — only write after user stops interacting (1.5s)
+    if (savePrefsRef.current) clearTimeout(savePrefsRef.current);
+    savePrefsRef.current = setTimeout(async () => {
+      try {
+        const savedFilters = currentUser?.filtros_preferidos || {};
+        await base44.auth.updateMe({
+          filtros_preferidos: {
+            ...savedFilters,
+            OrdensServico: newFilters
+          }
+        });
+      } catch (e) {
+        // silently fail — preference saving is not critical
+      }
+    }, 1500);
   }, [currentUser]);
 
   const [showFormModal, setShowFormModal] = useState(false);
