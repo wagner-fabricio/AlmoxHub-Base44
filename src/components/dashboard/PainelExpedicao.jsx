@@ -1020,6 +1020,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados }) {
                         { col: 'data_necessidade', label: 'Necessidade', filter: true, width: 'w-24' },
                         { col: 'data_entrega', label: 'Entrega', filter: true, width: 'w-24' },
                         { col: 'tempoEntrega', label: 'Tempo', filter: true, width: 'w-20' },
+                        { col: 'volM3', label: 'Vol. M³', filter: false, width: 'w-20' },
                       ].map(({ col, label, filter, width }) => (
                         <th key={col} className={`px-2 py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-left ${width} whitespace-nowrap`}>
                           <SortableTableHead label={label} column={col} sortConfig={sortConfig} onSort={handleSort}
@@ -1055,7 +1056,13 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados }) {
                           <td className={`px-2 py-2 text-center whitespace-nowrap ${tempoColor}`}>
                             {tempoEntrega !== null ? (tempoEntrega === 0 ? 'No prazo' : `${tempoEntrega > 0 ? '+' : ''}${tempoEntrega}d`) : '—'}
                           </td>
-                        </tr>
+                          <td className="px-2 py-2 text-right whitespace-nowrap">
+                            {(() => {
+                              const totalM3 = (os.volumes || []).reduce((sum, v) => sum + (v.m3 || 0), 0);
+                              return totalM3 > 0 ? totalM3.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 3 }) : '—';
+                            })()}
+                          </td>
+                          </tr>
                       );
                     })}
                   </tbody>
