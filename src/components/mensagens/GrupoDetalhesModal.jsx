@@ -161,7 +161,7 @@ export default function GrupoDetalhesModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh]">
+      <DialogContent className="max-w-2xl max-h-[85vh]" aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>Detalhes do Grupo</DialogTitle>
         </DialogHeader>

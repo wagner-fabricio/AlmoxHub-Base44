@@ -65,7 +65,7 @@ export default function NovaConversaModal({ open, onClose, pessoas, currentPesso
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh]">
+      <DialogContent className="max-w-2xl max-h-[80vh]" aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>Nova Conversa</DialogTitle>
         </DialogHeader>

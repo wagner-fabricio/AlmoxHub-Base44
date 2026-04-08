@@ -221,7 +221,7 @@ export default function OrdemSaidaModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
+      <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden" aria-describedby={undefined}>
         <DialogHeader className="px-6 py-4 border-b bg-slate-50 dark:bg-slate-800">
           <DialogTitle className="text-xl font-semibold">
             {existingOrdem ? 'Editar Ordem de Saída' : 'Gerar Ordem de Saída'}

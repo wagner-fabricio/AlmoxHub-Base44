@@ -64,7 +64,7 @@ export default function PresentationSetupModal({ open, onClose, onStart }) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl" aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg">
             <Tv2 className="w-5 h-5 text-blue-600" />
