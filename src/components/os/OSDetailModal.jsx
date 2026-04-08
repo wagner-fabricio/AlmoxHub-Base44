@@ -644,7 +644,7 @@ export default function OSDetailModal({
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[90vh] p-0 overflow-hidden flex flex-col">
+      <DialogContent className="max-w-4xl h-[90vh] p-0 overflow-hidden flex flex-col" aria-describedby={undefined}>
         <DialogHeader className="px-4 lg:px-6 py-4 border-b bg-slate-50 dark:bg-slate-800">
           <div className="space-y-4">
             {/* Linha 1: Título e Status */}

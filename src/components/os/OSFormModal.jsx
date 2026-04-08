@@ -524,7 +524,7 @@ export default function OSFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[90vh] p-0 overflow-hidden">
+      <DialogContent className="max-w-5xl max-h-[90vh] p-0 overflow-hidden" aria-describedby={undefined}>
         <DialogHeader className="px-6 py-5 border-b" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl font-semibold text-white">
