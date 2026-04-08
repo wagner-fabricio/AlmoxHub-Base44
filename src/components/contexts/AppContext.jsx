@@ -54,7 +54,7 @@ export function AppProvider({ children }) {
         base44.entities.Pessoa.list(),
         base44.entities.Categoria.list(),
         base44.entities.Subcategoria.list(),
-        base44.entities.OrdemServico.list()
+        base44.entities.OrdemServico.list('-created_date', 2000)
       ]);
 
       setCurrentUser(user);

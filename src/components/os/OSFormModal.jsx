@@ -1060,7 +1060,7 @@ export default function OSFormModal({
                       <Input type="file" multiple accept="image/*" className="hidden" id="imagens-upload" onChange={(e) => handleFileUpload(e, 'imagens')} />
                       <Button variant="outline" size="sm" asChild><label htmlFor="imagens-upload" className="cursor-pointer">Selecionar Imagens</label></Button>
                     </div>
-                    {formData.imagens?.length > 0 && <div className="grid grid-cols-3 gap-2">{(formData.imagens || []).map((url, i) => (<div key={i} className="relative group"><img src={url} alt={`Imagem ${i + 1}`} className="w-full aspect-square object-cover rounded-lg" /><Button variant="destructive" size="icon" className="absolute top-1 right-1 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => removeFile('imagens', i)}><X className="w-3 h-3" /></Button></div>))}</div>}
+                    {formData.imagens?.length > 0 && <div className="grid grid-cols-3 gap-2">{(formData.imagens || []).map((url, i) => (<div key={i} className="relative group"><img src={url} alt={`Imagem ${i + 1}`} loading="lazy" className="w-full aspect-square object-cover rounded-lg" /><Button variant="destructive" size="icon" className="absolute top-1 right-1 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => removeFile('imagens', i)}><X className="w-3 h-3" /></Button></div>))}</div>}
                   </div>
                 </div>
               </TabsContent>

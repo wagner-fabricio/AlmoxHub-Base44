@@ -101,17 +101,18 @@ export default function Layout({ children, currentPageName }) {
         const pessoaData = await base44.entities.Pessoa.filter({ user_id: userData.id }).then(p => p[0]);
         setPessoa(pessoaData);
 
-        // Carregar dados adicionais se pessoa existe
+        // Carregar dados adicionais se pessoa existe — em paralelo
         if (pessoaData) {
-          if (pessoaData.regional_id) {
-            const regionalData = await base44.entities.Regional.filter({ id: pessoaData.regional_id }).then(r => r[0]);
-            setRegional(regionalData);
-          }
-          if (pessoaData.almoxarifados_ids?.length > 0) {
-            const almoxData = await base44.entities.Almoxarifado.list();
-            const userAlmox = almoxData.filter(a => pessoaData.almoxarifados_ids.includes(a.id));
-            setAlmoxarifados(userAlmox);
-          }
+          const [regionalData, almoxData] = await Promise.all([
+            pessoaData.regional_id
+              ? base44.entities.Regional.filter({ id: pessoaData.regional_id }).then(r => r[0])
+              : Promise.resolve(null),
+            pessoaData.almoxarifados_ids?.length > 0
+              ? base44.entities.Almoxarifado.list()
+              : Promise.resolve([]),
+          ]);
+          if (regionalData) setRegional(regionalData);
+          if (almoxData.length > 0) setAlmoxarifados(almoxData.filter(a => pessoaData.almoxarifados_ids.includes(a.id)));
         }
         
         // Se não tem registro de Pessoa, redirecionar para cadastro inicial
