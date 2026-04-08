@@ -65,6 +65,12 @@ export default function OSFormModal({
 }) {
   const [loading, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('geral');
+  const [loadedFormTabs, setLoadedFormTabs] = useState(new Set(['geral']));
+
+  const handleFormTabChange = (tab) => {
+    setActiveTab(tab);
+    setLoadedFormTabs(prev => new Set([...prev, tab]));
+  };
   const [generatingOSPDF, setGeneratingOSPDF] = useState(false);
   const [showRelatorioOS, setShowRelatorioOS] = useState(false);
   const [importingPDF, setImportingPDF] = useState(false);
@@ -104,6 +110,7 @@ export default function OSFormModal({
     if (!open) {
       // Reset tracker when modal closes so next open reinitializes
       initializedForRef.current = null;
+      setLoadedFormTabs(new Set(['geral']));
       return;
     }
 
@@ -554,7 +561,7 @@ export default function OSFormModal({
 
         <ScrollArea className="max-h-[calc(90vh-200px)]">
           <div className="p-8 bg-slate-50/30 dark:bg-slate-900/30">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <Tabs value={activeTab} onValueChange={handleFormTabChange} className="w-full">
               <div className="flex items-end justify-between border-b border-slate-200 dark:border-slate-700 mb-8">
               <TabsList className="bg-transparent rounded-none h-auto p-0 space-x-8 border-b-0">
                 <TabsTrigger value="geral" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Dados Gerais</TabsTrigger>
@@ -821,8 +828,8 @@ export default function OSFormModal({
                 </TabsContent>
               )}
 
-              {isExpedicaoCategory && (<TabsContent value="materiais"><OSItensDocumento itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} /></TabsContent>)}
-              {isAtendimentoCategory && (<TabsContent value="materiais"><OSAtendimentoMateriais itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} /></TabsContent>)}
+              {isExpedicaoCategory && (<TabsContent value="materiais">{loadedFormTabs.has('materiais') && <OSItensDocumento itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} />}</TabsContent>)}
+              {isAtendimentoCategory && (<TabsContent value="materiais">{loadedFormTabs.has('materiais') && <OSAtendimentoMateriais itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} />}</TabsContent>)}
               {isExpedicaoCategory && (
                 <TabsContent value="volumes" className="space-y-6">
                   <OSVolumes volumes={formData.volumes} onChange={(volumes) => setFormData(prev => ({ ...prev, volumes }))} onGerarEtiquetas={() => setShowEtiquetaModal(true)} />
@@ -978,7 +985,7 @@ export default function OSFormModal({
                 </TabsContent>
               )}
 
-              {isRecebimentoCategory && (<TabsContent value="receb-doc" className="space-y-6"><OSRecebimentoDocumento emissor={formData.nfe_dados_emissor} destinatario={formData.nfe_dados_destinatario} onChange={(data) => setFormData(prev => ({ ...prev, nfe_dados_emissor: data.emissor || prev.nfe_dados_emissor, nfe_dados_destinatario: data.destinatario || prev.nfe_dados_destinatario }))} /></TabsContent>)}
+              {isRecebimentoCategory && (<TabsContent value="receb-doc" className="space-y-6">{loadedFormTabs.has('receb-doc') && <OSRecebimentoDocumento emissor={formData.nfe_dados_emissor} destinatario={formData.nfe_dados_destinatario} onChange={(data) => setFormData(prev => ({ ...prev, nfe_dados_emissor: data.emissor || prev.nfe_dados_emissor, nfe_dados_destinatario: data.destinatario || prev.nfe_dados_destinatario }))} />}</TabsContent>)}
               {isRecebimentoCategory && (<TabsContent value="receb-rodape" className="space-y-6"><div className="space-y-2"><Label>Informações Complementares</Label><Textarea value={formData.nfe_info_complementares} onChange={(e) => setFormData({ ...formData, nfe_info_complementares: e.target.value })} placeholder="Informações complementares da nota fiscal..." rows={8} className="font-mono text-sm" /></div></TabsContent>)}
 
               {isRecebimentoCategory && (
@@ -1004,8 +1011,8 @@ export default function OSFormModal({
                 </TabsContent>
               )}
 
-              {isRecebimentoCategory && (<TabsContent value="receb-transp" className="space-y-6"><OSRecebimentoTransportador transportador={formData.nfe_dados_transportador} onChange={(data) => setFormData(prev => ({ ...prev, nfe_dados_transportador: data }))} /></TabsContent>)}
-              {isRecebimentoCategory && (<TabsContent value="receb-mat" className="space-y-6"><OSRecebimentoMateriais itens={formData.nfe_itens_conferencia} fluxo={formData.fluxo_recebimento} onChange={(data) => setFormData(prev => ({ ...prev, nfe_itens_conferencia: data.itens || prev.nfe_itens_conferencia, fluxo_recebimento: data.fluxo || prev.fluxo_recebimento }))} /></TabsContent>)}
+              {isRecebimentoCategory && (<TabsContent value="receb-transp" className="space-y-6">{loadedFormTabs.has('receb-transp') && <OSRecebimentoTransportador transportador={formData.nfe_dados_transportador} onChange={(data) => setFormData(prev => ({ ...prev, nfe_dados_transportador: data }))} />}</TabsContent>)}
+              {isRecebimentoCategory && (<TabsContent value="receb-mat" className="space-y-6">{loadedFormTabs.has('receb-mat') && <OSRecebimentoMateriais itens={formData.nfe_itens_conferencia} fluxo={formData.fluxo_recebimento} onChange={(data) => setFormData(prev => ({ ...prev, nfe_itens_conferencia: data.itens || prev.nfe_itens_conferencia, fluxo_recebimento: data.fluxo || prev.fluxo_recebimento }))} />}</TabsContent>)}
 
               {isExpedicaoCategory && os?.id && (
                 <TabsContent value="assinaturas" className="space-y-4">

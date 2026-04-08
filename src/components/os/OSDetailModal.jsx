@@ -789,7 +789,7 @@ export default function OSDetailModal({
                 <TabsTrigger value="comentarios" onClick={() => handleTabChange('comentarios')}>
                   Comentários ({comentarios.length})
                 </TabsTrigger>
-                <TabsTrigger value="anexos" onClick={() => handleTabChange('anexos')}>
+                <TabsTrigger value="anexos" onClick={() => handleTabChange('anexos')} data-tab="anexos">
                   Anexos ({(os.anexos?.length || 0) + (os.imagens?.length || 0)})
                 </TabsTrigger>
                 <TabsTrigger value="historico" onClick={() => handleTabChange('historico')}>
@@ -1883,8 +1883,11 @@ export default function OSDetailModal({
                 )}
               </TabsContent>
 
-              {/* Anexos Tab */}
+              {/* Anexos Tab — lazy rendered */}
               <TabsContent value="anexos" className="space-y-6">
+                {!loadedTabs.has('anexos') ? (
+                  <div className="text-center py-12 text-slate-400">Clique na aba para ver os anexos</div>
+                ) : <>
                 {/* Images */}
                 {os.imagens?.length > 0 && (
                   <div>
@@ -1901,7 +1904,7 @@ export default function OSDetailModal({
                           rel="noopener noreferrer"
                           className="aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 hover:opacity-80 transition-opacity"
                         >
-                          <img src={url} alt={`Imagem ${i + 1}`} className="w-full h-full object-cover" />
+                          <img src={url} alt={`Imagem ${i + 1}`} loading="lazy" className="w-full h-full object-cover" />
                         </a>
                       ))}
                     </div>
@@ -1937,6 +1940,7 @@ export default function OSDetailModal({
                     Nenhum anexo
                   </div>
                 )}
+                </>}
               </TabsContent>
             </Tabs>
           </div>

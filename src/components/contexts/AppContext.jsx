@@ -10,20 +10,20 @@ export function AppProvider({ children }) {
   const [pessoas, setPessoas] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [subcategorias, setSubcategorias] = useState([]);
+  const [ordens, setOrdens] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadGlobalData();
   }, []);
 
-  // Keep Pessoa list in sync with real-time updates (e.g. profile changes)
+  // Keep Pessoa list in sync with real-time updates
   useEffect(() => {
     const unsub = base44.entities.Pessoa.subscribe((event) => {
       if (event.type === 'create') {
         setPessoas(prev => [...prev, event.data]);
       } else if (event.type === 'update') {
         setPessoas(prev => prev.map(p => p.id === event.id ? { ...p, ...event.data } : p));
-        // Also update currentPessoa if it's the same person
         setCurrentPessoa(prev => prev?.id === event.id ? { ...prev, ...event.data } : prev);
       } else if (event.type === 'delete') {
         setPessoas(prev => prev.filter(p => p.id !== event.id));
@@ -32,14 +32,29 @@ export function AppProvider({ children }) {
     return unsub;
   }, []);
 
+  // Keep OrdemServico list in sync with real-time updates (shared across Dashboard + OrdensServico)
+  useEffect(() => {
+    const unsub = base44.entities.OrdemServico.subscribe((event) => {
+      if (event.type === 'create' && event.data) {
+        setOrdens(prev => prev.some(o => o.id === event.id) ? prev : [event.data, ...prev]);
+      } else if (event.type === 'update' && event.data) {
+        setOrdens(prev => prev.map(o => o.id === event.id ? { ...o, ...event.data } : o));
+      } else if (event.type === 'delete') {
+        setOrdens(prev => prev.filter(o => o.id !== event.id));
+      }
+    });
+    return unsub;
+  }, []);
+
   const loadGlobalData = async () => {
     try {
-      const [user, regionaisData, pessoasData, categoriasData, subcategoriasData] = await Promise.all([
+      const [user, regionaisData, pessoasData, categoriasData, subcategoriasData, ordensData] = await Promise.all([
         base44.auth.me().catch(() => null),
         base44.entities.Regional.list(),
         base44.entities.Pessoa.list(),
         base44.entities.Categoria.list(),
-        base44.entities.Subcategoria.list()
+        base44.entities.Subcategoria.list(),
+        base44.entities.OrdemServico.list()
       ]);
 
       setCurrentUser(user);
@@ -47,6 +62,7 @@ export function AppProvider({ children }) {
       setPessoas(pessoasData);
       setCategorias(categoriasData);
       setSubcategorias(subcategoriasData);
+      setOrdens(ordensData);
 
       if (user) {
         const pessoa = pessoasData.find(p => p.user_id === user.id);
@@ -82,6 +98,11 @@ export function AppProvider({ children }) {
     setSubcategorias(subcategoriasData);
   };
 
+  const refreshOrdens = async () => {
+    const ordensData = await base44.entities.OrdemServico.list();
+    setOrdens(ordensData);
+  };
+
   return (
     <AppContext.Provider value={{
       currentUser,
@@ -90,10 +111,13 @@ export function AppProvider({ children }) {
       pessoas,
       categorias,
       subcategorias,
+      ordens,
+      setOrdens,
       loading,
       refreshPessoas,
       refreshRegionais,
       refreshCategorias,
+      refreshOrdens,
       loadGlobalData
     }}>
       {children}

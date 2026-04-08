@@ -23,9 +23,8 @@ import OSTimeSheetView from '@/components/timesheet/OSTimeSheetView.jsx';
 import OSTimeSheetRelatorio from '@/components/timesheet/OSTimeSheetRelatorio.jsx';
 
 export default function OrdensServico() {
-  const { regionais, categorias, subcategorias = [], pessoas, currentUser: ctxUser, currentPessoa: ctxPessoa } = useApp();
+  const { regionais, categorias, subcategorias = [], pessoas, currentUser: ctxUser, currentPessoa: ctxPessoa, ordens, setOrdens } = useApp();
   const [loading, setLoading] = useState(true);
-  const [ordens, setOrdens] = useState([]);
   const [almoxarifados, setAlmoxarifados] = useState([]);
   const [projetos, setProjetos] = useState([]);
   const [instalacoes, setInstalacoes] = useState([]);
@@ -99,31 +98,13 @@ export default function OrdensServico() {
 
   useEffect(() => {
     loadData();
-
-    // Real-time sync: keep OS list updated without manual reloads
-    const unsub = base44.entities.OrdemServico.subscribe((event) => {
-      if (event.type === 'create' && event.data) {
-        setOrdens(prev => {
-          // Avoid duplicates (the OS might have been added optimistically already)
-          if (prev.some(o => o.id === event.id)) return prev;
-          return [event.data, ...prev];
-        });
-      } else if (event.type === 'update' && event.data) {
-        setOrdens(prev => prev.map(o => o.id === event.id ? { ...o, ...event.data } : o));
-      } else if (event.type === 'delete') {
-        setOrdens(prev => prev.filter(o => o.id !== event.id));
-      }
-    });
-
-    return () => unsub();
   }, []);
 
   const loadData = async (silent = false) => {
     if (!silent) setLoading(true);
     try {
-      // auth.me() is already available from AppContext — no need to fetch it again
-      const [ordensData, almoxarifadosData, projetosData, instalacoesData, rotulosData] = await Promise.all([
-        base44.entities.OrdemServico.list(),
+      // ordens come from AppContext — no need to fetch them again
+      const [almoxarifadosData, projetosData, instalacoesData, rotulosData] = await Promise.all([
         base44.entities.Almoxarifado.list(),
         base44.entities.Projeto.list(),
         base44.entities.Instalacao.list(),
@@ -156,7 +137,6 @@ export default function OrdensServico() {
         });
       }
       
-      setOrdens(ordensData);
       setAlmoxarifados(almoxarifadosData);
       setProjetos(projetosData);
       setInstalacoes(instalacoesData);

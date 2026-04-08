@@ -38,9 +38,8 @@ const statusLabels = {
 };
 
 export default function Dashboard() {
-  const { regionais, categorias, subcategorias, pessoas, loading: ctxLoading } = useApp();
+  const { regionais, categorias, subcategorias, pessoas, ordens, loading: ctxLoading } = useApp();
   const [loading, setLoading] = useState(true);
-  const [ordens, setOrdens] = useState([]);
   const [almoxarifados, setAlmoxarifados] = useState([]);
   const [instalacoes, setInstalacoes] = useState([]);
   const [problemasRecebimento, setProblemasRecebimento] = useState([]);
@@ -86,36 +85,18 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadData();
-
-    // Real-time sync: keep OS list updated without manual reloads
-    const unsub = base44.entities.OrdemServico.subscribe((event) => {
-      if (event.type === 'create' && event.data) {
-        setOrdens(prev => {
-          if (prev.some(o => o.id === event.id)) return prev;
-          return [event.data, ...prev];
-        });
-      } else if (event.type === 'update' && event.data) {
-        setOrdens(prev => prev.map(o => o.id === event.id ? { ...o, ...event.data } : o));
-      } else if (event.type === 'delete') {
-        setOrdens(prev => prev.filter(o => o.id !== event.id));
-      }
-    });
-
-    return () => unsub();
   }, []);
 
   const loadData = async () => {
     setLoading(true);
     try {
-      const [user, ordensData, almoxarifadosData, instalacoesData, problemasData] = await Promise.all([
+      const [user, almoxarifadosData, instalacoesData, problemasData] = await Promise.all([
         base44.auth.me(),
-        base44.entities.OrdemServico.list(),
         base44.entities.Almoxarifado.list(),
         base44.entities.Instalacao.list(),
         base44.entities.ProblemaRecebimento.list()
       ]);
       setCurrentUser(user);
-      setOrdens(ordensData);
       setAlmoxarifados(almoxarifadosData);
       setInstalacoes(instalacoesData);
       setProblemasRecebimento(problemasData);
