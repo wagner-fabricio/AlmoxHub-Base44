@@ -50,6 +50,7 @@ import jsPDF from 'jspdf';
 import { notifyCommentMention } from '@/components/notifications/PushNotificationHelper';
 import { createPageUrl } from '@/utils';
 import TimeSheetButton, { formatarTempo } from '@/components/timesheet/TimeSheetButton';
+import { useApp } from '@/components/contexts/AppContext';
 
 const prioridadeConfig = {
   baixa: { color: 'bg-slate-100 text-slate-700', label: 'Baixa' },
@@ -82,6 +83,8 @@ export default function OSDetailModal({
   onRefresh,
   projetos
 }) {
+  // Use global context to avoid redundant auth.me() calls on every modal open
+  const { currentUser: ctxUser, currentPessoa: ctxPessoa } = useApp();
   const [comentarios, setComentarios] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [loadingComment, setLoadingComment] = useState(false);
@@ -131,7 +134,9 @@ export default function OSDetailModal({
 
   useEffect(() => {
     if (open && os) {
-      loadUser();
+      // Use context data directly — no extra network call needed
+      if (ctxUser) setCurrentUser(ctxUser);
+      if (ctxPessoa) setCurrentUserPessoa(ctxPessoa);
       setLocalOS(os);
       setActiveTab('detalhes');
       setLoadedTabs(new Set(['detalhes']));
@@ -143,25 +148,7 @@ export default function OSDetailModal({
         base44.entities.Rotulo.filter({ ativo: true }).then(setRotulos).catch(() => {});
       }
     }
-  }, [open, os]);
-
-  const loadUser = async () => {
-    try {
-      const user = await base44.auth.me();
-      setCurrentUser(user);
-      // Tentar encontrar a pessoa no array já carregado no contexto (zero custo)
-      const pessoaFromContext = Array.isArray(pessoas) ? pessoas.find(p => p?.user_id === user.id) : null;
-      if (pessoaFromContext) {
-        setCurrentUserPessoa(pessoaFromContext);
-      } else {
-        // Fallback: buscar só se não encontrou no contexto
-        const pessoaData = await base44.entities.Pessoa.filter({ user_id: user.id });
-        if (Array.isArray(pessoaData) && pessoaData[0]) {
-          setCurrentUserPessoa(pessoaData[0]);
-        }
-      }
-    } catch (e) {}
-  };
+  }, [open, os, ctxUser, ctxPessoa]);
 
   const loadComentarios = async () => {
     try {

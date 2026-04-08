@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useMemo, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useApp } from '@/components/contexts/AppContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -69,19 +70,19 @@ export default function Dashboard() {
     dataFim: ''
   });
 
-  const updateFilters = async (newFilters) => {
+  const savePrefsRef = useRef(null);
+  const updateFilters = (newFilters) => {
     setFilters(newFilters);
-    try {
-      const savedFilters = currentUser?.filtros_preferidos || {};
-      await base44.auth.updateMe({
+    // Debounce: save preferences only after user stops interacting (1.5s)
+    if (savePrefsRef.current) clearTimeout(savePrefsRef.current);
+    savePrefsRef.current = setTimeout(() => {
+      base44.auth.updateMe({
         filtros_preferidos: {
-          ...savedFilters,
+          ...(currentUser?.filtros_preferidos || {}),
           Dashboard: newFilters
         }
-      });
-    } catch (e) {
-      console.error('Erro ao salvar filtros');
-    }
+      }).catch(() => {});
+    }, 1500);
   };
 
   useEffect(() => {
@@ -121,248 +122,164 @@ export default function Dashboard() {
   };
 
   // Torre de Controle - KPIs Volumetrias (definir antes de usar nos filtros)
-  const categoriaRecebimento = categorias.find(c => c.nome?.toLowerCase().includes('recebimento'));
-  const categoriaExpedicao = categorias.find(c => c.nome?.toLowerCase().includes('expedição'));
+  const categoriaRecebimento = useMemo(
+    () => categorias.find(c => c.nome?.toLowerCase().includes('recebimento')),
+    [categorias]
+  );
+  const categoriaExpedicao = useMemo(
+    () => categorias.find(c => c.nome?.toLowerCase().includes('expedição')),
+    [categorias]
+  );
 
-  // Filter data
-  const filteredOrdens = ordens.filter(os => {
-    if (filters.regional !== 'all' && os.regional_id !== filters.regional) return false;
-    if (filters.almoxarifado !== 'all' && os.almoxarifado_id !== filters.almoxarifado) return false;
-    
-    // Filtrar por categoria conforme a aba selecionada
-    if (activeTab === 'recebimento') {
-      if (os.categoria_id !== categoriaRecebimento?.id) return false;
-    } else if (activeTab === 'expedicao') {
-      if (os.categoria_id !== categoriaExpedicao?.id) return false;
-    } else {
-      // Aba geral, mapas e torre usam o filtro de categoria normal
-      if (filters.categoria !== 'all' && os.categoria_id !== filters.categoria) return false;
-    }
-    
-    if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
-    if (filters.status !== 'all' && os.status !== filters.status) return false;
-    
-    // Period filter
+  // Filter data — memoized to avoid recomputing on every render
+  const filteredOrdens = useMemo(() => {
+    // Pre-compute period bounds once
+    let periodoStart = null, periodoEnd = null, periodoCutoff = null;
     if (filters.periodo === 'mes_atual') {
       const now = new Date();
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-      const osDate = new Date(os.created_date);
-      if (osDate < startOfMonth || osDate > endOfMonth) return false;
+      periodoStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      periodoEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     } else if (filters.periodo === 'customizado') {
-      if (filters.dataInicio) {
-        const startDate = new Date(filters.dataInicio);
-        if (new Date(os.created_date) < startDate) return false;
-      }
-      if (filters.dataFim) {
-        const endDate = new Date(filters.dataFim);
-        endDate.setHours(23, 59, 59, 999);
-        if (new Date(os.created_date) > endDate) return false;
-      }
+      if (filters.dataInicio) periodoStart = new Date(filters.dataInicio);
+      if (filters.dataFim) { periodoEnd = new Date(filters.dataFim); periodoEnd.setHours(23, 59, 59, 999); }
     } else if (filters.periodo !== 'all') {
-      const days = parseInt(filters.periodo);
-      const cutoff = subDays(new Date(), days);
-      if (new Date(os.created_date) < cutoff) return false;
+      periodoCutoff = subDays(new Date(), parseInt(filters.periodo));
     }
-    return true;
-  });
+
+    return ordens.filter(os => {
+      if (filters.regional !== 'all' && os.regional_id !== filters.regional) return false;
+      if (filters.almoxarifado !== 'all' && os.almoxarifado_id !== filters.almoxarifado) return false;
+      
+      if (activeTab === 'recebimento') {
+        if (os.categoria_id !== categoriaRecebimento?.id) return false;
+      } else if (activeTab === 'expedicao') {
+        if (os.categoria_id !== categoriaExpedicao?.id) return false;
+      } else {
+        if (filters.categoria !== 'all' && os.categoria_id !== filters.categoria) return false;
+      }
+      
+      if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
+      if (filters.status !== 'all' && os.status !== filters.status) return false;
+      
+      const osDate = new Date(os.created_date);
+      if (periodoStart && periodoEnd) { if (osDate < periodoStart || osDate > periodoEnd) return false; }
+      else if (periodoStart) { if (osDate < periodoStart) return false; }
+      else if (periodoEnd) { if (osDate > periodoEnd) return false; }
+      else if (periodoCutoff) { if (osDate < periodoCutoff) return false; }
+      return true;
+    });
+  }, [ordens, filters, activeTab, categoriaRecebimento?.id, categoriaExpedicao?.id]);
 
   // Subcategorias filtradas pela categoria selecionada (ou pela categoria fixa da aba)
-  const activeCategoriaId = 
+  const activeCategoriaId = useMemo(() =>
     activeTab === 'recebimento' ? categoriaRecebimento?.id :
     activeTab === 'expedicao' ? categoriaExpedicao?.id :
-    filters.categoria !== 'all' ? filters.categoria : null;
+    filters.categoria !== 'all' ? filters.categoria : null,
+    [activeTab, categoriaRecebimento?.id, categoriaExpedicao?.id, filters.categoria]
+  );
 
-  const filteredSubcategorias = activeCategoriaId
-    ? subcategorias.filter(s => s.categoria_id === activeCategoriaId)
-    : subcategorias;
+  const filteredSubcategorias = useMemo(() =>
+    activeCategoriaId ? subcategorias.filter(s => s.categoria_id === activeCategoriaId) : subcategorias,
+    [activeCategoriaId, subcategorias]
+  );
 
-  // KPIs - Com comparação de ontem
-  const yesterday = subDays(new Date(), 1);
-  const yesterdayStart = new Date(yesterday.setHours(0, 0, 0, 0));
-  
-  const ordensOntem = ordens.filter(os => {
-    const createdDate = new Date(os.created_date);
-    return createdDate < yesterdayStart;
-  });
-  
-  const totalOS = filteredOrdens.length;
-  const totalOSOntem = ordensOntem.length;
-  const diffTotalOS = totalOS - totalOSOntem;
-  const percTotalOS = totalOSOntem > 0 ? ((diffTotalOS / totalOSOntem) * 100).toFixed(1) : 0;
-  
-  const osEmElaboracao = filteredOrdens.filter(os => os.status === 'elaboracao').length;
-  const osEmElaboracaoOntem = ordensOntem.filter(os => os.status === 'elaboracao').length;
-  const diffElaboracao = osEmElaboracao - osEmElaboracaoOntem;
-  const percElaboracao = osEmElaboracaoOntem > 0 ? ((diffElaboracao / osEmElaboracaoOntem) * 100).toFixed(1) : 0;
-  
-  const osEmExecucao = filteredOrdens.filter(os => os.status === 'execucao').length;
-  const osEmExecucaoOntem = ordensOntem.filter(os => os.status === 'execucao').length;
-  const diffExecucao = osEmExecucao - osEmExecucaoOntem;
-  const percExecucao = osEmExecucaoOntem > 0 ? ((diffExecucao / osEmExecucaoOntem) * 100).toFixed(1) : 0;
-  
-  const osConcluidas = filteredOrdens.filter(os => os.status === 'concluido').length;
-  const osConcluidasOntem = ordensOntem.filter(os => os.status === 'concluido').length;
-  const diffConcluidas = osConcluidas - osConcluidasOntem;
-  const percConcluidas = osConcluidasOntem > 0 ? ((diffConcluidas / osConcluidasOntem) * 100).toFixed(1) : 0;
+  // KPIs — all memoized to avoid recalculation on irrelevant state changes
+  const kpis = useMemo(() => {
+    const yesterdayStart = new Date(subDays(new Date(), 1).setHours(0, 0, 0, 0));
+    const ordensOntem = ordens.filter(os => new Date(os.created_date) < yesterdayStart);
+    const hoje = new Date();
 
-  // Average progress
-  const avgProgress = totalOS > 0 
-    ? Math.round(filteredOrdens.reduce((sum, os) => sum + (os.progresso || 0), 0) / totalOS)
-    : 0;
-  const avgProgressOntem = totalOSOntem > 0 
-    ? Math.round(ordensOntem.reduce((sum, os) => sum + (os.progresso || 0), 0) / totalOSOntem)
-    : 0;
-  const diffProgress = avgProgress - avgProgressOntem;
-  const percProgress = avgProgressOntem > 0 ? ((diffProgress / avgProgressOntem) * 100).toFixed(1) : 0;
+    const totalOS = filteredOrdens.length;
+    const totalOSOntem = ordensOntem.length;
+    const osEmElaboracao = filteredOrdens.filter(os => os.status === 'elaboracao').length;
+    const osEmElaboracaoOntem = ordensOntem.filter(os => os.status === 'elaboracao').length;
+    const osEmExecucao = filteredOrdens.filter(os => os.status === 'execucao').length;
+    const osEmExecucaoOntem = ordensOntem.filter(os => os.status === 'execucao').length;
+    const osConcluidas = filteredOrdens.filter(os => os.status === 'concluido').length;
+    const osConcluidasOntem = ordensOntem.filter(os => os.status === 'concluido').length;
 
-  // On-time completion rate - todas as OS com prazo definido
-  const osComPrazo = filteredOrdens.filter(os => os.prazo);
-  const hoje = new Date();
-  
-  const onTimeCount = osComPrazo.filter(os => {
-    // Se concluída, verificar se foi dentro do prazo
-    if (os.status === 'concluido' && os.data_conclusao) {
-      return new Date(os.data_conclusao) <= new Date(os.prazo);
-    }
-    // Se não concluída, verificar se o prazo ainda não passou
-    return new Date(os.prazo) >= hoje;
-  }).length;
-  
-  const onTimeRate = osComPrazo.length > 0 ? Math.round((onTimeCount / osComPrazo.length) * 100) : 0;
+    const totalProgressSum = filteredOrdens.reduce((s, os) => s + (os.progresso || 0), 0);
+    const avgProgress = totalOS > 0 ? Math.round(totalProgressSum / totalOS) : 0;
+    const avgProgressOntem = totalOSOntem > 0 ? Math.round(ordensOntem.reduce((s, os) => s + (os.progresso || 0), 0) / totalOSOntem) : 0;
 
-  // Average resolution time
-  const osConcluidasParaCalculo = filteredOrdens.filter(os => os.status === 'concluido');
-  const osConcluidasComData = osConcluidasParaCalculo.filter(os => os.data_conclusao);
-  
-  const avgResolutionDays = osConcluidasComData.length > 0
-    ? Math.round(osConcluidasComData.reduce((sum, os) => {
-        const start = new Date(os.data_inicial || os.created_date);
-        const end = new Date(os.data_conclusao);
-        const dias = Math.abs(differenceInDays(end, start));
-        return sum + dias;
-      }, 0) / osConcluidasComData.length)
-    : 0;
+    const osComPrazo = filteredOrdens.filter(os => os.prazo);
+    const onTimeCount = osComPrazo.filter(os => {
+      if (os.status === 'concluido' && os.data_conclusao) return new Date(os.data_conclusao) <= new Date(os.prazo);
+      return new Date(os.prazo) >= hoje;
+    }).length;
+    const onTimeRate = osComPrazo.length > 0 ? Math.round((onTimeCount / osComPrazo.length) * 100) : 0;
 
-    // KPIs Recebimento
-    const osRecebimento = filteredOrdens.filter(os => os.categoria_id === categoriaRecebimento?.id);
+    const osConcluidasComData = filteredOrdens.filter(os => os.status === 'concluido' && os.data_conclusao);
+    const avgResolutionDays = osConcluidasComData.length > 0
+      ? Math.round(osConcluidasComData.reduce((sum, os) => sum + Math.abs(differenceInDays(new Date(os.data_conclusao), new Date(os.data_inicial || os.created_date))), 0) / osConcluidasComData.length)
+      : 0;
 
-  const numItensNFCompra = filteredOrdens.reduce((sum, os) => {
-    return sum + (os.itens_documento?.length || 0) + (os.nfe_itens_conferencia?.length || 0);
-  }, 0);
+    const numItensNFCompra = filteredOrdens.reduce((sum, os) => sum + (os.itens_documento?.length || 0) + (os.nfe_itens_conferencia?.length || 0), 0);
+    const osComDatasPrazo = filteredOrdens.filter(os => os.data_inicial && os.prazo);
+    const tempoMedioRegularizacaoCompra = osComDatasPrazo.length > 0
+      ? osComDatasPrazo.reduce((sum, os) => sum + differenceInDays(new Date(os.prazo), new Date(os.data_inicial)), 0) / osComDatasPrazo.length : 0;
 
-  const valorItensNFCompra = filteredOrdens.reduce((sum, os) => {
-    // Valor de expedição vem dos itens_documento
-    const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
-    // Valor de recebimento vem de nfe_itens_conferencia
-    const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => {
-      const valorItem = (item.quantidade_esperada || 0) * (parseFloat(item.valor_unitario) || 0);
-      return s + valorItem;
-    }, 0);
-    return sum + valorExpedicao + valorRecebimento;
-  }, 0);
-
-  const osComDatasPrazo = filteredOrdens.filter(os => os.data_inicial && os.prazo);
-
-  const tempoMedioRegularizacaoCompra = osComDatasPrazo.length > 0
-    ? osComDatasPrazo.reduce((sum, os) => {
-        const dataInicial = new Date(os.data_inicial);
-        const dataPrazo = new Date(os.prazo);
-        return sum + differenceInDays(dataPrazo, dataInicial);
-      }, 0) / osComDatasPrazo.length
-    : 0;
-  
-  // KPIs Expedição
-  const osExpedicao = filteredOrdens.filter(os => os.categoria_id === categoriaExpedicao?.id);
-  
-  const numItensExpedidos = osExpedicao.reduce((sum, os) => {
-    return sum + (os.itens_documento?.length || 0);
-  }, 0);
-  
-  const valorExpedicao = osExpedicao.reduce((sum, os) => {
-    return sum + (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
-  }, 0);
-  
-  const osExpedicaoConcluidas = osExpedicao.filter(os => os.status === 'concluido' && os.data_migo && os.data_reserva);
-  
-  const tempoMedioAtendimentoExpedicao = osExpedicaoConcluidas.length > 0
-    ? osExpedicaoConcluidas.reduce((sum, os) => {
-        const dataMigo = new Date(os.data_migo);
-        const dataReserva = new Date(os.data_reserva);
-        return sum + differenceInDays(dataMigo, dataReserva);
-      }, 0) / osExpedicaoConcluidas.length
-    : 0;
-
-  // Chart data: OS by Regional (com breakdown por status)
-  const osByRegional = regionais.map(r => {
-    const ordensRegional = filteredOrdens.filter(os => os.regional_id === r.id);
+    const diff = (a, b) => b > 0 ? ((a - b) / b * 100).toFixed(1) : 0;
     return {
-      name: r.sigla,
-      elaboracao: ordensRegional.filter(os => os.status === 'elaboracao').length,
-      execucao: ordensRegional.filter(os => os.status === 'execucao').length,
-      concluido: ordensRegional.filter(os => os.status === 'concluido').length,
-      cancelado: ordensRegional.filter(os => os.status === 'cancelado').length,
-      total: ordensRegional.length
+      totalOS, totalOSOntem, percTotalOS: diff(totalOS, totalOSOntem),
+      osEmElaboracao, percElaboracao: diff(osEmElaboracao, osEmElaboracaoOntem),
+      osEmExecucao, percExecucao: diff(osEmExecucao, osEmExecucaoOntem),
+      osConcluidas, percConcluidas: diff(osConcluidas, osConcluidasOntem),
+      avgProgress, diffProgress: avgProgress - avgProgressOntem,
+      percProgress: diff(avgProgress, avgProgressOntem),
+      onTimeRate, avgResolutionDays, numItensNFCompra, tempoMedioRegularizacaoCompra,
     };
-  }).filter(d => d.total > 0);
+  }, [filteredOrdens, ordens]);
 
-  // Chart data: OS by Category
-  const osByCategoria = categorias.map(c => ({
-    name: c.nome,
-    total: filteredOrdens.filter(os => os.categoria_id === c.id).length
-  })).filter(d => d.total > 0);
+  // Destructure for use in JSX (maintaining backward compat with existing template)
+  const { totalOS, percTotalOS, osEmElaboracao, percElaboracao, osEmExecucao, percExecucao,
+    osConcluidas, percConcluidas, avgProgress, diffProgress, percProgress,
+    onTimeRate, avgResolutionDays, numItensNFCompra, tempoMedioRegularizacaoCompra } = kpis;
 
-  // Chart data: OS by Status
-  const osByStatus = Object.entries(statusLabels).map(([key, label]) => ({
-    name: label,
-    value: filteredOrdens.filter(os => os.status === key).length
-  })).filter(d => d.value > 0);
+  // Chart data — memoized
+  const osByRegional = useMemo(() =>
+    regionais.map(r => {
+      const ordensRegional = filteredOrdens.filter(os => os.regional_id === r.id);
+      return { name: r.sigla, elaboracao: ordensRegional.filter(os => os.status === 'elaboracao').length, execucao: ordensRegional.filter(os => os.status === 'execucao').length, concluido: ordensRegional.filter(os => os.status === 'concluido').length, cancelado: ordensRegional.filter(os => os.status === 'cancelado').length, total: ordensRegional.length };
+    }).filter(d => d.total > 0),
+    [filteredOrdens, regionais]
+  );
 
-  // Chart data: Top Almoxarifados
-  const osByAlmoxarifado = almoxarifados.map(a => ({
-    name: a.nome,
-    total: filteredOrdens.filter(os => os.almoxarifado_id === a.id).length
-  })).sort((a, b) => b.total - a.total).slice(0, 5);
+  const osByCategoria = useMemo(() =>
+    categorias.map(c => ({ name: c.nome, total: filteredOrdens.filter(os => os.categoria_id === c.id).length })).filter(d => d.total > 0),
+    [filteredOrdens, categorias]
+  );
 
-  // Heatmap data: OS de Expedição agrupadas por instalação de origem ou destino
-  const categoriaExpedicaoHeatmap = Array.isArray(categorias) ? categorias.find(c => c?.nome?.toLowerCase().includes('expedi')) : null;
-  const campoInstalacao = heatmapInstalacao === 'origem' ? 'instalacao_origem_id' : 'instalacao_destino_id';
-  const osExpedicaoHeatmap = Array.isArray(ordens) ? ordens.filter(os => os?.categoria_id === categoriaExpedicaoHeatmap?.id && os?.[campoInstalacao]) : [];
-  
-  const heatmapData = instalacoes
-    .filter(inst => inst.latitude && inst.longitude)
-    .map(inst => {
-      const osDestino = osExpedicaoHeatmap.filter(os => os[campoInstalacao] === inst.id);
-      
-      let value = 0;
-      if (heatmapCriteria === 'quantidade_os') {
-        value = osDestino.length;
-      } else if (heatmapCriteria === 'valor_total') {
-        value = osDestino.reduce((sum, os) => {
-          const totalOS = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
-          return sum + totalOS;
-        }, 0);
-      } else if (heatmapCriteria === 'peso_total') {
-        value = osDestino.reduce((sum, os) => {
-          const pesoOS = (os.volumes || []).reduce((s, vol) => s + (vol.peso_bruto || 0), 0);
-          return sum + pesoOS;
-        }, 0);
-      } else if (heatmapCriteria === 'quantidade_itens') {
-        value = osDestino.reduce((sum, os) => {
-          const qtdItens = (os.itens_documento || []).reduce((s, item) => s + (item.quantidade || 0), 0);
-          return sum + qtdItens;
-        }, 0);
-      }
-      
-      return {
-        instalacao: inst,
-        osCount: osDestino.length,
-        value: value
-      };
-    })
-    .filter(d => d.value > 0);
-  
-  const maxValue = Math.max(...heatmapData.map(d => d.value), 1);
+  const osByStatus = useMemo(() =>
+    Object.entries(statusLabels).map(([key, label]) => ({ name: label, value: filteredOrdens.filter(os => os.status === key).length })).filter(d => d.value > 0),
+    [filteredOrdens]
+  );
+
+  const osByAlmoxarifado = useMemo(() =>
+    almoxarifados.map(a => ({ name: a.nome, total: filteredOrdens.filter(os => os.almoxarifado_id === a.id).length })).sort((a, b) => b.total - a.total).slice(0, 5),
+    [filteredOrdens, almoxarifados]
+  );
+
+  // Heatmap data — memoized
+  const heatmapData = useMemo(() => {
+    const categoriaExpedicaoHeatmap = Array.isArray(categorias) ? categorias.find(c => c?.nome?.toLowerCase().includes('expedi')) : null;
+    const campoInstalacao = heatmapInstalacao === 'origem' ? 'instalacao_origem_id' : 'instalacao_destino_id';
+    const osExpedicaoHeatmap = Array.isArray(ordens) ? ordens.filter(os => os?.categoria_id === categoriaExpedicaoHeatmap?.id && os?.[campoInstalacao]) : [];
+    return instalacoes
+      .filter(inst => inst.latitude && inst.longitude)
+      .map(inst => {
+        const osDestino = osExpedicaoHeatmap.filter(os => os[campoInstalacao] === inst.id);
+        let value = 0;
+        if (heatmapCriteria === 'quantidade_os') value = osDestino.length;
+        else if (heatmapCriteria === 'valor_total') value = osDestino.reduce((sum, os) => sum + (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0), 0);
+        else if (heatmapCriteria === 'peso_total') value = osDestino.reduce((sum, os) => sum + (os.volumes || []).reduce((s, vol) => s + (vol.peso_bruto || 0), 0), 0);
+        else if (heatmapCriteria === 'quantidade_itens') value = osDestino.reduce((sum, os) => sum + (os.itens_documento || []).reduce((s, item) => s + (item.quantidade || 0), 0), 0);
+        return { instalacao: inst, osCount: osDestino.length, value };
+      })
+      .filter(d => d.value > 0);
+  }, [ordens, instalacoes, categorias, heatmapInstalacao, heatmapCriteria]);
+
+  const maxValue = useMemo(() => Math.max(...heatmapData.map(d => d.value), 1), [heatmapData]);
   
   const getCircleRadius = (value) => {
     const minRadius = 5000;

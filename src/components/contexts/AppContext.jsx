@@ -16,6 +16,22 @@ export function AppProvider({ children }) {
     loadGlobalData();
   }, []);
 
+  // Keep Pessoa list in sync with real-time updates (e.g. profile changes)
+  useEffect(() => {
+    const unsub = base44.entities.Pessoa.subscribe((event) => {
+      if (event.type === 'create') {
+        setPessoas(prev => [...prev, event.data]);
+      } else if (event.type === 'update') {
+        setPessoas(prev => prev.map(p => p.id === event.id ? { ...p, ...event.data } : p));
+        // Also update currentPessoa if it's the same person
+        setCurrentPessoa(prev => prev?.id === event.id ? { ...prev, ...event.data } : prev);
+      } else if (event.type === 'delete') {
+        setPessoas(prev => prev.filter(p => p.id !== event.id));
+      }
+    });
+    return unsub;
+  }, []);
+
   const loadGlobalData = async () => {
     try {
       const [user, regionaisData, pessoasData, categoriasData, subcategoriasData] = await Promise.all([

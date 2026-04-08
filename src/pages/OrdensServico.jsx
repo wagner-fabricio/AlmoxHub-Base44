@@ -94,13 +94,30 @@ export default function OrdensServico() {
 
   useEffect(() => {
     loadData();
+
+    // Real-time sync: keep OS list updated without manual reloads
+    const unsub = base44.entities.OrdemServico.subscribe((event) => {
+      if (event.type === 'create' && event.data) {
+        setOrdens(prev => {
+          // Avoid duplicates (the OS might have been added optimistically already)
+          if (prev.some(o => o.id === event.id)) return prev;
+          return [event.data, ...prev];
+        });
+      } else if (event.type === 'update' && event.data) {
+        setOrdens(prev => prev.map(o => o.id === event.id ? { ...o, ...event.data } : o));
+      } else if (event.type === 'delete') {
+        setOrdens(prev => prev.filter(o => o.id !== event.id));
+      }
+    });
+
+    return () => unsub();
   }, []);
 
   const loadData = async (silent = false) => {
     if (!silent) setLoading(true);
     try {
-      const [user, ordensData, almoxarifadosData, projetosData, instalacoesData, rotulosData] = await Promise.all([
-        base44.auth.me(),
+      // auth.me() is already available from AppContext — no need to fetch it again
+      const [ordensData, almoxarifadosData, projetosData, instalacoesData, rotulosData] = await Promise.all([
         base44.entities.OrdemServico.list(),
         base44.entities.Almoxarifado.list(),
         base44.entities.Projeto.list(),
@@ -108,8 +125,9 @@ export default function OrdensServico() {
         base44.entities.Rotulo.filter({ ativo: true })
       ]);
       
+      const user = ctxUser || (await base44.auth.me());
       setCurrentUser(user);
-      const pessoa = Array.isArray(pessoas) ? pessoas.find(p => p?.email === user.email) : null;
+      const pessoa = ctxPessoa || (Array.isArray(pessoas) ? pessoas.find(p => p?.user_id === user?.id) : null);
       setCurrentPessoa(pessoa);
 
       if (user.filtros_preferidos?.OrdensServico) {
@@ -411,32 +429,27 @@ export default function OrdensServico() {
   };
 
   const handleFormSave = async (isNew, osData) => {
-    // Atualizar selectedOS com os dados mais recentes para o OSDetailModal refletir corretamente
-    if (!isNew && osData) {
+    // Update local state optimistically — no full reload needed
+    if (isNew && osData) {
+      setOrdens(prev => [osData, ...prev]);
+    } else if (!isNew && osData) {
+      setOrdens(prev => prev.map(o => o.id === osData.id ? { ...o, ...osData } : o));
       setSelectedOS(prev => prev ? { ...prev, ...osData } : prev);
     }
 
     // Se é OS relacionada, atualizar a OS original
     if (isNew && selectedOS?._relatedToOS) {
       const originalOS = selectedOS._relatedToOS;
-      const categoria = Array.isArray(categorias) ? categorias.find(c => c?.id === originalOS.categoria_id) : null;
-      const regional = Array.isArray(regionais) ? regionais.find(r => r?.id === originalOS.regional_id) : null;
-      
       try {
-        // Atualizar OS original com referência à nova
         const updatedDescription = originalOS.descricao_resumida 
           ? `${originalOS.descricao_resumida}\n\nOS Relacionada Criada: ${osData.codigo}`
           : `OS Relacionada Criada: ${osData.codigo}`;
-        
-        await base44.entities.OrdemServico.update(originalOS.id, {
-          descricao_resumida: updatedDescription
-        });
+        const updated = await base44.entities.OrdemServico.update(originalOS.id, { descricao_resumida: updatedDescription });
+        setOrdens(prev => prev.map(o => o.id === originalOS.id ? { ...o, ...updated } : o));
       } catch (e) {
         console.error('Error updating original OS:', e);
       }
     }
-    
-    await loadData(true);
     
     // Se é nova OS e tem executores, criar notificações de atribuição
     if (isNew && osData?.executores_ids?.length > 0 && currentPessoa) {
@@ -476,11 +489,12 @@ export default function OrdensServico() {
     
     try {
       await base44.entities.OrdemServico.delete(deletingOS.id);
+      // Update local state — no reload needed
+      setOrdens(prev => prev.filter(o => o.id !== deletingOS.id));
       setShowDeleteDialog(false);
       setShowDetailModal(false);
       setDeletingOS(null);
       setSelectedOS(null);
-      await loadData(true);
     } catch (error) {
       console.error('Error deleting OS:', error);
     }
