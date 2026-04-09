@@ -47,7 +47,6 @@ Deno.serve(async (req) => {
         iniciado_por_edicao: body.iniciado_por_edicao || false
       });
 
-      // Atualizar OS
       const novasSessoes = [...sessoesAtivas, {
         pessoa_id: pessoa.id,
         pessoa_nome: pessoa.nome,
@@ -55,7 +54,7 @@ Deno.serve(async (req) => {
         entry_id: entry.id
       }];
 
-      // Se é o primeiro play (nenhuma sessão ativa antes) e a OS está em 'elaboracao', mudar para 'execucao'
+      // Merge em um único update: timesheet + mudança de status se for a primeira sessão em elaboracao
       const updatePayload = {
         timesheet_status: 'playing',
         timesheet_sessoes_ativas: novasSessoes
