@@ -3,6 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { useApp } from '@/components/contexts/AppContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ChevronDown } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend, AreaChart, Area, LabelList } from 'recharts';
@@ -62,7 +64,7 @@ export default function Dashboard() {
     almoxarifado: 'all',
     categoria: 'all',
     subcategoria: 'all',
-    status: 'all',
+    status: [],
     periodo: '30',
     dataInicio: '',
     dataFim: ''
@@ -156,7 +158,8 @@ export default function Dashboard() {
       }
       
       if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
-      if (filters.status !== 'all' && os.status !== filters.status) return false;
+      const activeStatuses = Array.isArray(filters.status) ? filters.status : (filters.status === 'all' ? [] : [filters.status]);
+      if (activeStatuses.length > 0 && !activeStatuses.includes(os.status)) return false;
       
       const osDate = new Date(os.created_date);
       if (periodoStart && periodoEnd) { if (osDate < periodoStart || osDate > periodoEnd) return false; }
@@ -423,18 +426,40 @@ export default function Dashboard() {
               ))}
             </SelectContent>
           </Select>
-          <Select value={filters.status} onValueChange={(v) => updateFilters({ ...filters, status: v })}>
-            <SelectTrigger className="w-full bg-white dark:bg-slate-800">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos Status</SelectItem>
-              <SelectItem value="elaboracao">Em Elaboração</SelectItem>
-              <SelectItem value="execucao">Em Execução</SelectItem>
-              <SelectItem value="concluido">Concluído</SelectItem>
-              <SelectItem value="cancelado">Cancelado</SelectItem>
-            </SelectContent>
-          </Select>
+          {(() => {
+            const activeStatuses = Array.isArray(filters.status) ? filters.status : (filters.status === 'all' ? [] : [filters.status]);
+            const statusLabel = activeStatuses.length === 0 ? 'Todos Status' : activeStatuses.length === 1 ? statusLabels[activeStatuses[0]] : `${activeStatuses.length} status`;
+            const toggleStatus = (key) => {
+              const next = activeStatuses.includes(key) ? activeStatuses.filter(s => s !== key) : [...activeStatuses, key];
+              updateFilters({ ...filters, status: next });
+            };
+            return (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="flex items-center justify-between w-full h-9 rounded-md border border-input bg-white dark:bg-slate-800 px-3 py-2 text-sm shadow-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    <span className={activeStatuses.length === 0 ? 'text-slate-500' : ''}>{statusLabel}</span>
+                    <ChevronDown className="w-4 h-4 opacity-50 ml-2 shrink-0" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-52 p-2" align="start">
+                  <div className="space-y-1">
+                    {Object.entries(statusLabels).map(([key, label]) => (
+                      <label key={key} className="flex items-center gap-2 cursor-pointer px-2 py-1.5 rounded hover:bg-slate-50 dark:hover:bg-slate-800">
+                        <Checkbox
+                          checked={activeStatuses.includes(key)}
+                          onCheckedChange={() => toggleStatus(key)}
+                        />
+                        <span className="text-sm text-slate-700 dark:text-slate-300">{label}</span>
+                      </label>
+                    ))}
+                    {activeStatuses.length > 0 && (
+                      <button onClick={() => updateFilters({ ...filters, status: [] })} className="w-full text-xs text-blue-600 hover:underline text-left px-2 pt-1 mt-1 border-t border-slate-100 dark:border-slate-700">Limpar seleção</button>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            );
+          })()}
           <div className="flex gap-2">
             <Select value={filters.periodo} onValueChange={(v) => updateFilters({ ...filters, periodo: v })}>
               <SelectTrigger className="w-full bg-white dark:bg-slate-800">
@@ -455,7 +480,7 @@ export default function Dashboard() {
                 almoxarifado: 'all',
                 categoria: 'all',
                 subcategoria: 'all',
-                status: 'all',
+                status: [],
                 periodo: '30',
                 dataInicio: '',
                 dataFim: ''
