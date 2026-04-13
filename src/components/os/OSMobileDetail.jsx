@@ -34,6 +34,8 @@ import {
   PenLine
 } from 'lucide-react';
 import { format, isToday, isYesterday } from 'date-fns';
+import { createPageUrl } from '@/utils';
+import { notifyCommentMention } from '@/components/notifications/PushNotificationHelper';
 import { ptBR } from 'date-fns/locale';
 
 const statusConfig = {

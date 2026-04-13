@@ -14,16 +14,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApp } from '@/components/contexts/AppContext';
 
 export default function CentrosCusto() {
-  const { currentUser } = useApp();
-  if (currentUser && currentUser.role !== 'admin') {
-    return (
-      <div className="flex flex-col items-center justify-center h-96 gap-4 text-slate-500 dark:text-slate-400">
-        <ShieldOff className="w-16 h-16" />
-        <p className="text-xl font-semibold">Acesso restrito</p>
-        <p className="text-sm">Esta página é acessível apenas para administradores.</p>
-      </div>
-    );
-  }
+  const { currentUser, regionais, pessoas } = useApp();
   const [search, setSearch] = useState('');
   const [filterTipo, setFilterTipo] = useState('all');
   const [filterRegional, setFilterRegional] = useState('all');
@@ -47,8 +38,6 @@ export default function CentrosCusto() {
     queryKey: ['centrosCusto'],
     queryFn: () => base44.entities.CentroCusto.list()
   });
-
-  const { regionais, pessoas } = useApp();
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.CentroCusto.create(data),

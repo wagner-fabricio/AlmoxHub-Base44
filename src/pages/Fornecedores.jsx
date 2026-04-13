@@ -15,15 +15,6 @@ import { useApp } from '@/components/contexts/AppContext';
 
 export default function Fornecedores() {
   const { currentUser } = useApp();
-  if (currentUser && currentUser.role !== 'admin') {
-    return (
-      <div className="flex flex-col items-center justify-center h-96 gap-4 text-slate-500 dark:text-slate-400">
-        <ShieldOff className="w-16 h-16" />
-        <p className="text-xl font-semibold">Acesso restrito</p>
-        <p className="text-sm">Esta página é acessível apenas para administradores.</p>
-      </div>
-    );
-  }
   const [search, setSearch] = useState('');
   const [filterCategoria, setFilterCategoria] = useState('all');
   const [filterAtivo, setFilterAtivo] = useState('all');
@@ -57,6 +48,16 @@ export default function Fornecedores() {
     queryKey: ['fornecedores'],
     queryFn: () => base44.entities.Fornecedor.list()
   });
+
+  if (currentUser && currentUser.role !== 'admin') {
+    return (
+      <div className="flex flex-col items-center justify-center h-96 gap-4 text-slate-500 dark:text-slate-400">
+        <ShieldOff className="w-16 h-16" />
+        <p className="text-xl font-semibold">Acesso restrito</p>
+        <p className="text-sm">Esta página é acessível apenas para administradores.</p>
+      </div>
+    );
+  }
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Fornecedor.create(data),

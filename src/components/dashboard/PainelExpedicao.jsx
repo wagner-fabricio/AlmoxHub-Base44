@@ -1011,6 +1011,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados }) {
                     <tr className="bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300">
                       {[
                         { col: 'codigo', label: 'Nº OS', filter: false, width: 'w-48' },
+                        { col: 'status_separacao', label: 'Status Exp.', filter: false, width: 'w-32' },
                         { col: 'almox', label: 'Almoxarifado', filter: true, width: 'w-36' },
                         { col: 'data_reserva', label: 'Reserva', filter: true, width: 'w-24' },
                         { col: 'data_migo', label: 'MIGO', filter: true, width: 'w-24' },
@@ -1019,7 +1020,6 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados }) {
                         { col: 'data_necessidade', label: 'Necessidade', filter: true, width: 'w-24' },
                         { col: 'data_entrega', label: 'Entrega', filter: true, width: 'w-24' },
                         { col: 'tempoEntrega', label: 'Tempo', filter: true, width: 'w-20' },
-                        { col: 'status_separacao', label: 'Status Exp.', filter: false, width: 'w-32' },
                         { col: 'cicloSep', label: 'Ciclo Sep.', filter: false, width: 'w-24' },
                         { col: 'volM3', label: 'Vol. M³', filter: false, width: 'w-20' },
                       ].map(({ col, label, filter, width }) => (
@@ -1047,16 +1047,6 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados }) {
                               {os.codigo || os.id?.substring(0, 8)}
                             </button>
                           </td>
-                          <td className="px-2 py-2 text-slate-700 dark:text-slate-300 max-w-[144px] truncate">{almox?.nome || '—'}</td>
-                          <td className="px-2 py-2 text-center whitespace-nowrap">{safeFormat(os.data_reserva)}</td>
-                          <td className="px-2 py-2 text-center whitespace-nowrap">{safeFormat(os.data_migo)}</td>
-                          <td className="px-2 py-2 text-right">{qtdSol > 0 ? qtdSol.toLocaleString('pt-BR') : '—'}</td>
-                          <td className="px-2 py-2 text-right">{qtdSep > 0 ? qtdSep.toLocaleString('pt-BR') : '—'}</td>
-                          <td className="px-2 py-2 text-center whitespace-nowrap">{safeFormat(os.data_necessidade)}</td>
-                          <td className="px-2 py-2 text-center whitespace-nowrap">{safeFormat(os.data_entrega)}</td>
-                          <td className={`px-2 py-2 text-center whitespace-nowrap ${tempoColor}`}>
-                            {tempoEntrega !== null ? (tempoEntrega === 0 ? 'No prazo' : `${tempoEntrega > 0 ? '+' : ''}${tempoEntrega}d`) : '—'}
-                          </td>
                           <td className="px-2 py-2 text-center whitespace-nowrap">
                             {(() => {
                               const statusLabels = {
@@ -1071,6 +1061,16 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados }) {
                               const s = statusLabels[os.status_separacao];
                               return s ? <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${s.cls}`}>{s.label}</span> : '—';
                             })()}
+                          </td>
+                          <td className="px-2 py-2 text-slate-700 dark:text-slate-300 max-w-[144px] truncate">{almox?.nome || '—'}</td>
+                          <td className="px-2 py-2 text-center whitespace-nowrap">{safeFormat(os.data_reserva)}</td>
+                          <td className="px-2 py-2 text-center whitespace-nowrap">{safeFormat(os.data_migo)}</td>
+                          <td className="px-2 py-2 text-right">{qtdSol > 0 ? qtdSol.toLocaleString('pt-BR') : '—'}</td>
+                          <td className="px-2 py-2 text-right">{qtdSep > 0 ? qtdSep.toLocaleString('pt-BR') : '—'}</td>
+                          <td className="px-2 py-2 text-center whitespace-nowrap">{safeFormat(os.data_necessidade)}</td>
+                          <td className="px-2 py-2 text-center whitespace-nowrap">{safeFormat(os.data_entrega)}</td>
+                          <td className={`px-2 py-2 text-center whitespace-nowrap ${tempoColor}`}>
+                            {tempoEntrega !== null ? (tempoEntrega === 0 ? 'No prazo' : `${tempoEntrega > 0 ? '+' : ''}${tempoEntrega}d`) : '—'}
                           </td>
                           <td className="px-2 py-2 text-center whitespace-nowrap">
                             {tempoCicloSep !== null ? `${tempoCicloSep}d` : '—'}

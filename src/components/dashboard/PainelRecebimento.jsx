@@ -588,7 +588,7 @@ export default function PainelRecebimento({
               </BarChart>
             </ResponsiveContainer>
           )}
-          <p className="text-xs text-slate-400 mt-2">Verde ≤3d · Amarelo ≤7d · Vermelho >7d</p>
+          <p className="text-xs text-slate-400 mt-2">{"Verde ≤3d · Amarelo ≤7d · Vermelho >7d"}</p>
         </div>
 
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">

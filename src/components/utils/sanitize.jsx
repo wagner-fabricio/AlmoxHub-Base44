@@ -69,7 +69,7 @@ export function isValidEmail(email) {
  * Log seguro que não expõe dados sensíveis
  */
 export function safeLog(message, data = {}) {
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     const sanitized = { ...data };
     
     const sensitiveFields = ['password', 'token', 'apiKey', 'api_key', 'secret', 'authorization'];
