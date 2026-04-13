@@ -69,7 +69,7 @@ export function AppProvider({ children }) {
         base44.entities.Pessoa.list(),
         base44.entities.Categoria.list(),
         base44.entities.Subcategoria.list(),
-        base44.entities.OrdemServico.list('-created_date', 2000),
+        base44.entities.OrdemServico.list('-created_date', 5000),
         base44.entities.Almoxarifado.list(),
         base44.entities.Instalacao.list(),
         base44.entities.Projeto.list(),
@@ -122,7 +122,7 @@ export function AppProvider({ children }) {
   };
 
   const refreshOrdens = async () => {
-    const ordensData = await base44.entities.OrdemServico.list('-created_date', 2000);
+    const ordensData = await base44.entities.OrdemServico.list('-created_date', 5000);
     setOrdens(ordensData);
   };
 
