@@ -428,7 +428,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados }) {
   const { columnFilters, toggleFilter, clearFilter } = useColumnFilters();
 
   const osTabela = useMemo(() => {
-    return filteredOrdens.filter(os => os.status_separacao && os.status_separacao !== 'pendente').map(os => {
+    return filteredOrdens.map(os => {
       const itens = os.itens_documento || [];
       const qtdSol = itens.reduce((s, i) => s + (i.quantidade || 0), 0);
       const qtdSep = itens.reduce((s, i) => s + (i.quantidade_separada || 0), 0);
