@@ -434,7 +434,10 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados }) {
       const qtdSep = itens.reduce((s, i) => s + (i.quantidade_separada || 0), 0);
       const tempoEntrega = (os.data_entrega && os.data_necessidade) ? differenceInDays(new Date(os.data_entrega), new Date(os.data_necessidade)) : null;
       const almox = almoxarifados.find(a => a.id === os.almoxarifado_id);
-      return { os, almox, qtdSol, qtdSep, tempoEntrega };
+      const tempoCicloSep = (os.data_separacao && os.separacao_concluida_em)
+        ? Math.abs(differenceInDays(new Date(os.separacao_concluida_em), new Date(os.data_separacao)))
+        : null;
+      return { os, almox, qtdSol, qtdSep, tempoEntrega, tempoCicloSep };
     });
   }, [filteredOrdens, almoxarifados]);
 
@@ -1016,6 +1019,8 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados }) {
                         { col: 'data_necessidade', label: 'Necessidade', filter: true, width: 'w-24' },
                         { col: 'data_entrega', label: 'Entrega', filter: true, width: 'w-24' },
                         { col: 'tempoEntrega', label: 'Tempo', filter: true, width: 'w-20' },
+                        { col: 'status_separacao', label: 'Status Exp.', filter: false, width: 'w-32' },
+                        { col: 'cicloSep', label: 'Ciclo Sep.', filter: false, width: 'w-24' },
                         { col: 'volM3', label: 'Vol. M³', filter: false, width: 'w-20' },
                       ].map(({ col, label, filter, width }) => (
                         <th key={col} className={`px-2 py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-left ${width} whitespace-nowrap`}>
@@ -1027,7 +1032,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {pageRows.map(({ os, almox, qtdSol, qtdSep, tempoEntrega }, idx) => {
+                    {pageRows.map(({ os, almox, qtdSol, qtdSep, tempoEntrega, tempoCicloSep }, idx) => {
                       let tempoColor = 'text-slate-600 dark:text-slate-400';
                       if (tempoEntrega !== null) {
                         if (tempoEntrega <= 0) tempoColor = 'text-green-600 font-semibold';
@@ -1051,6 +1056,24 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados }) {
                           <td className="px-2 py-2 text-center whitespace-nowrap">{safeFormat(os.data_entrega)}</td>
                           <td className={`px-2 py-2 text-center whitespace-nowrap ${tempoColor}`}>
                             {tempoEntrega !== null ? (tempoEntrega === 0 ? 'No prazo' : `${tempoEntrega > 0 ? '+' : ''}${tempoEntrega}d`) : '—'}
+                          </td>
+                          <td className="px-2 py-2 text-center whitespace-nowrap">
+                            {(() => {
+                              const statusLabels = {
+                                pendente: { label: 'Pendente', cls: 'bg-slate-100 text-slate-600' },
+                                em_separacao: { label: 'Em Sep.', cls: 'bg-blue-100 text-blue-700' },
+                                separado: { label: 'Separado', cls: 'bg-indigo-100 text-indigo-700' },
+                                embalando: { label: 'Embalando', cls: 'bg-purple-100 text-purple-700' },
+                                aguardando_transporte: { label: 'Ag. Transp.', cls: 'bg-yellow-100 text-yellow-700' },
+                                em_rota: { label: 'Em Rota', cls: 'bg-orange-100 text-orange-700' },
+                                entregue: { label: 'Entregue', cls: 'bg-green-100 text-green-700' },
+                              };
+                              const s = statusLabels[os.status_separacao];
+                              return s ? <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${s.cls}`}>{s.label}</span> : '—';
+                            })()}
+                          </td>
+                          <td className="px-2 py-2 text-center whitespace-nowrap">
+                            {tempoCicloSep !== null ? `${tempoCicloSep}d` : '—'}
                           </td>
                           <td className="px-2 py-2 text-right whitespace-nowrap">
                             {(() => {
