@@ -1201,6 +1201,7 @@ export default function Dashboard() {
             categorias={categorias}
             regionais={regionais}
             almoxarifados={almoxarifados}
+            filters={filters}
           />
               </TabsContent>
 

@@ -2,6 +2,7 @@ import React from 'react';
 import TorreControleTab from './TorreControleTab';
 import KanbanExecucao from './KanbanExecucao';
 import ExportTorreControleButton from './ExportTorreControleButton';
+import BurndownBurnupChart from './BurndownBurnupChart';
 
 export default function TorreControleContent({
   filteredOrdens,
@@ -10,7 +11,8 @@ export default function TorreControleContent({
   pessoas = [],
   categorias = [],
   regionais = [],
-  almoxarifados = []
+  almoxarifados = [],
+  filters = {}
 }) {
   return (
     <div className="space-y-8">
@@ -29,6 +31,7 @@ export default function TorreControleContent({
         numItensNFCompra={numItensNFCompra}
       />
       <KanbanExecucao ordens={filteredOrdens} />
+      <BurndownBurnupChart filteredOrdens={filteredOrdens} filters={filters} />
     </div>
   );
 }
