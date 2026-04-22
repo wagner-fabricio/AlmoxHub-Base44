@@ -5,6 +5,7 @@ import {
 } from 'recharts';
 import { format, addDays, addWeeks, startOfWeek, differenceInDays, parseISO, isValid } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import BacklogChart from './BacklogChart';
 
 const TOOLTIP_STYLE = {
   backgroundColor: '#fff',
@@ -351,6 +352,10 @@ export default function BurndownBurnupChart({ filteredOrdens, filters }) {
           <div className="w-8 border-t-2 border-dashed border-green-500" />
           <span>Meta Ideal (baseada no maior Prazo)</span>
         </div>
+      </div>
+
+      <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-700">
+        <BacklogChart filteredOrdens={filteredOrdens} />
       </div>
     </div>
   );
