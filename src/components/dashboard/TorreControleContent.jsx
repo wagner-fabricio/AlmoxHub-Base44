@@ -134,6 +134,24 @@ const INDICADORES = [
       },
     ]
   },
+  // ── Backlog ────────────────────────────────────────────────────────────────
+  {
+    secao: 'Evolução do Backlog',
+    itens: [
+      {
+        num: 16, sigla: 'Índice de Backlog', titulo: 'Backlog — Fila de trabalho medida em tempo',
+        desc: 'O Backlog indica quanto tempo a equipe levaria para zerar todas as OS abertas com a capacidade atual, sem receber novas demandas. NÃO é apenas o que está atrasado — inclui todas as OS em fila (elaboração + execução). O índice é calculado por período (semana ou mês) e plotado como linha vermelha no gráfico, junto com barras de Novas OS e OS Concluídas.',
+        formula: 'Índice = Σ(Horas restantes das OS abertas) ÷ (Dias úteis do período × Horas/dia × Nº líderes ativos × Produtividade%)\n\nHoras restantes por OS = Dias úteis(data_inicial → prazo) × Horas/dia × (1 − progresso/100)',
+        exemplo: 'OS abertas totalizam 130h restantes. Equipe: 5 líderes, 8h/dia, 5 dias úteis, 70% produtividade → Capacidade = 5 × 8 × 5 × 0,7 = 140h → Backlog = 130/140 = 0,93 (saudável)'
+      },
+      {
+        num: 17, sigla: 'Interpretação do Backlog', titulo: 'Como ler o índice de backlog',
+        desc: 'O índice representa quantos "períodos" de trabalho estão na fila. Um índice alto indica acúmulo de demanda ou equipe insuficiente; um índice muito baixo pode indicar ociosidade. Os controles configuráveis (Horas/dia e Produtividade%) permitem ajustar a simulação à realidade da equipe.',
+        formula: 'Backlog < 0,5 → Equipe ociosa ou sub-demandada\nBacklog 0,5–2,0 → Operação saudável\nBacklog > 2,0 → Acúmulo crescente — risco de atraso\nBacklog > 4,0 → Crítico — capacidade insuficiente',
+        exemplo: 'Backlog semanal = 3,5 → a equipe levaria 3,5 semanas para zerar a fila sem novas entradas → sinal de necessidade de reforço ou repriorização'
+      },
+    ]
+  },
 ];
 
 function HelpModalTorreControle({ open, onClose }) {
