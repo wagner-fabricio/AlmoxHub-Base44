@@ -56,9 +56,9 @@ function buildTimePoints(startDate, endDate, usarSemanas) {
 }
 
 export default function BurndownBurnupChart({ filteredOrdens, filters }) {
-  const { burndownData, burnupData, usarSemanas, maiorPrazo, hasPrazo } = useMemo(() => {
+  const { burndownData, burnupData, usarSemanas, maiorPrazo, hasPrazo, tickInterval } = useMemo(() => {
     if (!filteredOrdens || filteredOrdens.length === 0) {
-      return { burndownData: [], burnupData: [], usarSemanas: false, maiorPrazo: null, hasPrazo: false };
+      return { burndownData: [], burnupData: [], usarSemanas: false, maiorPrazo: null, hasPrazo: false, tickInterval: 1 };
     }
 
     // Determinar início e fim do período
@@ -111,7 +111,7 @@ export default function BurndownBurnupChart({ filteredOrdens, filters }) {
     const formatLabel = (d) => {
       try {
         return usarSemanas
-          ? format(d, "'Sem' ww/yy", { locale: ptBR })
+          ? format(d, 'dd/MM', { locale: ptBR })
           : format(d, 'dd/MM', { locale: ptBR });
       } catch {
         return '';
@@ -183,7 +183,11 @@ export default function BurndownBurnupChart({ filteredOrdens, filters }) {
       };
     });
 
-    return { burndownData, burnupData, usarSemanas, maiorPrazo: maiorPrazoDate, hasPrazo: !!maiorPrazoDate };
+    // Calcular intervalo ideal para o eixo X (máx ~10 ticks visíveis)
+    const maxTicks = 10;
+    const tickInterval = Math.max(1, Math.ceil(timePoints.length / maxTicks));
+
+    return { burndownData, burnupData, usarSemanas, maiorPrazo: maiorPrazoDate, hasPrazo: !!maiorPrazoDate, tickInterval };
   }, [filteredOrdens, filters]);
 
   if (!filteredOrdens || filteredOrdens.length === 0) {
@@ -224,7 +228,10 @@ export default function BurndownBurnupChart({ filteredOrdens, filters }) {
                 <XAxis
                   dataKey="label"
                   tick={{ fill: '#64748b', fontSize: 11 }}
-                  interval={burndownData.length > 20 ? Math.floor(burndownData.length / 10) : 0}
+                  interval={tickInterval - 1}
+                  angle={usarSemanas ? -35 : 0}
+                  textAnchor={usarSemanas ? 'end' : 'middle'}
+                  height={usarSemanas ? 45 : 30}
                 />
                 <YAxis tick={{ fill: '#64748b', fontSize: 11 }} allowDecimals={false} />
                 <Tooltip
@@ -277,7 +284,10 @@ export default function BurndownBurnupChart({ filteredOrdens, filters }) {
                 <XAxis
                   dataKey="label"
                   tick={{ fill: '#64748b', fontSize: 11 }}
-                  interval={burnupData.length > 20 ? Math.floor(burnupData.length / 10) : 0}
+                  interval={tickInterval - 1}
+                  angle={usarSemanas ? -35 : 0}
+                  textAnchor={usarSemanas ? 'end' : 'middle'}
+                  height={usarSemanas ? 45 : 30}
                 />
                 <YAxis tick={{ fill: '#64748b', fontSize: 11 }} allowDecimals={false} />
                 <Tooltip
