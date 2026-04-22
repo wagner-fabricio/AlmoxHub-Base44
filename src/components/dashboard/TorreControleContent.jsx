@@ -3,9 +3,12 @@ import TorreControleTab from './TorreControleTab';
 import KanbanExecucao from './KanbanExecucao';
 import ExportTorreControleButton from './ExportTorreControleButton';
 import BurndownBurnupChart from './BurndownBurnupChart';
+import TorreControleDadosTabela from './TorreControleDadosTabela';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { HelpCircle } from 'lucide-react';
+import OSDetailModal from '@/components/os/OSDetailModal';
+import { useApp } from '@/components/contexts/AppContext';
 
 const INDICADORES = [
   // ── Seção Volumetrias ──────────────────────────────────────────────────────
@@ -204,6 +207,8 @@ export default function TorreControleContent({
   filters = {}
 }) {
   const [showHelp, setShowHelp] = useState(false);
+  const [selectedOS, setSelectedOS] = useState(null);
+  const { subcategorias, instalacoes, projetos } = useApp();
 
   return (
     <div className="space-y-8">
@@ -228,6 +233,32 @@ export default function TorreControleContent({
       />
       <KanbanExecucao ordens={filteredOrdens} />
       <BurndownBurnupChart filteredOrdens={filteredOrdens} filters={filters} />
+      <TorreControleDadosTabela
+        filteredOrdens={filteredOrdens}
+        pessoas={pessoas}
+        categorias={categorias}
+        almoxarifados={almoxarifados}
+        onOpenOS={setSelectedOS}
+      />
+
+      {selectedOS && (
+        <OSDetailModal
+          open={!!selectedOS}
+          onClose={() => setSelectedOS(null)}
+          os={selectedOS}
+          regionais={regionais}
+          almoxarifados={almoxarifados}
+          pessoas={pessoas}
+          categorias={categorias}
+          subcategorias={subcategorias || []}
+          instalacoes={instalacoes || []}
+          projetos={projetos || []}
+          onEdit={() => setSelectedOS(null)}
+          onDelete={() => setSelectedOS(null)}
+          canDelete={false}
+          onRefresh={() => {}}
+        />
+      )}
     </div>
   );
 }
