@@ -69,6 +69,7 @@ export default function Layout({ children, currentPageName }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [highContrast, setHighContrast] = useState(false);
+  const [fontSize, setFontSize] = useState('base');
   const [user, setUser] = useState(null);
   const [pessoa, setPessoa] = useState(null);
   const [isLoadingUserStatus, setIsLoadingUserStatus] = useState(true);
@@ -166,6 +167,10 @@ export default function Layout({ children, currentPageName }) {
       document.documentElement.classList.add('high-contrast');
     }
 
+    const savedFontSize = localStorage.getItem('almoxhub-font-size') || 'base';
+    setFontSize(savedFontSize);
+    document.documentElement.classList.add(`font-size-${savedFontSize}`);
+
     const savedCollapsed = localStorage.getItem('almoxhub-sidebar-collapsed');
     if (savedCollapsed === 'true') {
       setSidebarCollapsed(true);
@@ -185,6 +190,19 @@ export default function Layout({ children, currentPageName }) {
 
   const handleLogout = () => {
     base44.auth.logout(createPageUrl('ThankYou'));
+  };
+
+  const FONT_SIZES = ['xs', 'sm', 'base', 'lg', 'xl'];
+
+  const changeFontSize = (direction) => {
+    const currentIdx = FONT_SIZES.indexOf(fontSize);
+    const nextIdx = direction === 'increase' ? currentIdx + 1 : currentIdx - 1;
+    if (nextIdx < 0 || nextIdx >= FONT_SIZES.length) return;
+    const next = FONT_SIZES[nextIdx];
+    FONT_SIZES.forEach(s => document.documentElement.classList.remove(`font-size-${s}`));
+    document.documentElement.classList.add(`font-size-${next}`);
+    setFontSize(next);
+    localStorage.setItem('almoxhub-font-size', next);
   };
 
   const toggleHighContrast = () => {
@@ -596,6 +614,18 @@ export default function Layout({ children, currentPageName }) {
 
             <div className="flex items-center gap-2">
               <NotificationBell />
+              <button
+                onClick={() => changeFontSize('decrease')}
+                disabled={fontSize === 'xs'}
+                className="px-2 py-1 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-30 transition-colors"
+                title="Diminuir fonte"
+              >A-</button>
+              <button
+                onClick={() => changeFontSize('increase')}
+                disabled={fontSize === 'xl'}
+                className="px-2 py-1 rounded-lg text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-30 transition-colors"
+                title="Aumentar fonte"
+              >A+</button>
               <Button
                 variant="ghost"
                 size="icon"

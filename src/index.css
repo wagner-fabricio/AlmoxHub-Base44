@@ -157,6 +157,13 @@ button:focus-visible {
   }
 }
 
+/* ── Tamanho de Fonte ───────────────────────────────────────────────────────── */
+html.font-size-xs { font-size: 12px; }
+html.font-size-sm { font-size: 14px; }
+html.font-size-base { font-size: 16px; }
+html.font-size-lg { font-size: 18px; }
+html.font-size-xl { font-size: 20px; }
+
 /* ── Alto Contraste ─────────────────────────────────────────────────────────── */
 .high-contrast,
 .high-contrast * {
