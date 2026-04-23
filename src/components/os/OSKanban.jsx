@@ -7,6 +7,7 @@ const columns = [
   { id: 'elaboracao', title: 'Em Elaboração', color: 'bg-slate-500' },
   { id: 'execucao', title: 'Em Execução', color: 'bg-blue-500' },
   { id: 'concluido', title: 'Concluído', color: 'bg-green-500' },
+  { id: 'cancelado', title: 'Cancelado', color: 'bg-red-500' },
 ];
 
 export default function OSKanban({ ordens, pessoas, categorias, regionais, instalacoes, onOSClick, onStatusChange, currentPessoa, onOSChange }) {
@@ -17,7 +18,7 @@ export default function OSKanban({ ordens, pessoas, categorias, regionais, insta
 
   // Agrupar OS por status uma única vez
   const osByStatus = useMemo(() => {
-    const map = { elaboracao: [], execucao: [], concluido: [] };
+    const map = { elaboracao: [], execucao: [], concluido: [], cancelado: [] };
     ordens.forEach(os => { if (map[os.status]) map[os.status].push(os); });
     return map;
   }, [ordens]);
@@ -55,7 +56,7 @@ export default function OSKanban({ ordens, pessoas, categorias, regionais, insta
             </div>
 
             {/* Droppable Area */}
-            <Droppable droppableId={column.id}>
+            <Droppable droppableId={column.id} isDropDisabled={column.id === 'cancelado'}>
               {(provided, snapshot) => (
                 <div
                   ref={provided.innerRef}
