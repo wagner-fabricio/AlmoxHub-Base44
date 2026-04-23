@@ -25,7 +25,8 @@ import {
   Shield,
   Bell,
   BookOpen,
-  DollarSign
+  DollarSign,
+  Eye
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -67,6 +68,7 @@ export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [highContrast, setHighContrast] = useState(false);
   const [user, setUser] = useState(null);
   const [pessoa, setPessoa] = useState(null);
   const [isLoadingUserStatus, setIsLoadingUserStatus] = useState(true);
@@ -158,6 +160,12 @@ export default function Layout({ children, currentPageName }) {
       document.documentElement.classList.add('dark');
     }
 
+    const savedHighContrast = localStorage.getItem('almoxhub-high-contrast');
+    if (savedHighContrast === 'true') {
+      setHighContrast(true);
+      document.documentElement.classList.add('high-contrast');
+    }
+
     const savedCollapsed = localStorage.getItem('almoxhub-sidebar-collapsed');
     if (savedCollapsed === 'true') {
       setSidebarCollapsed(true);
@@ -177,6 +185,18 @@ export default function Layout({ children, currentPageName }) {
 
   const handleLogout = () => {
     base44.auth.logout(createPageUrl('ThankYou'));
+  };
+
+  const toggleHighContrast = () => {
+    const next = !highContrast;
+    setHighContrast(next);
+    if (next) {
+      document.documentElement.classList.add('high-contrast');
+      localStorage.setItem('almoxhub-high-contrast', 'true');
+    } else {
+      document.documentElement.classList.remove('high-contrast');
+      localStorage.setItem('almoxhub-high-contrast', 'false');
+    }
   };
 
   const toggleSidebarCollapse = () => {
@@ -576,6 +596,17 @@ export default function Layout({ children, currentPageName }) {
 
             <div className="flex items-center gap-2">
               <NotificationBell />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleHighContrast}
+                className="rounded-xl"
+                aria-label="Alternar alto contraste"
+                aria-pressed={highContrast}
+                title="Alto Contraste"
+              >
+                <Eye className={`w-5 h-5 ${highContrast ? 'text-yellow-400' : 'text-slate-600 dark:text-slate-400'}`} />
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"

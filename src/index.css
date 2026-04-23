@@ -156,3 +156,92 @@ button:focus-visible {
     @apply bg-background text-foreground;
   }
 }
+
+/* ── Alto Contraste ─────────────────────────────────────────────────────────── */
+.high-contrast,
+.high-contrast * {
+  --background: 0 0% 0% !important;
+  --foreground: 0 0% 100% !important;
+  --card: 0 0% 5% !important;
+  --card-foreground: 0 0% 100% !important;
+  --popover: 0 0% 5% !important;
+  --popover-foreground: 0 0% 100% !important;
+  --primary: 60 100% 50% !important;
+  --primary-foreground: 0 0% 0% !important;
+  --secondary: 0 0% 10% !important;
+  --secondary-foreground: 0 0% 100% !important;
+  --muted: 0 0% 10% !important;
+  --muted-foreground: 0 0% 80% !important;
+  --accent: 60 100% 50% !important;
+  --accent-foreground: 0 0% 0% !important;
+  --destructive: 0 100% 60% !important;
+  --destructive-foreground: 0 0% 0% !important;
+  --border: 60 100% 50% !important;
+  --input: 0 0% 10% !important;
+  --ring: 60 100% 50% !important;
+}
+
+.high-contrast body,
+.high-contrast #root {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+.high-contrast a,
+.high-contrast button:not([disabled]) {
+  color: #ffff00 !important;
+}
+
+.high-contrast input,
+.high-contrast textarea,
+.high-contrast select {
+  background-color: #000 !important;
+  color: #fff !important;
+  border-color: #ffff00 !important;
+}
+
+.high-contrast [class*="bg-white"],
+.high-contrast [class*="bg-slate-50"],
+.high-contrast [class*="bg-slate-100"],
+.high-contrast [class*="bg-slate-800"],
+.high-contrast [class*="bg-slate-900"] {
+  background-color: #000 !important;
+}
+
+.high-contrast [class*="text-slate-"],
+.high-contrast [class*="text-gray-"] {
+  color: #fff !important;
+}
+
+.high-contrast [class*="border-slate-"],
+.high-contrast [class*="border-gray-"] {
+  border-color: #ffff00 !important;
+}
+
+.high-contrast [class*="bg-blue-"],
+.high-contrast [class*="bg-green-"],
+.high-contrast [class*="bg-red-"],
+.high-contrast [class*="bg-amber-"],
+.high-contrast [class*="bg-orange-"],
+.high-contrast [class*="bg-purple-"],
+.high-contrast [class*="bg-indigo-"] {
+  background-color: #000 !important;
+  border: 1px solid #ffff00 !important;
+}
+
+.high-contrast [class*="text-blue-"],
+.high-contrast [class*="text-green-"],
+.high-contrast [class*="text-amber-"],
+.high-contrast [class*="text-orange-"],
+.high-contrast [class*="text-purple-"],
+.high-contrast [class*="text-indigo-"] {
+  color: #ffff00 !important;
+}
+
+.high-contrast [class*="text-red-"] {
+  color: #ff6666 !important;
+}
+
+.high-contrast img {
+  filter: contrast(1.2) !important;
+}
