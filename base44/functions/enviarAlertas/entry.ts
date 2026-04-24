@@ -1,173 +1,114 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { requireAuth, checkRateLimit } from './middleware/auth.js';
-import { ALERT_CONFIG } from './alertConfig.js';
-import { logEstruturado, logAgregado } from './utils/logging.js';
-import {
-  processarOrdensAtrasadas,
-  processarOrdensParadas
-} from './alertStrategies.js';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
-/**
- * Função refatorada para enviar alertas automáticos sobre OSs críticas
- * 
- * Melhorias implementadas:
- * - Templates HTML modularizados
- * - Cache/Maps para lookups O(1)
- * - Filtros nas queries
- * - Constantes centralizadas
- * - Serviço de notificação
- * - Validação robusta de dados
- * - Logging estruturado
- * - Retorno detalhado
- * - Lógica separada por estratégia
- * - Idempotência (não envia alerta duplicado no mesmo dia)
- * 
- * REQUER: Autenticação e perfil de gestor
- */
-export default async function enviarAlertas(req) {
-  const inicioExecucao = Date.now();
-  
-  // Verificar autenticação e autorização
-  const auth = await requireAuth(req, { requiredRole: 'gestor' });
-  
-  if (auth.error) {
-    return auth.response;
-  }
-  
-  const { user, pessoa, base44 } = auth;
-  
-  // Rate limiting
-  const rateLimit = checkRateLimit(
-    user.id, 
-    ALERT_CONFIG.MAX_REQUESTS_PER_HOUR, 
-    ALERT_CONFIG.RATE_LIMIT_WINDOW
-  );
-  
-  if (!rateLimit.allowed) {
-    return rateLimit.response;
-  }
-  
-  logEstruturado('INFO', 'enviarAlertas', 
-    { userId: user.id, pessoaId: pessoa.id }, 
-    'Iniciando execução de alertas');
-  
+const STATUS_INATIVOS = ['concluido', 'cancelado'];
+const DIAS_PARADA_LIMITE = 7;
+
+async function alertaJaEnviadoHoje(base44, osId, tipoAlerta, liderId) {
   try {
-    // Buscar dados com filtros aplicados
-    const [todasOrdens, todasPessoas, todasCategorias] = await Promise.all([
-      base44.asServiceRole.entities.OrdemServico.list(),
-      base44.asServiceRole.entities.Pessoa.list(),
-      base44.asServiceRole.entities.Categoria.list()
-    ]);
-    
-    // Aplicar filtros nas queries
-    const ordens = todasOrdens.filter(os => 
-      !ALERT_CONFIG.STATUS_INATIVOS.includes(os.status)
-    );
-    
-    const pessoas = todasPessoas.filter(p => 
-      p.email && p.email.trim() !== ''
-    );
-    
-    const categorias = todasCategorias.filter(c => 
-      c.ativa !== false
-    );
-    
-    logEstruturado('INFO', 'enviarAlertas', 
-      { 
-        ordensAtivas: ordens.length, 
-        pessoasComEmail: pessoas.length,
-        categoriasAtivas: categorias.length 
-      }, 
-      'Dados carregados e filtrados');
-    
-    // Criar Maps para lookups O(1)
-    const pessoasMap = new Map(pessoas.map(p => [p.id, p]));
-    const categoriasMap = new Map(categorias.map(c => [c.id, c]));
-    
-    // Identificar categoria de expedição uma única vez
-    const categoriaExpedicao = categorias.find(c => 
-      c.nome?.toLowerCase().includes(ALERT_CONFIG.CATEGORIA_EXPEDICAO_NOME)
-    );
-    
-    // Processar cada tipo de alerta
-    const [
-      resultadosAtraso,
-      resultadosInatividade
-    ] = await Promise.all([
-      processarOrdensAtrasadas(base44.asServiceRole, ordens, pessoasMap),
-      processarOrdensParadas(base44.asServiceRole, ordens, pessoasMap)
-    ]);
-    
-    // Consolidar erros
-    const todosErros = [
-      ...resultadosAtraso.erros,
-      ...resultadosInatividade.erros
-    ];
-    
-    // Calcular totais
-    const totalAlertasEnviados = 
-      resultadosAtraso.processadas +
-      resultadosInatividade.processadas;
-    
-    const totalAlertas = 
-      resultadosAtraso.total +
-      resultadosInatividade.total;
-    
-    const totalFalhas = todosErros.length;
-    
-    // Registrar auditoria
-    await base44.asServiceRole.entities.AuditLog.create({
-      action: 'enviar_alertas',
-      entity_type: 'OrdemServico',
-      entity_id: null,
-      user_id: user.id,
-      details: JSON.stringify({
-        ordensAtrasadas: resultadosAtraso.total,
-        ordensParadas: resultadosInatividade.total,
-        totalEnviados: totalAlertasEnviados,
-        totalFalhas,
-        tempoExecucao: Date.now() - inicioExecucao
-      }),
-      timestamp: new Date().toISOString()
+    const alertas = await base44.entities.AlertaEnviado.list();
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const hojeFim = new Date();
+    hojeFim.setHours(23, 59, 59, 999);
+    return alertas.some(a => {
+      const d = new Date(a.data_envio);
+      return a.os_id === osId && a.tipo_alerta === tipoAlerta && a.lider_id === liderId && d >= hoje && d <= hojeFim;
     });
-    
-    // Log agregado final
-    logAgregado('enviarAlertas', [
-      { tipo: 'atraso', success: true, total: resultadosAtraso.total, enviados: resultadosAtraso.processadas },
-      { tipo: 'inatividade', success: true, total: resultadosInatividade.total, enviados: resultadosInatividade.processadas }
-    ]);
-    
-    // Retorno detalhado
-    return Response.json({
-      success: true,
-      summary: {
-        ordensAtrasadas: {
-          total: resultadosAtraso.total,
-          notificadas: resultadosAtraso.processadas,
-          falhadas: resultadosAtraso.erros.length
-        },
-        ordensParadas: {
-          total: resultadosInatividade.total,
-          notificadas: resultadosInatividade.processadas,
-          falhadas: resultadosInatividade.erros.length
-        },
-        totalAlertasEnviados,
-        totalFalhas
-      },
-      erros: todosErros,
-      logs: [],
-      tempoExecucao: Date.now() - inicioExecucao
-    });
-    
-  } catch (error) {
-    logEstruturado('ERROR', 'enviarAlertas', 
-      { userId: user.id }, 
-      'Erro crítico ao processar alertas', error);
-    
-    return Response.json({ 
-      success: false, 
-      error: 'Erro ao processar alertas',
-      details: error.message 
-    }, { status: 500 });
+  } catch {
+    return false;
   }
 }
+
+async function registrarAlertaEnviado(base44, osId, tipoAlerta, liderId, success) {
+  try {
+    await base44.entities.AlertaEnviado.create({
+      os_id: osId, tipo_alerta: tipoAlerta, lider_id: liderId,
+      data_envio: new Date().toISOString().split('T')[0], success
+    });
+  } catch { /* ignorar */ }
+}
+
+async function criarNotificacaoInApp(base44, destinatarioId, osId, mensagem) {
+  await base44.entities.Notificacao.create({
+    destinatario_id: destinatarioId,
+    tipo: 'mudanca_status',
+    referencia_id: osId,
+    referencia_tipo: 'tarefa',
+    mensagem,
+    lida: false
+  });
+}
+
+Deno.serve(async (req) => {
+  const inicioExecucao = Date.now();
+  try {
+    const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
+
+    if (!user) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Buscar dados
+    const [todasOrdens, todasPessoas] = await Promise.all([
+      base44.asServiceRole.entities.OrdemServico.list(),
+      base44.asServiceRole.entities.Pessoa.list()
+    ]);
+
+    const ordens = todasOrdens.filter(os => !STATUS_INATIVOS.includes(os.status));
+    const pessoasMap = new Map(todasPessoas.map(p => [p.id, p]));
+    const hoje = new Date();
+
+    let notificadasAtraso = 0;
+    let notificadasInatividade = 0;
+
+    // Processar ordens atrasadas
+    const ordensAtrasadas = ordens.filter(os => os.prazo && new Date(os.prazo) < hoje);
+    for (const os of ordensAtrasadas) {
+      const lider = pessoasMap.get(os.lider_id);
+      if (!lider) continue;
+      const jaEnviado = await alertaJaEnviadoHoje(base44.asServiceRole, os.id, 'atraso', lider.id);
+      if (jaEnviado) continue;
+      const dias = Math.floor((hoje - new Date(os.prazo)) / (1000 * 60 * 60 * 24));
+      await criarNotificacaoInApp(base44.asServiceRole, lider.id, os.id,
+        `A OS ${os.codigo} está ${dias} dia${dias > 1 ? 's' : ''} atrasada`);
+      await registrarAlertaEnviado(base44.asServiceRole, os.id, 'atraso', lider.id, true);
+      notificadasAtraso++;
+    }
+
+    // Processar ordens paradas
+    const ordensParadas = ordens.filter(os => {
+      if (!os.updated_date) return false;
+      const dias = Math.floor((hoje - new Date(os.updated_date)) / (1000 * 60 * 60 * 24));
+      return dias > DIAS_PARADA_LIMITE;
+    });
+    for (const os of ordensParadas) {
+      const lider = pessoasMap.get(os.lider_id);
+      if (!lider) continue;
+      const jaEnviado = await alertaJaEnviadoHoje(base44.asServiceRole, os.id, 'inatividade', lider.id);
+      if (jaEnviado) continue;
+      const dias = Math.floor((hoje - new Date(os.updated_date)) / (1000 * 60 * 60 * 24));
+      await criarNotificacaoInApp(base44.asServiceRole, lider.id, os.id,
+        `A OS ${os.codigo} está sem movimentação há ${dias} dias`);
+      await registrarAlertaEnviado(base44.asServiceRole, os.id, 'inatividade', lider.id, true);
+      notificadasInatividade++;
+    }
+
+    await base44.asServiceRole.entities.AuditLog.create({
+      action: 'enviar_alertas', entity_type: 'OrdemServico', entity_id: null,
+      user_id: user.id,
+      details: JSON.stringify({ ordensAtrasadas: notificadasAtraso, ordensParadas: notificadasInatividade, tempoExecucao: Date.now() - inicioExecucao }),
+      timestamp: new Date().toISOString()
+    });
+
+    return Response.json({
+      success: true,
+      notificadas_atraso: notificadasAtraso,
+      notificadas_inatividade: notificadasInatividade,
+      tempoExecucao: Date.now() - inicioExecucao
+    });
+
+  } catch (error) {
+    return Response.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
