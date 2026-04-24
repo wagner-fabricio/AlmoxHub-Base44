@@ -69,7 +69,19 @@ export function AppProvider({ children }) {
         base44.entities.Pessoa.list(),
         base44.entities.Categoria.list(),
         base44.entities.Subcategoria.list(),
-        base44.entities.OrdemServico.list('-created_date', 2000),
+        // Carregar OS ativas (sem limite) + OS recentes (90 dias) em paralelo
+        Promise.all([
+          base44.entities.OrdemServico.filter({ status: 'elaboracao' }),
+          base44.entities.OrdemServico.filter({ status: 'execucao' }),
+          base44.entities.OrdemServico.list('-created_date', 1000),
+        ]).then(([ativas1, ativas2, recentes]) => {
+          const ids = new Set();
+          const merged = [];
+          for (const os of [...ativas1, ...ativas2, ...recentes]) {
+            if (!ids.has(os.id)) { ids.add(os.id); merged.push(os); }
+          }
+          return merged;
+        }),
         base44.entities.Almoxarifado.list(),
         base44.entities.Instalacao.list(),
         base44.entities.Projeto.list(),
@@ -122,8 +134,17 @@ export function AppProvider({ children }) {
   };
 
   const refreshOrdens = async () => {
-    const ordensData = await base44.entities.OrdemServico.list('-created_date', 2000);
-    setOrdens(ordensData);
+    const [ativas1, ativas2, recentes] = await Promise.all([
+      base44.entities.OrdemServico.filter({ status: 'elaboracao' }),
+      base44.entities.OrdemServico.filter({ status: 'execucao' }),
+      base44.entities.OrdemServico.list('-created_date', 1000),
+    ]);
+    const ids = new Set();
+    const merged = [];
+    for (const os of [...ativas1, ...ativas2, ...recentes]) {
+      if (!ids.has(os.id)) { ids.add(os.id); merged.push(os); }
+    }
+    setOrdens(merged);
   };
 
   return (
