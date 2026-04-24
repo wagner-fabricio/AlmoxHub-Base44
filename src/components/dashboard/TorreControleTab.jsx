@@ -10,8 +10,9 @@ export default function TorreControleTab({
   tempoMedioRegularizacaoCompra,
   numItensNFCompra
 }) {
-  const currentYear = new Date().getFullYear();
-  const hoje = new Date();
+  const agora = new Date();
+  const currentYear = agora.getFullYear();
+  const hoje = agora;
   const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
   
   // Cálculo de período anterior (30 dias atrás)
