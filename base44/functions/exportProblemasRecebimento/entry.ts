@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 Deno.serve(async (req) => {
   try {
@@ -9,13 +9,32 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Buscar todas as ordens com problema_recebimento === true
-    const ordens = await base44.entities.OrdemServico.filter({ problema_recebimento: true });
+    // Determinar escopo: admins e gestores veem tudo, demais veem apenas sua regional
+    const pessoa = await base44.entities.Pessoa.filter({ user_id: user.id }).then(p => p[0]);
+    const isGestorOuAdmin = user.role === 'admin' || pessoa?.funcoes?.includes('gestor');
+
+    const filtroBase = { problema_recebimento: true };
+    if (!isGestorOuAdmin && pessoa?.regional_id) {
+      filtroBase.regional_id = pessoa.regional_id;
+    }
+
+    // Buscar ordens com problema dentro do escopo do usuário
+    const ordens = await base44.asServiceRole.entities.OrdemServico.filter(filtroBase);
+
+    // Registrar auditoria do export
+    await base44.asServiceRole.entities.AuditLog.create({
+      action: 'export_problemas_recebimento',
+      entity_type: 'OrdemServico',
+      entity_id: null,
+      user_id: user.id,
+      details: JSON.stringify({ total_registros: ordens.length, escopo: isGestorOuAdmin ? 'global' : pessoa?.regional_id }),
+      timestamp: new Date().toISOString()
+    });
 
     // Buscar categorias e regionais para referência
     const categorias = await base44.entities.Categoria.list();
     const regionais = await base44.entities.Regional.list();
-    const pessoas = await base44.entities.Pessoa.list();
+    const pessoas = await base44.asServiceRole.entities.Pessoa.list();
 
     // Criar mapa para lookups rápidos
     const categoriasMap = {};

@@ -17,6 +17,16 @@ Deno.serve(async (req) => {
     const os = ordens[0];
     if (!os) return Response.json({ error: 'OS não encontrada' }, { status: 404 });
 
+    // Verificar se o usuário tem acesso à OS (é líder, executor ou admin)
+    const pessoa = await base44.entities.Pessoa.filter({ user_id: user.id }).then(p => p[0]);
+    const temAcesso = user.role === 'admin' ||
+      os.lider_id === pessoa?.id ||
+      (os.executores_ids || []).includes(pessoa?.id) ||
+      pessoa?.funcoes?.includes('gestor');
+    if (!temAcesso) {
+      return Response.json({ error: 'Sem permissão para encerrar TimeSheet desta OS' }, { status: 403 });
+    }
+
     const sessoesAtivas = os.timesheet_sessoes_ativas || [];
 
     // Nenhuma sessão ativa — nada a fazer

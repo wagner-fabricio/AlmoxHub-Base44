@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 Deno.serve(async (req) => {
   try {
@@ -15,6 +15,16 @@ Deno.serve(async (req) => {
       return Response.json({ 
         error: 'Missing required fields: action, entity_type, entity_id' 
       }, { status: 400 });
+    }
+
+    // Whitelist de ações permitidas via frontend
+    const ACOES_PERMITIDAS = [
+      'create', 'update', 'delete', 'view', 'export',
+      'status_change', 'separacao_update', 'timesheet_start', 'timesheet_pause', 'timesheet_stop',
+      'upload_file', 'invite_user', 'approval_change'
+    ];
+    if (!ACOES_PERMITIDAS.includes(action)) {
+      return Response.json({ error: `Ação '${action}' não permitida` }, { status: 400 });
     }
 
     // Criar log de auditoria

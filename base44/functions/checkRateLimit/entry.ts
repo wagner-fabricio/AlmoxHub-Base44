@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 /**
  * Verifica rate limiting de tentativas de login
@@ -71,9 +71,6 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Erro em checkRateLimit:', error);
-    return Response.json({
-      error: error.message,
-      stack: error.stack
-    }, { status: 500 });
+    return Response.json({ error: 'Erro interno ao verificar rate limit' }, { status: 500 });
   }
 });

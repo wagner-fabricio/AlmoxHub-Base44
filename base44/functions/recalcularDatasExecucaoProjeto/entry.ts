@@ -32,6 +32,13 @@ async function recalcularProjeto(base44, projeto_id) {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+
+    // Autenticação obrigatória
+    const user = await base44.auth.me();
+    if (!user) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const payload = await req.json().catch(() => ({}));
 
     // Chamada direta (frontend): { projeto_id }

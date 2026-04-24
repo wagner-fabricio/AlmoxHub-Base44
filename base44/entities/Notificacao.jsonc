@@ -1,0 +1,64 @@
+{
+  "name": "Notificacao",
+  "type": "object",
+  "properties": {
+    "destinatario_id": {
+      "type": "string",
+      "description": "ID da pessoa destinat\u00e1ria"
+    },
+    "remetente_id": {
+      "type": "string",
+      "description": "ID da pessoa que gerou a a\u00e7\u00e3o"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "mencao",
+        "atribuicao",
+        "mudanca_status"
+      ],
+      "description": "Tipo da notifica\u00e7\u00e3o"
+    },
+    "referencia_id": {
+      "type": "string",
+      "description": "ID da tarefa ou coment\u00e1rio relacionado"
+    },
+    "referencia_tipo": {
+      "type": "string",
+      "enum": [
+        "tarefa",
+        "comentario"
+      ],
+      "description": "Tipo da refer\u00eancia"
+    },
+    "mensagem": {
+      "type": "string",
+      "description": "Texto descritivo da notifica\u00e7\u00e3o"
+    },
+    "lida": {
+      "type": "boolean",
+      "default": false,
+      "description": "Se a notifica\u00e7\u00e3o foi lida"
+    },
+    "contexto_adicional": {
+      "type": "object",
+      "description": "Dados extras para navega\u00e7\u00e3o"
+    }
+  },
+  "required": [
+    "destinatario_id",
+    "tipo",
+    "mensagem"
+  ],
+  "rls": {
+    "read": {
+      "data.destinatario_id": "{{user.id}}"
+    },
+    "update": {
+      "data.destinatario_id": "{{user.id}}"
+    },
+    "delete": {
+      "data.destinatario_id": "{{user.id}}"
+    }
+  }
+}

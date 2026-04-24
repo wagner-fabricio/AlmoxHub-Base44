@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 /**
  * Exporta backup de entidades críticas
@@ -99,9 +99,6 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Erro em exportBackupCritico:', error);
-    return Response.json({
-      error: error.message,
-      stack: error.stack
-    }, { status: 500 });
+    return Response.json({ error: 'Erro ao exportar backup' }, { status: 500 });
   }
 });
