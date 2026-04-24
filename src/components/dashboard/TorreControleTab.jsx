@@ -1,8 +1,8 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LabelList, Legend } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Package, TrendingUp, DollarSign, ClipboardList, Timer } from 'lucide-react';
-import { format } from 'date-fns';
+import { Package, TrendingUp, DollarSign, ClipboardList, Timer, Clock, Activity, Weight } from 'lucide-react';
+import { format, differenceInDays } from 'date-fns';
 import { isNoPrazo, isForaPrazo } from '@/components/dashboard/prazoHelpers';
 
 export default function TorreControleTab({ 
@@ -68,6 +68,27 @@ export default function TorreControleTab({
   
   // KPI: Tempo Médio Previsto (apenas informativo, sem comparação histórica confiável)
   const variacaoTempo = 0; // Não há dados históricos suficientes para comparação confiável
+
+  // KPI: Ordens Atrasadas
+  const ordensAtrasadas = filteredOrdens.filter(os =>
+    os.prazo &&
+    os.status !== 'concluido' &&
+    os.status !== 'cancelado' &&
+    new Date(os.prazo) < hoje
+  );
+
+  // KPI: Ordens sem Movimentação (sem atualização há mais de 7 dias)
+  const ordensSemMovimentacao = filteredOrdens.filter(os =>
+    os.status !== 'concluido' &&
+    os.status !== 'cancelado' &&
+    os.updated_date &&
+    differenceInDays(new Date(), new Date(os.updated_date)) > 7
+  );
+
+  // KPI: Peso Total das OS
+  const pesoTotal = filteredOrdens.reduce((sum, os) =>
+    sum + (os.volumes || []).reduce((s, v) => s + (v.peso_bruto || 0), 0), 0
+  );
   
   // Dados mensais para OS — contagem de OS (para o gráfico de barras por quantidade)
   const dadosMensaisOSContagem = meses.map((mes, index) => {
@@ -242,6 +263,61 @@ export default function TorreControleTab({
             <p className="text-4xl font-bold text-white mb-2">{filteredOrdens.length}</p>
             <p className="text-xs text-white/80">
               {variacaoTotalOS >= 0 ? '↑' : '↓'} {Math.abs(variacaoTotalOS)}% vs. ontem
+            </p>
+          </div>
+
+          {/* Ordens Atrasadas */}
+          <div 
+            className="relative rounded-2xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105" 
+            style={{ background: 'linear-gradient(135deg, #DC2626 0%, #EF4444 100%)' }}
+          >
+            <div className="flex items-start justify-between mb-6">
+              <p className="text-sm font-medium text-white/90">Ordens Atrasadas</p>
+              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <Clock className="w-5 h-5 text-white" />
+              </div>
+            </div>
+            <p className="text-4xl font-bold text-white mb-2">{ordensAtrasadas.length}</p>
+            <p className="text-xs text-white/80">
+              {ordensAtrasadas.length} ordens ultrapassaram o prazo
+            </p>
+          </div>
+
+          {/* Ordens sem Movimentação */}
+          <div 
+            className="relative rounded-2xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105" 
+            style={{ background: 'linear-gradient(135deg, #D97706 0%, #F59E0B 100%)' }}
+          >
+            <div className="flex items-start justify-between mb-6">
+              <p className="text-sm font-medium text-white/90">Sem Movimentação</p>
+              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <Activity className="w-5 h-5 text-white" />
+              </div>
+            </div>
+            <p className="text-4xl font-bold text-white mb-2">{ordensSemMovimentacao.length}</p>
+            <p className="text-xs text-white/80">
+              Sem atualização há mais de 7 dias
+            </p>
+          </div>
+
+          {/* Peso Total */}
+          <div 
+            className="relative rounded-2xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105" 
+            style={{ background: 'linear-gradient(135deg, #0F766E 0%, #14B8A6 100%)' }}
+          >
+            <div className="flex items-start justify-between mb-6">
+              <p className="text-sm font-medium text-white/90">Peso Total</p>
+              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <Package className="w-5 h-5 text-white" />
+              </div>
+            </div>
+            <p className="text-4xl font-bold text-white mb-2">
+              {pesoTotal >= 1000
+                ? `${(pesoTotal / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}t`
+                : `${pesoTotal.toLocaleString('pt-BR', { maximumFractionDigits: 0 })} kg`}
+            </p>
+            <p className="text-xs text-white/80">
+              Peso bruto total das OS filtradas
             </p>
           </div>
         </div>

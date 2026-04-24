@@ -440,8 +440,7 @@ export default function EmFluxo() {
             <p className="text-xl text-slate-600 dark:text-slate-400">Olá, {currentPessoa?.nome?.split(' ')[0] || 'Usuário'}</p>
           </div>
 
-          {/* Observações Section */}
-          <EmFluxoInsights minhasOS={ordens} currentUserId={currentPessoa?.id} />
+          {/* Observações Section — desativado */}
 
           {/* Módulos Grid */}
           <div className="space-y-4 mt-8">

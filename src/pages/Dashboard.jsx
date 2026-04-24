@@ -669,10 +669,7 @@ export default function Dashboard() {
       </div>
       )}
 
-      {/* Observações Section */}
-      {isWidgetVisible('insights') && (
-        <DashboardInsights ordens={filteredOrdens} pessoas={[]} categorias={categorias} />
-      )}
+      {/* Observações Section — desativado */}
 
       {/* Secondary KPIs */}
       {isWidgetVisible('kpis-secondary') && (
