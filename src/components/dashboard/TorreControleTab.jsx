@@ -1,9 +1,67 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LabelList, Legend } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Package, TrendingUp, DollarSign, ClipboardList, Timer, Clock, Activity, Weight } from 'lucide-react';
-import { format, differenceInDays } from 'date-fns';
+import { Package, TrendingUp, DollarSign, ClipboardList, Timer, Clock, Activity, Weight, Gauge } from 'lucide-react';
+import { format, differenceInDays, startOfWeek, isValid, parseISO } from 'date-fns';
 import { isNoPrazo, isForaPrazo } from '@/components/dashboard/prazoHelpers';
+
+function parseDateSafe(d) {
+  if (!d) return null;
+  const dt = typeof d === 'string' ? parseISO(d) : new Date(d);
+  return isValid(dt) ? dt : null;
+}
+
+function diasUteis(start, end) {
+  if (!start || !end || end <= start) return 0;
+  let count = 0;
+  const cur = new Date(start);
+  while (cur < end) {
+    const dow = cur.getDay();
+    if (dow !== 0 && dow !== 6) count++;
+    cur.setDate(cur.getDate() + 1);
+  }
+  return count;
+}
+
+function calcularBacklogMaisRecente(filteredOrdens, horasDia = 8, produtividade = 70) {
+  if (!filteredOrdens || filteredOrdens.length === 0) return null;
+
+  const hoje = new Date();
+  hoje.setHours(23, 59, 59, 999);
+
+  // Período mais recente: semana atual
+  const inicioSemana = startOfWeek(new Date(), { weekStartsOn: 1 });
+  const inicio = inicioSemana;
+  const fim = new Date(hoje);
+
+  const osAbertas = filteredOrdens.filter(os => {
+    const criada = parseDateSafe(os.created_date);
+    if (!criada || criada > fim) return false;
+    if (os.status === 'concluido' || os.status === 'cancelado') {
+      const conc = parseDateSafe(os.data_conclusao) || parseDateSafe(os.updated_date);
+      if (conc && conc <= fim) return false;
+    }
+    return true;
+  });
+
+  let esforcoTotalHoras = 0;
+  osAbertas.forEach(os => {
+    const ini = parseDateSafe(os.data_inicial) || parseDateSafe(os.created_date);
+    const prazo = parseDateSafe(os.prazo);
+    if (!ini || !prazo) return;
+    const du = diasUteis(ini, prazo);
+    const esforcoOS = du * horasDia;
+    const progresso = os.progresso || 0;
+    esforcoTotalHoras += Math.max(0, esforcoOS * (1 - progresso / 100));
+  });
+
+  const duPeriodo = diasUteis(inicio, fim);
+  const pessoasAtivas = new Set(osAbertas.map(os => os.lider_id).filter(Boolean)).size || 1;
+  const capacidadeHoras = duPeriodo * horasDia * pessoasAtivas * (produtividade / 100);
+
+  if (capacidadeHoras === 0) return null;
+  return parseFloat((esforcoTotalHoras / capacidadeHoras).toFixed(2));
+}
 
 export default function TorreControleTab({ 
   filteredOrdens, 
@@ -90,6 +148,19 @@ export default function TorreControleTab({
   const pesoTotal = filteredOrdens.reduce((sum, os) =>
     sum + (os.volumes || []).reduce((s, v) => s + (v.peso_bruto || 0), 0), 0
   );
+
+  // KPI: Índice de Backlog mais recente (semana atual)
+  const backlogMaisRecente = calcularBacklogMaisRecente(filteredOrdens);
+  const backlogColor = backlogMaisRecente === null ? '#64748b'
+    : backlogMaisRecente < 0.5 ? '#0284c7'
+    : backlogMaisRecente <= 2.0 ? '#059669'
+    : backlogMaisRecente <= 4.0 ? '#d97706'
+    : '#dc2626';
+  const backlogLabel = backlogMaisRecente === null ? '—'
+    : backlogMaisRecente < 0.5 ? 'Ocioso'
+    : backlogMaisRecente <= 2.0 ? 'Saudável'
+    : backlogMaisRecente <= 4.0 ? 'Acúmulo'
+    : 'Crítico';
   
   // Dados mensais para OS — contagem de OS (para o gráfico de barras por quantidade)
   const dadosMensaisOSContagem = meses.map((mes, index) => {
@@ -319,6 +390,25 @@ export default function TorreControleTab({
             </p>
             <p className="text-xs text-white/80">
               Peso bruto total das OS filtradas
+            </p>
+          </div>
+
+          {/* Índice de Backlog */}
+          <div 
+            className="relative rounded-2xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105" 
+            style={{ background: `linear-gradient(135deg, ${backlogColor} 0%, ${backlogColor}cc 100%)` }}
+          >
+            <div className="flex items-start justify-between mb-6">
+              <p className="text-sm font-medium text-white/90">Backlog (semana)</p>
+              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <Gauge className="w-5 h-5 text-white" />
+              </div>
+            </div>
+            <p className="text-4xl font-bold text-white mb-2">
+              {backlogMaisRecente !== null ? backlogMaisRecente.toFixed(2) : '—'}
+            </p>
+            <p className="text-xs text-white/80">
+              {backlogLabel} · índice atual da equipe
             </p>
           </div>
         </div>
