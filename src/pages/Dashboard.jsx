@@ -121,14 +121,17 @@ export default function Dashboard() {
   };
 
   // Torre de Controle - KPIs Volumetrias (definir antes de usar nos filtros)
-  const categoriaRecebimento = useMemo(
-    () => categorias.find(c => c.nome?.toLowerCase().includes('recebimento')),
-    [categorias]
-  );
-  const categoriaExpedicao = useMemo(
-    () => categorias.find(c => c.nome?.toLowerCase().includes('expedição')),
-    [categorias]
-  );
+  // Memoizados juntos para evitar dois loops sobre categorias
+  const { categoriaRecebimento, categoriaExpedicao } = useMemo(() => {
+    let rec = null, exp = null;
+    for (const c of categorias) {
+      const nome = c.nome?.toLowerCase() || '';
+      if (!rec && nome.includes('recebimento')) rec = c;
+      if (!exp && nome.includes('expedição')) exp = c;
+      if (rec && exp) break;
+    }
+    return { categoriaRecebimento: rec, categoriaExpedicao: exp };
+  }, [categorias]);
 
   // Filter data — memoized to avoid recomputing on every render
   const filteredOrdens = useMemo(() => {

@@ -23,12 +23,8 @@ import OSTimeSheetView from '@/components/timesheet/OSTimeSheetView.jsx';
 import OSTimeSheetRelatorio from '@/components/timesheet/OSTimeSheetRelatorio.jsx';
 
 export default function OrdensServico() {
-  const { regionais, categorias, subcategorias = [], pessoas, currentUser: ctxUser, currentPessoa: ctxPessoa, ordens, setOrdens, almoxarifados: ctxAlmox, instalacoes: ctxInstalacoes, projetos: ctxProjetos, rotulos: ctxRotulos } = useApp();
+  const { regionais, categorias, subcategorias = [], pessoas, currentUser: ctxUser, currentPessoa: ctxPessoa, ordens, setOrdens, almoxarifados, instalacoes, projetos, rotulos } = useApp();
   const [loading, setLoading] = useState(true);
-  const [almoxarifados, setAlmoxarifados] = useState([]);
-  const [projetos, setProjetos] = useState([]);
-  const [instalacoes, setInstalacoes] = useState([]);
-  const [rotulos, setRotulos] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [currentPessoa, setCurrentPessoa] = useState(null);
   
@@ -103,12 +99,7 @@ export default function OrdensServico() {
   const loadData = async (silent = false) => {
     if (!silent) setLoading(true);
     try {
-      // Use data from AppContext when available — avoids redundant requests
-      setAlmoxarifados(ctxAlmox?.length > 0 ? ctxAlmox : await base44.entities.Almoxarifado.list());
-      setProjetos(ctxProjetos?.length > 0 ? ctxProjetos : await base44.entities.Projeto.list());
-      setInstalacoes(ctxInstalacoes?.length > 0 ? ctxInstalacoes : await base44.entities.Instalacao.list());
-      setRotulos(ctxRotulos?.length > 0 ? ctxRotulos : await base44.entities.Rotulo.filter({ ativo: true }));
-
+      // All entity data comes from AppContext — only resolve user identity here
       const user = ctxUser || (await base44.auth.me());
       setCurrentUser(user);
       const pessoa = ctxPessoa || (Array.isArray(pessoas) ? pessoas.find(p => p?.user_id === user?.id) : null);

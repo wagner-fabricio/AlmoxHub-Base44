@@ -29,7 +29,8 @@ const parseLocalDate = (str) => {
   return new Date(y, m - 1, d);
 };
 
-export default function OSCard({ os, onClick, lider, categoria, regional, instalacoes, rotulos = [], currentPessoa, onOSChange }) {
+// Memoize the component to avoid re-renders when parent re-renders but props haven't changed
+const OSCard = React.memo(function OSCard({ os, onClick, lider, categoria, regional, instalacoes, rotulos = [], currentPessoa, onOSChange }) {
   const prazoDate = parseLocalDate(os.prazo);
   const isOverdue = prazoDate && isPast(prazoDate) && os.status !== 'concluido';
   const isDueToday = prazoDate && isToday(prazoDate);
@@ -222,4 +223,6 @@ export default function OSCard({ os, onClick, lider, categoria, regional, instal
       </div>
     </Card>
   );
-}
+});
+
+export default OSCard;

@@ -92,6 +92,7 @@ export default function OSDetailModal({
   const [currentUserPessoa, setCurrentUserPessoa] = useState(null);
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingContent, setEditingContent] = useState('');
+  const editingTextareaRef = useRef(null);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const [generatingPDF, setGeneratingPDF] = useState(false);
@@ -248,11 +249,13 @@ export default function OSDetailModal({
         }
       }
       
+      // Optimistic update — append locally without full reload
+      setComentarios(prev => [...prev, comentario]);
       setNewComment('');
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
       }
-      loadComentarios();
+      setTimeout(() => scrollToBottom(), 50);
     } catch (e) {
       console.error('Error adding comment:', e);
     } finally {
@@ -312,9 +315,13 @@ export default function OSDetailModal({
         }
       }
       
+      // Optimistic update — patch locally without reload
+      setComentarios(prev => prev.map(c => c.id === commentId
+        ? { ...c, conteudo: editingContent, mencoes_ids: mencoesIds, is_edited: true }
+        : c
+      ));
       setEditingCommentId(null);
       setEditingContent('');
-      loadComentarios();
     } catch (e) {
       console.error('Error editing comment:', e);
     }
@@ -322,10 +329,9 @@ export default function OSDetailModal({
 
   const handleDeleteComment = async (commentId) => {
     try {
-      await base44.entities.Comentario.update(commentId, {
-        is_deleted: true
-      });
-      loadComentarios();
+      await base44.entities.Comentario.update(commentId, { is_deleted: true });
+      // Optimistic update
+      setComentarios(prev => prev.map(c => c.id === commentId ? { ...c, is_deleted: true } : c));
     } catch (e) {
       console.error('Error deleting comment:', e);
     }
@@ -1633,7 +1639,7 @@ export default function OSDetailModal({
                                        onChange={(e) => setEditingContent(e.target.value)}
                                        pessoas={pessoas}
                                        className="min-h-[60px] bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
-                                       textareaRef={React.createRef()}
+                                       textareaRef={editingTextareaRef}
                                      />
                                       <div className="flex gap-2 justify-end">
                                         <Button 
