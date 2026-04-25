@@ -250,11 +250,11 @@ export default function TorreControleTab({
 
   return (
     <div className="space-y-6">
-      {/* Seção Volumetrias */}
+      {/* Seção Indicadores */}
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
         <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-6 flex items-center gap-2">
           <div className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(to bottom, #0000FF, #4169E1)' }}></div>
-          Volumetrias
+          Indicadores
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Nº de Itens */}

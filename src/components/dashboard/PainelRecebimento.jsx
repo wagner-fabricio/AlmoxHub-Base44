@@ -444,15 +444,21 @@ export default function PainelRecebimento({
         </div>
       )}
 
-      {/* ── KPI Cards ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <KPICard
-          title="Conformidade (TCR)"
-          value={`${tcr}%`}
-          subtitle={`${totalReceb - osComProblemaArr.length} de ${totalReceb} OS`}
-          gradient="linear-gradient(135deg, #0000FF 0%, #0A003C 100%)"
-          icon={CheckCircle}
-        />
+      {/* ── Seção Indicadores ── */}
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-6 flex items-center gap-2">
+          <div className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(to bottom, #0000FF, #4169E1)' }}></div>
+          Indicadores
+        </h3>
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <KPICard
+              title="Conformidade (TCR)"
+              value={`${tcr}%`}
+              subtitle={`${totalReceb - osComProblemaArr.length} de ${totalReceb} OS`}
+              gradient="linear-gradient(135deg, #0000FF 0%, #0A003C 100%)"
+              icon={CheckCircle}
+            />
         <KPICard
           title="Acuracidade (TAC)"
           value={`${tac}%`}
@@ -474,9 +480,9 @@ export default function PainelRecebimento({
           gradient="linear-gradient(135deg, #DC2626 0%, #EF4444 100%)"
           icon={AlertTriangle}
         />
-      </div>
+        </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <KPICard
           title="Lead Time (LTR)"
           value={ltr !== null ? `${ltr}d` : '—'}
@@ -484,27 +490,29 @@ export default function PainelRecebimento({
           gradient="linear-gradient(135deg, #FF6B00 0%, #FF8C00 100%)"
           icon={Clock}
         />
-        <KPICard
-          title="Backlog"
-          value={backlog}
-          subtitle="NF-e sem MIGO lançado"
-          gradient="linear-gradient(135deg, #EA580C 0%, #F97316 100%)"
-          icon={BarChart2}
-        />
-        <KPICard
-          title="Resolução Prob. (IRP)"
-          value={`${irp}%`}
-          subtitle={`${osSolucionadas} de ${osComProblemaArr.length} resolvidos`}
-          gradient="linear-gradient(135deg, #0284C7 0%, #0EA5E9 100%)"
-          icon={TrendingUp}
-        />
-        <KPICard
-          title="Tempo Resolução (TMRP)"
-          value={tmrp !== null ? `${tmrp}d` : '—'}
-          subtitle={`${osResolvidasComData.length} problemas medidos`}
-          gradient="linear-gradient(135deg, #0F766E 0%, #14B8A6 100%)"
-          icon={Timer}
-        />
+            <KPICard
+              title="Backlog"
+              value={backlog}
+              subtitle="NF-e sem MIGO lançado"
+              gradient="linear-gradient(135deg, #EA580C 0%, #F97316 100%)"
+              icon={BarChart2}
+            />
+            <KPICard
+              title="Resolução Prob. (IRP)"
+              value={`${irp}%`}
+              subtitle={`${osSolucionadas} de ${osComProblemaArr.length} resolvidos`}
+              gradient="linear-gradient(135deg, #0284C7 0%, #0EA5E9 100%)"
+              icon={TrendingUp}
+            />
+            <KPICard
+              title="Tempo Resolução (TMRP)"
+              value={tmrp !== null ? `${tmrp}d` : '—'}
+              subtitle={`${osResolvidasComData.length} problemas medidos`}
+              gradient="linear-gradient(135deg, #0F766E 0%, #14B8A6 100%)"
+              icon={Timer}
+            />
+          </div>
+        </div>
       </div>
 
       {/* ── TCR Mensal + TAC Donut ── */}

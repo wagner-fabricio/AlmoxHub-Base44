@@ -509,41 +509,50 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
         </div>
       )}
 
-      {/* ── KPI Row 1: OTIF, On-Time, In-Full, TCS ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <KPICard title="OTIF" value={`${otifRate}%`}
-          subtitle={`${otifCount} de ${totalOTIF} entregas`}
-          gradient="linear-gradient(135deg, #0000FF 0%, #0A003C 100%)" icon={Target} />
-        <KPICard title="On-Time" value={`${otRate}%`}
-          subtitle={`${otCount} de ${totalOT} no prazo`}
-          gradient="linear-gradient(135deg, #FF6B00 0%, #FF8C00 100%)" icon={Clock} />
-        <KPICard title="In-Full" value={`${ifRate}%`}
-          subtitle={`${ifCount} de ${totalIF} completos`}
-          gradient="linear-gradient(135deg, #059669 0%, #10B981 100%)" icon={Package} />
-        <KPICard title="Ciclo Separação (TCS)"
-          value={tcs !== null ? `${tcs}d` : '—'}
-          subtitle={`${osComSep.length} OS medidas`}
-          gradient="linear-gradient(135deg, #5B21B6 0%, #7C3AED 100%)" icon={TrendingUp} />
-      </div>
+      {/* ── Seção Indicadores ── */}
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-6 flex items-center gap-2">
+          <div className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(to bottom, #0000FF, #4169E1)' }}></div>
+          Indicadores
+        </h3>
+        <div className="space-y-4">
+          {/* ── KPI Row 1: OTIF, On-Time, In-Full, TCS ── */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <KPICard title="OTIF" value={`${otifRate}%`}
+              subtitle={`${otifCount} de ${totalOTIF} entregas`}
+              gradient="linear-gradient(135deg, #0000FF 0%, #0A003C 100%)" icon={Target} />
+            <KPICard title="On-Time" value={`${otRate}%`}
+              subtitle={`${otCount} de ${totalOT} no prazo`}
+              gradient="linear-gradient(135deg, #FF6B00 0%, #FF8C00 100%)" icon={Clock} />
+            <KPICard title="In-Full" value={`${ifRate}%`}
+              subtitle={`${ifCount} de ${totalIF} completos`}
+              gradient="linear-gradient(135deg, #059669 0%, #10B981 100%)" icon={Package} />
+            <KPICard title="Ciclo Separação (TCS)"
+              value={tcs !== null ? `${tcs}d` : '—'}
+              subtitle={`${osComSep.length} OS medidas`}
+              gradient="linear-gradient(135deg, #5B21B6 0%, #7C3AED 100%)" icon={TrendingUp} />
+          </div>
 
-      {/* ── KPI Row 2: TCR-MIGO, CMF, TME, Volume ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <KPICard title="Ciclo Reserva→MIGO"
-          value={tcrMigo !== null ? `${tcrMigo}d` : '—'}
-          subtitle={`${osComMigo.length} OS medidas`}
-          gradient="linear-gradient(135deg, #0F766E 0%, #14B8A6 100%)" icon={Navigation} />
-        <KPICard title="Custo Médio Frete"
-          value={cmf !== null ? `R$${Math.round(cmf).toLocaleString('pt-BR')}` : '—'}
-          subtitle={`${expComFrete.length} exp. com frete`}
-          gradient="linear-gradient(135deg, #6366F1 0%, #818CF8 100%)" icon={DollarSign} />
-        <KPICard title="Ticket Médio"
-          value={tme !== null ? `R$${Math.round(tme).toLocaleString('pt-BR')}` : '—'}
-          subtitle={`${expComValor.length} exp. com valor`}
-          gradient="linear-gradient(135deg, #0284C7 0%, #0EA5E9 100%)" icon={DollarSign} />
-        <KPICard title="Volume Total"
-          value={volumeM3Total > 0 ? `${volumeM3Total.toFixed(1)}m³` : `${pesoTotalKg.toFixed(0)}kg`}
-          subtitle={volumeM3Total > 0 ? `${pesoTotalKg.toFixed(0)} kg peso bruto` : 'sem dados de volume'}
-          gradient="linear-gradient(135deg, #64748b 0%, #94a3b8 100%)" icon={Box} />
+          {/* ── KPI Row 2: TCR-MIGO, CMF, TME, Volume ── */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <KPICard title="Ciclo Reserva→MIGO"
+              value={tcrMigo !== null ? `${tcrMigo}d` : '—'}
+              subtitle={`${osComMigo.length} OS medidas`}
+              gradient="linear-gradient(135deg, #0F766E 0%, #14B8A6 100%)" icon={Navigation} />
+            <KPICard title="Custo Médio Frete"
+              value={cmf !== null ? `R$${Math.round(cmf).toLocaleString('pt-BR')}` : '—'}
+              subtitle={`${expComFrete.length} exp. com frete`}
+              gradient="linear-gradient(135deg, #6366F1 0%, #818CF8 100%)" icon={DollarSign} />
+            <KPICard title="Ticket Médio"
+              value={tme !== null ? `R$${Math.round(tme).toLocaleString('pt-BR')}` : '—'}
+              subtitle={`${expComValor.length} exp. com valor`}
+              gradient="linear-gradient(135deg, #0284C7 0%, #0EA5E9 100%)" icon={DollarSign} />
+            <KPICard title="Volume Total"
+              value={volumeM3Total > 0 ? `${volumeM3Total.toFixed(1)}m³` : `${pesoTotalKg.toFixed(0)}kg`}
+              subtitle={volumeM3Total > 0 ? `${pesoTotalKg.toFixed(0)} kg peso bruto` : 'sem dados de volume'}
+              gradient="linear-gradient(135deg, #64748b 0%, #94a3b8 100%)" icon={Box} />
+          </div>
+        </div>
       </div>
 
       {/* ── Visão Geral OTIF (donuts) ── */}
