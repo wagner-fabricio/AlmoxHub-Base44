@@ -1,5 +1,21 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { ORDENS_QUERY_KEY } from '@/hooks/useOrdensQuery';
+
+async function fetchOrdens() {
+  const [ativas1, ativas2, recentes] = await Promise.all([
+    base44.entities.OrdemServico.filter({ status: 'elaboracao' }),
+    base44.entities.OrdemServico.filter({ status: 'execucao' }),
+    base44.entities.OrdemServico.list('-created_date', 1000),
+  ]);
+  const ids = new Set();
+  const merged = [];
+  for (const os of [...ativas1, ...ativas2, ...recentes]) {
+    if (!ids.has(os.id)) { ids.add(os.id); merged.push(os); }
+  }
+  return merged;
+}
 
 const AppContext = createContext();
 
@@ -10,12 +26,33 @@ export function AppProvider({ children }) {
   const [pessoas, setPessoas] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [subcategorias, setSubcategorias] = useState([]);
-  const [ordens, setOrdens] = useState([]);
   const [almoxarifados, setAlmoxarifados] = useState([]);
   const [instalacoes, setInstalacoes] = useState([]);
   const [projetos, setProjetos] = useState([]);
   const [rotulos, setRotulos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingOther, setLoadingOther] = useState(true);
+  const queryClient = useQueryClient();
+
+  // OS carregadas via React Query — cache inteligente de 2 min
+  const {
+    data: ordens = [],
+    isLoading: isOrdensLoading,
+  } = useQuery({
+    queryKey: ORDENS_QUERY_KEY,
+    queryFn: fetchOrdens,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  const loading = isOrdensLoading || loadingOther;
+
+  // Setter mantém retrocompatibilidade — atualiza o cache do React Query
+  const setOrdens = (updater) => {
+    queryClient.setQueryData(ORDENS_QUERY_KEY, (prev = []) =>
+      typeof updater === 'function' ? updater(prev) : updater
+    );
+  };
 
   useEffect(() => {
     loadGlobalData();
@@ -58,7 +95,6 @@ export function AppProvider({ children }) {
         pessoasData,
         categoriasData,
         subcategoriasData,
-        ordensData,
         almoxarifadosData,
         instalacoesData,
         projetosData,
@@ -69,19 +105,6 @@ export function AppProvider({ children }) {
         base44.entities.Pessoa.list(),
         base44.entities.Categoria.list(),
         base44.entities.Subcategoria.list(),
-        // Carregar OS ativas (sem limite) + OS recentes (90 dias) em paralelo
-        Promise.all([
-          base44.entities.OrdemServico.filter({ status: 'elaboracao' }),
-          base44.entities.OrdemServico.filter({ status: 'execucao' }),
-          base44.entities.OrdemServico.list('-created_date', 1000),
-        ]).then(([ativas1, ativas2, recentes]) => {
-          const ids = new Set();
-          const merged = [];
-          for (const os of [...ativas1, ...ativas2, ...recentes]) {
-            if (!ids.has(os.id)) { ids.add(os.id); merged.push(os); }
-          }
-          return merged;
-        }),
         base44.entities.Almoxarifado.list(),
         base44.entities.Instalacao.list(),
         base44.entities.Projeto.list(),
@@ -93,7 +116,6 @@ export function AppProvider({ children }) {
       setPessoas(pessoasData);
       setCategorias(categoriasData);
       setSubcategorias(subcategoriasData);
-      setOrdens(ordensData);
       setAlmoxarifados(almoxarifadosData);
       setInstalacoes(instalacoesData);
       setProjetos(projetosData);
@@ -106,7 +128,7 @@ export function AppProvider({ children }) {
     } catch (error) {
       console.error('Error loading global data:', error);
     } finally {
-      setLoading(false);
+      setLoadingOther(false);
     }
   };
 
@@ -133,18 +155,8 @@ export function AppProvider({ children }) {
     setSubcategorias(subcategoriasData);
   };
 
-  const refreshOrdens = async () => {
-    const [ativas1, ativas2, recentes] = await Promise.all([
-      base44.entities.OrdemServico.filter({ status: 'elaboracao' }),
-      base44.entities.OrdemServico.filter({ status: 'execucao' }),
-      base44.entities.OrdemServico.list('-created_date', 1000),
-    ]);
-    const ids = new Set();
-    const merged = [];
-    for (const os of [...ativas1, ...ativas2, ...recentes]) {
-      if (!ids.has(os.id)) { ids.add(os.id); merged.push(os); }
-    }
-    setOrdens(merged);
+  const refreshOrdens = () => {
+    queryClient.invalidateQueries({ queryKey: ORDENS_QUERY_KEY });
   };
 
   return (
