@@ -916,6 +916,8 @@ export default function PainelRecebimento({
             else if (col === 'data_recebimento') { va = a.os.data_recebimento || ''; vb = b.os.data_recebimento || ''; }
             else if (col === 'tmrpDias') { va = a.tmrpDias ?? Infinity; vb = b.tmrpDias ?? Infinity; }
             else if (col === 'tacPct') { va = a.tacPct ?? -1; vb = b.tacPct ?? -1; }
+            else if (col === 'itensConf') { va = a.itens.length; vb = b.itens.length; }
+            else if (col === 'completos') { va = a.itensComp; vb = b.itensComp; }
             else { va = ''; vb = ''; }
             if (va < vb) return sortConfig.direction === 'asc' ? -1 : 1;
             if (va > vb) return sortConfig.direction === 'asc' ? 1 : -1;
