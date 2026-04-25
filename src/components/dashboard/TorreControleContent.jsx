@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { HelpCircle } from 'lucide-react';
 import OSDetailModal from '@/components/os/OSDetailModal';
+import OSFormModal from '@/components/os/OSFormModal';
 import { useApp } from '@/components/contexts/AppContext';
 
 const INDICADORES = [
@@ -209,7 +210,8 @@ export default function TorreControleContent({
 }) {
   const [showHelp, setShowHelp] = useState(false);
   const [selectedOS, setSelectedOS] = useState(null);
-  const { subcategorias, instalacoes, projetos } = useApp();
+  const [editingOS, setEditingOS] = useState(null);
+  const { subcategorias, instalacoes, projetos, currentUser, refreshOrdens } = useApp();
 
   return (
     <div className="space-y-8">
@@ -256,10 +258,32 @@ export default function TorreControleContent({
           subcategorias={subcategorias || []}
           instalacoes={instalacoes || []}
           projetos={projetos || []}
-          onEdit={() => setSelectedOS(null)}
+          onEdit={() => {
+            setEditingOS(selectedOS);
+            setSelectedOS(null);
+          }}
           onDelete={() => setSelectedOS(null)}
           canDelete={false}
           onRefresh={() => {}}
+        />
+      )}
+
+      {editingOS && (
+        <OSFormModal
+          open={!!editingOS}
+          onClose={() => setEditingOS(null)}
+          os={editingOS}
+          regionais={regionais}
+          almoxarifados={almoxarifados}
+          pessoas={pessoas}
+          categorias={categorias}
+          subcategorias={subcategorias || []}
+          projetos={projetos || []}
+          instalacoes={instalacoes || []}
+          currentUser={currentUser}
+          onSave={() => {
+            refreshOrdens?.();
+          }}
         />
       )}
     </div>
