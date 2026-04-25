@@ -555,45 +555,46 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
         </div>
       </div>
 
-      {/* ── Visão Geral OTIF (donuts) ── */}
+      {/* ── Visão Geral OTIF (donuts + OTIF por Almoxarifado) ── */}
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
         <SectionHeader title="Visão Geral OTIF" />
         {!temDados ? (
           <EmptyState msg="Sem entregas registradas no período" />
         ) : (
-          <div className="flex flex-col lg:flex-row items-center justify-around gap-8">
-            <div className="flex flex-col items-center gap-3">
-              <DonutChart value={otifRate} color="#0000FF" size={220} innerRadius={70} outerRadius={95} />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            {/* Col 1 — Donut OTIF principal */}
+            <div className="lg:col-span-3 flex flex-col items-center gap-2">
+              <DonutChart value={otifRate} color="#0000FF" size={170} innerRadius={55} outerRadius={75} />
               <div className="text-center">
-                <p className="font-semibold text-slate-900 dark:text-white">% OTIF</p>
+                <p className="font-semibold text-slate-900 dark:text-white text-sm">% OTIF</p>
                 <p className="text-xs text-slate-500">{otifCount} entregas completas e no prazo</p>
               </div>
             </div>
-            <div className="hidden lg:block w-px h-48 bg-slate-200 dark:bg-slate-700" />
-            <div className="flex flex-row lg:flex-col gap-8">
-              <div className="flex flex-col items-center gap-2">
-                <DonutChart value={otRate} color="#FF6B00" size={140} innerRadius={45} outerRadius={62} />
+            {/* Col 2 — Donuts On-Time / In-Full */}
+            <div className="lg:col-span-2 flex flex-row lg:flex-col items-center justify-center gap-5 lg:border-l border-slate-200 dark:border-slate-700 lg:pl-6">
+              <div className="flex flex-col items-center gap-1.5">
+                <DonutChart value={otRate} color="#FF6B00" size={110} innerRadius={36} outerRadius={50} />
                 <div className="text-center">
-                  <p className="font-semibold text-slate-900 dark:text-white text-sm">% On-Time</p>
+                  <p className="font-semibold text-slate-900 dark:text-white text-xs">% On-Time</p>
                   <p className="text-xs text-slate-500">{otCount}/{totalOT} no prazo</p>
                 </div>
               </div>
-              <div className="flex flex-col items-center gap-2">
-                <DonutChart value={ifRate} color="#10b981" size={140} innerRadius={45} outerRadius={62} />
+              <div className="flex flex-col items-center gap-1.5">
+                <DonutChart value={ifRate} color="#10b981" size={110} innerRadius={36} outerRadius={50} />
                 <div className="text-center">
-                  <p className="font-semibold text-slate-900 dark:text-white text-sm">% In-Full</p>
+                  <p className="font-semibold text-slate-900 dark:text-white text-xs">% In-Full</p>
                   <p className="text-xs text-slate-500">{ifCount}/{totalIF} completas</p>
                 </div>
               </div>
             </div>
-            <div className="hidden lg:block w-px h-48 bg-slate-200 dark:bg-slate-700" />
-            <div className="flex flex-col gap-3 text-sm min-w-[160px]">
+            {/* Col 3 — Legenda */}
+            <div className="lg:col-span-3 flex flex-col gap-2 text-sm lg:border-l border-slate-200 dark:border-slate-700 lg:pl-6">
               {[
                 { label: 'OTIF', value: `${otifRate}%`, color: '#0000FF', bg: 'bg-blue-50 dark:bg-blue-900/10' },
                 { label: 'On-Time', value: `${otRate}%`, color: '#FF6B00', bg: 'bg-orange-50 dark:bg-orange-900/10' },
                 { label: 'In-Full', value: `${ifRate}%`, color: '#10b981', bg: 'bg-green-50 dark:bg-green-900/10' },
               ].map(item => (
-                <div key={item.label} className={`flex items-center justify-between gap-4 p-3 rounded-lg ${item.bg}`}>
+                <div key={item.label} className={`flex items-center justify-between gap-4 p-2.5 rounded-lg ${item.bg}`}>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
                     <span className="text-slate-700 dark:text-slate-300 font-medium">{item.label}</span>
@@ -601,9 +602,29 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
                   <span className="font-bold text-slate-900 dark:text-white">{item.value}</span>
                 </div>
               ))}
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-700/30 text-xs text-slate-500">
+              <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-700/30 text-xs text-slate-500">
                 Total entregues: <strong>{entregues.length}</strong>
               </div>
+            </div>
+            {/* Col 4 — % OTIF por Almoxarifado */}
+            <div className="lg:col-span-4 lg:border-l border-slate-200 dark:border-slate-700 lg:pl-6">
+              <p className="text-xs text-slate-500 font-medium uppercase tracking-wide mb-2">% OTIF por Almoxarifado</p>
+              {otifPorAlmoxarifado.length === 0 ? <EmptyState /> : (
+                <ResponsiveContainer width="100%" height={Math.max(220, otifPorAlmoxarifado.length * 32)}>
+                  <BarChart data={otifPorAlmoxarifado} layout="vertical" margin={{ top: 5, right: 35, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
+                    <XAxis type="number" domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 10 }} tickFormatter={v => `${v}%`} />
+                    <YAxis type="category" dataKey="name" tick={{ fill: '#64748b', fontSize: 10 }} width={90} />
+                    <Tooltip contentStyle={TOOLTIP_STYLE}
+                      formatter={(v, n) => [`${v}%`, n === 'otif' ? '% OTIF' : '% Não-OTIF']}
+                      labelFormatter={(l, p) => p?.[0]?.payload?.nomeCompleto || l} />
+                    <Bar dataKey="otif" stackId="a" name="otif" radius={[0, 0, 0, 0]}>
+                      {otifPorAlmoxarifado.map((e, i) => <Cell key={i} fill={e.otif >= 80 ? '#10b981' : e.otif >= 60 ? '#f59e0b' : '#ef4444'} />)}
+                    </Bar>
+                    <Bar dataKey="naoOtif" stackId="a" fill="#ef444428" name="naoOtif" radius={[0, 4, 4, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </div>
         )}
@@ -720,28 +741,6 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
             </div>
           )}
         </div>
-      </div>
-
-      {/* ── OTIF por Almoxarifado ── */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-        <SectionHeader title="% OTIF por Almoxarifado" />
-        {otifPorAlmoxarifado.length === 0 ? <EmptyState /> : (
-          <ResponsiveContainer width="100%" height={Math.max(280, otifPorAlmoxarifado.length * 48)}>
-            <BarChart data={otifPorAlmoxarifado} layout="vertical" margin={{ top: 5, right: 60, left: 10, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
-              <XAxis type="number" domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 11 }} tickFormatter={v => `${v}%`} />
-              <YAxis type="category" dataKey="name" tick={{ fill: '#64748b', fontSize: 11 }} width={120} />
-              <Tooltip contentStyle={TOOLTIP_STYLE}
-                formatter={(v, n) => [`${v}%`, n === 'otif' ? '% OTIF' : '% Não-OTIF']}
-                labelFormatter={(l, p) => p?.[0]?.payload?.nomeCompleto || l} />
-              <Legend formatter={v => v === 'otif' ? '% OTIF' : '% Não-OTIF'} />
-              <Bar dataKey="otif" stackId="a" name="otif" radius={[0, 0, 0, 0]}>
-                {otifPorAlmoxarifado.map((e, i) => <Cell key={i} fill={e.otif >= 80 ? '#10b981' : e.otif >= 60 ? '#f59e0b' : '#ef4444'} />)}
-              </Bar>
-              <Bar dataKey="naoOtif" stackId="a" fill="#ef444428" name="naoOtif" radius={[0, 4, 4, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        )}
       </div>
 
       {/* ── Ranking de Transportadoras ── */}
