@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useApp } from '@/components/contexts/AppContext';
+import { useOrdensFiltradas } from '@/hooks/useOrdensQuery';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Plus, Loader2, Maximize2, Minimize2, Tv2, ChevronLeft, ChevronRight } from 'lucide-react';
 import PresentationSetupModal from '@/components/presentation/PresentationSetupModal';
@@ -24,7 +26,8 @@ import OSTimeSheetRelatorio from '@/components/timesheet/OSTimeSheetRelatorio.js
 import OSPagination from '@/components/os/OSPagination.jsx';
 
 export default function OrdensServico() {
-  const { regionais, categorias, subcategorias = [], pessoas, currentUser: ctxUser, currentPessoa: ctxPessoa, ordens, setOrdens, almoxarifados, instalacoes, projetos, rotulos } = useApp();
+  const { regionais, categorias, subcategorias = [], pessoas, currentUser: ctxUser, currentPessoa: ctxPessoa, almoxarifados, instalacoes, projetos, rotulos } = useApp();
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
   const [currentPessoa, setCurrentPessoa] = useState(null);
@@ -97,6 +100,32 @@ export default function OrdensServico() {
   const PAGE_SIZE = 100;
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Filtros que o backend suporta — usados para busca paginada
+  const backendFilter = useMemo(() => {
+    const f = {};
+    if (filters.status !== 'all' && filters.statusList?.length === 0) f.status = filters.status;
+    if (filters.regional !== 'all') f.regional_id = filters.regional;
+    if (filters.almoxarifado !== 'all') f.almoxarifado_id = filters.almoxarifado;
+    if (filters.categorias?.length === 1) f.categoria_id = filters.categorias[0];
+    return f;
+  }, [filters.status, filters.regional, filters.almoxarifado, filters.categorias, filters.statusList]);
+
+  const { data: ordens = [], isLoading: isOrdensLoading } = useOrdensFiltradas(
+    { backendFilter, sort: '-created_date', limit: PAGE_SIZE, page: currentPage },
+    { enabled: true }
+  );
+
+  // setOrdens — optimistic update no cache da query filtrada ativa
+  const currentQueryKey = useMemo(
+    () => ['ordens-filtradas', { backendFilter, sort: '-created_date', limit: PAGE_SIZE, page: currentPage }],
+    [backendFilter, currentPage]
+  );
+  const setOrdens = useCallback((updater) => {
+    queryClient.setQueryData(currentQueryKey, (prev = []) =>
+      typeof updater === 'function' ? updater(prev) : updater
+    );
+  }, [queryClient, currentQueryKey]);
+
   useEffect(() => {
     loadData();
   }, []);
@@ -109,6 +138,7 @@ export default function OrdensServico() {
       setCurrentUser(user);
       const pessoa = ctxPessoa || (Array.isArray(pessoas) ? pessoas.find(p => p?.user_id === user?.id) : null);
       setCurrentPessoa(pessoa);
+      if (!silent) queryClient.invalidateQueries({ queryKey: ['ordens-filtradas'] });
 
       if (user.filtros_preferidos?.OrdensServico) {
         const savedFilters = user.filtros_preferidos.OrdensServico;
@@ -270,18 +300,11 @@ export default function OrdensServico() {
     });
   }, [ordens, filters, debouncedTextFilters, currentPessoa]);
 
-  // Ordens paginadas (apenas para list e gallery)
-  const paginatedOrdens = useMemo(() => {
-    const isPaginatedView = viewMode === 'list' || viewMode === 'gallery';
-    if (!isPaginatedView) return filteredOrdens;
-    const start = (currentPage - 1) * PAGE_SIZE;
-    return filteredOrdens.slice(start, start + PAGE_SIZE);
-  }, [filteredOrdens, currentPage, viewMode]);
-
-  const totalPages = useMemo(() =>
-    Math.ceil(filteredOrdens.length / PAGE_SIZE),
-    [filteredOrdens]
-  );
+  // Backend já pagina — paginatedOrdens é igual a filteredOrdens (já vem 100 por vez)
+  // totalPages é desconhecido sem count do backend; usamos heurística: se veio PAGE_SIZE, pode ter mais
+  const paginatedOrdens = filteredOrdens;
+  const totalPages = filteredOrdens.length >= PAGE_SIZE ? currentPage + 1 : currentPage;
+  const totalApprox = (currentPage - 1) * PAGE_SIZE + filteredOrdens.length;
 
   const handleOSClick = (os) => {
     setSelectedOS(os);
@@ -476,7 +499,7 @@ export default function OrdensServico() {
     return false;
   };
 
-  if (loading) {
+  if (loading || isOrdensLoading) {
     return (
       <div className="flex items-center justify-center h-96">
         <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
@@ -836,7 +859,7 @@ export default function OrdensServico() {
                 regionais={regionais}
                 onOSClick={handleOSClick}
               />
-              <OSPagination currentPage={currentPage} totalPages={totalPages} total={filteredOrdens.length} onChange={setCurrentPage} />
+              <OSPagination currentPage={currentPage} totalPages={totalPages} total={totalApprox} onChange={setCurrentPage} />
             </>
           )}
           {viewMode === 'gallery' && (
@@ -852,7 +875,7 @@ export default function OrdensServico() {
                 currentPessoa={currentPessoa}
                 onOSChange={(updatedOS) => setOrdens(prev => prev.map(o => o.id === updatedOS.id ? { ...o, ...updatedOS } : o))}
               />
-              <OSPagination currentPage={currentPage} totalPages={totalPages} total={filteredOrdens.length} onChange={setCurrentPage} />
+              <OSPagination currentPage={currentPage} totalPages={totalPages} total={totalApprox} onChange={setCurrentPage} />
             </>
           )}
           {viewMode === 'responsavel' && (
