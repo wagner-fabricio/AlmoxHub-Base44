@@ -431,9 +431,9 @@ export default function TorreControleTab({
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Gráfico de Barras Mensais */}
-          <div className="lg:col-span-2 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/50 dark:to-slate-800/30 rounded-xl p-6 border border-slate-100 dark:border-slate-700/50">
-            <h4 className="text-base font-semibold text-slate-700 dark:text-slate-300 mb-6">{tituloMetrica}</h4>
-            <ResponsiveContainer width="100%" height={400}>
+          <div className="lg:col-span-2 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/50 dark:to-slate-800/30 rounded-xl p-4 border border-slate-100 dark:border-slate-700/50">
+            <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">{tituloMetrica}</h4>
+            <ResponsiveContainer width="100%" height={240}>
               <BarChart data={dadosMensaisOSContagem} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-700" />
                 <XAxis dataKey="mes" tick={{ fill: '#64748b', fontSize: 12 }} />
@@ -476,36 +476,36 @@ export default function TorreControleTab({
           </div>
 
           {/* Gráfico de Rosca - Total Anual */}
-          <div className="bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/50 dark:to-slate-800/30 rounded-xl p-6 border border-slate-100 dark:border-slate-700/50">
-            <h4 className="text-base font-semibold text-slate-700 dark:text-slate-300 mb-6">Resumo Anual por Prazo</h4>
+          <div className="bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/50 dark:to-slate-800/30 rounded-xl p-4 border border-slate-100 dark:border-slate-700/50">
+            <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Resumo Anual por Prazo</h4>
             {totalOS === 0 ? (
-              <div className="h-96 flex items-center justify-center text-slate-400">Sem dados</div>
+              <div className="h-56 flex items-center justify-center text-slate-400">Sem dados</div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full">
+              <div className="flex flex-col items-center justify-center">
                 <div className="relative">
-                  <ResponsiveContainer width={280} height={280}>
+                  <ResponsiveContainer width={170} height={170}>
                     <PieChart>
-                      <Pie data={[{ name: 'No Prazo', value: totalNoPrazo, fill: '#22c55e' }, { name: 'Fora do Prazo', value: totalForaPrazo, fill: '#ef4444' }]} cx="50%" cy="50%" innerRadius={85} outerRadius={110} paddingAngle={2} dataKey="value">
+                      <Pie data={[{ name: 'No Prazo', value: totalNoPrazo, fill: '#22c55e' }, { name: 'Fora do Prazo', value: totalForaPrazo, fill: '#ef4444' }]} cx="50%" cy="50%" innerRadius={55} outerRadius={75} paddingAngle={2} dataKey="value">
                         {[{ fill: '#22c55e' }, { fill: '#ef4444' }].map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} />)}
                       </Pie>
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <p className="text-4xl font-bold text-slate-900 dark:text-white">{percentualNoPrazoOS}%</p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">No Prazo</p>
+                    <p className="text-2xl font-bold text-slate-900 dark:text-white">{percentualNoPrazoOS}%</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">No Prazo</p>
                   </div>
                 </div>
-                <div className="mt-6 space-y-3 w-full">
-                  <div className="flex items-center justify-between text-sm p-3 rounded-lg bg-green-50 dark:bg-green-900/10">
+                <div className="mt-3 space-y-1.5 w-full">
+                  <div className="flex items-center justify-between text-xs p-2 rounded-lg bg-green-50 dark:bg-green-900/10">
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                      <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
                       <span className="text-slate-700 dark:text-slate-300 font-medium">No Prazo</span>
                     </div>
                     <span className="font-bold text-slate-900 dark:text-white">{formatResumo(totalNoPrazo)}</span>
                   </div>
-                  <div className="flex items-center justify-between text-sm p-3 rounded-lg bg-red-50 dark:bg-red-900/10">
+                  <div className="flex items-center justify-between text-xs p-2 rounded-lg bg-red-50 dark:bg-red-900/10">
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                      <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
                       <span className="text-slate-700 dark:text-slate-300 font-medium">Fora do Prazo</span>
                     </div>
                     <span className="font-bold text-slate-900 dark:text-white">{formatResumo(totalForaPrazo)}</span>
