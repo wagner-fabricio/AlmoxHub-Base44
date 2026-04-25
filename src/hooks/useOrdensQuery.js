@@ -8,7 +8,7 @@ export const ORDENS_FILTRADAS_KEY = 'ordens-filtradas';
 // Busca global (sem filtros) — usada pelo AppContext para Dashboard, Torre de Controle etc.
 // Carrega todas as OS em uma única chamada com limite alto
 async function fetchOrdensGlobal() {
-  return base44.entities.OrdemServico.list('-created_date', 5000);
+  return base44.entities.OrdemServico.list('-created_date', 50000);
 }
 
 // Busca filtrada e paginada — usada pela página OrdensServico
