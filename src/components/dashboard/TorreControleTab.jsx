@@ -258,158 +258,154 @@ export default function TorreControleTab({
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Nº de Itens */}
-          <div 
-            className="relative rounded-2xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105" 
+          <div
+            className="relative rounded-2xl p-5 shadow-lg flex flex-col justify-between min-h-[120px]"
             style={{ background: 'linear-gradient(135deg, #5B21B6 0%, #7C3AED 100%)' }}
           >
-            <div className="flex items-start justify-between mb-6">
-              <p className="text-sm font-medium text-white/90">Nº de Itens</p>
-              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <Package className="w-5 h-5 text-white" />
+            <div className="flex items-start justify-between mb-2">
+              <p className="text-white/80 text-xs font-medium leading-tight pr-2">Nº de Itens</p>
+              <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                <Package className="w-4 h-4 text-white" />
               </div>
             </div>
-            <p className="text-4xl font-bold text-white mb-2">{(numItensNFCompra || 0).toLocaleString('pt-BR')}</p>
-            <p className="text-xs text-white/80">
-              {variacaoItens >= 0 ? '↑' : '↓'} {Math.abs(variacaoItens)}% vs. ontem
-            </p>
+            <div>
+              <p className="text-3xl font-bold text-white">{(numItensNFCompra || 0).toLocaleString('pt-BR')}</p>
+              <p className="text-xs text-white/60 mt-0.5">{variacaoItens >= 0 ? '↑' : '↓'} {Math.abs(variacaoItens)}% vs. ontem</p>
+            </div>
           </div>
 
           {/* Valor Total */}
-          <div 
-            className="relative rounded-2xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105" 
+          <div
+            className="relative rounded-2xl p-5 shadow-lg flex flex-col justify-between min-h-[120px]"
             style={{ background: 'linear-gradient(135deg, #EA580C 0%, #F97316 100%)' }}
           >
-            <div className="flex items-start justify-between mb-6">
-              <p className="text-sm font-medium text-white/90">Valor Total</p>
-              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <DollarSign className="w-5 h-5 text-white" />
+            <div className="flex items-start justify-between mb-2">
+              <p className="text-white/80 text-xs font-medium leading-tight pr-2">Valor Total</p>
+              <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                <DollarSign className="w-4 h-4 text-white" />
               </div>
             </div>
-            <p className="text-4xl font-bold text-white mb-2">
-              R$ {(() => {
-                const valorTotal = filteredOrdens.reduce((sum, os) => {
-                  const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
-                  const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => {
-                    return s + (parseFloat(item.valor_total) || 0);
+            <div>
+              <p className="text-3xl font-bold text-white">
+                R$ {(() => {
+                  const valorTotal = filteredOrdens.reduce((sum, os) => {
+                    const valorExpedicao = (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
+                    const valorRecebimento = (os.nfe_itens_conferencia || []).reduce((s, item) => {
+                      return s + (parseFloat(item.valor_total) || 0);
+                    }, 0);
+                    return sum + valorExpedicao + valorRecebimento;
                   }, 0);
-                  return sum + valorExpedicao + valorRecebimento;
-                }, 0);
-                return (valorTotal || 0).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-              })()}
-            </p>
-            <p className="text-xs text-white/80">
-              {variacaoValor >= 0 ? '↑' : '↓'} {Math.abs(variacaoValor)}% vs. ontem
-            </p>
+                  return (valorTotal || 0).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                })()}
+              </p>
+              <p className="text-xs text-white/60 mt-0.5">{variacaoValor >= 0 ? '↑' : '↓'} {Math.abs(variacaoValor)}% vs. ontem</p>
+            </div>
           </div>
 
           {/* Tempo Médio Previsto */}
-          <div 
-            className="relative rounded-2xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105" 
+          <div
+            className="relative rounded-2xl p-5 shadow-lg flex flex-col justify-between min-h-[120px]"
             style={{ background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)' }}
           >
-            <div className="flex items-start justify-between mb-6">
-              <p className="text-sm font-medium text-white/90">Tempo Médio Previsto</p>
-              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <Timer className="w-5 h-5 text-white" />
+            <div className="flex items-start justify-between mb-2">
+              <p className="text-white/80 text-xs font-medium leading-tight pr-2">Tempo Médio Previsto</p>
+              <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                <Timer className="w-4 h-4 text-white" />
               </div>
             </div>
-            <p className="text-4xl font-bold text-white mb-2">
-              {Math.abs(tempoMedioRegularizacaoCompra).toFixed(1)} dias
-            </p>
-            <p className="text-xs text-white/80">
-              Conforme filtros aplicados
-            </p>
+            <div>
+              <p className="text-3xl font-bold text-white">{Math.abs(tempoMedioRegularizacaoCompra).toFixed(1)} dias</p>
+              <p className="text-xs text-white/60 mt-0.5">Conforme filtros aplicados</p>
+            </div>
           </div>
 
           {/* Total de OS */}
-          <div 
-            className="relative rounded-2xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105" 
+          <div
+            className="relative rounded-2xl p-5 shadow-lg flex flex-col justify-between min-h-[120px]"
             style={{ background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)' }}
           >
-            <div className="flex items-start justify-between mb-6">
-              <p className="text-sm font-medium text-white/90">Total de OS</p>
-              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <ClipboardList className="w-5 h-5 text-white" />
+            <div className="flex items-start justify-between mb-2">
+              <p className="text-white/80 text-xs font-medium leading-tight pr-2">Total de OS</p>
+              <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                <ClipboardList className="w-4 h-4 text-white" />
               </div>
             </div>
-            <p className="text-4xl font-bold text-white mb-2">{filteredOrdens.length}</p>
-            <p className="text-xs text-white/80">
-              {variacaoTotalOS >= 0 ? '↑' : '↓'} {Math.abs(variacaoTotalOS)}% vs. ontem
-            </p>
+            <div>
+              <p className="text-3xl font-bold text-white">{filteredOrdens.length}</p>
+              <p className="text-xs text-white/60 mt-0.5">{variacaoTotalOS >= 0 ? '↑' : '↓'} {Math.abs(variacaoTotalOS)}% vs. ontem</p>
+            </div>
           </div>
 
           {/* Ordens Atrasadas */}
-          <div 
-            className="relative rounded-2xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105" 
+          <div
+            className="relative rounded-2xl p-5 shadow-lg flex flex-col justify-between min-h-[120px]"
             style={{ background: 'linear-gradient(135deg, #DC2626 0%, #EF4444 100%)' }}
           >
-            <div className="flex items-start justify-between mb-6">
-              <p className="text-sm font-medium text-white/90">Ordens Atrasadas</p>
-              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <Clock className="w-5 h-5 text-white" />
+            <div className="flex items-start justify-between mb-2">
+              <p className="text-white/80 text-xs font-medium leading-tight pr-2">Ordens Atrasadas</p>
+              <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                <Clock className="w-4 h-4 text-white" />
               </div>
             </div>
-            <p className="text-4xl font-bold text-white mb-2">{ordensAtrasadas.length}</p>
-            <p className="text-xs text-white/80">
-              {ordensAtrasadas.length} ordens ultrapassaram o prazo
-            </p>
+            <div>
+              <p className="text-3xl font-bold text-white">{ordensAtrasadas.length}</p>
+              <p className="text-xs text-white/60 mt-0.5">{ordensAtrasadas.length} ordens ultrapassaram o prazo</p>
+            </div>
           </div>
 
           {/* Ordens sem Movimentação */}
-          <div 
-            className="relative rounded-2xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105" 
+          <div
+            className="relative rounded-2xl p-5 shadow-lg flex flex-col justify-between min-h-[120px]"
             style={{ background: 'linear-gradient(135deg, #D97706 0%, #F59E0B 100%)' }}
           >
-            <div className="flex items-start justify-between mb-6">
-              <p className="text-sm font-medium text-white/90">Sem Movimentação</p>
-              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <Activity className="w-5 h-5 text-white" />
+            <div className="flex items-start justify-between mb-2">
+              <p className="text-white/80 text-xs font-medium leading-tight pr-2">Sem Movimentação</p>
+              <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                <Activity className="w-4 h-4 text-white" />
               </div>
             </div>
-            <p className="text-4xl font-bold text-white mb-2">{ordensSemMovimentacao.length}</p>
-            <p className="text-xs text-white/80">
-              Sem atualização há mais de 7 dias
-            </p>
+            <div>
+              <p className="text-3xl font-bold text-white">{ordensSemMovimentacao.length}</p>
+              <p className="text-xs text-white/60 mt-0.5">Sem atualização há mais de 7 dias</p>
+            </div>
           </div>
 
           {/* Peso Total */}
-          <div 
-            className="relative rounded-2xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105" 
+          <div
+            className="relative rounded-2xl p-5 shadow-lg flex flex-col justify-between min-h-[120px]"
             style={{ background: 'linear-gradient(135deg, #0F766E 0%, #14B8A6 100%)' }}
           >
-            <div className="flex items-start justify-between mb-6">
-              <p className="text-sm font-medium text-white/90">Peso Total</p>
-              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <Package className="w-5 h-5 text-white" />
+            <div className="flex items-start justify-between mb-2">
+              <p className="text-white/80 text-xs font-medium leading-tight pr-2">Peso Total</p>
+              <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                <Package className="w-4 h-4 text-white" />
               </div>
             </div>
-            <p className="text-4xl font-bold text-white mb-2">
-              {pesoTotal >= 1000
-                ? `${(pesoTotal / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}t`
-                : `${pesoTotal.toLocaleString('pt-BR', { maximumFractionDigits: 0 })} kg`}
-            </p>
-            <p className="text-xs text-white/80">
-              Peso bruto total das OS filtradas
-            </p>
+            <div>
+              <p className="text-3xl font-bold text-white">
+                {pesoTotal >= 1000
+                  ? `${(pesoTotal / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}t`
+                  : `${pesoTotal.toLocaleString('pt-BR', { maximumFractionDigits: 0 })} kg`}
+              </p>
+              <p className="text-xs text-white/60 mt-0.5">Peso bruto total das OS filtradas</p>
+            </div>
           </div>
 
           {/* Índice de Backlog */}
-          <div 
-            className="relative rounded-2xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105" 
+          <div
+            className="relative rounded-2xl p-5 shadow-lg flex flex-col justify-between min-h-[120px]"
             style={{ background: `linear-gradient(135deg, ${backlogColor} 0%, ${backlogColor}cc 100%)` }}
           >
-            <div className="flex items-start justify-between mb-6">
-              <p className="text-sm font-medium text-white/90">Backlog (semana)</p>
-              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <Gauge className="w-5 h-5 text-white" />
+            <div className="flex items-start justify-between mb-2">
+              <p className="text-white/80 text-xs font-medium leading-tight pr-2">Backlog (semana)</p>
+              <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                <Gauge className="w-4 h-4 text-white" />
               </div>
             </div>
-            <p className="text-4xl font-bold text-white mb-2">
-              {backlogMaisRecente !== null ? backlogMaisRecente.toFixed(2) : '—'}
-            </p>
-            <p className="text-xs text-white/80">
-              {backlogLabel} · índice atual da equipe
-            </p>
+            <div>
+              <p className="text-3xl font-bold text-white">{backlogMaisRecente !== null ? backlogMaisRecente.toFixed(2) : '—'}</p>
+              <p className="text-xs text-white/60 mt-0.5">{backlogLabel} · índice atual da equipe</p>
+            </div>
           </div>
         </div>
       </div>
