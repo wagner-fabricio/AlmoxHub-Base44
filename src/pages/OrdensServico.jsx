@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { base44 } from '@/api/base44Client';
 import { useApp } from '@/components/contexts/AppContext';
 import { Button } from '@/components/ui/button';
-import { Plus, Loader2, Maximize2, Minimize2, Tv2 } from 'lucide-react';
+import { Plus, Loader2, Maximize2, Minimize2, Tv2, ChevronLeft, ChevronRight } from 'lucide-react';
 import PresentationSetupModal from '@/components/presentation/PresentationSetupModal';
 import PresentationOverlay from '@/components/presentation/PresentationOverlay';
 import ExportOSButton from '@/components/os/ExportOSButton';
@@ -21,6 +21,7 @@ import OSDetailModal from '@/components/os/OSDetailModal.jsx';
 import { notifyOSAssignment, notifyStatusChange } from '@/components/notifications/PushNotificationHelper';
 import OSTimeSheetView from '@/components/timesheet/OSTimeSheetView.jsx';
 import OSTimeSheetRelatorio from '@/components/timesheet/OSTimeSheetRelatorio.jsx';
+import OSPagination from '@/components/os/OSPagination.jsx';
 
 export default function OrdensServico() {
   const { regionais, categorias, subcategorias = [], pessoas, currentUser: ctxUser, currentPessoa: ctxPessoa, ordens, setOrdens, almoxarifados, instalacoes, projetos, rotulos } = useApp();
@@ -92,6 +93,10 @@ export default function OrdensServico() {
   const [showPresentationSetup, setShowPresentationSetup] = useState(false);
   const [presentationSlides, setPresentationSlides] = useState(null);
 
+  // Paginação client-side (para views list e gallery)
+  const PAGE_SIZE = 100;
+  const [currentPage, setCurrentPage] = useState(1);
+
   useEffect(() => {
     loadData();
   }, []);
@@ -143,6 +148,9 @@ export default function OrdensServico() {
       setLoading(false);
     }
   };
+
+  // Reset página ao mudar filtros ou view
+  useEffect(() => { setCurrentPage(1); }, [filters, debouncedTextFilters, viewMode]);
 
   // Filtros memoizados — só recalculam quando ordens ou filtros relevantes mudam
   const filteredOrdens = useMemo(() => {
@@ -261,6 +269,19 @@ export default function OrdensServico() {
       return true;
     });
   }, [ordens, filters, debouncedTextFilters, currentPessoa]);
+
+  // Ordens paginadas (apenas para list e gallery)
+  const paginatedOrdens = useMemo(() => {
+    const isPaginatedView = viewMode === 'list' || viewMode === 'gallery';
+    if (!isPaginatedView) return filteredOrdens;
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredOrdens.slice(start, start + PAGE_SIZE);
+  }, [filteredOrdens, currentPage, viewMode]);
+
+  const totalPages = useMemo(() =>
+    Math.ceil(filteredOrdens.length / PAGE_SIZE),
+    [filteredOrdens]
+  );
 
   const handleOSClick = (os) => {
     setSelectedOS(os);
@@ -559,7 +580,7 @@ export default function OrdensServico() {
               )}
               {viewMode === 'list' && (
                 <OSList
-                  ordens={filteredOrdens}
+                  ordens={paginatedOrdens}
                   pessoas={pessoas}
                   categorias={categorias}
                   regionais={regionais}
@@ -568,7 +589,7 @@ export default function OrdensServico() {
               )}
               {viewMode === 'gallery' && (
                 <OSGallery
-                  ordens={filteredOrdens}
+                  ordens={paginatedOrdens}
                   pessoas={pessoas}
                   categorias={categorias}
                   regionais={regionais}
@@ -659,7 +680,14 @@ export default function OrdensServico() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">Ordens de Serviço</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Gerencie as OS do almoxarifado</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">
+            Gerencie as OS do almoxarifado
+            {filteredOrdens.length > 0 && (
+              <span className="ml-2 text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full">
+                {filteredOrdens.length} OS
+              </span>
+            )}
+          </p>
         </div>
         <div className="flex gap-2">
           <ExportOSButton
@@ -800,26 +828,32 @@ export default function OrdensServico() {
             />
           )}
           {viewMode === 'list' && (
-            <OSList
-              ordens={filteredOrdens}
-              pessoas={pessoas}
-              categorias={categorias}
-              regionais={regionais}
-              onOSClick={handleOSClick}
-            />
+            <>
+              <OSList
+                ordens={paginatedOrdens}
+                pessoas={pessoas}
+                categorias={categorias}
+                regionais={regionais}
+                onOSClick={handleOSClick}
+              />
+              <OSPagination currentPage={currentPage} totalPages={totalPages} total={filteredOrdens.length} onChange={setCurrentPage} />
+            </>
           )}
           {viewMode === 'gallery' && (
-            <OSGallery
-              ordens={filteredOrdens}
-              pessoas={pessoas}
-              categorias={categorias}
-              regionais={regionais}
-              instalacoes={instalacoes}
-              onOSClick={handleOSClick}
-              rotulos={rotulos}
-              currentPessoa={currentPessoa}
-              onOSChange={(updatedOS) => setOrdens(prev => prev.map(o => o.id === updatedOS.id ? { ...o, ...updatedOS } : o))}
-            />
+            <>
+              <OSGallery
+                ordens={paginatedOrdens}
+                pessoas={pessoas}
+                categorias={categorias}
+                regionais={regionais}
+                instalacoes={instalacoes}
+                onOSClick={handleOSClick}
+                rotulos={rotulos}
+                currentPessoa={currentPessoa}
+                onOSChange={(updatedOS) => setOrdens(prev => prev.map(o => o.id === updatedOS.id ? { ...o, ...updatedOS } : o))}
+              />
+              <OSPagination currentPage={currentPage} totalPages={totalPages} total={filteredOrdens.length} onChange={setCurrentPage} />
+            </>
           )}
           {viewMode === 'responsavel' && (
             <OSByResponsavel
