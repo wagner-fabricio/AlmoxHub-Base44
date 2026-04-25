@@ -12,7 +12,7 @@ async function fetchOrdensGlobal() {
   let all = [];
   let skip = 0;
   while (true) {
-    const page = await base44.entities.OrdemServico.list('-created_date', PAGE, skip);
+    const page = await base44.entities.OrdemServico.filter({}, '-created_date', PAGE, skip);
     all = all.concat(page);
     if (page.length < PAGE) break;
     skip += PAGE;
