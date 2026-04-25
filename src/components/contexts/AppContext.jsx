@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQueryClient } from '@tanstack/react-query';
-import { useOrdensQuery, ORDENS_QUERY_KEY } from '@/hooks/useOrdensQuery';
+import { useOrdensQuery, ORDENS_QUERY_KEY, useOrdensRealTimeSync } from '@/hooks/useOrdensQuery';
 
 const AppContext = createContext();
 
@@ -50,19 +50,8 @@ export function AppProvider({ children }) {
     return unsub;
   }, []);
 
-  // Keep OrdemServico list in sync with real-time updates (shared across Dashboard + OrdensServico)
-  useEffect(() => {
-    const unsub = base44.entities.OrdemServico.subscribe((event) => {
-      if (event.type === 'create' && event.data) {
-        setOrdens(prev => prev.some(o => o.id === event.id) ? prev : [event.data, ...prev]);
-      } else if (event.type === 'update' && event.data) {
-        setOrdens(prev => prev.map(o => o.id === event.id ? { ...o, ...event.data } : o));
-      } else if (event.type === 'delete') {
-        setOrdens(prev => prev.filter(o => o.id !== event.id));
-      }
-    });
-    return unsub;
-  }, []);
+  // Sincronização real-time centralizada — atualiza global + filtradas em um único subscriber
+  useOrdensRealTimeSync();
 
   const loadGlobalData = async () => {
     try {

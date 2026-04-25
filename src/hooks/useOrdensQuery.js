@@ -1,7 +1,9 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 
 export const ORDENS_QUERY_KEY = ['ordens'];
+export const ORDENS_FILTRADAS_KEY = 'ordens-filtradas';
 
 // Busca global (sem filtros) — usada pelo AppContext para Dashboard, Torre de Controle etc.
 async function fetchOrdensGlobal() {
@@ -79,8 +81,50 @@ export function useOrdensQueryClient() {
   const queryClient = useQueryClient();
   return {
     invalidate: () => queryClient.invalidateQueries({ queryKey: ORDENS_QUERY_KEY }),
-    invalidateFiltradas: () => queryClient.invalidateQueries({ queryKey: ['ordens-filtradas'] }),
+    invalidateFiltradas: () => queryClient.invalidateQueries({ queryKey: [ORDENS_FILTRADAS_KEY] }),
     setData: (updater) => queryClient.setQueryData(ORDENS_QUERY_KEY, updater),
     getData: () => queryClient.getQueryData(ORDENS_QUERY_KEY),
   };
+}
+
+// Hook que sincroniza as queries de OS em tempo real via subscription
+// Deve ser montado uma única vez no topo da árvore (AppContext já usa useOrdensQuery — subscribe lá)
+export function useOrdensRealTimeSync() {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const unsub = base44.entities.OrdemServico.subscribe((event) => {
+      const { type, id, data } = event;
+
+      // 1. Atualiza cache global (ORDENS_QUERY_KEY)
+      queryClient.setQueryData(ORDENS_QUERY_KEY, (prev = []) => {
+        if (type === 'create' && data) {
+          return prev.some(o => o.id === id) ? prev : [data, ...prev];
+        }
+        if (type === 'update' && data) {
+          return prev.map(o => o.id === id ? { ...o, ...data } : o);
+        }
+        if (type === 'delete') {
+          return prev.filter(o => o.id !== id);
+        }
+        return prev;
+      });
+
+      // 2. Atualiza todos os caches filtrados ativos (ordens-filtradas/*)
+      queryClient.setQueriesData({ queryKey: [ORDENS_FILTRADAS_KEY] }, (prev = []) => {
+        if (type === 'create' && data) {
+          return prev.some(o => o.id === id) ? prev : [data, ...prev];
+        }
+        if (type === 'update' && data) {
+          return prev.map(o => o.id === id ? { ...o, ...data } : o);
+        }
+        if (type === 'delete') {
+          return prev.filter(o => o.id !== id);
+        }
+        return prev;
+      });
+    });
+
+    return unsub;
+  }, [queryClient]);
 }

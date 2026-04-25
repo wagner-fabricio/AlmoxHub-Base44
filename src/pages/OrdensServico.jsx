@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useApp } from '@/components/contexts/AppContext';
-import { useOrdensFiltradas } from '@/hooks/useOrdensQuery';
+import { useOrdensFiltradas, ORDENS_QUERY_KEY } from '@/hooks/useOrdensQuery';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Plus, Loader2, Maximize2, Minimize2, Tv2, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -165,12 +165,18 @@ export default function OrdensServico() {
       const urlParams = new URLSearchParams(window.location.search);
       const osId = urlParams.get('os_id');
       if (osId) {
-        const os = ordens.find(o => o.id === osId);
-        if (os) {
-          setSelectedOS(os);
-          setShowDetailModal(true);
-        }
         window.history.replaceState({}, '', window.location.pathname);
+        // Tenta encontrar no cache; se não achar, busca direto do backend
+        const cached = queryClient.getQueryData(ORDENS_QUERY_KEY);
+        const osFromCache = Array.isArray(cached) ? cached.find(o => o.id === osId) : null;
+        if (osFromCache) {
+          setSelectedOS(osFromCache);
+          setShowDetailModal(true);
+        } else {
+          base44.entities.OrdemServico.filter({ id: osId }).then(res => {
+            if (res?.[0]) { setSelectedOS(res[0]); setShowDetailModal(true); }
+          }).catch(() => {});
+        }
       }
     } catch (error) {
       console.error('Error loading data:', error);
