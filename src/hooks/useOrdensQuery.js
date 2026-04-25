@@ -6,9 +6,20 @@ export const ORDENS_QUERY_KEY = ['ordens'];
 export const ORDENS_FILTRADAS_KEY = 'ordens-filtradas';
 
 // Busca global (sem filtros) — usada pelo AppContext para Dashboard, Torre de Controle etc.
-// Carrega todas as OS em uma única chamada com limite alto
+// O SDK Base44 limita a 5000 registros por chamada. Paginamos para buscar todos.
 async function fetchOrdensGlobal() {
-  return base44.entities.OrdemServico.list('-created_date', 50000);
+  const PAGE = 5000;
+  const MAX_TOTAL = 50000; // teto de segurança
+  const all = [];
+  let skip = 0;
+  while (skip < MAX_TOTAL) {
+    const batch = await base44.entities.OrdemServico.list('-created_date', PAGE, skip);
+    if (!batch || batch.length === 0) break;
+    all.push(...batch);
+    if (batch.length < PAGE) break; // última página
+    skip += PAGE;
+  }
+  return all;
 }
 
 // Busca filtrada e paginada — usada pela página OrdensServico
