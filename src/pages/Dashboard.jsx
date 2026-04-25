@@ -1202,6 +1202,7 @@ export default function Dashboard() {
             regionais={regionais}
             almoxarifados={almoxarifados}
             filters={filters}
+            hideToolbar={fullscreen}
           />
               </TabsContent>
 
@@ -1212,6 +1213,7 @@ export default function Dashboard() {
                   categoriaRecebimento={categoriaRecebimento}
                   almoxarifados={almoxarifados}
                   problemasRecebimento={problemasRecebimento}
+                  hideToolbar={fullscreen}
                 />
               </TabsContent>
 
@@ -1220,6 +1222,7 @@ export default function Dashboard() {
                 <PainelExpedicao
                   filteredOrdens={filteredOrdens}
                   almoxarifados={almoxarifados}
+                  hideToolbar={fullscreen}
                 />
               </TabsContent>
 

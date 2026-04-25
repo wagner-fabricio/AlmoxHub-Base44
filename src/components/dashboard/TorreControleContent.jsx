@@ -204,7 +204,8 @@ export default function TorreControleContent({
   categorias = [],
   regionais = [],
   almoxarifados = [],
-  filters = {}
+  filters = {},
+  hideToolbar = false
 }) {
   const [showHelp, setShowHelp] = useState(false);
   const [selectedOS, setSelectedOS] = useState(null);
@@ -212,19 +213,21 @@ export default function TorreControleContent({
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" size="sm" onClick={() => setShowHelp(true)} className="gap-2">
-          <HelpCircle className="w-4 h-4 text-blue-500" />
-          Entender os indicadores
-        </Button>
-        <ExportTorreControleButton
-          filteredOrdens={filteredOrdens}
-          pessoas={pessoas}
-          categorias={categorias}
-          regionais={regionais}
-          almoxarifados={almoxarifados}
-        />
-      </div>
+      {!hideToolbar && (
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" size="sm" onClick={() => setShowHelp(true)} className="gap-2">
+            <HelpCircle className="w-4 h-4 text-blue-500" />
+            Entender os indicadores
+          </Button>
+          <ExportTorreControleButton
+            filteredOrdens={filteredOrdens}
+            pessoas={pessoas}
+            categorias={categorias}
+            regionais={regionais}
+            almoxarifados={almoxarifados}
+          />
+        </div>
+      )}
       <HelpModalTorreControle open={showHelp} onClose={() => setShowHelp(false)} />
       <TorreControleTab 
         filteredOrdens={filteredOrdens}
