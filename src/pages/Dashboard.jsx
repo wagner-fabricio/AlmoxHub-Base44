@@ -65,7 +65,7 @@ export default function Dashboard() {
     categoria: 'all',
     subcategoria: 'all',
     status: [],
-    periodo: '30',
+    periodo: 'all',
     dataInicio: '',
     dataFim: ''
   });
@@ -484,7 +484,7 @@ export default function Dashboard() {
                 categoria: 'all',
                 subcategoria: 'all',
                 status: [],
-                periodo: '30',
+                periodo: 'all',
                 dataInicio: '',
                 dataFim: ''
               })}
