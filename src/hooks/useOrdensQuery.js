@@ -6,18 +6,18 @@ export const ORDENS_QUERY_KEY = ['ordens'];
 export const ORDENS_FILTRADAS_KEY = 'ordens-filtradas';
 
 // Busca global (sem filtros) — usada pelo AppContext para Dashboard, Torre de Controle etc.
+// Faz paginação automática para trazer TODAS as OS do sistema
 async function fetchOrdensGlobal() {
-  const [ativas1, ativas2, recentes] = await Promise.all([
-    base44.entities.OrdemServico.filter({ status: 'elaboracao' }),
-    base44.entities.OrdemServico.filter({ status: 'execucao' }),
-    base44.entities.OrdemServico.list('-created_date', 1000),
-  ]);
-  const ids = new Set();
-  const merged = [];
-  for (const os of [...ativas1, ...ativas2, ...recentes]) {
-    if (!ids.has(os.id)) { ids.add(os.id); merged.push(os); }
+  const PAGE = 500;
+  let all = [];
+  let skip = 0;
+  while (true) {
+    const page = await base44.entities.OrdemServico.list('-created_date', PAGE, skip);
+    all = all.concat(page);
+    if (page.length < PAGE) break;
+    skip += PAGE;
   }
-  return merged;
+  return all;
 }
 
 // Busca filtrada e paginada — usada pela página OrdensServico
