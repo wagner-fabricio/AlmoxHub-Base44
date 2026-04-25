@@ -118,6 +118,7 @@ function SlideContent({ slideId, dashData, osData }) {
           categoriaRecebimento={categoriaRecebimento}
           almoxarifados={almoxarifados}
           problemasRecebimento={problemasRecebimento}
+          hideToolbar
         />
       </div>
     );
@@ -129,6 +130,7 @@ function SlideContent({ slideId, dashData, osData }) {
         <PainelExpedicao
           filteredOrdens={filteredOrdens}
           almoxarifados={almoxarifados}
+          hideToolbar
         />
       </div>
     );
