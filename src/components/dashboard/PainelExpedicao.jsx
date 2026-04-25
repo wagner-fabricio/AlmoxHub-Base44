@@ -471,6 +471,12 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
         else if (col === 'data_necessidade') { va = a.os.data_necessidade || ''; vb = b.os.data_necessidade || ''; }
         else if (col === 'data_entrega') { va = a.os.data_entrega || ''; vb = b.os.data_entrega || ''; }
         else if (col === 'tempoEntrega') { va = a.tempoEntrega ?? Infinity; vb = b.tempoEntrega ?? Infinity; }
+        else if (col === 'cicloSep') { va = a.tempoCicloSep ?? Infinity; vb = b.tempoCicloSep ?? Infinity; }
+        else if (col === 'volM3') {
+          va = (a.os.volumes || []).reduce((s, v) => s + (v.m3 || 0), 0);
+          vb = (b.os.volumes || []).reduce((s, v) => s + (v.m3 || 0), 0);
+        }
+        else if (col === 'status_separacao') { va = a.os.status_separacao || ''; vb = b.os.status_separacao || ''; }
         else { va = ''; vb = ''; }
         if (va < vb) return sortConfig.direction === 'asc' ? -1 : 1;
         if (va > vb) return sortConfig.direction === 'asc' ? 1 : -1;
