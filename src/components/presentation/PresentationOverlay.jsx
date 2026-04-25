@@ -104,6 +104,7 @@ function SlideContent({ slideId, dashData, osData }) {
           categorias={categorias}
           regionais={regionais}
           almoxarifados={almoxarifados}
+          hideToolbar
         />
       </div>
     );
