@@ -1,21 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ORDENS_QUERY_KEY } from '@/hooks/useOrdensQuery';
-
-async function fetchOrdens() {
-  const [ativas1, ativas2, recentes] = await Promise.all([
-    base44.entities.OrdemServico.filter({ status: 'elaboracao' }),
-    base44.entities.OrdemServico.filter({ status: 'execucao' }),
-    base44.entities.OrdemServico.list('-created_date', 1000),
-  ]);
-  const ids = new Set();
-  const merged = [];
-  for (const os of [...ativas1, ...ativas2, ...recentes]) {
-    if (!ids.has(os.id)) { ids.add(os.id); merged.push(os); }
-  }
-  return merged;
-}
+import { useQueryClient } from '@tanstack/react-query';
+import { useOrdensQuery, ORDENS_QUERY_KEY } from '@/hooks/useOrdensQuery';
 
 const AppContext = createContext();
 
@@ -34,16 +20,7 @@ export function AppProvider({ children }) {
   const queryClient = useQueryClient();
 
   // OS carregadas via React Query — cache inteligente de 2 min
-  const {
-    data: ordens = [],
-    isLoading: isOrdensLoading,
-  } = useQuery({
-    queryKey: ORDENS_QUERY_KEY,
-    queryFn: fetchOrdens,
-    staleTime: 2 * 60 * 1000,
-    gcTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
-  });
+  const { data: ordens = [], isLoading: isOrdensLoading } = useOrdensQuery();
 
   const loading = isOrdensLoading || loadingOther;
 
