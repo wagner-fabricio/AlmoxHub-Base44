@@ -420,7 +420,7 @@ export default function OrdensServico() {
   const handleFormSave = async (isNew, osData) => {
     // Update local state optimistically — no full reload needed
     if (isNew && osData) {
-      setOrdens(prev => [osData, ...prev]);
+      setOrdens(prev => prev.some(o => o.id === osData.id) ? prev.map(o => o.id === osData.id ? { ...o, ...osData } : o) : [osData, ...prev]);
     } else if (!isNew && osData) {
       setOrdens(prev => prev.map(o => o.id === osData.id ? { ...o, ...osData } : o));
       setSelectedOS(prev => prev ? { ...prev, ...osData } : prev);

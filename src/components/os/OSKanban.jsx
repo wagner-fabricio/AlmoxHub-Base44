@@ -26,10 +26,15 @@ export default function OSKanban({ ordens, pessoas, categorias, regionais, insta
     cancelado: INITIAL_VISIBLE,
   });
 
-  // Agrupar OS por status uma única vez
+  // Agrupar OS por status uma única vez — deduplicar por id como rede de segurança
   const osByStatus = useMemo(() => {
     const map = { elaboracao: [], execucao: [], concluido: [], cancelado: [] };
-    ordens.forEach(os => { if (map[os.status]) map[os.status].push(os); });
+    const seen = new Set();
+    ordens.forEach(os => {
+      if (seen.has(os.id)) return;
+      seen.add(os.id);
+      if (map[os.status]) map[os.status].push(os);
+    });
     return map;
   }, [ordens]);
 
