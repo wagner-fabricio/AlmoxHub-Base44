@@ -1,0 +1,44 @@
+{
+  "name": "AlertaEnviado",
+  "type": "object",
+  "properties": {
+    "os_id": {
+      "type": "string",
+      "description": "ID da ordem de servi\u00e7o"
+    },
+    "tipo_alerta": {
+      "type": "string",
+      "enum": [
+        "atraso",
+        "inatividade",
+        "seguro",
+        "transporte"
+      ],
+      "description": "Tipo do alerta enviado"
+    },
+    "lider_id": {
+      "type": "string",
+      "description": "ID do l\u00edder notificado"
+    },
+    "data_envio": {
+      "type": "string",
+      "format": "date",
+      "description": "Data do envio do alerta"
+    },
+    "success": {
+      "type": "boolean",
+      "default": true,
+      "description": "Se o alerta foi enviado com sucesso"
+    },
+    "erro": {
+      "type": "string",
+      "description": "Mensagem de erro, se houver"
+    }
+  },
+  "required": [
+    "os_id",
+    "tipo_alerta",
+    "lider_id",
+    "data_envio"
+  ]
+}

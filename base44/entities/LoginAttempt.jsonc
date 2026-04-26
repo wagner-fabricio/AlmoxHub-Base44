@@ -1,0 +1,32 @@
+{
+  "name": "LoginAttempt",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "description": "Email da tentativa de login"
+    },
+    "ip_address": {
+      "type": "string",
+      "description": "IP de origem"
+    },
+    "user_agent": {
+      "type": "string",
+      "description": "User agent do navegador"
+    },
+    "sucesso": {
+      "type": "boolean",
+      "description": "Se o login foi bem-sucedido"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora da tentativa"
+    }
+  },
+  "required": [
+    "email",
+    "ip_address",
+    "sucesso"
+  ]
+}

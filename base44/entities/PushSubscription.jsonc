@@ -1,0 +1,54 @@
+{
+  "name": "PushSubscription",
+  "type": "object",
+  "properties": {
+    "pessoa_id": {
+      "type": "string",
+      "description": "ID da pessoa"
+    },
+    "endpoint": {
+      "type": "string",
+      "description": "Endpoint da subscription"
+    },
+    "keys": {
+      "type": "object",
+      "properties": {
+        "p256dh": {
+          "type": "string"
+        },
+        "auth": {
+          "type": "string"
+        }
+      },
+      "description": "Chaves de criptografia da subscription"
+    },
+    "user_agent": {
+      "type": "string",
+      "description": "User agent do dispositivo"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Se a subscription est\u00e1 ativa"
+    }
+  },
+  "required": [
+    "pessoa_id",
+    "endpoint",
+    "keys"
+  ],
+  "rls": {
+    "create": {
+      "data.pessoa_id": "{{user.id}}"
+    },
+    "update": {
+      "data.pessoa_id": "{{user.id}}"
+    },
+    "delete": {
+      "data.pessoa_id": "{{user.id}}"
+    },
+    "write": {
+      "data.pessoa_id": "{{user.id}}"
+    }
+  }
+}

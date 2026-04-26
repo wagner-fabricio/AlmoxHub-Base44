@@ -1,0 +1,50 @@
+{
+  "name": "Comentario",
+  "type": "object",
+  "properties": {
+    "ordem_servico_id": {
+      "type": "string",
+      "description": "ID da OS relacionada"
+    },
+    "autor_id": {
+      "type": "string",
+      "description": "ID da pessoa que comentou"
+    },
+    "autor_nome": {
+      "type": "string",
+      "description": "Nome do autor"
+    },
+    "conteudo": {
+      "type": "string",
+      "description": "Texto do coment\u00e1rio"
+    },
+    "mencoes_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs das pessoas mencionadas"
+    },
+    "is_deleted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Marcador de exclus\u00e3o l\u00f3gica"
+    },
+    "is_edited": {
+      "type": "boolean",
+      "default": false,
+      "description": "Indica se a mensagem foi editada"
+    },
+    "anexos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs de anexos"
+    }
+  },
+  "required": [
+    "ordem_servico_id",
+    "conteudo"
+  ]
+}

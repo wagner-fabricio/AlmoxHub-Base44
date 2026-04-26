@@ -1,0 +1,68 @@
+{
+  "name": "Regional",
+  "type": "object",
+  "properties": {
+    "sigla": {
+      "type": "string",
+      "description": "Sigla da regional (ex: NE, SE, SUL)"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Nome completo da regional"
+    },
+    "gerencia": {
+      "type": "string",
+      "enum": [
+        "GLOA",
+        "GLAO"
+      ],
+      "description": "Ger\u00eancia respons\u00e1vel pela regional"
+    },
+    "gestor_nome": {
+      "type": "string",
+      "description": "Nome do gestor da regional"
+    },
+    "gestor_email": {
+      "type": "string",
+      "description": "E-mail do gestor"
+    },
+    "gestor_telefone": {
+      "type": "string",
+      "description": "Telefone do gestor"
+    },
+    "cidade_sede": {
+      "type": "string",
+      "description": "Cidade sede da regional"
+    },
+    "area_abrangencia": {
+      "type": "string",
+      "description": "Estados e munic\u00edpios cobertos pela regional"
+    }
+  },
+  "required": [
+    "sigla",
+    "descricao"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

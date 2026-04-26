@@ -1,0 +1,62 @@
+{
+  "name": "ParticipanteConversa",
+  "type": "object",
+  "properties": {
+    "conversa_id": {
+      "type": "string",
+      "description": "ID da conversa"
+    },
+    "pessoa_id": {
+      "type": "string",
+      "description": "ID da pessoa participante"
+    },
+    "permissao": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "membro"
+      ],
+      "default": "membro",
+      "description": "Permiss\u00e3o do participante"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ativo",
+        "removido"
+      ],
+      "default": "ativo",
+      "description": "Status do participante"
+    },
+    "mensagens_nao_lidas": {
+      "type": "number",
+      "default": 0,
+      "description": "Contador de mensagens n\u00e3o lidas"
+    },
+    "ultima_leitura": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data da \u00faltima vez que leu mensagens"
+    },
+    "favorito": {
+      "type": "boolean",
+      "default": false,
+      "description": "Se a conversa est\u00e1 marcada como favorita pelo usu\u00e1rio"
+    }
+  },
+  "required": [
+    "conversa_id",
+    "pessoa_id"
+  ],
+  "rls": {
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "read": {},
+    "update": {},
+    "delete": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {}
+  }
+}

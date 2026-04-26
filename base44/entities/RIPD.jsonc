@@ -1,0 +1,249 @@
+{
+  "name": "RIPD",
+  "type": "object",
+  "properties": {
+    "titulo": {
+      "type": "string",
+      "description": "T\u00edtulo do RIPD"
+    },
+    "versao": {
+      "type": "string",
+      "description": "Vers\u00e3o do documento (ex: v1.0)"
+    },
+    "data_elaboracao": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de elabora\u00e7\u00e3o"
+    },
+    "elaborado_por": {
+      "type": "string",
+      "description": "Nome do DPO/respons\u00e1vel"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "rascunho",
+        "em_revisao",
+        "aprovado"
+      ],
+      "default": "rascunho",
+      "description": "Status do documento"
+    },
+    "secao1_identificacao": {
+      "type": "object",
+      "properties": {
+        "controlador": {
+          "type": "string"
+        },
+        "dpo_nome": {
+          "type": "string"
+        },
+        "dpo_email": {
+          "type": "string"
+        },
+        "dpo_telefone": {
+          "type": "string"
+        }
+      },
+      "description": "Se\u00e7\u00e3o 1: Identifica\u00e7\u00e3o do controlador e DPO"
+    },
+    "secao2_tratamento": {
+      "type": "object",
+      "properties": {
+        "descricao_tratamento": {
+          "type": "string"
+        },
+        "dados_tratados": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Se\u00e7\u00e3o 2: Descri\u00e7\u00e3o do tratamento de dados"
+    },
+    "secao3_finalidade": {
+      "type": "object",
+      "properties": {
+        "finalidade": {
+          "type": "string"
+        },
+        "base_legal": {
+          "type": "string",
+          "enum": [
+            "consentimento",
+            "obrigacao_legal",
+            "execucao_contrato",
+            "interesse_legitimo"
+          ]
+        }
+      },
+      "description": "Se\u00e7\u00e3o 3: Finalidade e base legal"
+    },
+    "secao4_categorias_dados": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "categoria": {
+            "type": "string"
+          },
+          "exemplos": {
+            "type": "string"
+          },
+          "sensivel": {
+            "type": "boolean"
+          }
+        }
+      },
+      "description": "Se\u00e7\u00e3o 4: Dados pessoais tratados"
+    },
+    "secao5_titulares": {
+      "type": "object",
+      "properties": {
+        "categorias_titulares": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "quantidade_estimada": {
+          "type": "number"
+        }
+      },
+      "description": "Se\u00e7\u00e3o 5: Titulares dos dados"
+    },
+    "secao6_riscos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "risco": {
+            "type": "string"
+          },
+          "probabilidade": {
+            "type": "string",
+            "enum": [
+              "baixa",
+              "media",
+              "alta"
+            ]
+          },
+          "impacto": {
+            "type": "string",
+            "enum": [
+              "baixo",
+              "medio",
+              "alto"
+            ]
+          }
+        }
+      },
+      "description": "Se\u00e7\u00e3o 6: Riscos identificados"
+    },
+    "secao7_mitigacao": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "medida": {
+            "type": "string"
+          },
+          "implementada": {
+            "type": "boolean"
+          }
+        }
+      },
+      "description": "Se\u00e7\u00e3o 7: Medidas de mitiga\u00e7\u00e3o"
+    },
+    "secao8_necessidade": {
+      "type": "object",
+      "properties": {
+        "justificativa_necessidade": {
+          "type": "string"
+        },
+        "justificativa_proporcionalidade": {
+          "type": "string"
+        }
+      },
+      "description": "Se\u00e7\u00e3o 8: Necessidade e proporcionalidade"
+    },
+    "secao9_transferencias": {
+      "type": "object",
+      "properties": {
+        "ha_transferencias": {
+          "type": "boolean"
+        },
+        "paises_destino": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "garantias": {
+          "type": "string"
+        }
+      },
+      "description": "Se\u00e7\u00e3o 9: Transfer\u00eancias internacionais"
+    },
+    "secao10_conclusao": {
+      "type": "object",
+      "properties": {
+        "conclusao": {
+          "type": "string"
+        },
+        "recomendacoes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Se\u00e7\u00e3o 10: Conclus\u00e3o e recomenda\u00e7\u00f5es"
+    },
+    "anexos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs de evid\u00eancias e documentos anexos"
+    },
+    "aprovado_por": {
+      "type": "string",
+      "description": "Nome do aprovador"
+    },
+    "data_aprovacao": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de aprova\u00e7\u00e3o"
+    }
+  },
+  "required": [
+    "titulo",
+    "versao",
+    "data_elaboracao",
+    "elaborado_por"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

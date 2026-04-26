@@ -1,0 +1,90 @@
+{
+  "name": "AlertaConfig",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "ID do usu\u00e1rio que configurou"
+    },
+    "nome": {
+      "type": "string",
+      "description": "Nome do alerta"
+    },
+    "tipo_alerta": {
+      "type": "string",
+      "enum": [
+        "atraso_os",
+        "inatividade",
+        "prazo_proximo",
+        "progresso_baixo",
+        "sem_movimentacao"
+      ],
+      "description": "Tipo do alerta"
+    },
+    "threshold_dias": {
+      "type": "number",
+      "description": "N\u00famero de dias para threshold (ex: alertar 3 dias antes)"
+    },
+    "threshold_percentual": {
+      "type": "number",
+      "description": "Percentual para threshold (ex: alertar se progresso < 50%)"
+    },
+    "destinatarios_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs das pessoas que receber\u00e3o o alerta"
+    },
+    "canal": {
+      "type": "string",
+      "enum": [
+        "email",
+        "push",
+        "in-app",
+        "todos"
+      ],
+      "default": "in-app",
+      "description": "Canal de envio do alerta"
+    },
+    "filtros": {
+      "type": "object",
+      "properties": {
+        "regional_id": {
+          "type": "string"
+        },
+        "almoxarifado_id": {
+          "type": "string"
+        },
+        "categoria_id": {
+          "type": "string"
+        }
+      },
+      "description": "Filtros para aplicar ao alerta"
+    },
+    "ativo": {
+      "type": "boolean",
+      "default": true,
+      "description": "Se o alerta est\u00e1 ativo"
+    }
+  },
+  "required": [
+    "user_id",
+    "nome",
+    "tipo_alerta"
+  ],
+  "rls": {
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

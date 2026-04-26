@@ -1,0 +1,80 @@
+{
+  "name": "Almoxarifado",
+  "type": "object",
+  "properties": {
+    "regional_id": {
+      "type": "string",
+      "description": "ID da regional vinculada"
+    },
+    "nome": {
+      "type": "string",
+      "description": "Nome do almoxarifado"
+    },
+    "tipo_almoxarifado": {
+      "type": "string",
+      "description": "Tipo do almoxarifado"
+    },
+    "endereco": {
+      "type": "string",
+      "description": "Endere\u00e7o completo"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Coordenada de latitude"
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Coordenada de longitude"
+    },
+    "regiao": {
+      "type": "string",
+      "enum": [
+        "Norte",
+        "Nordeste",
+        "Centro Oeste",
+        "Sul",
+        "Sudeste"
+      ],
+      "description": "Regi\u00e3o geogr\u00e1fica"
+    },
+    "instalacao_id": {
+      "type": "string",
+      "description": "ID da instala\u00e7\u00e3o vinculada"
+    },
+    "local_negocios": {
+      "type": "number",
+      "description": "Local de Neg\u00f3cios"
+    },
+    "ativo": {
+      "type": "boolean",
+      "default": true,
+      "description": "Se o almoxarifado est\u00e1 ativo"
+    }
+  },
+  "required": [
+    "regional_id",
+    "nome"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

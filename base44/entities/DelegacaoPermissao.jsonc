@@ -1,0 +1,86 @@
+{
+  "name": "DelegacaoPermissao",
+  "type": "object",
+  "properties": {
+    "delegante_id": {
+      "type": "string",
+      "description": "ID da pessoa que delega (gestor/l\u00edder)"
+    },
+    "delegado_id": {
+      "type": "string",
+      "description": "ID da pessoa que recebe a delega\u00e7\u00e3o"
+    },
+    "funcoes_delegadas": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "gestor",
+          "lider",
+          "almoxarife"
+        ]
+      },
+      "description": "Fun\u00e7\u00f5es que est\u00e3o sendo delegadas"
+    },
+    "data_inicio": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de in\u00edcio da delega\u00e7\u00e3o"
+    },
+    "data_fim": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de t\u00e9rmino da delega\u00e7\u00e3o"
+    },
+    "motivo": {
+      "type": "string",
+      "description": "Motivo da delega\u00e7\u00e3o (f\u00e9rias, afastamento, etc.)"
+    },
+    "regional_id": {
+      "type": "string",
+      "description": "ID da regional onde a delega\u00e7\u00e3o \u00e9 v\u00e1lida"
+    },
+    "almoxarifados_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs dos almoxarifados onde a delega\u00e7\u00e3o \u00e9 v\u00e1lida"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ativa",
+        "expirada",
+        "cancelada"
+      ],
+      "default": "ativa",
+      "description": "Status da delega\u00e7\u00e3o"
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Observa\u00e7\u00f5es adicionais"
+    }
+  },
+  "required": [
+    "delegante_id",
+    "delegado_id",
+    "funcoes_delegadas",
+    "data_inicio",
+    "data_fim"
+  ],
+  "rls": {
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

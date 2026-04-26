@@ -1,0 +1,77 @@
+{
+  "name": "Projeto",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome do projeto/tag"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Descri\u00e7\u00e3o do projeto"
+    },
+    "cor": {
+      "type": "string",
+      "description": "Cor identificadora"
+    },
+    "regional_id": {
+      "type": "string",
+      "description": "ID da regional vinculada"
+    },
+    "almoxarifado_id": {
+      "type": "string",
+      "description": "ID do almoxarifado vinculado"
+    },
+    "lider_id": {
+      "type": "string",
+      "description": "ID do l\u00edder respons\u00e1vel pelo projeto"
+    },
+    "outros_envolvidos_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs de outras pessoas envolvidas no projeto"
+    },
+    "ativo": {
+      "type": "boolean",
+      "default": true
+    },
+    "status_projeto": {
+      "type": "string",
+      "enum": [
+        "ativo",
+        "parado",
+        "concluido",
+        "cancelado"
+      ],
+      "default": "ativo",
+      "description": "Status atual do projeto"
+    },
+    "data_inicial_prevista": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de in\u00edcio prevista do projeto"
+    },
+    "data_final_prevista": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de t\u00e9rmino prevista do projeto"
+    },
+    "data_inicial_execucao": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de in\u00edcio real (menor data_inicial das OS vinculadas) - calculado automaticamente"
+    },
+    "data_final_execucao": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de t\u00e9rmino real (maior data_conclusao das OS vinculadas) - calculado automaticamente"
+    }
+  },
+  "required": [
+    "nome",
+    "regional_id",
+    "almoxarifado_id"
+  ]
+}

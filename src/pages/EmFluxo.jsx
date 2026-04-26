@@ -411,17 +411,17 @@ export default function EmFluxo() {
   // Vista de módulos (home)
   if (!activeModule && !selectedOS) {
     return (
-      <div className="min-h-screen p-6 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
+      <div className="min-h-screen px-4 py-3 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
         <div className="max-w-md mx-auto">
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-between mb-4">
+          <div className="text-center mb-3">
+            <div className="flex items-center justify-between mb-1">
               <div className="flex-1" />
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-white">AlmoxHub</h1>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">AlmoxHub</h1>
               <div className="flex-1 flex justify-end">
                 <button
                   onClick={() => window.location.href = '/MeuPerfilMobile'}
-                  className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-lg"
+                  className="w-9 h-9 rounded-full overflow-hidden border-2 border-white shadow-lg"
                 >
                   {currentPessoa?.foto_perfil ? (
                     <img
@@ -431,39 +431,37 @@ export default function EmFluxo() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#0000FF' }}>
-                      <UserCircle className="w-6 h-6 text-white" />
+                      <UserCircle className="w-5 h-5 text-white" />
                     </div>
                   )}
                 </button>
               </div>
             </div>
-            <p className="text-xl text-slate-600 dark:text-slate-400">Olá, {currentPessoa?.nome?.split(' ')[0] || 'Usuário'}</p>
+            <p className="text-base text-slate-600 dark:text-slate-400">Olá, {currentPessoa?.nome?.split(' ')[0] || 'Usuário'}</p>
           </div>
 
-          {/* Observações Section — desativado */}
-
           {/* Módulos Grid */}
-          <div className="space-y-4 mt-8">
+          <div className="space-y-2.5 mt-3">
             {(modules || []).map((module) => {
               const Icon = module.icon;
               return (
                 <button
                   key={module.id}
                   onClick={() => handleOpenModule(module.id)}
-                  className="w-full rounded-3xl p-6 shadow-2xl transform transition-all hover:scale-105 active:scale-95"
+                  className="w-full rounded-2xl px-4 py-3 shadow-xl transform transition-all hover:scale-105 active:scale-95"
                   style={{ backgroundColor: module.color }}
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-white/90 dark:bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-md">
-                        <Icon className="w-8 h-8" style={{ color: module.color }} />
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-white/90 dark:bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-md shrink-0">
+                        <Icon className="w-6 h-6" style={{ color: module.color }} />
                       </div>
                       <div className="text-left">
-                        <h3 className="text-xl font-bold text-white">{module.name}</h3>
-                        {module.count !== null && <p className="text-white/90 text-sm">{module.count} itens</p>}
+                        <h3 className="text-base font-bold text-white leading-tight">{module.name}</h3>
+                        {module.count !== null && <p className="text-white/90 text-xs">{module.count} itens</p>}
                       </div>
                     </div>
-                    <ChevronRight className="w-6 h-6 text-white/90" />
+                    <ChevronRight className="w-5 h-5 text-white/90 shrink-0" />
                   </div>
                 </button>
               );

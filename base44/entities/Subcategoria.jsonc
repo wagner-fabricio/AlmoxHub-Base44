@@ -1,0 +1,55 @@
+{
+  "name": "Subcategoria",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome da subcategoria"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Descri\u00e7\u00e3o da subcategoria"
+    },
+    "categoria_id": {
+      "type": "string",
+      "description": "ID da categoria pai"
+    },
+    "campos_extras": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Campos extras que devem ser exibidos para esta subcategoria"
+    },
+    "ativa": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "nome",
+    "categoria_id"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "name": "NotificationPreferences",
+  "type": "object",
+  "properties": {
+    "pessoa_id": {
+      "type": "string",
+      "description": "ID da pessoa"
+    },
+    "os_assignment": {
+      "type": "boolean",
+      "default": true,
+      "description": "Notificar quando for atribu\u00eddo a uma OS"
+    },
+    "os_status_change": {
+      "type": "boolean",
+      "default": true,
+      "description": "Notificar mudan\u00e7as de status em OS envolvidas"
+    },
+    "comment_mention": {
+      "type": "boolean",
+      "default": true,
+      "description": "Notificar men\u00e7\u00f5es em coment\u00e1rios"
+    },
+    "deadline_approaching": {
+      "type": "boolean",
+      "default": true,
+      "description": "Notificar prazos pr\u00f3ximos (3 dias)"
+    },
+    "message_mention": {
+      "type": "boolean",
+      "default": true,
+      "description": "Notificar men\u00e7\u00f5es em mensagens"
+    },
+    "push_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Push notifications habilitadas"
+    }
+  },
+  "required": [
+    "pessoa_id"
+  ],
+  "rls": {
+    "create": {
+      "data.pessoa_id": "{{user.id}}"
+    },
+    "read": {
+      "data.pessoa_id": "{{user.id}}"
+    },
+    "update": {
+      "data.pessoa_id": "{{user.id}}"
+    },
+    "delete": {
+      "data.pessoa_id": "{{user.id}}"
+    },
+    "write": {
+      "data.pessoa_id": "{{user.id}}"
+    }
+  }
+}

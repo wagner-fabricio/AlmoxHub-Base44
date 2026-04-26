@@ -1,0 +1,58 @@
+{
+  "name": "Conversa",
+  "type": "object",
+  "properties": {
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "privada",
+        "grupo"
+      ],
+      "description": "Tipo da conversa"
+    },
+    "nome_grupo": {
+      "type": "string",
+      "description": "Nome do grupo (apenas para conversas em grupo)"
+    },
+    "descricao_grupo": {
+      "type": "string",
+      "description": "Descri\u00e7\u00e3o do grupo"
+    },
+    "avatar_grupo": {
+      "type": "string",
+      "description": "URL do avatar do grupo"
+    },
+    "criador_id": {
+      "type": "string",
+      "description": "ID do usu\u00e1rio que criou a conversa"
+    },
+    "ultima_mensagem": {
+      "type": "string",
+      "description": "Pr\u00e9via da \u00faltima mensagem"
+    },
+    "ultima_mensagem_data": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data da \u00faltima mensagem"
+    },
+    "ultima_mensagem_autor": {
+      "type": "string",
+      "description": "Nome do autor da \u00faltima mensagem"
+    }
+  },
+  "required": [
+    "tipo",
+    "criador_id"
+  ],
+  "rls": {
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "read": {},
+    "update": {},
+    "delete": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {}
+  }
+}

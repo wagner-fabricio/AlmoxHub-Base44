@@ -1,0 +1,141 @@
+{
+  "name": "Fornecedor",
+  "type": "object",
+  "properties": {
+    "razao_social": {
+      "type": "string",
+      "description": "Raz\u00e3o social do fornecedor"
+    },
+    "nome_fantasia": {
+      "type": "string",
+      "description": "Nome fantasia"
+    },
+    "cnpj": {
+      "type": "string",
+      "description": "CNPJ (apenas n\u00fameros)"
+    },
+    "inscricao_estadual": {
+      "type": "string",
+      "description": "Inscri\u00e7\u00e3o estadual"
+    },
+    "endereco": {
+      "type": "object",
+      "properties": {
+        "logradouro": {
+          "type": "string"
+        },
+        "numero": {
+          "type": "string"
+        },
+        "complemento": {
+          "type": "string"
+        },
+        "bairro": {
+          "type": "string"
+        },
+        "cidade": {
+          "type": "string"
+        },
+        "estado": {
+          "type": "string"
+        },
+        "cep": {
+          "type": "string"
+        }
+      },
+      "description": "Endere\u00e7o completo"
+    },
+    "contatos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "cargo": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "telefone": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Lista de contatos"
+    },
+    "categoria": {
+      "type": "string",
+      "enum": [
+        "materiais",
+        "servicos",
+        "transporte",
+        "equipamentos"
+      ],
+      "description": "Categoria do fornecedor"
+    },
+    "codigo_sap": {
+      "type": "string",
+      "description": "C\u00f3digo SAP do fornecedor"
+    },
+    "banco": {
+      "type": "object",
+      "properties": {
+        "banco": {
+          "type": "string"
+        },
+        "agencia": {
+          "type": "string"
+        },
+        "conta": {
+          "type": "string"
+        }
+      },
+      "description": "Dados banc\u00e1rios"
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Observa\u00e7\u00f5es gerais"
+    },
+    "anexos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs de anexos (contratos, certid\u00f5es)"
+    },
+    "ativo": {
+      "type": "boolean",
+      "default": true,
+      "description": "Se o fornecedor est\u00e1 ativo"
+    }
+  },
+  "required": [
+    "razao_social",
+    "cnpj"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
