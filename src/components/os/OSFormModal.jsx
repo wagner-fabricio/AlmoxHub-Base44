@@ -186,9 +186,11 @@ export default function OSFormModal({
         is_global: os.is_global || false
       });
     } else if (os && !os.id) {
-      setFormData({ ...EMPTY_FORM, anotacoes: `Descrição: ${os.descricao_resumida || ''}` });
+      const currentPessoaNome = pessoas?.find(p => p.user_id === currentUser?.id)?.nome || currentUser?.full_name || '';
+      setFormData({ ...EMPTY_FORM, atendente_nome: currentPessoaNome, anotacoes: `Descrição: ${os.descricao_resumida || ''}` });
     } else {
-      setFormData({ ...EMPTY_FORM, fluxo_expedicao: { ...EMPTY_FORM.fluxo_expedicao, solicitacao_data: new Date().toISOString() } });
+      const currentPessoaNome = pessoas?.find(p => p.user_id === currentUser?.id)?.nome || currentUser?.full_name || '';
+      setFormData({ ...EMPTY_FORM, atendente_nome: currentPessoaNome, fluxo_expedicao: { ...EMPTY_FORM.fluxo_expedicao, solicitacao_data: new Date().toISOString() } });
     }
 
   }, [open, os?.id, os]);
@@ -701,7 +703,7 @@ export default function OSFormModal({
                     <p className="text-xs text-slate-500 dark:text-slate-400">Selecione os usuários que irão executar esta tarefa (ou use uma equipe acima)</p>
                     <div className="border border-slate-300 dark:border-slate-600 rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto bg-slate-50/50 dark:bg-slate-800/50">
                       {formData.is_global ? (
-                      (pessoas || []).filter(p => p && p.ativo !== false).sort((a, b) => a.nome.localeCompare(b.nome)).map((pessoa) => (
+                      (pessoas || []).filter(p => p && p.ativo !== false).sort((a, b) => (a.nome || '').localeCompare(b.nome || '')).map((pessoa) => (
                           <div key={pessoa.id} className="flex items-center gap-2">
                             <Checkbox id={`executor-${pessoa.id}`} checked={formData.executores_ids?.includes(pessoa.id)} onCheckedChange={(checked) => { setFormData({ ...formData, executores_ids: checked ? [...(formData.executores_ids || []), pessoa.id] : formData.executores_ids?.filter(id => id !== pessoa.id) || [] }); }} />
                             <Label htmlFor={`executor-${pessoa.id}`} className="cursor-pointer text-sm flex-1">
@@ -712,7 +714,7 @@ export default function OSFormModal({
                         ))
                       ) : formData.almoxarifado_id ? (
                         (pessoas || []).filter(p => p && p.ativo !== false && p.almoxarifados_ids?.includes(formData.almoxarifado_id)).length > 0 ? (
-                          (pessoas || []).filter(p => p && p.ativo !== false && p.almoxarifados_ids?.includes(formData.almoxarifado_id)).map((pessoa) => (
+                          (pessoas || []).filter(p => p && p.ativo !== false && p.almoxarifados_ids?.includes(formData.almoxarifado_id)).sort((a, b) => (a.nome || '').localeCompare(b.nome || '')).map((pessoa) => (
                             <div key={pessoa.id} className="flex items-center gap-2">
                               <Checkbox id={`executor-${pessoa.id}`} checked={formData.executores_ids?.includes(pessoa.id)} onCheckedChange={(checked) => { setFormData({ ...formData, executores_ids: checked ? [...(formData.executores_ids || []), pessoa.id] : formData.executores_ids?.filter(id => id !== pessoa.id) || [] }); }} />
                               <Label htmlFor={`executor-${pessoa.id}`} className="cursor-pointer text-sm flex-1">
