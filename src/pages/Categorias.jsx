@@ -9,8 +9,10 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, Tag, ChevronRight, Loader2, Folder, FolderOpen } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { useApp } from '@/components/contexts/AppContext';
 
 export default function Categorias() {
+  const { refreshCategorias } = useApp();
   const [loading, setLoading] = useState(true);
   const [categorias, setCategorias] = useState([]);
   const [subcategorias, setSubcategorias] = useState([]);
@@ -83,7 +85,7 @@ export default function Categorias() {
       } else {
         await base44.entities.Categoria.create(categoriaForm);
       }
-      loadData();
+      await Promise.all([loadData(), refreshCategorias()]);
       setShowCategoriaModal(false);
     } catch (error) {
       console.error('Error saving:', error);
@@ -123,7 +125,7 @@ export default function Categorias() {
       } else {
         await base44.entities.Subcategoria.create(subcategoriaForm);
       }
-      loadData();
+      await Promise.all([loadData(), refreshCategorias()]);
       setShowSubcategoriaModal(false);
     } catch (error) {
       console.error('Error saving:', error);
@@ -144,7 +146,7 @@ export default function Categorias() {
       } else {
         await base44.entities.Subcategoria.delete(selectedSubcategoria.id);
       }
-      loadData();
+      await Promise.all([loadData(), refreshCategorias()]);
     } catch (error) {
       console.error('Error deleting:', error);
     } finally {
