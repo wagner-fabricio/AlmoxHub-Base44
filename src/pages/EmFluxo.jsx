@@ -188,7 +188,7 @@ export default function EmFluxo() {
       icon: ClipboardList,
       color: '#0000FF',
       bgColor: '#0000FF',
-      count: (ordens || []).length
+      count: (ordens || []).filter(os => os.status === 'elaboracao' || os.status === 'execucao').length
     },
     {
       id: 'projetos',
