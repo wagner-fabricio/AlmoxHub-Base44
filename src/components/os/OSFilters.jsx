@@ -192,7 +192,7 @@ export default function OSFilters({
             <SelectContent>
               <SelectItem value="all">Todos Almoxarifados</SelectItem>
               {(almoxarifados || [])
-                .filter(a => filters.regional === 'all' || a.regional_id === filters.regional)
+                .filter(a => a.ativo !== false && (filters.regional === 'all' || a.regional_id === filters.regional))
                 .map((a) => (
                   <SelectItem key={a.id} value={a.id}>{a.nome}</SelectItem>
                 ))}
