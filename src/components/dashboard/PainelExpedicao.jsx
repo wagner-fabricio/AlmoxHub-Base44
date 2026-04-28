@@ -274,11 +274,14 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
     ? (osComSep.reduce((s, os) => s + Math.abs(differenceInDays(new Date(os.separacao_concluida_em), new Date(os.data_separacao))), 0) / osComSep.length).toFixed(1)
     : null;
 
-  // ── TCR-MIGO: Ciclo Reserva → MIGO ───────────────────────────────────────
-  const osComMigo = useMemo(() =>
-    filteredOrdens.filter(os => os.data_reserva && os.data_migo), [filteredOrdens]);
+  // ── Lead Time Reservas: dias úteis entre data_reserva e data_migo ────────
+  const osComMigo = useMemo(() => {
+    return filteredOrdens
+      .map(os => ({ os, dias: diasUteisEntre(os.data_reserva, os.data_migo) }))
+      .filter(x => x.dias !== null);
+  }, [filteredOrdens]);
   const tcrMigo = osComMigo.length > 0
-    ? (osComMigo.reduce((s, os) => s + Math.abs(differenceInDays(new Date(os.data_migo), new Date(os.data_reserva))), 0) / osComMigo.length).toFixed(1)
+    ? (osComMigo.reduce((s, x) => s + x.dias, 0) / osComMigo.length).toFixed(1)
     : null;
 
   // ── Mix Modal ─────────────────────────────────────────────────────────────
@@ -394,11 +397,11 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
   // ── Ciclo MIGO Mensal ─────────────────────────────────────────────────────
   const cicloMigoMensal = useMemo(() => {
     const map = {};
-    osComMigo.forEach(os => {
+    osComMigo.forEach(({ os, dias }) => {
       const key = os.data_reserva.substring(0, 7);
       if (!map[key]) map[key] = { total: 0, dias: 0 };
       map[key].total++;
-      map[key].dias += Math.abs(differenceInDays(new Date(os.data_migo), new Date(os.data_reserva)));
+      map[key].dias += dias;
     });
     return Object.entries(map).sort(([a], [b]) => a.localeCompare(b)).slice(-12)
       .map(([key, v]) => {
@@ -564,9 +567,9 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
 
           {/* ── KPI Row 2: TCR-MIGO, CMF, TME, Volume ── */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <KPICard title="Ciclo Reserva→MIGO"
-              value={tcrMigo !== null ? `${tcrMigo}d` : '—'}
-              subtitle={`${osComMigo.length} OS medidas`}
+            <KPICard title="Lead Time Reservas"
+              value={tcrMigo !== null ? `${tcrMigo}d úteis` : '—'}
+              subtitle={`${osComMigo.length} OS medidas (média de dias úteis Reserva→MIGO)`}
               gradient="linear-gradient(135deg, #0F766E 0%, #14B8A6 100%)" icon={Navigation} />
             <KPICard title="Custo Médio Frete"
               value={cmf !== null ? `R$${Math.round(cmf).toLocaleString('pt-BR')}` : '—'}
