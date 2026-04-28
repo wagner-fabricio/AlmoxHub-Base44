@@ -581,7 +581,6 @@ export default function PainelRecebimento({
       {(() => {
         const norm = (s) => (s || '').toLowerCase().replace(/[\s-]/g, '');
         const subCompraEstoque = (subcategorias || []).find(s => norm(s?.nome) === 'compraestoque');
-        if (!subCompraEstoque) return null;
         return (
           <LeadTimeReservasMensal
             filteredOrdens={osReceb}
@@ -590,7 +589,7 @@ export default function PainelRecebimento({
             endDateField="data_migo_receb"
             itensField="nfe_itens_conferencia"
             valorField="valor_total"
-            filterFn={(os) => (os.subcategorias_ids || []).includes(subCompraEstoque.id)}
+            filterFn={subCompraEstoque ? ((os) => (os.subcategorias_ids || []).includes(subCompraEstoque.id)) : null}
           />
         );
       })()}
