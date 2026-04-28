@@ -15,6 +15,7 @@ import { useApp } from '@/components/contexts/AppContext';
 import OSDetailModal from '@/components/os/OSDetailModal';
 import OSFormModal from '@/components/os/OSFormModal';
 import { SortableTableHead, useTableSort, useColumnFilters } from '@/components/ui/table-sortable';
+import LeadTimeReservasMensal from '@/components/dashboard/LeadTimeReservasMensal';
 
 // ─── Sub-components ─────────────────────────────────────────────────────────
 
@@ -575,6 +576,25 @@ export default function PainelRecebimento({
           )}
         </div>
       </div>
+
+      {/* ── Resultados Mensais - NF de estoque (apenas subcategoria compra-estoque) ── */}
+      {(() => {
+        const subCompraEstoque = (subcategorias || []).find(s =>
+          s?.nome?.toLowerCase().replace(/\s+/g, '').replace(/-/g, '') === 'compraestoque'
+        );
+        if (!subCompraEstoque) return null;
+        return (
+          <LeadTimeReservasMensal
+            filteredOrdens={osReceb}
+            titulo="Resultados Mensais - NF de estoque"
+            startDateField="data_recebimento"
+            endDateField="data_migo_receb"
+            itensField="nfe_itens_conferencia"
+            valorField="valor_total"
+            filterFn={(os) => (os.subcategorias_ids || []).includes(subCompraEstoque.id)}
+          />
+        );
+      })()}
 
       {/* ── Lead Time Mensal + Backlog por Almox ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

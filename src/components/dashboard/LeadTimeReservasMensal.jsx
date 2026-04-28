@@ -8,7 +8,7 @@ const META_DIAS_UTEIS = 7;
 const MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
 const METRICAS = [
-  { id: 'quantOS', label: 'Quant Reservas' },
+  { id: 'quantOS', label: 'Quant OS' },
   { id: 'quantItens', label: 'Quant Itens' },
   { id: 'valoresOS', label: 'Valores OS' },
   { id: 'pesoOS', label: 'Peso OS' },
@@ -33,14 +33,16 @@ function diasUteisEntre(start, end) {
   return count;
 }
 
-// Retorna o valor de uma OS conforme a métrica selecionada
-function valorMetrica(os, metrica) {
+// Retorna o valor de uma OS conforme a métrica selecionada e a fonte de itens/valores
+function valorMetrica(os, metrica, itensField, valorField) {
   if (metrica === 'quantOS') return 1;
-  if (metrica === 'quantItens') {
-    return (os.itens_documento || []).length;
-  }
+  const itens = os[itensField] || [];
+  if (metrica === 'quantItens') return itens.length;
   if (metrica === 'valoresOS') {
-    return (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
+    return itens.reduce((s, item) => {
+      const v = item[valorField];
+      return s + (typeof v === 'number' ? v : parseFloat(v) || 0);
+    }, 0);
   }
   if (metrica === 'pesoOS') {
     return (os.volumes || []).reduce((s, v) => s + (v.peso_bruto || 0), 0);
@@ -48,27 +50,36 @@ function valorMetrica(os, metrica) {
   return 0;
 }
 
-export default function LeadTimeReservasMensal({ filteredOrdens }) {
+export default function LeadTimeReservasMensal({
+  filteredOrdens,
+  titulo = 'Resultados Mensais - Atendimento de Reservas',
+  startDateField = 'data_reserva',
+  endDateField = 'data_migo',
+  itensField = 'itens_documento',
+  valorField = 'r_total',
+  filterFn = null,
+}) {
   const [metrica, setMetrica] = useState('quantOS');
   const currentYear = new Date().getFullYear();
 
   const { dadosMensais, totalNoPrazo, totalForaPrazo, total, percentualNoPrazo } = useMemo(() => {
-    // Filtra OS que possuem reserva e MIGO válidos (agrupado pelo mês de data_migo)
-    const reservasValidas = filteredOrdens
-      .map(os => ({ os, dias: diasUteisEntre(os.data_reserva, os.data_migo) }))
-      .filter(x => x.dias !== null && x.os.data_migo);
+    const baseOrdens = filterFn ? filteredOrdens.filter(filterFn) : filteredOrdens;
+    // Filtra OS com datas válidas (agrupado pelo mês da data final)
+    const reservasValidas = baseOrdens
+      .map(os => ({ os, dias: diasUteisEntre(os[startDateField], os[endDateField]) }))
+      .filter(x => x.dias !== null && x.os[endDateField]);
 
     const dados = MESES.map((mes, idx) => {
       const doMes = reservasValidas.filter(({ os }) => {
-        const d = new Date(os.data_migo);
+        const d = new Date(os[endDateField]);
         return d.getFullYear() === currentYear && d.getMonth() === idx;
       });
       const noPrazo = doMes
         .filter(x => x.dias <= META_DIAS_UTEIS)
-        .reduce((s, x) => s + valorMetrica(x.os, metrica), 0);
+        .reduce((s, x) => s + valorMetrica(x.os, metrica, itensField, valorField), 0);
       const foraPrazo = doMes
         .filter(x => x.dias > META_DIAS_UTEIS)
-        .reduce((s, x) => s + valorMetrica(x.os, metrica), 0);
+        .reduce((s, x) => s + valorMetrica(x.os, metrica, itensField, valorField), 0);
       return { mes, 'No Prazo': noPrazo, 'Fora do Prazo': foraPrazo };
     });
 
@@ -84,7 +95,7 @@ export default function LeadTimeReservasMensal({ filteredOrdens }) {
       total: t,
       percentualNoPrazo: pct
     };
-  }, [filteredOrdens, currentYear, metrica]);
+  }, [filteredOrdens, currentYear, metrica, startDateField, endDateField, itensField, valorField, filterFn]);
 
   // Formatadores conforme métrica
   const formatTickY = (v) => {
@@ -104,7 +115,7 @@ export default function LeadTimeReservasMensal({ filteredOrdens }) {
   const formatTooltip = (v) => {
     if (metrica === 'valoresOS') return `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     if (metrica === 'pesoOS') return `${v.toLocaleString('pt-BR', { maximumFractionDigits: 2 })} kg`;
-    if (metrica === 'quantOS') return `${v} reservas`;
+    if (metrica === 'quantOS') return `${v} OS`;
     return `${v} itens`;
   };
 
@@ -121,10 +132,10 @@ export default function LeadTimeReservasMensal({ filteredOrdens }) {
   };
 
   const tituloMetrica = {
-    quantOS: 'Reservas Atendidas por Prazo - Ano Corrente',
-    quantItens: 'Itens Atendidos por Prazo - Ano Corrente',
-    valoresOS: 'Valor de Materiais Atendidos por Prazo - Ano Corrente',
-    pesoOS: 'Peso de Materiais Atendidos por Prazo - Ano Corrente',
+    quantOS: 'Total por Prazo - Ano Corrente',
+    quantItens: 'Itens por Prazo - Ano Corrente',
+    valoresOS: 'Valor de Materiais por Prazo - Ano Corrente',
+    pesoOS: 'Peso de Materiais por Prazo - Ano Corrente',
   }[metrica];
 
   return (
@@ -132,7 +143,7 @@ export default function LeadTimeReservasMensal({ filteredOrdens }) {
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide flex items-center gap-2">
           <div className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(to bottom, #0000FF, #4169E1)' }}></div>
-          Resultados Mensais - Atendimento de Reservas
+          {titulo}
         </h3>
         <div className="flex flex-wrap gap-1.5 p-1 bg-slate-100 dark:bg-slate-700/50 rounded-full">
           {METRICAS.map(opt => (
