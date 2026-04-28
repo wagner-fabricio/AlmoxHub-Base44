@@ -128,6 +128,16 @@ export default function Almoxarifados() {
     }
   };
 
+  const handleToggleAtivo = async (item) => {
+    try {
+      const novoAtivo = !(item.ativo !== false);
+      await base44.entities.Almoxarifado.update(item.id, { ativo: novoAtivo });
+      setAlmoxarifados(prev => prev.map(a => a.id === item.id ? { ...a, ativo: novoAtivo } : a));
+    } catch (error) {
+      console.error('Error toggling status:', error);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -464,9 +474,21 @@ export default function Almoxarifados() {
                       {item.endereco || '-'}
                     </TableCell>
                     <TableCell>
-                      <Badge className={item.ativo !== false ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}>
-                        {item.ativo !== false ? 'Ativo' : 'Inativo'}
-                      </Badge>
+                      {currentPessoa?.funcoes?.includes('gestor') ? (
+                        <button
+                          onClick={() => handleToggleAtivo(item)}
+                          title="Clique para alternar status"
+                          className="cursor-pointer"
+                        >
+                          <Badge className={`${item.ativo !== false ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'} transition-colors`}>
+                            {item.ativo !== false ? 'Ativo' : 'Inativo'}
+                          </Badge>
+                        </button>
+                      ) : (
+                        <Badge className={item.ativo !== false ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}>
+                          {item.ativo !== false ? 'Ativo' : 'Inativo'}
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       {currentPessoa?.funcoes?.includes('gestor') && (
