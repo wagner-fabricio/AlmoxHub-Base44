@@ -99,6 +99,9 @@ export default function OrdensServico() {
   // Paginação client-side (para views list e gallery)
   const PAGE_SIZE = 100;
   const [currentPage, setCurrentPage] = useState(1);
+  // Visão "Atribuídas a Mim" precisa filtrar por executores_ids no client — backend não suporta.
+  // Aumentamos o limite nesse caso para garantir que OS atribuídas apareçam mesmo em datasets grandes.
+  const effectiveLimit = filters.visao === 'meus' ? 500 : PAGE_SIZE;
 
   // Filtros que o backend suporta — usados para busca paginada
   const backendFilter = useMemo(() => {
@@ -107,18 +110,22 @@ export default function OrdensServico() {
     if (filters.regional !== 'all') f.regional_id = filters.regional;
     if (filters.almoxarifado !== 'all') f.almoxarifado_id = filters.almoxarifado;
     if (filters.categorias?.length === 1) f.categoria_id = filters.categorias[0];
+    // Visão "Minha Regional" — aplicar regional do usuário no backend
+    if (filters.visao === 'regional' && currentPessoa?.regional_id && filters.regional === 'all') {
+      f.regional_id = currentPessoa.regional_id;
+    }
     return f;
-  }, [filters.status, filters.regional, filters.almoxarifado, filters.categorias, filters.statusList]);
+  }, [filters.status, filters.regional, filters.almoxarifado, filters.categorias, filters.statusList, filters.visao, currentPessoa?.regional_id]);
 
   const { data: ordens = [], isLoading: isOrdensLoading } = useOrdensFiltradas(
-    { backendFilter, sort: '-created_date', limit: PAGE_SIZE, page: currentPage },
+    { backendFilter, sort: '-created_date', limit: effectiveLimit, page: currentPage },
     { enabled: true }
   );
 
   // setOrdens — optimistic update no cache da query filtrada ativa
   const currentQueryKey = useMemo(
-    () => ['ordens-filtradas', { backendFilter, sort: '-created_date', limit: PAGE_SIZE, page: currentPage }],
-    [backendFilter, currentPage]
+    () => ['ordens-filtradas', { backendFilter, sort: '-created_date', limit: effectiveLimit, page: currentPage }],
+    [backendFilter, currentPage, effectiveLimit]
   );
   const setOrdens = useCallback((updater) => {
     queryClient.setQueryData(currentQueryKey, (prev = []) =>
