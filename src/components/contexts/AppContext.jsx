@@ -50,6 +50,20 @@ export function AppProvider({ children }) {
     return unsub;
   }, []);
 
+  // Keep Almoxarifado list in sync with real-time updates
+  useEffect(() => {
+    const unsub = base44.entities.Almoxarifado.subscribe((event) => {
+      if (event.type === 'create') {
+        setAlmoxarifados(prev => [...prev, event.data]);
+      } else if (event.type === 'update') {
+        setAlmoxarifados(prev => prev.map(a => a.id === event.id ? { ...a, ...event.data } : a));
+      } else if (event.type === 'delete') {
+        setAlmoxarifados(prev => prev.filter(a => a.id !== event.id));
+      }
+    });
+    return unsub;
+  }, []);
+
   // Sincronização real-time centralizada — atualiza global + filtradas em um único subscriber
   useOrdensRealTimeSync();
 
