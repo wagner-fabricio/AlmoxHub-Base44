@@ -13,6 +13,7 @@ import { SortableTableHead, useTableSort, useColumnFilters } from '@/components/
 import { useApp } from '@/components/contexts/AppContext';
 import OSDetailModal from '@/components/os/OSDetailModal';
 import OSFormModal from '@/components/os/OSFormModal';
+import LeadTimeReservasMensal from '@/components/dashboard/LeadTimeReservasMensal';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const safeFormat = (d) => {
@@ -661,6 +662,9 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
           </div>
         )}
       </div>
+
+      {/* ── Resultados Mensais - Atendimento de Reservas ── */}
+      <LeadTimeReservasMensal filteredOrdens={filteredOrdens} />
 
       {/* ── Mix Modal + Mix Responsável ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
