@@ -21,6 +21,27 @@ const safeFormat = (d) => {
   return isNaN(dt.getTime()) ? '—' : format(dt, 'dd/MM/yy');
 };
 
+// Calcula dias úteis entre duas datas (exclui sábados/domingos)
+const diasUteisEntre = (start, end) => {
+  if (!start || !end) return null;
+  const s = new Date(start);
+  const e = new Date(end);
+  if (isNaN(s.getTime()) || isNaN(e.getTime())) return null;
+  s.setHours(0, 0, 0, 0);
+  e.setHours(0, 0, 0, 0);
+  if (e < s) return null;
+  let count = 0;
+  const cur = new Date(s);
+  while (cur < e) {
+    cur.setDate(cur.getDate() + 1);
+    const dow = cur.getDay();
+    if (dow !== 0 && dow !== 6) count++;
+  }
+  return count;
+};
+
+const META_LEAD_TIME_RESERVA_MIGO = 7;
+
 const TOOLTIP_STYLE = {
   backgroundColor: '#fff', border: '1px solid #e2e8f0',
   borderRadius: '8px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
@@ -437,7 +458,8 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
       const tempoCicloSep = (os.data_separacao && os.separacao_concluida_em)
         ? Math.abs(differenceInDays(new Date(os.separacao_concluida_em), new Date(os.data_separacao)))
         : null;
-      return { os, almox, qtdSol, qtdSep, tempoEntrega, tempoCicloSep };
+      const leadTimeReservaMigo = diasUteisEntre(os.data_reserva, os.data_migo);
+      return { os, almox, qtdSol, qtdSep, tempoEntrega, tempoCicloSep, leadTimeReservaMigo };
     });
   }, [filteredOrdens, almoxarifados]);
 
@@ -472,6 +494,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
         else if (col === 'data_entrega') { va = a.os.data_entrega || ''; vb = b.os.data_entrega || ''; }
         else if (col === 'tempoEntrega') { va = a.tempoEntrega ?? Infinity; vb = b.tempoEntrega ?? Infinity; }
         else if (col === 'cicloSep') { va = a.tempoCicloSep ?? Infinity; vb = b.tempoCicloSep ?? Infinity; }
+        else if (col === 'leadTimeReservaMigo') { va = a.leadTimeReservaMigo ?? Infinity; vb = b.leadTimeReservaMigo ?? Infinity; }
         else if (col === 'volM3') {
           va = (a.os.volumes || []).reduce((s, v) => s + (v.m3 || 0), 0);
           vb = (b.os.volumes || []).reduce((s, v) => s + (v.m3 || 0), 0);
@@ -1037,6 +1060,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
                         { col: 'data_entrega', label: 'Entrega', filter: true, width: 'w-24' },
                         { col: 'tempoEntrega', label: 'Tempo', filter: true, width: 'w-20' },
                         { col: 'cicloSep', label: 'Ciclo Sep.', filter: false, width: 'w-24' },
+                        { col: 'leadTimeReservaMigo', label: 'Lead Time Atend.', filter: false, width: 'w-32' },
                         { col: 'volM3', label: 'Vol. M³', filter: false, width: 'w-20' },
                       ].map(({ col, label, filter, width }) => (
                         <th key={col} className={`px-2 py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-left ${width} whitespace-nowrap`}>
@@ -1048,7 +1072,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
                     </tr>
                   </thead>
                   <tbody>
-                    {pageRows.map(({ os, almox, qtdSol, qtdSep, tempoEntrega, tempoCicloSep }, idx) => {
+                    {pageRows.map(({ os, almox, qtdSol, qtdSep, tempoEntrega, tempoCicloSep, leadTimeReservaMigo }, idx) => {
                       let tempoColor = 'text-slate-600 dark:text-slate-400';
                       if (tempoEntrega !== null) {
                         if (tempoEntrega <= 0) tempoColor = 'text-green-600 font-semibold';
@@ -1090,6 +1114,15 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
                           </td>
                           <td className="px-2 py-2 text-center whitespace-nowrap">
                             {tempoCicloSep !== null ? `${tempoCicloSep}d` : '—'}
+                          </td>
+                          <td className="px-2 py-2 text-center whitespace-nowrap">
+                            {(() => {
+                              if (leadTimeReservaMigo === null) return <span className="text-slate-400">—</span>;
+                              const cls = leadTimeReservaMigo <= META_LEAD_TIME_RESERVA_MIGO
+                                ? 'text-green-600 font-semibold'
+                                : 'text-red-600 font-semibold';
+                              return <span className={cls} title={`Meta: até ${META_LEAD_TIME_RESERVA_MIGO} dias úteis`}>{leadTimeReservaMigo}d úteis</span>;
+                            })()}
                           </td>
                           <td className="px-2 py-2 text-right whitespace-nowrap">
                             {(() => {
