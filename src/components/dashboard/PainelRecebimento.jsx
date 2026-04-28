@@ -579,9 +579,8 @@ export default function PainelRecebimento({
 
       {/* ── Resultados Mensais - NF de estoque (apenas subcategoria compra-estoque) ── */}
       {(() => {
-        const subCompraEstoque = (subcategorias || []).find(s =>
-          s?.nome?.toLowerCase().replace(/\s+/g, '').replace(/-/g, '') === 'compraestoque'
-        );
+        const norm = (s) => (s || '').toLowerCase().replace(/[\s-]/g, '');
+        const subCompraEstoque = (subcategorias || []).find(s => norm(s?.nome) === 'compraestoque');
         if (!subCompraEstoque) return null;
         return (
           <LeadTimeReservasMensal
