@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LabelList
@@ -6,6 +6,13 @@ import {
 
 const META_DIAS_UTEIS = 7;
 const MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+const METRICAS = [
+  { id: 'quantOS', label: 'Quant Reservas' },
+  { id: 'quantItens', label: 'Quant Itens' },
+  { id: 'valoresOS', label: 'Valores OS' },
+  { id: 'pesoOS', label: 'Peso OS' },
+];
 
 // Calcula dias úteis entre duas datas (exclui sábados/domingos)
 function diasUteisEntre(start, end) {
@@ -26,11 +33,27 @@ function diasUteisEntre(start, end) {
   return count;
 }
 
+// Retorna o valor de uma OS conforme a métrica selecionada
+function valorMetrica(os, metrica) {
+  if (metrica === 'quantOS') return 1;
+  if (metrica === 'quantItens') {
+    return (os.itens_documento || []).length;
+  }
+  if (metrica === 'valoresOS') {
+    return (os.itens_documento || []).reduce((s, item) => s + (item.r_total || 0), 0);
+  }
+  if (metrica === 'pesoOS') {
+    return (os.volumes || []).reduce((s, v) => s + (v.peso_bruto || 0), 0);
+  }
+  return 0;
+}
+
 export default function LeadTimeReservasMensal({ filteredOrdens }) {
+  const [metrica, setMetrica] = useState('quantOS');
   const currentYear = new Date().getFullYear();
 
   const { dadosMensais, totalNoPrazo, totalForaPrazo, total, percentualNoPrazo } = useMemo(() => {
-    // Filtra OS que possuem reserva e MIGO válidos no ano corrente (agrupado pelo mês de data_migo)
+    // Filtra OS que possuem reserva e MIGO válidos (agrupado pelo mês de data_migo)
     const reservasValidas = filteredOrdens
       .map(os => ({ os, dias: diasUteisEntre(os.data_reserva, os.data_migo) }))
       .filter(x => x.dias !== null && x.os.data_migo);
@@ -40,8 +63,12 @@ export default function LeadTimeReservasMensal({ filteredOrdens }) {
         const d = new Date(os.data_migo);
         return d.getFullYear() === currentYear && d.getMonth() === idx;
       });
-      const noPrazo = doMes.filter(x => x.dias <= META_DIAS_UTEIS).length;
-      const foraPrazo = doMes.filter(x => x.dias > META_DIAS_UTEIS).length;
+      const noPrazo = doMes
+        .filter(x => x.dias <= META_DIAS_UTEIS)
+        .reduce((s, x) => s + valorMetrica(x.os, metrica), 0);
+      const foraPrazo = doMes
+        .filter(x => x.dias > META_DIAS_UTEIS)
+        .reduce((s, x) => s + valorMetrica(x.os, metrica), 0);
       return { mes, 'No Prazo': noPrazo, 'Fora do Prazo': foraPrazo };
     });
 
@@ -57,7 +84,48 @@ export default function LeadTimeReservasMensal({ filteredOrdens }) {
       total: t,
       percentualNoPrazo: pct
     };
-  }, [filteredOrdens, currentYear]);
+  }, [filteredOrdens, currentYear, metrica]);
+
+  // Formatadores conforme métrica
+  const formatTickY = (v) => {
+    if (metrica === 'valoresOS') {
+      if (v >= 1_000_000) return `R$ ${(v / 1_000_000).toFixed(1)}M`;
+      if (v >= 1_000) return `R$ ${(v / 1_000).toFixed(0)}k`;
+      return `R$ ${v}`;
+    }
+    if (metrica === 'pesoOS') {
+      if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}Mt`;
+      if (v >= 1_000) return `${(v / 1_000).toFixed(0)}t`;
+      return `${v} kg`;
+    }
+    return v;
+  };
+
+  const formatTooltip = (v) => {
+    if (metrica === 'valoresOS') return `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    if (metrica === 'pesoOS') return `${v.toLocaleString('pt-BR', { maximumFractionDigits: 2 })} kg`;
+    if (metrica === 'quantOS') return `${v} reservas`;
+    return `${v} itens`;
+  };
+
+  const formatResumo = (v) => {
+    if (metrica === 'valoresOS') {
+      if (v >= 1_000_000) return `R$ ${(v / 1_000_000).toFixed(2)}M`;
+      if (v >= 1_000) return `R$ ${(v / 1_000).toFixed(0)}k`;
+      return `R$ ${v.toFixed(0)}`;
+    }
+    if (metrica === 'pesoOS') {
+      return v >= 1000 ? `${(v / 1000).toFixed(1)}t` : `${v.toFixed(0)} kg`;
+    }
+    return v.toLocaleString('pt-BR');
+  };
+
+  const tituloMetrica = {
+    quantOS: 'Reservas Atendidas por Prazo - Ano Corrente',
+    quantItens: 'Itens Atendidos por Prazo - Ano Corrente',
+    valoresOS: 'Valor de Materiais Atendidos por Prazo - Ano Corrente',
+    pesoOS: 'Peso de Materiais Atendidos por Prazo - Ano Corrente',
+  }[metrica];
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
@@ -66,22 +134,34 @@ export default function LeadTimeReservasMensal({ filteredOrdens }) {
           <div className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(to bottom, #0000FF, #4169E1)' }}></div>
           Resultados Mensais - Atendimento de Reservas
         </h3>
-        <span className="text-xs text-slate-500 dark:text-slate-400">
-          Meta: até {META_DIAS_UTEIS} dias úteis (Reserva → MIGO)
-        </span>
+        <div className="flex flex-wrap gap-1.5 p-1 bg-slate-100 dark:bg-slate-700/50 rounded-full">
+          {METRICAS.map(opt => (
+            <button
+              key={opt.id}
+              onClick={() => setMetrica(opt.id)}
+              className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
+                metrica === opt.id
+                  ? 'bg-white dark:bg-slate-800 text-blue-600 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Gráfico de Barras Mensais */}
         <div className="lg:col-span-2 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/50 dark:to-slate-800/30 rounded-xl p-4 border border-slate-100 dark:border-slate-700/50">
           <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-            Reservas Atendidas por Prazo - Ano Corrente
+            {tituloMetrica}
           </h4>
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={dadosMensais} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-700" />
               <XAxis dataKey="mes" tick={{ fill: '#64748b', fontSize: 12 }} />
-              <YAxis tick={{ fill: '#64748b', fontSize: 11 }} allowDecimals={false} />
+              <YAxis tick={{ fill: '#64748b', fontSize: 11 }} width={80} tickFormatter={formatTickY} allowDecimals={metrica !== 'quantOS' && metrica !== 'quantItens'} />
               <Tooltip
                 contentStyle={{
                   backgroundColor: '#fff',
@@ -89,7 +169,7 @@ export default function LeadTimeReservasMensal({ filteredOrdens }) {
                   borderRadius: '12px',
                   boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
                 }}
-                formatter={(value) => [`${value} reservas`]}
+                formatter={(value) => [formatTooltip(value)]}
               />
               <Bar dataKey="No Prazo" stackId="total" fill="#22c55e" radius={[0, 0, 0, 0]}>
                 <LabelList position="center" content={(props) => {
@@ -153,14 +233,14 @@ export default function LeadTimeReservasMensal({ filteredOrdens }) {
                     <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
                     <span className="text-slate-700 dark:text-slate-300 font-medium">No Prazo</span>
                   </div>
-                  <span className="font-bold text-slate-900 dark:text-white">{totalNoPrazo}</span>
+                  <span className="font-bold text-slate-900 dark:text-white">{formatResumo(totalNoPrazo)}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs p-2 rounded-lg bg-red-50 dark:bg-red-900/10">
                   <div className="flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
                     <span className="text-slate-700 dark:text-slate-300 font-medium">Fora do Prazo</span>
                   </div>
-                  <span className="font-bold text-slate-900 dark:text-white">{totalForaPrazo}</span>
+                  <span className="font-bold text-slate-900 dark:text-white">{formatResumo(totalForaPrazo)}</span>
                 </div>
               </div>
             </div>
