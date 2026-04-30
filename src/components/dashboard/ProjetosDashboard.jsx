@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useApp } from '@/components/contexts/AppContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
@@ -244,11 +245,10 @@ function HelpModal({ open, onClose }) {
 
 // ---- Main Component ----
 export default function ProjetosDashboard({ regionalFilter: externalRegionalFilter = '', almoxarifadoFilter: externalAlmoxarifadoFilter = '' }) {
+  // Reuse global context — avoids redundant network requests
+  const { regionais = [], almoxarifados = [], ordens = [], projetos: projetosCtx = [], loading: ctxLoading } = useApp();
   const [projetos, setProjetos] = useState([]);
-  const [ordens, setOrdens] = useState([]);
-  const [regionais, setRegionais] = useState([]);
-  const [almoxarifados, setAlmoxarifados] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingProjetos, setLoadingProjetos] = useState(true);
   const [statusFilter, setStatusFilter] = useState('ativo');
   const [regionalFilter, setRegionalFilter] = useState(externalRegionalFilter);
   const [almoxarifadoFilter, setAlmoxarifadoFilter] = useState(externalAlmoxarifadoFilter);
@@ -259,23 +259,33 @@ export default function ProjetosDashboard({ regionalFilter: externalRegionalFilt
     setAlmoxarifadoFilter(externalAlmoxarifadoFilter);
   }, [externalRegionalFilter, externalAlmoxarifadoFilter]);
 
+  // Use Projeto from context when available; fallback to direct fetch with retry
   useEffect(() => {
+    if (projetosCtx.length > 0) {
+      setProjetos(projetosCtx);
+      setLoadingProjetos(false);
+      return;
+    }
+    let mounted = true;
     const load = async () => {
-      setLoading(true);
-      const [projetosData, ordensData, regionaisData, almoxarifadosData] = await Promise.all([
-        base44.entities.Projeto.list(),
-        base44.entities.OrdemServico.list(),
-        base44.entities.Regional.list(),
-        base44.entities.Almoxarifado.list()
-      ]);
-      setProjetos(projetosData);
-      setOrdens(ordensData);
-      setRegionais(regionaisData);
-      setAlmoxarifados(almoxarifadosData);
-      setLoading(false);
+      try {
+        const projetosData = await base44.entities.Projeto.list();
+        if (mounted) {
+          setProjetos(projetosData || []);
+          setLoadingProjetos(false);
+        }
+      } catch (e) {
+        if (mounted) {
+          setProjetos([]);
+          setLoadingProjetos(false);
+        }
+      }
     };
     load();
-  }, []);
+    return () => { mounted = false; };
+  }, [projetosCtx]);
+
+  const loading = ctxLoading || loadingProjetos;
 
   const almoxarifadosFiltrados = regionalFilter && regionalFilter !== 'all'
     ? almoxarifados.filter(a => a.regional_id === regionalFilter)
