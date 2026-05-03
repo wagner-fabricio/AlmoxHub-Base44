@@ -107,6 +107,9 @@ export default function OrdensServico() {
   const backendFilter = useMemo(() => {
     const f = {};
     if (filters.status !== 'all' && filters.statusList?.length === 0) f.status = filters.status;
+    // Se há exatamente um status selecionado no statusList, enviar para o backend
+    // (evita que o backend devolva apenas as 100 OS mais recentes que podem não ter o status desejado)
+    else if (filters.statusList?.length === 1) f.status = filters.statusList[0];
     if (filters.regional !== 'all') f.regional_id = filters.regional;
     if (filters.almoxarifado !== 'all') f.almoxarifado_id = filters.almoxarifado;
     if (filters.categorias?.length === 1) f.categoria_id = filters.categorias[0];
