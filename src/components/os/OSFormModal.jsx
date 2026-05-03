@@ -208,6 +208,12 @@ export default function OSFormModal({
   const isExpedicaoCategory = selectedCategoria?.nome?.toLowerCase().includes('expedição');
   const isRecebimentoCategory = selectedCategoria?.nome?.toLowerCase().includes('recebimento');
   const isAtendimentoCategory = selectedCategoria?.nome?.toLowerCase().includes('atendimento');
+  // Abas de fluxo de expedição (Documento/Materiais/Volumes/Expedição) só aparecem
+  // para subcategorias "Com Reserva" ou "Sem Reserva". Demais subcategorias usam progresso manual.
+  const usaFluxoExpedicao = isExpedicaoCategory && selectedSubcategorias.some(s => {
+    const nome = s?.nome?.toLowerCase() || '';
+    return nome.includes('com reserva') || nome.includes('sem reserva');
+  });
 
   const calculateProgress = (data) => {
     const isRecebimento = selectedCategoria?.nome?.toLowerCase().includes('recebimento');
@@ -261,20 +267,23 @@ export default function OSFormModal({
       }
 
       let fluxoExpedicao = formData.fluxo_expedicao;
-      if (isExpedicaoCategory && isNew && !fluxoExpedicao) {
+      if (usaFluxoExpedicao && isNew && !fluxoExpedicao) {
         fluxoExpedicao = { etapa_atual: 1, solicitacao_completa: true, solicitacao_data: new Date().toISOString(), separacao_completa: false, preparacao_completa: false, envio_completo: false, entrega_completa: false };
       }
 
       const dataToSave = {
         ...formData, codigo,
-        fluxo_expedicao: isExpedicaoCategory ? fluxoExpedicao : formData.fluxo_expedicao,
-        progresso: (isExpedicaoCategory || isRecebimentoCategory) ? calculateProgress({ ...formData, fluxo_expedicao: isExpedicaoCategory ? fluxoExpedicao : formData.fluxo_expedicao }) : (formData.progresso || 0)
+        fluxo_expedicao: usaFluxoExpedicao ? fluxoExpedicao : formData.fluxo_expedicao,
+        // Progresso automático apenas quando há fluxo (Expedição c/ Reserva ou Recebimento). Demais usam progresso manual.
+        progresso: (usaFluxoExpedicao || isRecebimentoCategory)
+          ? calculateProgress({ ...formData, fluxo_expedicao: usaFluxoExpedicao ? fluxoExpedicao : formData.fluxo_expedicao })
+          : (formData.progresso || 0)
       };
 
       let savedOS;
       if (os?.id) {
         savedOS = await base44.entities.OrdemServico.update(os.id, dataToSave);
-        if (isExpedicaoCategory) {
+        if (usaFluxoExpedicao) {
           try { await base44.functions.invoke('atualizarFluxoExpedicao', { os_id: os.id }); } catch (e) {}
         }
         // Encerrar TimeSheet se status mudou para concluído ou cancelado
@@ -316,7 +325,7 @@ export default function OSFormModal({
         } catch (e) {}
       } else {
         savedOS = await base44.entities.OrdemServico.create(dataToSave);
-        if (isExpedicaoCategory) {
+        if (usaFluxoExpedicao) {
           try { await base44.functions.invoke('atualizarFluxoExpedicao', { os_id: savedOS.id }); } catch (e) {}
         }
         try { await base44.functions.invoke('registrarAuditLog', { action: 'create', entity_type: 'OrdemServico', entity_id: savedOS.id, details: { descricao: `OS ${codigo} criada` } }); } catch (e) {}
@@ -522,8 +531,8 @@ export default function OSFormModal({
 
   const problemasNaoPreenchidos = formData.problema_recebimento && (!formData.problemas_recebimento_ids || formData.problemas_recebimento_ids.length === 0);
   const hasVolumes = (formData.volumes?.length || 0) > 0;
-  const separacaoIncompleta = isExpedicaoCategory && hasVolumes && (!formData.responsavel_separacao || !formData.data_separacao || !formData.separacao_concluida_em);
-  const documentoIncompleto = isExpedicaoCategory && (
+  const separacaoIncompleta = usaFluxoExpedicao && hasVolumes && (!formData.responsavel_separacao || !formData.data_separacao || !formData.separacao_concluida_em);
+  const documentoIncompleto = usaFluxoExpedicao && (
     !formData.num_reserva || !formData.data_reserva || !formData.usuario_reserva ||
     !formData.orgao || !formData.vinculacao || !formData.instalacao_origem_id || !formData.instalacao_destino_id ||
     (formData.num_migo && !formData.data_migo)
@@ -568,7 +577,7 @@ export default function OSFormModal({
               <TabsList className="bg-transparent rounded-none h-auto p-0 space-x-8 border-b-0">
                 <TabsTrigger value="geral" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Dados Gerais</TabsTrigger>
                 {isAtendimentoCategory && (<TabsTrigger value="materiais" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Materiais ({formData.itens_documento?.length || 0})</TabsTrigger>)}
-                {isExpedicaoCategory && (<>
+                {usaFluxoExpedicao && (<>
                   <TabsTrigger value="documento" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Documento</TabsTrigger>
                   <TabsTrigger value="materiais" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Materiais</TabsTrigger>
                   <TabsTrigger value="volumes" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Volumes</TabsTrigger>
@@ -730,7 +739,7 @@ export default function OSFormModal({
                 </div>
 
                 {/* Seção 3: Prazos e Controle */}
-                <OSPrazosControle formData={formData} setFormData={setFormData} prazoError={prazoError} setPrazoError={setPrazoError} projetos={projetos} isExpedicaoCategory={isExpedicaoCategory} isRecebimentoCategory={isRecebimentoCategory} />
+                <OSPrazosControle formData={formData} setFormData={setFormData} prazoError={prazoError} setPrazoError={setPrazoError} projetos={projetos} isExpedicaoCategory={usaFluxoExpedicao} isRecebimentoCategory={isRecebimentoCategory} />
 
                 {/* Seção 4: Detalhamento */}
                 <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
@@ -750,7 +759,7 @@ export default function OSFormModal({
               </TabsContent>
 
               {/* TAB: Documento (Expedição) */}
-              {isExpedicaoCategory && (
+              {usaFluxoExpedicao && (
                 <TabsContent value="documento" className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div className="space-y-2"><Label>Número da Reserva <span className="text-red-500">*</span></Label><Input value={formData.num_reserva} onChange={(e) => setFormData({ ...formData, num_reserva: e.target.value })} className={!formData.num_reserva ? 'border-red-300 dark:border-red-700' : ''} /></div>
@@ -830,9 +839,9 @@ export default function OSFormModal({
                 </TabsContent>
               )}
 
-              {isExpedicaoCategory && (<TabsContent value="materiais">{loadedFormTabs.has('materiais') && <OSItensDocumento itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} />}</TabsContent>)}
+              {usaFluxoExpedicao && (<TabsContent value="materiais">{loadedFormTabs.has('materiais') && <OSItensDocumento itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} />}</TabsContent>)}
               {isAtendimentoCategory && (<TabsContent value="materiais">{loadedFormTabs.has('materiais') && <OSAtendimentoMateriais itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} />}</TabsContent>)}
-              {isExpedicaoCategory && (
+              {usaFluxoExpedicao && (
                 <TabsContent value="volumes" className="space-y-6">
                   <OSVolumes volumes={formData.volumes} onChange={(volumes) => setFormData(prev => ({ ...prev, volumes }))} onGerarEtiquetas={() => setShowEtiquetaModal(true)} />
                   {/* Seção Separação */}
@@ -869,7 +878,7 @@ export default function OSFormModal({
                 </TabsContent>
               )}
 
-              {isExpedicaoCategory && (
+              {usaFluxoExpedicao && (
                 <TabsContent value="expedicao" className="space-y-6">
                   <OSDetalhamentoExpedicao detalhamento={formData.detalhamento_expedicao} onChange={(d) => setFormData(prev => ({ ...prev, detalhamento_expedicao: d }))} os={os} />
                   <div className="border-t pt-6">
@@ -1016,7 +1025,7 @@ export default function OSFormModal({
               {isRecebimentoCategory && (<TabsContent value="receb-transp" className="space-y-6">{loadedFormTabs.has('receb-transp') && <OSRecebimentoTransportador transportador={formData.nfe_dados_transportador} onChange={(data) => setFormData(prev => ({ ...prev, nfe_dados_transportador: data }))} />}</TabsContent>)}
               {isRecebimentoCategory && (<TabsContent value="receb-mat" className="space-y-6">{loadedFormTabs.has('receb-mat') && <OSRecebimentoMateriais itens={formData.nfe_itens_conferencia} fluxo={formData.fluxo_recebimento} onChange={(data) => setFormData(prev => ({ ...prev, nfe_itens_conferencia: data.itens || prev.nfe_itens_conferencia, fluxo_recebimento: data.fluxo || prev.fluxo_recebimento }))} />}</TabsContent>)}
 
-              {isExpedicaoCategory && os?.id && (
+              {usaFluxoExpedicao && os?.id && (
                 <TabsContent value="assinaturas" className="space-y-4">
                   <OSAssinaturaTab os={os} onSave={onSave} />
                 </TabsContent>
@@ -1032,7 +1041,7 @@ export default function OSFormModal({
                     {importingXML && <div className="mt-2 flex items-center gap-2 text-sm text-amber-700 dark:text-amber-300"><Loader2 className="w-4 h-4 animate-spin" />Processando XML...</div>}
                   </div>
                 )}
-                {isExpedicaoCategory && (
+                {usaFluxoExpedicao && (
                   <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-800">
                     <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">Documento ZMMTSE</h4>
                     <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">Faça upload do PDF para importar dados automaticamente</p>
