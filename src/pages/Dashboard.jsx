@@ -242,7 +242,9 @@ export default function Dashboard() {
   );
 
   const osByCategoria = useMemo(() =>
-    categorias.map(c => ({ name: c.nome, total: filteredOrdens.filter(os => os.categoria_id === c.id).length })).filter(d => d.total > 0),
+    categorias.map(c => ({ name: c.nome, total: filteredOrdens.filter(os => os.categoria_id === c.id).length }))
+      .filter(d => d.total > 0)
+      .sort((a, b) => a.total - b.total),
     [filteredOrdens, categorias]
   );
 
