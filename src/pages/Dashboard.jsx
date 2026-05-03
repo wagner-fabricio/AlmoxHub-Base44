@@ -816,13 +816,19 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             {osByCategoria.length > 0 ? (
-              <ResponsiveContainer width="100%" height={280}>
-                <BarChart data={osByCategoria} layout="vertical" margin={{ top: 10, right: 10, left: 60, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis type="number" tick={{ fill: '#64748b', fontSize: 12 }} />
-                  <YAxis type="category" dataKey="name" tick={{ fill: '#64748b', fontSize: 12 }} width={80} />
-                  <Tooltip />
-                  <Bar dataKey="total" fill="#0000FF" radius={[0, 4, 4, 0]} />
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={osByCategoria} layout="vertical" margin={{ top: 10, right: 30, left: 8, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
+                  <XAxis type="number" tick={{ fill: '#64748b', fontSize: 12 }} allowDecimals={false} />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    tick={{ fill: '#475569', fontSize: 12 }}
+                    width={150}
+                    interval={0}
+                  />
+                  <Tooltip cursor={{ fill: 'rgba(0,0,255,0.05)' }} />
+                  <Bar dataKey="total" fill="#0000FF" radius={[0, 6, 6, 0]} barSize={22} label={{ position: 'right', fill: '#475569', fontSize: 12, fontWeight: 600 }} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
