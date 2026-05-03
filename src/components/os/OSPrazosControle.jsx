@@ -125,7 +125,7 @@ export default function OSPrazosControle({
           <div className="h-9 flex items-center px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-slate-300">
             {formData.data_inicial ? (
               (() => {
-                const dataFim = formData.status === 'concluido' && formData.data_conclusao
+                const dataFim = (formData.status === 'concluido' || formData.status === 'cancelado') && formData.data_conclusao
                   ? new Date(formData.data_conclusao)
                   : new Date();
                 const dias = differenceInDays(dataFim, new Date(formData.data_inicial));
@@ -136,7 +136,7 @@ export default function OSPrazosControle({
             )}
           </div>
           <p className="text-xs text-slate-400">
-            {formData.status === 'concluido' ? 'Até a conclusão' : 'Até hoje'}
+            {formData.status === 'concluido' ? 'Até a conclusão' : formData.status === 'cancelado' ? 'Até o cancelamento' : 'Até hoje'}
           </p>
         </div>
 
