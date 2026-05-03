@@ -40,10 +40,8 @@ const statusLabels = {
 };
 
 export default function Dashboard() {
-  const { regionais, categorias, subcategorias, pessoas, ordens, almoxarifados: ctxAlmox, instalacoes: ctxInstalacoes, loading: ctxLoading } = useApp();
+  const { regionais, categorias, subcategorias, pessoas, ordens, almoxarifados, instalacoes, loading: ctxLoading } = useApp();
   const [loading, setLoading] = useState(true);
-  const [almoxarifados, setAlmoxarifados] = useState([]);
-  const [instalacoes, setInstalacoes] = useState([]);
   const [problemasRecebimento, setProblemasRecebimento] = useState([]);
   const [mapFilters, setMapFilters] = useState({
     usina: true,
@@ -92,16 +90,11 @@ export default function Dashboard() {
   const loadData = async () => {
     setLoading(true);
     try {
-      // Use AppContext data for almoxarifados and instalacoes — avoids duplicate requests
-      const [user, problemasData, almoxData, instData] = await Promise.all([
+      const [user, problemasData] = await Promise.all([
         base44.auth.me(),
         base44.entities.ProblemaRecebimento.list(),
-        ctxAlmox?.length > 0 ? Promise.resolve(ctxAlmox) : base44.entities.Almoxarifado.list(),
-        ctxInstalacoes?.length > 0 ? Promise.resolve(ctxInstalacoes) : base44.entities.Instalacao.list(),
       ]);
       setCurrentUser(user);
-      setAlmoxarifados(almoxData);
-      setInstalacoes(instData);
       setProblemasRecebimento(problemasData);
 
       if (user.filtros_preferidos?.Dashboard) {
