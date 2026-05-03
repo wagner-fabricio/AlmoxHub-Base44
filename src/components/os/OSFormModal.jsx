@@ -214,9 +214,15 @@ export default function OSFormModal({
     const nome = s?.nome?.toLowerCase() || '';
     return nome.includes('com reserva') || nome.includes('sem reserva');
   });
+  // Abas de fluxo de recebimento só aparecem para subcategorias "Compra - Aplicação Específica"
+  // ou "Compra - Estoque". Demais subcategorias usam progresso manual.
+  const usaFluxoRecebimento = isRecebimentoCategory && selectedSubcategorias.some(s => {
+    const nome = s?.nome?.toLowerCase() || '';
+    return nome.includes('aplicação específica') || nome.includes('aplicacao especifica') || nome.includes('estoque');
+  });
 
   const calculateProgress = (data) => {
-    const isRecebimento = selectedCategoria?.nome?.toLowerCase().includes('recebimento');
+    const isRecebimento = usaFluxoRecebimento;
     if (isRecebimento) {
       let progress = 0;
       if (data.fluxo_recebimento?.xml_importado) progress = 25;
@@ -274,8 +280,8 @@ export default function OSFormModal({
       const dataToSave = {
         ...formData, codigo,
         fluxo_expedicao: usaFluxoExpedicao ? fluxoExpedicao : formData.fluxo_expedicao,
-        // Progresso automático apenas quando há fluxo (Expedição c/ Reserva ou Recebimento). Demais usam progresso manual.
-        progresso: (usaFluxoExpedicao || isRecebimentoCategory)
+        // Progresso automático apenas quando há fluxo (Expedição c/ Reserva ou Recebimento c/ Compra). Demais usam progresso manual.
+        progresso: (usaFluxoExpedicao || usaFluxoRecebimento)
           ? calculateProgress({ ...formData, fluxo_expedicao: usaFluxoExpedicao ? fluxoExpedicao : formData.fluxo_expedicao })
           : (formData.progresso || 0)
       };
@@ -537,7 +543,7 @@ export default function OSFormModal({
     !formData.orgao || !formData.vinculacao || !formData.instalacao_origem_id || !formData.instalacao_destino_id ||
     (formData.num_migo && !formData.data_migo)
   );
-  const migoRecebIncompleto = isRecebimentoCategory && formData.numero_migo_receb && !formData.data_migo_receb;
+  const migoRecebIncompleto = usaFluxoRecebimento && formData.numero_migo_receb && !formData.data_migo_receb;
   const isValid = formData.categoria_id && formData.subcategorias_ids?.length > 0 && formData.regional_id && formData.almoxarifado_id && formData.lider_id && formData.prazo && formData.complexidade && !prazoError && !problemasNaoPreenchidos && !separacaoIncompleta && !documentoIncompleto && !migoRecebIncompleto;
 
   return (
@@ -584,7 +590,7 @@ export default function OSFormModal({
                   <TabsTrigger value="expedicao" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Expedição</TabsTrigger>
                   {os?.id && <TabsTrigger value="assinaturas" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">✍️ Assinaturas</TabsTrigger>}
                 </>)}
-                {isRecebimentoCategory && (<>
+                {usaFluxoRecebimento && (<>
                   <TabsTrigger value="receb-dados" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Dados Recebimento</TabsTrigger>
                   <TabsTrigger value="receb-documento" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Documento</TabsTrigger>
                   <TabsTrigger value="receb-doc" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Cabeçalho NF</TabsTrigger>
@@ -739,7 +745,7 @@ export default function OSFormModal({
                 </div>
 
                 {/* Seção 3: Prazos e Controle */}
-                <OSPrazosControle formData={formData} setFormData={setFormData} prazoError={prazoError} setPrazoError={setPrazoError} projetos={projetos} isExpedicaoCategory={usaFluxoExpedicao} isRecebimentoCategory={isRecebimentoCategory} />
+                <OSPrazosControle formData={formData} setFormData={setFormData} prazoError={prazoError} setPrazoError={setPrazoError} projetos={projetos} isExpedicaoCategory={usaFluxoExpedicao} isRecebimentoCategory={usaFluxoRecebimento} />
 
                 {/* Seção 4: Detalhamento */}
                 <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
@@ -947,7 +953,7 @@ export default function OSFormModal({
                 </TabsContent>
               )}
 
-              {isRecebimentoCategory && (
+              {usaFluxoRecebimento && (
                 <TabsContent value="receb-dados" className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2"><Label>Data Recebimento</Label><Input type="date" value={formData.data_recebimento} onChange={(e) => setFormData({ ...formData, data_recebimento: e.target.value })} /></div>
@@ -996,10 +1002,10 @@ export default function OSFormModal({
                 </TabsContent>
               )}
 
-              {isRecebimentoCategory && (<TabsContent value="receb-doc" className="space-y-6">{loadedFormTabs.has('receb-doc') && <OSRecebimentoDocumento emissor={formData.nfe_dados_emissor} destinatario={formData.nfe_dados_destinatario} onChange={(data) => setFormData(prev => ({ ...prev, nfe_dados_emissor: data.emissor || prev.nfe_dados_emissor, nfe_dados_destinatario: data.destinatario || prev.nfe_dados_destinatario }))} />}</TabsContent>)}
-              {isRecebimentoCategory && (<TabsContent value="receb-rodape" className="space-y-6"><div className="space-y-2"><Label>Informações Complementares</Label><Textarea value={formData.nfe_info_complementares} onChange={(e) => setFormData({ ...formData, nfe_info_complementares: e.target.value })} placeholder="Informações complementares da nota fiscal..." rows={8} className="font-mono text-sm" /></div></TabsContent>)}
+              {usaFluxoRecebimento && (<TabsContent value="receb-doc" className="space-y-6">{loadedFormTabs.has('receb-doc') && <OSRecebimentoDocumento emissor={formData.nfe_dados_emissor} destinatario={formData.nfe_dados_destinatario} onChange={(data) => setFormData(prev => ({ ...prev, nfe_dados_emissor: data.emissor || prev.nfe_dados_emissor, nfe_dados_destinatario: data.destinatario || prev.nfe_dados_destinatario }))} />}</TabsContent>)}
+              {usaFluxoRecebimento && (<TabsContent value="receb-rodape" className="space-y-6"><div className="space-y-2"><Label>Informações Complementares</Label><Textarea value={formData.nfe_info_complementares} onChange={(e) => setFormData({ ...formData, nfe_info_complementares: e.target.value })} placeholder="Informações complementares da nota fiscal..." rows={8} className="font-mono text-sm" /></div></TabsContent>)}
 
-              {isRecebimentoCategory && (
+              {usaFluxoRecebimento && (
                 <TabsContent value="receb-documento" className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2"><Label>Número da NF</Label><Input value={formData.nfe_numero_receb} onChange={(e) => setFormData({ ...formData, nfe_numero_receb: e.target.value })} placeholder="Preenchido automaticamente pelo XML ou digite manualmente" /></div>
@@ -1022,8 +1028,8 @@ export default function OSFormModal({
                 </TabsContent>
               )}
 
-              {isRecebimentoCategory && (<TabsContent value="receb-transp" className="space-y-6">{loadedFormTabs.has('receb-transp') && <OSRecebimentoTransportador transportador={formData.nfe_dados_transportador} onChange={(data) => setFormData(prev => ({ ...prev, nfe_dados_transportador: data }))} />}</TabsContent>)}
-              {isRecebimentoCategory && (<TabsContent value="receb-mat" className="space-y-6">{loadedFormTabs.has('receb-mat') && <OSRecebimentoMateriais itens={formData.nfe_itens_conferencia} fluxo={formData.fluxo_recebimento} onChange={(data) => setFormData(prev => ({ ...prev, nfe_itens_conferencia: data.itens || prev.nfe_itens_conferencia, fluxo_recebimento: data.fluxo || prev.fluxo_recebimento }))} />}</TabsContent>)}
+              {usaFluxoRecebimento && (<TabsContent value="receb-transp" className="space-y-6">{loadedFormTabs.has('receb-transp') && <OSRecebimentoTransportador transportador={formData.nfe_dados_transportador} onChange={(data) => setFormData(prev => ({ ...prev, nfe_dados_transportador: data }))} />}</TabsContent>)}
+              {usaFluxoRecebimento && (<TabsContent value="receb-mat" className="space-y-6">{loadedFormTabs.has('receb-mat') && <OSRecebimentoMateriais itens={formData.nfe_itens_conferencia} fluxo={formData.fluxo_recebimento} onChange={(data) => setFormData(prev => ({ ...prev, nfe_itens_conferencia: data.itens || prev.nfe_itens_conferencia, fluxo_recebimento: data.fluxo || prev.fluxo_recebimento }))} />}</TabsContent>)}
 
               {usaFluxoExpedicao && os?.id && (
                 <TabsContent value="assinaturas" className="space-y-4">
@@ -1033,7 +1039,7 @@ export default function OSFormModal({
 
               {/* TAB: Anexos */}
               <TabsContent value="anexos" className="space-y-6">
-                {isRecebimentoCategory && (
+                {usaFluxoRecebimento && (
                   <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border-2 border-amber-200 dark:border-amber-800">
                     <h4 className="font-semibold text-amber-900 dark:text-amber-100 mb-1">NFe XML</h4>
                     <p className="text-sm text-amber-700 dark:text-amber-300 mb-3">Faça upload do XML para importar dados automaticamente</p>
