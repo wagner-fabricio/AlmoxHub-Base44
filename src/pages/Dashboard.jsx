@@ -254,7 +254,7 @@ export default function Dashboard() {
   );
 
   const osByAlmoxarifado = useMemo(() =>
-    almoxarifados.map(a => ({ name: a.nome, total: filteredOrdens.filter(os => os.almoxarifado_id === a.id).length })).sort((a, b) => b.total - a.total).slice(0, 5),
+    almoxarifados.map(a => ({ name: a.nome, total: filteredOrdens.filter(os => os.almoxarifado_id === a.id).length })).sort((a, b) => b.total - a.total).slice(0, 10),
     [filteredOrdens, almoxarifados]
   );
 
@@ -848,7 +848,7 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
               <Building2 className="w-5 h-5 text-amber-500" />
-              Top 5 Almoxarifados por Volume
+              Top 10 Almoxarifados por OS
             </CardTitle>
           </CardHeader>
           <CardContent>
