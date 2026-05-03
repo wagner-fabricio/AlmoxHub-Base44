@@ -90,9 +90,9 @@ export default function OSPrazosControle({
                    <Info className="w-4 h-4 text-slate-400 cursor-help hover:text-slate-600 dark:hover:text-slate-300 transition-colors" />
                  </TooltipTrigger>
                  <TooltipContent className="max-w-xs text-sm">
-                   <p className="mb-2">Preenchida automaticamente ao marcar como "Concluído"</p>
+                   <p className="mb-2">Preenchida automaticamente ao marcar como "Concluído" ou "Cancelado"</p>
                    <p className="mb-2">Será limpa se o status mudar para outro valor</p>
-                   <p>Pode ser editada manualmente apenas quando status é "Concluído"</p>
+                   <p>Pode ser editada manualmente apenas quando status é "Concluído" ou "Cancelado"</p>
                  </TooltipContent>
                </Tooltip>
              </TooltipProvider>
@@ -101,20 +101,20 @@ export default function OSPrazosControle({
              type="date"
              value={formData.data_conclusao}
              onChange={(e) => setFormData({ ...formData, data_conclusao: e.target.value })}
-             disabled={formData.status !== 'concluido'}
-             className={formData.status !== 'concluido' 
+             disabled={formData.status !== 'concluido' && formData.status !== 'cancelado'}
+             className={(formData.status !== 'concluido' && formData.status !== 'cancelado')
                ? 'border-slate-300 dark:border-slate-600 rounded-lg bg-slate-100 dark:bg-slate-800 cursor-not-allowed opacity-60 focus:ring-2 focus:ring-blue-600 focus:border-blue-600'
                : 'border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600'
              }
            />
-           {formData.status !== 'concluido' && formData.data_conclusao && (
+           {formData.status !== 'concluido' && formData.status !== 'cancelado' && formData.data_conclusao && (
              <p className="text-xs text-amber-600 dark:text-amber-400">
                Campo será limpo ao alterar o status
              </p>
            )}
-           {formData.status !== 'concluido' && (
+           {formData.status !== 'concluido' && formData.status !== 'cancelado' && (
              <p className="text-xs text-slate-500 dark:text-slate-400">
-               Disponível apenas quando status é "Concluído"
+               Disponível apenas quando status é "Concluído" ou "Cancelado"
              </p>
            )}
          </div>
@@ -185,13 +185,14 @@ export default function OSPrazosControle({
              onValueChange={(v) => {
                const novoStatus = v;
                const novaData = { ...formData, status: novoStatus };
+               const isFinal = novoStatus === 'concluido' || novoStatus === 'cancelado';
 
-               // Se mudando para 'concluído', preencher data_conclusao com data de hoje
-               if (novoStatus === 'concluido' && !formData.data_conclusao) {
+               // Se mudando para 'concluído' ou 'cancelado', preencher data_conclusao com data de hoje
+               if (isFinal && !formData.data_conclusao) {
                  novaData.data_conclusao = format(new Date(), 'yyyy-MM-dd');
                }
-               // Se saindo de 'concluído', limpar data_conclusao
-               else if (novoStatus !== 'concluido' && formData.data_conclusao) {
+               // Se saindo de status final, limpar data_conclusao
+               else if (!isFinal && formData.data_conclusao) {
                  novaData.data_conclusao = '';
                }
 
