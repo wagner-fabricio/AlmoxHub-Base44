@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { formatarTempo } from './TimeSheetButton';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Radio, Clock, Building2, Users, Calendar, AlertCircle, Tag, FileText, BarChart2, Play, ChevronDown, ChevronRight } from 'lucide-react';
+import { Radio, Clock, Building2, Users, Calendar, AlertCircle, Tag, FileText, BarChart2, Play, ChevronDown, ChevronRight, Square, Loader2 } from 'lucide-react';
 import ColaboradoresDisponiveis from './ColaboradoresDisponiveis';
+import { base44 } from '@/api/base44Client';
+import { toast } from 'sonner';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 const minutosDesde = (inicio) => {
   if (!inicio) return 0;
@@ -24,9 +27,26 @@ const statusConfig = {
   cancelado:  { label: 'Cancelado',     color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' },
 };
 
-export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxarifados, subcategorias, regionais, filters, onClickOS }) {
+export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxarifados, subcategorias, regionais, filters, onClickOS, currentUser, onPauseAll }) {
   const [tick, setTick] = useState(0);
   const [expandedPessoas, setExpandedPessoas] = useState({});
+  const [pausingAll, setPausingAll] = useState(false);
+
+  const handlePauseAll = async () => {
+    setPausingAll(true);
+    try {
+      const res = await base44.functions.invoke('pauseAllTimeSheets', {});
+      const total = res?.data?.total_os_pausadas || 0;
+      toast.success(total > 0 ? `${total} OS pausada${total !== 1 ? 's' : ''}` : 'Nenhuma OS em sessão');
+      onPauseAll?.();
+    } catch (e) {
+      toast.error('Erro ao pausar', { description: e.message });
+    } finally {
+      setPausingAll(false);
+    }
+  };
+
+  const isAdmin = currentUser?.role === 'admin';
 
   useEffect(() => {
     const interval = setInterval(() => setTick(t => t + 1), 60000);
@@ -90,14 +110,44 @@ export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxar
   return (
     <div className="space-y-6">
       {/* Badge ao vivo */}
-      <div className="flex items-center gap-3">
-        <span className="flex items-center gap-1.5 px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full text-xs font-semibold">
-          <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-          AO VIVO
-        </span>
-        <span className="text-sm text-slate-500 dark:text-slate-400">
-          {osEmPlay.length} OS ativa{osEmPlay.length !== 1 ? 's' : ''} · {pessoasComSessao.size} pessoa{pessoasComSessao.size !== 1 ? 's' : ''} em sessão
-        </span>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-1.5 px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full text-xs font-semibold">
+            <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+            AO VIVO
+          </span>
+          <span className="text-sm text-slate-500 dark:text-slate-400">
+            {osEmPlay.length} OS ativa{osEmPlay.length !== 1 ? 's' : ''} · {pessoasComSessao.size} pessoa{pessoasComSessao.size !== 1 ? 's' : ''} em sessão
+          </span>
+        </div>
+        {isAdmin && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                disabled={pausingAll || osEmPlay.length === 0}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-lg transition-colors shadow-sm"
+                title="Pausar todas as OS em sessão"
+              >
+                {pausingAll ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Square className="w-3.5 h-3.5" />}
+                Parar Tudo
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Pausar todas as OS em sessão?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta ação irá pausar {osEmPlay.length} OS ativa{osEmPlay.length !== 1 ? 's' : ''} e encerrar todas as sessões de TimeSheet em andamento. Os colaboradores poderão retomar manualmente depois.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handlePauseAll} className="bg-red-600 hover:bg-red-700">
+                  Sim, parar tudo
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </div>
 
       {/* ── TABELA DE OS ── */}

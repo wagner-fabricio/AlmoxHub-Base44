@@ -568,6 +568,8 @@ export default function OrdensServico() {
               regionais={regionais}
               filters={filters}
               onClickOS={handleOSClick}
+              currentUser={currentUser}
+              onPauseAll={() => queryClient.invalidateQueries({ queryKey: ['ordens-filtradas'] })}
             />
           ) : viewMode === 'timesheet_relatorio' ? (
             <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
@@ -803,6 +805,8 @@ export default function OrdensServico() {
             regionais={regionais}
             filters={filters}
             onClickOS={handleOSClick}
+            currentUser={currentUser}
+            onPauseAll={() => queryClient.invalidateQueries({ queryKey: ['ordens-filtradas'] })}
           />
         </div>
       ) : viewMode === 'timesheet_relatorio' ? (
