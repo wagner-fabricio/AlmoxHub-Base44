@@ -4,7 +4,8 @@ import {
   CartesianGrid, Tooltip, Legend, LineChart, Line, ReferenceLine, LabelList,
   AreaChart, Area
 } from 'recharts';
-import { Target, Clock, Package, TrendingUp, DollarSign, Shield, Box, Navigation, Truck, HelpCircle } from 'lucide-react';
+import { Target, Clock, Package, TrendingUp, DollarSign, Shield, Box, Navigation, Truck, HelpCircle, FileSpreadsheet } from 'lucide-react';
+import { exportTabelaExcel } from '@/components/dashboard/exportTabelaExcel';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { format, differenceInDays } from 'date-fns';
@@ -532,9 +533,34 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
     <>
     <div className="space-y-6">
 
-      {/* ── Botão de ajuda ── */}
+      {/* ── Botões de ação ── */}
       {!hideToolbar && (
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" size="sm" onClick={() => {
+            const rows = osTabelaFiltrada.map(({ os, almox, qtdSol, qtdSep, tempoEntrega, tempoCicloSep, leadTimeReservaMigo }) => {
+              const totalM3 = (os.volumes || []).reduce((sum, v) => sum + (v.m3 || 0), 0);
+              return {
+                'Nº OS': os.codigo || os.id?.substring(0, 8) || '',
+                'Status Exp.': os.status_separacao || '',
+                'Progresso (%)': Math.max(0, Math.min(100, Math.round(os.progresso || 0))),
+                'Almoxarifado': almox?.nome || '',
+                'Reserva': safeFormat(os.data_reserva),
+                'MIGO': safeFormat(os.data_migo),
+                'Sol.': qtdSol || 0,
+                'Sep.': qtdSep || 0,
+                'Necessidade': safeFormat(os.data_necessidade),
+                'Entrega': safeFormat(os.data_entrega),
+                'Tempo (dias)': tempoEntrega !== null ? tempoEntrega : '',
+                'Ciclo Sep. (dias)': tempoCicloSep !== null ? tempoCicloSep : '',
+                'Lead Time Atend. (dias úteis)': leadTimeReservaMigo !== null ? leadTimeReservaMigo : '',
+                'Vol. M³': totalM3 > 0 ? totalM3 : '',
+              };
+            });
+            exportTabelaExcel(rows, 'painel_expedicao', 'Dados dos Indicadores');
+          }} className="gap-2" disabled={osTabelaFiltrada.length === 0}>
+            <FileSpreadsheet className="w-4 h-4 text-green-600" />
+            Exportar Excel
+          </Button>
           <Button variant="outline" size="sm" onClick={() => setShowHelp(true)} className="gap-2">
             <HelpCircle className="w-4 h-4 text-blue-500" />
             Entender os indicadores
