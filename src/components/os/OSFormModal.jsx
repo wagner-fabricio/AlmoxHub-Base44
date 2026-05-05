@@ -578,7 +578,7 @@ export default function OSFormModal({
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 min-h-0">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
           <div className="p-3 sm:p-8 bg-slate-50/30 dark:bg-slate-900/30">
             <Tabs value={activeTab} onValueChange={handleFormTabChange} className="w-full">
               <div className="flex items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-700 mb-5 sm:mb-8 overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
@@ -1085,7 +1085,7 @@ export default function OSFormModal({
               </TabsContent>
             </Tabs>
           </div>
-        </ScrollArea>
+        </div>
 
         {showEtiquetaModal && (
           <EtiquetaVolumesModal
