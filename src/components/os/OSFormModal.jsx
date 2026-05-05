@@ -578,7 +578,7 @@ export default function OSFormModal({
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 min-h-0">
+        <ScrollArea className="max-h-[calc(95vh-180px)] sm:max-h-[calc(90vh-200px)]">
           <div className="p-4 sm:p-8 bg-slate-50/30 dark:bg-slate-900/30">
             <Tabs value={activeTab} onValueChange={handleFormTabChange} className="w-full">
               <div className="flex items-end justify-between border-b border-slate-200 dark:border-slate-700 mb-6 sm:mb-8 gap-2 overflow-x-auto">
