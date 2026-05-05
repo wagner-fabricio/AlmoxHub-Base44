@@ -1058,6 +1058,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
                       {[
                         { col: 'codigo', label: 'Nº OS', filter: false, width: 'w-48' },
                         { col: 'status_separacao', label: 'Status Exp.', filter: false, width: 'w-32' },
+                        { col: 'progresso', label: 'Progresso', filter: false, width: 'w-28' },
                         { col: 'almox', label: 'Almoxarifado', filter: true, width: 'w-36' },
                         { col: 'data_reserva', label: 'Reserva', filter: true, width: 'w-24' },
                         { col: 'data_migo', label: 'MIGO', filter: true, width: 'w-24' },
@@ -1107,6 +1108,20 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
                               };
                               const s = statusLabels[os.status_separacao];
                               return s ? <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${s.cls}`}>{s.label}</span> : '—';
+                            })()}
+                          </td>
+                          <td className="px-2 py-2 whitespace-nowrap">
+                            {(() => {
+                              const p = Math.max(0, Math.min(100, Math.round(os.progresso || 0)));
+                              const barColor = p >= 100 ? 'bg-green-500' : p >= 50 ? 'bg-blue-500' : p > 0 ? 'bg-amber-500' : 'bg-slate-300 dark:bg-slate-600';
+                              return (
+                                <div className="flex items-center gap-2">
+                                  <div className="flex-1 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden min-w-[60px]">
+                                    <div className={`h-full ${barColor} transition-all`} style={{ width: `${p}%` }} />
+                                  </div>
+                                  <span className="text-xs font-medium text-slate-600 dark:text-slate-300 tabular-nums">{p}%</span>
+                                </div>
+                              );
                             })()}
                           </td>
                           <td className="px-2 py-2 text-slate-700 dark:text-slate-300 max-w-[144px] truncate">{almox?.nome || '—'}</td>
