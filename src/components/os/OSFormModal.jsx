@@ -548,39 +548,41 @@ export default function OSFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[90vh] p-0 overflow-hidden" aria-describedby={undefined}>
-        <DialogHeader className="px-6 py-5 border-b" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl font-semibold text-white">
+      <DialogContent className="max-w-5xl w-[calc(100vw-1rem)] sm:w-full max-h-[95vh] sm:max-h-[90vh] p-0 gap-0 flex flex-col overflow-hidden" aria-describedby={undefined}>
+        <DialogHeader className="px-4 sm:px-6 py-3 sm:py-5 border-b shrink-0" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
+          <div className="flex items-center justify-between gap-2 pr-6">
+            <DialogTitle className="text-base sm:text-xl font-semibold text-white truncate min-w-0 flex-1">
               {os?.id ? `Editar OS: ${os.codigo}` : 'Nova Ordem de Serviço'}
             </DialogTitle>
-            {os?.id && (formData.timesheet_total_minutos > 0 || formData.timesheet_status === 'playing') && (
-              <div className="flex items-center gap-1.5 px-3 py-1 bg-white/20 rounded-full">
-                <span className="text-xs font-medium text-white">
-                  ⏱ {formatarTempo(formData.timesheet_total_minutos || 0)}
-                </span>
-                {formData.timesheet_status === 'playing' && (
-                  <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-                )}
-              </div>
-            )}
-            <button
-              type="button"
-              onClick={handleGenerateOSPDF}
-              disabled={generatingOSPDF}
-              className="flex items-center gap-1.5 px-3 py-1 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-medium transition-colors"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              {generatingOSPDF ? 'Gerando...' : 'Imprimir OS'}
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              {os?.id && (formData.timesheet_total_minutos > 0 || formData.timesheet_status === 'playing') && (
+                <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 bg-white/20 rounded-full">
+                  <span className="text-xs font-medium text-white">
+                    ⏱ {formatarTempo(formData.timesheet_total_minutos || 0)}
+                  </span>
+                  {formData.timesheet_status === 'playing' && (
+                    <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+                  )}
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={handleGenerateOSPDF}
+                disabled={generatingOSPDF}
+                className="flex items-center gap-1.5 px-2 sm:px-3 py-1 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-medium transition-colors whitespace-nowrap"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">{generatingOSPDF ? 'Gerando...' : 'Imprimir OS'}</span>
+              </button>
+            </div>
           </div>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[calc(90vh-200px)]">
-          <div className="p-8 bg-slate-50/30 dark:bg-slate-900/30">
+        <ScrollArea className="flex-1 min-h-0">
+          <div className="p-3 sm:p-8 bg-slate-50/30 dark:bg-slate-900/30">
             <Tabs value={activeTab} onValueChange={handleFormTabChange} className="w-full">
-              <div className="flex items-end justify-between border-b border-slate-200 dark:border-slate-700 mb-8">
-              <TabsList className="bg-transparent rounded-none h-auto p-0 space-x-8 border-b-0">
+              <div className="flex items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-700 mb-5 sm:mb-8 overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+              <TabsList className="bg-transparent rounded-none h-auto p-0 space-x-4 sm:space-x-8 border-b-0 flex-nowrap">
                 <TabsTrigger value="geral" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Dados Gerais</TabsTrigger>
                 {isAtendimentoCategory && (<TabsTrigger value="materiais" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Materiais ({formData.itens_documento?.length || 0})</TabsTrigger>)}
                 {usaFluxoExpedicao && (<>
@@ -608,7 +610,7 @@ export default function OSFormModal({
               {/* TAB: Dados Gerais */}
               <TabsContent value="geral" className="space-y-8">
                 {/* Seção 1: Classificação */}
-                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
                   <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
                     <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
                     Classificação
@@ -668,7 +670,7 @@ export default function OSFormModal({
                 </div>
 
                 {/* Seção 2: Atribuição e Responsáveis */}
-                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
                   <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
                     <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
                     Atribuição e Responsáveis
@@ -748,7 +750,7 @@ export default function OSFormModal({
                 <OSPrazosControle formData={formData} setFormData={setFormData} prazoError={prazoError} setPrazoError={setPrazoError} projetos={projetos} isExpedicaoCategory={usaFluxoExpedicao} isRecebimentoCategory={usaFluxoRecebimento} />
 
                 {/* Seção 4: Detalhamento */}
-                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
                   <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
                     <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
                     Detalhamento
@@ -1113,17 +1115,17 @@ export default function OSFormModal({
           </div>
         )}
 
-        <div className="border-t bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
-          <div className="px-8 py-6 flex items-center justify-between gap-6">
-            <p className="text-sm text-slate-600 dark:text-slate-400 font-medium flex-shrink-0">* Campos obrigatórios</p>
-            <div className="flex gap-4">
-              <Button variant="outline" onClick={onClose} className="rounded-lg px-6 py-2 font-medium border-slate-300 dark:border-slate-600">Cancelar</Button>
+        <div className="border-t bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 shrink-0">
+          <div className="px-4 sm:px-8 py-3 sm:py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-6">
+            <p className="hidden sm:block text-sm text-slate-600 dark:text-slate-400 font-medium flex-shrink-0">* Campos obrigatórios</p>
+            <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto">
+              <Button variant="outline" onClick={onClose} className="rounded-lg px-4 sm:px-6 py-2 font-medium border-slate-300 dark:border-slate-600 w-full sm:w-auto">Cancelar</Button>
               {os?.id && (
-                <Button onClick={() => handleSubmit(false)} disabled={!isValid || loading} variant="outline" className="rounded-lg px-6 py-2 font-medium border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-300">
+                <Button onClick={() => handleSubmit(false)} disabled={!isValid || loading} variant="outline" className="rounded-lg px-4 sm:px-6 py-2 font-medium border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-300 w-full sm:w-auto">
                   {loading ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Salvando...</>) : (<><Save className="w-4 h-4 mr-2" />Salvar</>)}
                 </Button>
               )}
-              <Button onClick={() => handleSubmit(true)} disabled={!isValid || loading} className="rounded-lg px-6 py-2 font-medium shadow-lg" style={{ background: (!isValid || loading) ? '#cbd5e1' : 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)', color: 'white' }}>
+              <Button onClick={() => handleSubmit(true)} disabled={!isValid || loading} className="rounded-lg px-4 sm:px-6 py-2 font-medium shadow-lg w-full sm:w-auto" style={{ background: (!isValid || loading) ? '#cbd5e1' : 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)', color: 'white' }}>
                 {loading ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Salvando...</>) : (<><Save className="w-4 h-4 mr-2" />{os?.id ? 'Salvar e Fechar' : 'Salvar OS'}</>)}
               </Button>
             </div>
