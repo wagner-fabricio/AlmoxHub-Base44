@@ -466,6 +466,7 @@ export default function Dashboard() {
               <SelectContent>
                 <SelectItem value="7">Últimos 7 dias</SelectItem>
                 <SelectItem value="30">Últimos 30 dias</SelectItem>
+                <SelectItem value="60">Últimos 60 dias</SelectItem>
                 <SelectItem value="90">Últimos 90 dias</SelectItem>
                 <SelectItem value="mes_atual">Mês atual</SelectItem>
                 <SelectItem value="customizado">Período customizado</SelectItem>
