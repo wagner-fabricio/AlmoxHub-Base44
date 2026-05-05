@@ -616,20 +616,20 @@ export default function Instalacoes() {
 
       {/* Form Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader className="px-6 py-5 border-b -m-6 mb-0" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
-            <DialogTitle className="text-white">
+        <DialogContent className="max-w-3xl w-[calc(100vw-1rem)] sm:w-full max-h-[95vh] sm:max-h-[90vh] p-0 gap-0 flex flex-col overflow-hidden">
+          <DialogHeader className="px-4 sm:px-6 py-4 sm:py-5 border-b shrink-0" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
+            <DialogTitle className="text-white text-base sm:text-lg">
               {selectedItem ? 'Editar Instalação' : 'Nova Instalação'}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-6 py-6 px-6">
-            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+          <div className="flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 bg-slate-50/30 dark:bg-slate-900/30">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-4 sm:mb-5 flex items-center gap-2">
                 <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
                 Localização
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="col-span-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="sm:col-span-2">
                   <Label>Nome *</Label>
                   <Input
                     value={formData.nome}
@@ -638,7 +638,7 @@ export default function Instalacoes() {
                     className="border-slate-300 dark:border-slate-600 rounded-lg"
                   />
                 </div>
-                <div className="col-span-2">
+                <div className="sm:col-span-2">
                   <Label>Logradouro *</Label>
                   <Input
                     value={formData.logradouro}
@@ -704,12 +704,12 @@ export default function Instalacoes() {
                 </div>
             </div>
             </div>
-            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-4 sm:mb-5 flex items-center gap-2">
                 <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
                 Classificação e Vinculação
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <Label>Classificação *</Label>
                   <Select
@@ -775,12 +775,12 @@ export default function Instalacoes() {
                 </div>
               </div>
             </div>
-            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-4 sm:mb-5 flex items-center gap-2">
                 <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
                 Coordenadas e Registros
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <Label>Latitude</Label>
                   <Input
@@ -824,13 +824,14 @@ export default function Instalacoes() {
               </div>
             </div>
           </div>
-          <div className="border-t bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 px-6 py-4 flex justify-end gap-3 rounded-b-lg">
-            <Button variant="outline" onClick={() => setShowModal(false)}>
+          <div className="border-t bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 px-4 sm:px-6 py-3 sm:py-4 flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 shrink-0">
+            <Button variant="outline" onClick={() => setShowModal(false)} className="w-full sm:w-auto">
               Cancelar
             </Button>
             <Button
               onClick={handleSave}
               disabled={!formData.nome || !formData.logradouro || !formData.cidade || !formData.estado || !formData.classificacao}
+              className="w-full sm:w-auto"
               style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)', color: 'white' }}
             >
               Salvar
