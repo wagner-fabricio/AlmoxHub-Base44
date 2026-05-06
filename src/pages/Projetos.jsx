@@ -449,9 +449,9 @@ export default function Projetos() {
 
       {/* Form Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{selectedItem ? 'Editar Projeto' : 'Novo Projeto'}</DialogTitle>
+        <DialogContent className="max-w-2xl w-[calc(100vw-1rem)] sm:w-full max-h-[95vh] sm:max-h-[90vh] p-0 gap-0 flex flex-col overflow-hidden">
+          <DialogHeader className="px-4 sm:px-6 py-4 border-b shrink-0 bg-gradient-to-r from-blue-600 to-blue-700">
+            <DialogTitle className="text-white text-base sm:text-lg pr-6">{selectedItem ? 'Editar Projeto' : 'Novo Projeto'}</DialogTitle>
           </DialogHeader>
           {(() => {
             const filteredAlmoxarifados = almoxarifados.filter(a => a.regional_id === formData.regional_id);
@@ -459,7 +459,7 @@ export default function Projetos() {
               ? pessoas.filter(p => p.almoxarifados_ids?.includes(formData.almoxarifado_id))
               : [];
             return (
-          <div className="space-y-4 py-4">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 sm:px-6 py-4 sm:py-5 space-y-4 bg-slate-50/30 dark:bg-slate-900/30">
             <div className="space-y-2">
               <Label>Nome *</Label>
               <Input
@@ -477,7 +477,7 @@ export default function Projetos() {
                 rows={3}
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>Regional *</Label>
                 <Select
@@ -584,7 +584,7 @@ export default function Projetos() {
                     <Calendar className="w-4 h-4 text-blue-500" />
                     <span className="font-semibold text-sm text-slate-700 dark:text-slate-300">Prazos</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <Label className="text-xs text-slate-500">Data Inicial Prevista</Label>
                       <Input
@@ -611,7 +611,7 @@ export default function Projetos() {
                     const dataInicioExec = datasIniciais[0] || null;
                     const dataFimExec = datasConclusao[datasConclusao.length - 1] || null;
                     return (
-                      <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-200 dark:border-slate-700">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-200 dark:border-slate-700">
                         <div className="space-y-1">
                           <Label className="text-xs text-slate-400">Data Inicial Execução</Label>
                           <div className="text-sm px-3 py-2 bg-white dark:bg-slate-700 border rounded-md text-slate-600 dark:text-slate-300">
@@ -636,9 +636,9 @@ export default function Projetos() {
           </div>
             );
           })()}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowModal(false)}>Cancelar</Button>
-            <Button onClick={handleSave} disabled={!formData.nome || !formData.regional_id || !formData.almoxarifado_id || saving}>
+          <DialogFooter className="px-4 sm:px-6 py-3 sm:py-4 border-t bg-white dark:bg-slate-800 shrink-0 flex-col-reverse sm:flex-row gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setShowModal(false)} className="w-full sm:w-auto">Cancelar</Button>
+            <Button onClick={handleSave} disabled={!formData.nome || !formData.regional_id || !formData.almoxarifado_id || saving} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700">
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Salvar
             </Button>
