@@ -804,7 +804,7 @@ export default function OSFormModal({
                       <Popover open={openOrigemCombo} onOpenChange={setOpenOrigemCombo}>
                         <PopoverTrigger asChild>
                           <Button variant="outline" role="combobox" className={`w-full justify-between ${!formData.instalacao_origem_id ? 'border-red-300 dark:border-red-700' : ''}`}>
-                            {formData.instalacao_origem_id ? (filteredInstalacoes || []).find(i => i.id === formData.instalacao_origem_id)?.nome : "Selecione..."}
+                            {formData.instalacao_origem_id ? (instalacoes || []).find(i => i.id === formData.instalacao_origem_id)?.nome : "Selecione..."}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
                         </PopoverTrigger>
