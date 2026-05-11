@@ -23,22 +23,26 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Enviar notificação para cada pessoa
-    for (const [pessoa_id, dados] of Object.entries(porPessoa)) {
+    // Montar lista de destinatários para envio em batch (1 invocação só)
+    const recipients = Object.entries(porPessoa).map(([pessoa_id, dados]) => {
       const qtd = dados.os_list.length;
       const body = qtd === 1
         ? `Lembrete: você tem 1 OS ativa (${dados.os_list[0]}). Não esqueça de pausar ao final do expediente às 18h.`
         : `Lembrete: você tem ${qtd} OS ativas. Não esqueça de pausar ao final do expediente às 18h.`;
-
-      await base44.asServiceRole.functions.invoke('sendPushNotification', {
+      return {
         pessoa_id,
+        notification_type: 'deadline_approaching',
         title: '⏰ Lembrete TimeSheet',
         body,
-        url: '/OrdensServico?view=timesheet'
-      }).catch(() => {});
+        data: { url: '/OrdensServico?view=timesheet' }
+      };
+    });
+
+    if (recipients.length > 0) {
+      await base44.asServiceRole.functions.invoke('sendPushNotification', { recipients }).catch(() => {});
     }
 
-    return Response.json({ success: true, pessoas_notificadas: Object.keys(porPessoa).length });
+    return Response.json({ success: true, pessoas_notificadas: recipients.length });
 
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

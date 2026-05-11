@@ -87,12 +87,15 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Se encontrou OS para alertar, criar notificações
+      // Se encontrou OS para alertar, criar notificações + push consolidado
       if (osParaAlertar.length > 0) {
-        for (const destinatarioId of (config.destinatarios_ids || [])) {
+        const destinatarios = config.destinatarios_ids || [];
+
+        // 1. Criar TODAS as notificações in-app de uma vez (bulkCreate)
+        const notificacoesParaCriar = [];
+        for (const destinatarioId of destinatarios) {
           for (const os of osParaAlertar) {
-            // Criar notificação
-            await base44.asServiceRole.entities.Notificacao.create({
+            notificacoesParaCriar.push({
               destinatario_id: destinatarioId,
               remetente_id: config.user_id,
               tipo: 'mudanca_status',
@@ -105,45 +108,40 @@ Deno.serve(async (req) => {
                 tipo_alerta: config.tipo_alerta
               }
             });
-
             alertasDisparados++;
+          }
+        }
 
-            // Se canal incluir push, enviar
-            if ((config.canal === 'push' || config.canal === 'todos')) {
-              // Enviar push notification (se implementado)
-              try {
-                await base44.asServiceRole.functions.invoke('sendPushNotification', {
-                  pessoa_id: destinatarioId,
-                  title: `Alerta: ${config.nome}`,
-                  body: `OS ${os.codigo} requer atenção`,
-                  data: { os_id: os.id, tipo: 'alerta_customizado' }
-                });
-              } catch (e) {
-                console.log('Push notification error:', e.message);
-              }
-            }
+        if (notificacoesParaCriar.length > 0) {
+          await base44.asServiceRole.entities.Notificacao.bulkCreate(notificacoesParaCriar);
+        }
 
-            // Se canal incluir email, enviar
-            if ((config.canal === 'email' || config.canal === 'todos')) {
-              // Buscar destinatário
-              const destinatario = await base44.asServiceRole.entities.Pessoa.filter({ id: destinatarioId }).then(p => p[0]);
-              if (destinatario?.email) {
-                await base44.asServiceRole.integrations.Core.SendEmail({
-                  to: destinatario.email,
-                  subject: `Alerta AlmoxHub: ${config.nome}`,
-                  body: `
-                    <h2>Alerta Configurável Disparado</h2>
-                    <p><strong>Nome do Alerta:</strong> ${config.nome}</p>
-                    <p><strong>Tipo:</strong> ${config.tipo_alerta}</p>
-                    <p><strong>OS:</strong> ${os.codigo}</p>
-                    <p><strong>Descrição:</strong> ${getTipoAlertaMessage(config.tipo_alerta, os, config)}</p>
-                    <p>Acesse o sistema para mais detalhes.</p>
-                  `
-                });
-              }
+        // 2. Push consolidado: 1 push por destinatário (em vez de N×M pushes)
+        if (config.canal === 'push' || config.canal === 'todos') {
+          const recipients = destinatarios.map(destinatarioId => {
+            const qtd = osParaAlertar.length;
+            const body = qtd === 1
+              ? `OS ${osParaAlertar[0].codigo} requer atenção`
+              : `${qtd} OSs requerem atenção (alerta "${config.nome}")`;
+            return {
+              pessoa_id: destinatarioId,
+              notification_type: 'deadline_approaching',
+              title: `Alerta: ${config.nome}`,
+              body,
+              data: { tipo: 'alerta_customizado', alerta_config_id: config.id }
+            };
+          });
+
+          if (recipients.length > 0) {
+            try {
+              await base44.asServiceRole.functions.invoke('sendPushNotification', { recipients });
+            } catch (e) {
+              console.log('Push notification error:', e.message);
             }
           }
         }
+
+        // E-mails de notificação desativados por política — não enviar.
       }
     }
 

@@ -1,10 +1,10 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 async function recalcularProjeto(base44, projeto_id) {
-  const todasOS = await base44.asServiceRole.entities.OrdemServico.list();
-  const osVinculadas = todasOS.filter(os =>
-    Array.isArray(os.projetos_ids) && os.projetos_ids.includes(projeto_id)
-  );
+  // Buscar apenas OS vinculadas ao projeto (filtro server-side em vez de list() completo)
+  const osVinculadas = await base44.asServiceRole.entities.OrdemServico.filter({
+    projetos_ids: projeto_id
+  });
 
   let data_inicial_execucao = null;
   let data_final_execucao = null;

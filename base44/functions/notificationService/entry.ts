@@ -16,23 +16,15 @@ function validarOrdem(os) {
 
 async function alertaJaEnviadoHoje(base44, osId, tipoAlerta, liderId) {
   try {
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
-    const hojeFim = new Date();
-    hojeFim.setHours(23, 59, 59, 999);
-
-    const alertasExistentes = await base44.entities.AlertaEnviado.list();
-
-    return alertasExistentes.some(alerta => {
-      const dataEnvio = new Date(alerta.data_envio);
-      return (
-        alerta.os_id === osId &&
-        alerta.tipo_alerta === tipoAlerta &&
-        alerta.lider_id === liderId &&
-        dataEnvio >= hoje &&
-        dataEnvio <= hojeFim
-      );
+    const hojeStr = new Date().toISOString().split('T')[0];
+    // Filtro server-side: traz apenas registros específicos em vez de listar tudo
+    const alertasExistentes = await base44.entities.AlertaEnviado.filter({
+      os_id: osId,
+      tipo_alerta: tipoAlerta,
+      lider_id: liderId,
+      data_envio: hojeStr
     });
+    return alertasExistentes && alertasExistentes.length > 0;
   } catch {
     return false;
   }
