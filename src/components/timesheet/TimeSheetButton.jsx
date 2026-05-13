@@ -63,13 +63,14 @@ export default function TimeSheetButton({
     e.stopPropagation(); // não abrir a OS ao clicar no botão
     if (loading || osConcluida || !currentPessoa) return;
 
-    // Se já existe alguém em play → pause_all (pausa tudo)
-    if (algumEmPlay) {
+    // Se EU estou em play → pausa minha sessão
+    if (estaPlayandoEu) {
       setLoading(true);
       try {
         const res = await base44.functions.invoke('registrarTimeSheet', {
-          acao: 'pause_all',
-          os_id: os.id
+          acao: 'pause',
+          os_id: os.id,
+          pessoa_id: currentPessoa.id
         });
         if (res?.data?.os && onStateChange) onStateChange(res.data.os);
       } catch (err) {
@@ -80,7 +81,7 @@ export default function TimeSheetButton({
       return;
     }
 
-    // Ninguém em play → abre modal de seleção
+    // Eu não estou em play (outros podem estar) → abre modal de seleção
     setShowSelecaoModal(true);
   };
 
