@@ -43,6 +43,25 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData
     onChange({ itens: itens.filter((_, i) => i !== index), fluxo });
   };
 
+  const recalcFluxo = (newItens, fluxoBase) => {
+    const novoFluxo = { ...fluxoBase };
+    const todosCompletos = newItens.length > 0 && newItens.every(i => i.status_conferencia === 'completo' || i.status_conferencia === 'excedente');
+    const semDivergencia = newItens.length > 0 && newItens.every(i => i.status_conferencia === 'completo');
+    const todosComEndereco = newItens.length > 0 && newItens.every(i => i.endereco_armazenagem && i.endereco_armazenagem.trim() !== '');
+
+    novoFluxo.conferencia_manual_completa = !!todosCompletos;
+    novoFluxo.validacao_divergencias_completa = !!(todosCompletos && semDivergencia);
+    novoFluxo.armazenagem_completa = !!(todosCompletos && todosComEndereco);
+
+    let etapa = 1;
+    if (novoFluxo.xml_importado) etapa = 2;
+    if (novoFluxo.conferencia_manual_completa) etapa = 3;
+    if (novoFluxo.validacao_divergencias_completa) etapa = 4;
+    if (novoFluxo.armazenagem_completa) etapa = 4;
+    novoFluxo.etapa_atual = etapa;
+    return novoFluxo;
+  };
+
   const handleItemChange = (index, field, value) => {
     const newItens = [...itens];
     newItens[index] = { ...newItens[index], [field]: value };
@@ -55,18 +74,7 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData
     else if (qtdRec === qtdEsp) newItens[index].status_conferencia = 'completo';
     else newItens[index].status_conferencia = 'excedente';
 
-    const todosCompletos = newItens.every(i => i.status_conferencia === 'completo' || i.status_conferencia === 'excedente');
-    const novoFluxo = { ...fluxo };
-    if (todosCompletos && !novoFluxo.conferencia_manual_completa) {
-      novoFluxo.conferencia_manual_completa = true;
-      novoFluxo.etapa_atual = 3;
-    }
-    if (field === 'endereco_armazenagem') {
-      const todosComEndereco = newItens.every(i => i.endereco_armazenagem && i.endereco_armazenagem.trim() !== '');
-      if (todosCompletos && todosComEndereco) { novoFluxo.armazenagem_completa = true; novoFluxo.etapa_atual = 4; }
-      else { novoFluxo.armazenagem_completa = false; }
-    }
-    onChange({ itens: newItens, fluxo: novoFluxo });
+    onChange({ itens: newItens, fluxo: recalcFluxo(newItens, fluxo) });
   };
 
   const handleCheckItem = (index) => {
@@ -81,8 +89,7 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData
       quantidade_recebida: checked ? item.quantidade_esperada : 0,
       status_conferencia: checked ? 'completo' : 'pendente',
     }));
-    const novoFluxo = { ...fluxo, conferencia_manual_completa: !!checked, etapa_atual: checked ? 3 : 2 };
-    onChange({ itens: newItens, fluxo: novoFluxo });
+    onChange({ itens: newItens, fluxo: recalcFluxo(newItens, fluxo) });
   };
 
   const itemsComStatus = itens.map(item => ({ ...item, status_conferencia: item.status_conferencia || 'pendente' }));
@@ -117,11 +124,7 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData
                 checked={itemsComStatus.every(i => i.endereco_armazenagem === 'N/A')}
                 onCheckedChange={(checked) => {
                   const newItens = itens.map(i => ({ ...i, endereco_armazenagem: checked ? 'N/A' : '' }));
-                  const todosCompletos = newItens.every(i => i.status_conferencia === 'completo' || i.status_conferencia === 'excedente');
-                  const novoFluxo = { ...fluxo };
-                  if (checked && todosCompletos) { novoFluxo.armazenagem_completa = true; novoFluxo.etapa_atual = 4; }
-                  else { novoFluxo.armazenagem_completa = false; }
-                  onChange({ itens: newItens, fluxo: novoFluxo });
+                  onChange({ itens: newItens, fluxo: recalcFluxo(newItens, fluxo) });
                 }}
               />
               Endereço N/A para todos
