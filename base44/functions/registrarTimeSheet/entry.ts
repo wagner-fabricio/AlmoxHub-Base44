@@ -77,6 +77,126 @@ Deno.serve(async (req) => {
 
       return Response.json({ success: true, acao: 'play', entry, os: osAtualizada });
 
+    } else if (acao === 'play_multi') {
+      // Inicia sessão para múltiplas pessoas de uma vez
+      const pessoasIds = Array.isArray(body.pessoas_ids) ? body.pessoas_ids : [];
+      if (pessoasIds.length === 0) {
+        return Response.json({ error: 'pessoas_ids vazio' }, { status: 400 });
+      }
+
+      const sessoesAtivas = os.timesheet_sessoes_ativas || [];
+      const jaAtivosIds = new Set(sessoesAtivas.map(s => s.pessoa_id));
+      const pessoasParaIniciar = pessoasIds.filter(id => !jaAtivosIds.has(id));
+
+      if (pessoasParaIniciar.length === 0) {
+        return Response.json({ message: 'Todas as pessoas já estão em sessão', os }, { status: 200 });
+      }
+
+      // Buscar dados das pessoas selecionadas
+      const todasPessoas = await base44.asServiceRole.entities.Pessoa.list();
+      const pessoasMap = new Map(todasPessoas.map(p => [p.id, p]));
+
+      // Criar entries em paralelo
+      const novasEntradas = await Promise.all(
+        pessoasParaIniciar.map(pid => {
+          const p = pessoasMap.get(pid);
+          if (!p) return null;
+          return base44.asServiceRole.entities.TimeSheetEntry.create({
+            os_id,
+            os_codigo: os.codigo,
+            pessoa_id: p.id,
+            pessoa_nome: p.nome,
+            inicio: agora,
+            status: 'playing',
+            iniciado_por_edicao: body.iniciado_por_edicao || false
+          }).then(entry => ({ entry, pessoa: p }));
+        })
+      );
+
+      const criadas = novasEntradas.filter(Boolean);
+      const novasSessoes = [
+        ...sessoesAtivas,
+        ...criadas.map(({ entry, pessoa: p }) => ({
+          pessoa_id: p.id,
+          pessoa_nome: p.nome,
+          inicio: agora,
+          entry_id: entry.id
+        }))
+      ];
+
+      const updatePayload = {
+        timesheet_status: 'playing',
+        timesheet_sessoes_ativas: novasSessoes
+      };
+      if (sessoesAtivas.length === 0 && os.status === 'elaboracao') {
+        updatePayload.status = 'execucao';
+      }
+
+      const osAtualizada = await base44.asServiceRole.entities.OrdemServico.update(os_id, updatePayload);
+
+      await base44.asServiceRole.entities.AuditLog.create({
+        action: 'timesheet_play_multi',
+        entity_type: 'OrdemServico',
+        entity_id: os_id,
+        user_id: user.id,
+        details: JSON.stringify({
+          quantidade: criadas.length,
+          pessoas: criadas.map(({ pessoa: p }) => p.nome),
+          inicio: agora
+        }),
+        timestamp: agora
+      });
+
+      return Response.json({ success: true, acao: 'play_multi', iniciadas: criadas.length, os: osAtualizada });
+
+    } else if (acao === 'pause_all') {
+      // Pausa todas as sessões ativas da OS
+      const sessoesAtivas = os.timesheet_sessoes_ativas || [];
+      if (sessoesAtivas.length === 0) {
+        return Response.json({ message: 'Nenhuma sessão ativa', os }, { status: 200 });
+      }
+
+      // Fechar todas as entries em paralelo
+      let totalDuracao = 0;
+      const fechamentos = sessoesAtivas.map(sessao => {
+        const inicioDate = new Date(sessao.inicio);
+        const fimDate = new Date(agora);
+        const duracaoMinutos = Math.round((fimDate - inicioDate) / 60000);
+        totalDuracao += duracaoMinutos;
+        return base44.asServiceRole.entities.TimeSheetEntry.update(sessao.entry_id, {
+          fim: agora,
+          duracao_minutos: duracaoMinutos,
+          status: 'closed',
+          tipo_encerramento: 'pause',
+          pessoa_id_pausa: pessoa.id,
+          pessoa_nome_pausa: pessoa.nome
+        });
+      });
+      await Promise.all(fechamentos);
+
+      const novoTotal = (os.timesheet_total_minutos || 0) + totalDuracao;
+      const osAtualizada = await base44.asServiceRole.entities.OrdemServico.update(os_id, {
+        timesheet_total_minutos: novoTotal,
+        timesheet_status: 'paused',
+        timesheet_sessoes_ativas: []
+      });
+
+      await base44.asServiceRole.entities.AuditLog.create({
+        action: 'timesheet_pause_all',
+        entity_type: 'OrdemServico',
+        entity_id: os_id,
+        user_id: user.id,
+        details: JSON.stringify({
+          quantidade: sessoesAtivas.length,
+          pessoas: sessoesAtivas.map(s => s.pessoa_nome),
+          duracao_total_minutos: totalDuracao,
+          fim: agora
+        }),
+        timestamp: agora
+      });
+
+      return Response.json({ success: true, acao: 'pause_all', pausadas: sessoesAtivas.length, duracaoTotal: totalDuracao, os: osAtualizada });
+
     } else if (acao === 'pause' || acao === 'stop') {
       // Quem pode pausar: própria pessoa ou gestor da regional
       const sessoesAtivas = os.timesheet_sessoes_ativas || [];

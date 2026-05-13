@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, Square } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { useApp } from '@/components/contexts/AppContext';
+import IniciarSessaoModal from './IniciarSessaoModal';
 
 // Formata minutos acumulados + segundos correndo em "Xh YYmin" ou "YYmin"
 export const formatarTempo = (minutos) => {
@@ -26,7 +28,9 @@ export default function TimeSheetButton({
 }) {
   const [loading, setLoading] = useState(false);
   const [tempoExibido, setTempoExibido] = useState(0); // em minutos (float)
+  const [showSelecaoModal, setShowSelecaoModal] = useState(false);
   const intervalRef = useRef(null);
+  const { pessoas } = useApp();
 
   const sessaoAtiva = (os.timesheet_sessoes_ativas || []).find(
     s => s.pessoa_id === currentPessoa?.id
@@ -59,19 +63,37 @@ export default function TimeSheetButton({
     e.stopPropagation(); // não abrir a OS ao clicar no botão
     if (loading || osConcluida || !currentPessoa) return;
 
+    // Se já existe alguém em play → pause_all (pausa tudo)
+    if (algumEmPlay) {
+      setLoading(true);
+      try {
+        const res = await base44.functions.invoke('registrarTimeSheet', {
+          acao: 'pause_all',
+          os_id: os.id
+        });
+        if (res?.data?.os && onStateChange) onStateChange(res.data.os);
+      } catch (err) {
+        console.error('TimeSheet error:', err);
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    // Ninguém em play → abre modal de seleção
+    setShowSelecaoModal(true);
+  };
+
+  const handleConfirmarSelecao = async (pessoasIds) => {
     setLoading(true);
     try {
-      let acao;
-      if (estaPlayandoEu) {
-        acao = 'pause';
-      } else {
-        acao = 'play';
-      }
-
-      const res = await base44.functions.invoke('registrarTimeSheet', { acao, os_id: os.id });
-      if (res?.data?.os && onStateChange) {
-        onStateChange(res.data.os);
-      }
+      const res = await base44.functions.invoke('registrarTimeSheet', {
+        acao: 'play_multi',
+        os_id: os.id,
+        pessoas_ids: pessoasIds
+      });
+      if (res?.data?.os && onStateChange) onStateChange(res.data.os);
+      setShowSelecaoModal(false);
     } catch (err) {
       console.error('TimeSheet error:', err);
     } finally {
@@ -123,23 +145,35 @@ export default function TimeSheetButton({
     : 'px-3 py-1 text-xs';
 
   return (
-    <button
-      onClick={acionar}
-      disabled={loading}
-      title={tooltip}
-      className={`
-        inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all duration-200
-        ${sizeClass}
-        ${bgColor}
-        ${pulsar ? 'animate-pulse' : ''}
-        ${loading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
-        ${className}
-      `}
-    >
-      {loading ? (
-        <span className={`inline-block rounded-full border-2 border-white border-t-transparent animate-spin ${isMobile ? 'w-5 h-5' : isSmall ? 'w-3 h-3' : 'w-3.5 h-3.5'}`} />
-      ) : icon}
-      {mostrarTempo && <span>{tempoTotal}</span>}
-    </button>
+    <>
+      <button
+        onClick={acionar}
+        disabled={loading}
+        title={tooltip}
+        className={`
+          inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all duration-200
+          ${sizeClass}
+          ${bgColor}
+          ${pulsar ? 'animate-pulse' : ''}
+          ${loading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
+          ${className}
+        `}
+      >
+        {loading ? (
+          <span className={`inline-block rounded-full border-2 border-white border-t-transparent animate-spin ${isMobile ? 'w-5 h-5' : isSmall ? 'w-3 h-3' : 'w-3.5 h-3.5'}`} />
+        ) : icon}
+        {mostrarTempo && <span>{tempoTotal}</span>}
+      </button>
+
+      <IniciarSessaoModal
+        open={showSelecaoModal}
+        onClose={() => setShowSelecaoModal(false)}
+        os={os}
+        pessoas={pessoas}
+        currentPessoa={currentPessoa}
+        onConfirm={handleConfirmarSelecao}
+        loading={loading}
+      />
+    </>
   );
 }
