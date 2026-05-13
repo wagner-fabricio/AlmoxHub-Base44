@@ -204,12 +204,14 @@ const OSCard = React.memo(function OSCard({ os, onClick, lider, categoria, regio
 
         <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
           {/* TimeSheet Button */}
-          <TimeSheetButton
-            os={os}
-            currentPessoa={currentPessoa}
-            onStateChange={onOSChange}
-            size="sm"
-          />
+          <span onClick={(e) => e.stopPropagation()}>
+            <TimeSheetButton
+              os={os}
+              currentPessoa={currentPessoa}
+              onStateChange={onOSChange}
+              size="sm"
+            />
+          </span>
 
           {os.anexos?.length > 0 && (
             <div className="flex items-center gap-1 text-xs">
