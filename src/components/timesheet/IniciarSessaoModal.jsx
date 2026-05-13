@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Play, Loader2 } from 'lucide-react';
+import { useApp } from '@/components/contexts/AppContext';
 
 /**
  * Modal de seleção de quem entrará em sessão no TimeSheet de uma OS.
@@ -20,6 +21,18 @@ export default function IniciarSessaoModal({
   loading = false
 }) {
   const [selecionados, setSelecionados] = useState([]);
+  const { categorias = [], subcategorias = [] } = useApp();
+
+  // Identifica categoria e subcategorias da OS
+  const categoriaOS = useMemo(() => {
+    if (!os?.categoria_id) return null;
+    return categorias.find(c => c.id === os.categoria_id);
+  }, [os?.categoria_id, categorias]);
+
+  const subcategoriasOS = useMemo(() => {
+    if (!os?.subcategorias_ids?.length) return [];
+    return subcategorias.filter(s => os.subcategorias_ids.includes(s.id));
+  }, [os?.subcategorias_ids, subcategorias]);
 
   // Monta a lista de candidatos: executores + líder + (pessoa logada se não estiver)
   const candidatos = useMemo(() => {
@@ -68,17 +81,51 @@ export default function IniciarSessaoModal({
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent
-        className="max-w-md"
+        className="max-w-md w-[calc(100vw-2rem)] sm:w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6"
         onClick={(e) => e.stopPropagation()}
       >
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Play className="w-5 h-5 text-blue-500" />
-            Iniciar sessão de trabalho
+          <DialogTitle className="flex items-center gap-2 text-base sm:text-lg pr-6">
+            <Play className="w-5 h-5 text-blue-500 shrink-0" />
+            <span>Iniciar sessão de trabalho</span>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="py-2">
+        {/* Info da OS */}
+        {os && (
+          <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-3 space-y-1.5">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
+                {os.codigo || 'OS sem código'}
+              </span>
+              {categoriaOS && (
+                <span
+                  className="text-xs font-medium px-2 py-0.5 rounded-full"
+                  style={{
+                    backgroundColor: (categoriaOS.cor || '#3b82f6') + '20',
+                    color: categoriaOS.cor || '#3b82f6'
+                  }}
+                >
+                  {categoriaOS.nome}
+                </span>
+              )}
+            </div>
+            {subcategoriasOS.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {subcategoriasOS.map(s => (
+                  <span
+                    key={s.id}
+                    className="text-xs px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                  >
+                    {s.nome}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="py-1">
           <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
             Selecione quem entrará em sessão nesta OS:
           </p>
@@ -99,7 +146,7 @@ export default function IniciarSessaoModal({
                 </span>
               </label>
 
-              <ScrollArea className="max-h-64">
+              <ScrollArea className="max-h-[40vh] sm:max-h-64">
                 <div className="space-y-1">
                   {candidatos.map(p => {
                     const checked = selecionados.includes(p.id);
@@ -143,14 +190,14 @@ export default function IniciarSessaoModal({
           )}
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={loading}>
+        <DialogFooter className="flex-col-reverse sm:flex-row gap-2 sm:gap-2">
+          <Button variant="outline" onClick={onClose} disabled={loading} className="w-full sm:w-auto">
             Cancelar
           </Button>
           <Button
             onClick={handleConfirm}
             disabled={selecionados.length === 0 || loading}
-            className="bg-blue-500 hover:bg-blue-600 text-white"
+            className="bg-blue-500 hover:bg-blue-600 text-white w-full sm:w-auto"
           >
             {loading ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
