@@ -61,6 +61,7 @@ export default function TimeSheetButton({
 
   const acionar = async (e) => {
     e.stopPropagation(); // não abrir a OS ao clicar no botão
+    e.preventDefault();
     if (loading || osConcluida || !currentPessoa) return;
 
     // Se EU estou em play → pausa minha sessão
@@ -149,6 +150,8 @@ export default function TimeSheetButton({
     <>
       <button
         onClick={acionar}
+        onMouseDown={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
         disabled={loading}
         title={tooltip}
         className={`
