@@ -1028,6 +1028,7 @@ export default function OrdensServico() {
         open={!!osSelecaoSessao}
         onClose={() => setOsSelecaoSessao(null)}
         os={osSelecaoSessao}
+        pessoas={pessoas}
         currentPessoa={currentPessoa}
         onConfirm={handleConfirmarSessao}
         loading={iniciandoSessao}
