@@ -177,6 +177,18 @@
       "format": "date",
       "description": "Data de aprova\u00e7\u00e3o de EPI"
     },
+    "tipo_movimento": {
+      "type": "string",
+      "description": "Tipo de movimento (manual ou importado da ZMMTSE)"
+    },
+    "local_entrega": {
+      "type": "string",
+      "description": "Local de entrega (manual ou importado da ZMMTSE)"
+    },
+    "observacoes_adicionais": {
+      "type": "string",
+      "description": "Observa\u00e7\u00f5es adicionais sobre o documento"
+    },
     "itens_documento": {
       "type": "array",
       "items": {

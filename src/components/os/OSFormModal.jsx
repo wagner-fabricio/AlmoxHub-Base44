@@ -44,6 +44,7 @@ const EMPTY_FORM = {
   usuario_reserva: '', usuario_reserva_email: '', orgao: '', data_migo: '',
   num_migo: '', vinculacao: '', instalacao_origem_id: '', instalacao_destino_id: '',
   data_ressuprimento: '', data_aprovacao_epi: '',
+  tipo_movimento: '', local_entrega: '', observacoes_adicionais: '',
   itens_documento: [], volumes: [], detalhamento_expedicao: [],
   status_separacao: 'pendente', responsavel_separacao: '', data_separacao: '',
   separacao_concluida_em: '', data_entrega: '', data_necessidade: '', anexos: [], imagens: [],
@@ -153,6 +154,9 @@ export default function OSFormModal({
         instalacao_destino_id: os.instalacao_destino_id || '',
         data_ressuprimento: formatDateForInput(os.data_ressuprimento),
         data_aprovacao_epi: formatDateForInput(os.data_aprovacao_epi),
+        tipo_movimento: os.tipo_movimento || '',
+        local_entrega: os.local_entrega || '',
+        observacoes_adicionais: os.observacoes_adicionais || '',
         itens_documento: os.itens_documento || [], volumes: os.volumes || [],
         detalhamento_expedicao: os.detalhamento_expedicao || [],
         status_separacao: os.status_separacao || 'pendente',
@@ -471,7 +475,9 @@ export default function OSFormModal({
           num_reserva: data.itens?.[0]?.reserva || '',
           atendente_nome: data.processado_por_nome ? `${data.processado_por_nome} (${data.processado_por_matricula || ''})`.trim() : '',
           descricao_resumida: data.itens?.[0]?.observacao || '',
-          anotacoes: `Centro de estoque: ${data.centro_estoque || ''}, Local Entrega: ${data.nome_local_entrega || ''}, Centro de custo: ${data.centro_custo || ''}, Tipo de movimento: ${data.tipo_movimento || ''}`,
+          tipo_movimento: data.tipo_movimento || prev.tipo_movimento || '',
+          local_entrega: data.nome_local_entrega || prev.local_entrega || '',
+          anotacoes: `Centro de estoque: ${data.centro_estoque || ''}, Centro de custo: ${data.centro_custo || ''}`,
           itens_documento: data.itens?.map(item => ({
             codigo: item.material || '',
             descricao: item.texto_breve || '',
@@ -771,106 +777,166 @@ export default function OSFormModal({
 
               {/* TAB: Documento (Expedição) */}
               {usaFluxoExpedicao && (
-                <TabsContent value="documento" className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div className="space-y-2"><Label>Número da Reserva <span className="text-red-500">*</span></Label><Input value={formData.num_reserva} onChange={(e) => setFormData({ ...formData, num_reserva: e.target.value })} className={!formData.num_reserva ? 'border-red-300 dark:border-red-700' : ''} /></div>
-                    <div className="space-y-2"><Label>Data da Reserva <span className="text-red-500">*</span></Label><Input type="date" value={formData.data_reserva} onChange={(e) => {
-                      const newDate = e.target.value;
-                      const updates = { data_reserva: newDate };
-                      if (newDate && !formData.data_necessidade) {
-                        // Calcular 7 dias úteis
-                        const d = new Date(newDate + 'T12:00:00');
-                        let count = 0;
-                        while (count < 7) {
-                          d.setDate(d.getDate() + 1);
-                          const day = d.getDay();
-                          if (day !== 0 && day !== 6) count++;
-                        }
-                        updates.data_necessidade = d.toISOString().split('T')[0];
-                      }
-                      setFormData({ ...formData, ...updates });
-                    }} className={!formData.data_reserva ? 'border-red-300 dark:border-red-700' : ''} /></div>
-                    <div className="space-y-2"><Label>Nome Usuário <span className="text-red-500">*</span></Label><Input value={formData.usuario_reserva} onChange={(e) => setFormData({ ...formData, usuario_reserva: e.target.value })} className={!formData.usuario_reserva ? 'border-red-300 dark:border-red-700' : ''} /></div>
-                    <div className="space-y-2"><Label>Email Usuário</Label><Input type="email" value={formData.usuario_reserva_email} onChange={(e) => setFormData({ ...formData, usuario_reserva_email: e.target.value })} /></div>
-                    <div className="space-y-2"><Label>Órgão <span className="text-red-500">*</span></Label><Input value={formData.orgao} onChange={(e) => setFormData({ ...formData, orgao: e.target.value })} className={!formData.orgao ? 'border-red-300 dark:border-red-700' : ''} /></div>
-                    <div className="space-y-2"><Label>Data MIGO {formData.num_migo && <span className="text-red-500">*</span>}</Label><Input type="date" value={formData.data_migo} onChange={(e) => setFormData({ ...formData, data_migo: e.target.value })} className={(formData.num_migo && !formData.data_migo) ? 'border-red-300 dark:border-red-700' : ''} /></div>
-                    <div className="space-y-2"><Label>Número MIGO</Label><Input value={formData.num_migo} onChange={(e) => setFormData({ ...formData, num_migo: e.target.value })} /></div>
-                    <div className="space-y-2">
-                      <Label>Vinculação <span className="text-red-500">*</span></Label>
-                      <Select value={formData.vinculacao} onValueChange={(v) => setFormData({ ...formData, vinculacao: v })}>
-                        <SelectTrigger className={!formData.vinculacao ? 'border-red-300 dark:border-red-700' : ''}><SelectValue placeholder="Selecione..." /></SelectTrigger>
-                        <SelectContent><SelectItem value="custeio">Custeio</SelectItem><SelectItem value="investimento">Investimento</SelectItem></SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Instalação Origem <span className="text-red-500">*</span></Label>
-                      <Popover open={openOrigemCombo} onOpenChange={setOpenOrigemCombo}>
-                        <PopoverTrigger asChild>
-                          <Button variant="outline" role="combobox" className={`w-full justify-between ${!formData.instalacao_origem_id ? 'border-red-300 dark:border-red-700' : ''}`}>
-                            {formData.instalacao_origem_id ? (filteredInstalacoes || []).find(i => i.id === formData.instalacao_origem_id)?.nome : "Selecione..."}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[400px] p-0">
-                          <Command>
-                            <CommandInput placeholder="Buscar instalação..." />
-                            <CommandList>
-                              <CommandEmpty>Nenhuma instalação encontrada.</CommandEmpty>
-                              <CommandGroup>
-                                {(filteredInstalacoes || []).map((i) => (<CommandItem key={i.id} value={i.nome} onSelect={() => { setFormData({ ...formData, instalacao_origem_id: i.id }); setOpenOrigemCombo(false); }}><Check className={cn("mr-2 h-4 w-4", formData.instalacao_origem_id === i.id ? "opacity-100" : "opacity-0")} />{i.nome}</CommandItem>))}
-                              </CommandGroup>
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Instalação Destino <span className="text-red-500">*</span></Label>
-                      <Popover open={openDestinoCombo} onOpenChange={setOpenDestinoCombo}>
-                        <PopoverTrigger asChild>
-                          <Button variant="outline" role="combobox" className={`w-full justify-between ${!formData.instalacao_destino_id ? 'border-red-300 dark:border-red-700' : ''}`}>
-                            {formData.instalacao_destino_id ? (instalacoes || []).find(i => i.id === formData.instalacao_destino_id)?.nome : "Selecione..."}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[400px] p-0">
-                          <Command>
-                            <CommandInput placeholder="Buscar instalação..." />
-                            <CommandList>
-                              <CommandEmpty>Nenhuma instalação encontrada.</CommandEmpty>
-                              <CommandGroup>
-                                {(filteredInstalacoesDestino || []).map((i) => (<CommandItem key={i.id} value={i.nome} onSelect={() => { setFormData({ ...formData, instalacao_destino_id: i.id }); setOpenDestinoCombo(false); }}><Check className={cn("mr-2 h-4 w-4", formData.instalacao_destino_id === i.id ? "opacity-100" : "opacity-0")} />{i.nome}</CommandItem>))}
-                              </CommandGroup>
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
+                <TabsContent value="documento" className="space-y-8">
+                  {/* Seção 1: Dados da Reserva */}
+                  <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                      <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                      Dados da Reserva
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                      <div className="space-y-2">
+                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Número da Reserva <span className="text-red-500">*</span></Label>
+                        <Input value={formData.num_reserva} onChange={(e) => setFormData({ ...formData, num_reserva: e.target.value })} className={`rounded-lg ${!formData.num_reserva ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Data Criação <span className="text-red-500">*</span></Label>
+                        <Input type="date" value={formData.data_reserva} onChange={(e) => {
+                          const newDate = e.target.value;
+                          const updates = { data_reserva: newDate };
+                          if (newDate && !formData.data_necessidade) {
+                            const d = new Date(newDate + 'T12:00:00');
+                            let count = 0;
+                            while (count < 7) {
+                              d.setDate(d.getDate() + 1);
+                              const day = d.getDay();
+                              if (day !== 0 && day !== 6) count++;
+                            }
+                            updates.data_necessidade = d.toISOString().split('T')[0];
+                          }
+                          setFormData({ ...formData, ...updates });
+                        }} className={`rounded-lg ${!formData.data_reserva ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Vinculação <span className="text-red-500">*</span></Label>
+                        <Select value={formData.vinculacao} onValueChange={(v) => setFormData({ ...formData, vinculacao: v })}>
+                          <SelectTrigger className={`rounded-lg ${!formData.vinculacao ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`}><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                          <SelectContent><SelectItem value="custeio">Custeio</SelectItem><SelectItem value="investimento">Investimento</SelectItem></SelectContent>
+                        </Select>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Subseção: Datas Operacionais (opcionais) */}
-                  <div className="border-t border-slate-200 dark:border-slate-700 pt-5 mt-2">
-                    <h4 className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1 flex items-center gap-2">
-                      <div className="w-1 h-3.5 bg-gradient-to-b from-sky-400 to-blue-500 rounded-full"></div>
-                      Datas Operacionais
-                    </h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">Controles complementares (opcional)</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Seção 2: Dados do Usuário */}
+                  <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                      <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                      Dados do Usuário
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                       <div className="space-y-2">
-                        <Label>Data Ressuprimento</Label>
-                        <Input
-                          type="date"
-                          value={formData.data_ressuprimento || ''}
-                          onChange={(e) => setFormData({ ...formData, data_ressuprimento: e.target.value })}
-                        />
+                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Nome Usuário <span className="text-red-500">*</span></Label>
+                        <Input value={formData.usuario_reserva} onChange={(e) => setFormData({ ...formData, usuario_reserva: e.target.value })} className={`rounded-lg ${!formData.usuario_reserva ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`} />
                       </div>
                       <div className="space-y-2">
-                        <Label>Data Aprovação EPI</Label>
-                        <Input
-                          type="date"
-                          value={formData.data_aprovacao_epi || ''}
-                          onChange={(e) => setFormData({ ...formData, data_aprovacao_epi: e.target.value })}
-                        />
+                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Email Usuário</Label>
+                        <Input type="email" value={formData.usuario_reserva_email} onChange={(e) => setFormData({ ...formData, usuario_reserva_email: e.target.value })} className="rounded-lg border-slate-300 dark:border-slate-600" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Área do Usuário <span className="text-red-500">*</span></Label>
+                        <Input value={formData.orgao} onChange={(e) => setFormData({ ...formData, orgao: e.target.value })} className={`rounded-lg ${!formData.orgao ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Seção 3: Dados de Baixa do Estoque */}
+                  <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                      <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                      Dados de Baixa do Estoque
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                      <div className="space-y-2">
+                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Número MIGO</Label>
+                        <Input value={formData.num_migo} onChange={(e) => setFormData({ ...formData, num_migo: e.target.value })} className="rounded-lg border-slate-300 dark:border-slate-600" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Data MIGO {formData.num_migo && <span className="text-red-500">*</span>}</Label>
+                        <Input type="date" value={formData.data_migo} onChange={(e) => setFormData({ ...formData, data_migo: e.target.value })} className={`rounded-lg ${(formData.num_migo && !formData.data_migo) ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Tipo Movimento</Label>
+                        <Input value={formData.tipo_movimento || ''} onChange={(e) => setFormData({ ...formData, tipo_movimento: e.target.value })} placeholder="Manual ou via ZMMTSE" className="rounded-lg border-slate-300 dark:border-slate-600" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Seção 4: Origem e Destino */}
+                  <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                      <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                      Origem e Destino
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                      <div className="space-y-2">
+                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Instalação Origem <span className="text-red-500">*</span></Label>
+                        <Popover open={openOrigemCombo} onOpenChange={setOpenOrigemCombo}>
+                          <PopoverTrigger asChild>
+                            <Button variant="outline" role="combobox" className={`w-full justify-between rounded-lg ${!formData.instalacao_origem_id ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`}>
+                              <span className="truncate">{formData.instalacao_origem_id ? (filteredInstalacoes || []).find(i => i.id === formData.instalacao_origem_id)?.nome : "Selecione..."}</span>
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[400px] p-0">
+                            <Command>
+                              <CommandInput placeholder="Buscar instalação..." />
+                              <CommandList>
+                                <CommandEmpty>Nenhuma instalação encontrada.</CommandEmpty>
+                                <CommandGroup>
+                                  {(filteredInstalacoes || []).map((i) => (<CommandItem key={i.id} value={i.nome} onSelect={() => { setFormData({ ...formData, instalacao_origem_id: i.id }); setOpenOrigemCombo(false); }}><Check className={cn("mr-2 h-4 w-4", formData.instalacao_origem_id === i.id ? "opacity-100" : "opacity-0")} />{i.nome}</CommandItem>))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Instalação Destino <span className="text-red-500">*</span></Label>
+                        <Popover open={openDestinoCombo} onOpenChange={setOpenDestinoCombo}>
+                          <PopoverTrigger asChild>
+                            <Button variant="outline" role="combobox" className={`w-full justify-between rounded-lg ${!formData.instalacao_destino_id ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`}>
+                              <span className="truncate">{formData.instalacao_destino_id ? (instalacoes || []).find(i => i.id === formData.instalacao_destino_id)?.nome : "Selecione..."}</span>
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[400px] p-0">
+                            <Command>
+                              <CommandInput placeholder="Buscar instalação..." />
+                              <CommandList>
+                                <CommandEmpty>Nenhuma instalação encontrada.</CommandEmpty>
+                                <CommandGroup>
+                                  {(filteredInstalacoesDestino || []).map((i) => (<CommandItem key={i.id} value={i.nome} onSelect={() => { setFormData({ ...formData, instalacao_destino_id: i.id }); setOpenDestinoCombo(false); }}><Check className={cn("mr-2 h-4 w-4", formData.instalacao_destino_id === i.id ? "opacity-100" : "opacity-0")} />{i.nome}</CommandItem>))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Local Entrega</Label>
+                        <Input value={formData.local_entrega || ''} onChange={(e) => setFormData({ ...formData, local_entrega: e.target.value })} placeholder="Manual ou via ZMMTSE" className="rounded-lg border-slate-300 dark:border-slate-600" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Seção 5: Datas Complementares */}
+                  <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
+                      <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                      Datas Complementares
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                      <div className="space-y-2">
+                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Data Ressuprimento</Label>
+                        <Input type="date" value={formData.data_ressuprimento || ''} onChange={(e) => setFormData({ ...formData, data_ressuprimento: e.target.value })} className="rounded-lg border-slate-300 dark:border-slate-600" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Data Aprovação EPI</Label>
+                        <Input type="date" value={formData.data_aprovacao_epi || ''} onChange={(e) => setFormData({ ...formData, data_aprovacao_epi: e.target.value })} className="rounded-lg border-slate-300 dark:border-slate-600" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Observações Adicionais</Label>
+                        <Input value={formData.observacoes_adicionais || ''} onChange={(e) => setFormData({ ...formData, observacoes_adicionais: e.target.value })} placeholder="Notas opcionais..." className="rounded-lg border-slate-300 dark:border-slate-600" />
                       </div>
                     </div>
                   </div>
