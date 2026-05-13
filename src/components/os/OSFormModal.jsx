@@ -43,6 +43,7 @@ const EMPTY_FORM = {
   rotulos_ids: [], descricao_resumida: '', num_reserva: '', data_reserva: '',
   usuario_reserva: '', usuario_reserva_email: '', orgao: '', data_migo: '',
   num_migo: '', vinculacao: '', instalacao_origem_id: '', instalacao_destino_id: '',
+  data_ressuprimento: '', data_aprovacao_epi: '',
   itens_documento: [], volumes: [], detalhamento_expedicao: [],
   status_separacao: 'pendente', responsavel_separacao: '', data_separacao: '',
   separacao_concluida_em: '', data_entrega: '', data_necessidade: '', anexos: [], imagens: [],
@@ -150,6 +151,8 @@ export default function OSFormModal({
         data_migo: formatDateForInput(os.data_migo), num_migo: os.num_migo || '',
         vinculacao: os.vinculacao || '', instalacao_origem_id: os.instalacao_origem_id || '',
         instalacao_destino_id: os.instalacao_destino_id || '',
+        data_ressuprimento: formatDateForInput(os.data_ressuprimento),
+        data_aprovacao_epi: formatDateForInput(os.data_aprovacao_epi),
         itens_documento: os.itens_documento || [], volumes: os.volumes || [],
         detalhamento_expedicao: os.detalhamento_expedicao || [],
         status_separacao: os.status_separacao || 'pendente',
@@ -842,6 +845,33 @@ export default function OSFormModal({
                           </Command>
                         </PopoverContent>
                       </Popover>
+                    </div>
+                  </div>
+
+                  {/* Subseção: Datas Operacionais (opcionais) */}
+                  <div className="border-t border-slate-200 dark:border-slate-700 pt-5 mt-2">
+                    <h4 className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1 flex items-center gap-2">
+                      <div className="w-1 h-3.5 bg-gradient-to-b from-sky-400 to-blue-500 rounded-full"></div>
+                      Datas Operacionais
+                    </h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">Controles complementares (opcional)</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Data Ressuprimento</Label>
+                        <Input
+                          type="date"
+                          value={formData.data_ressuprimento || ''}
+                          onChange={(e) => setFormData({ ...formData, data_ressuprimento: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Data Aprovação EPI</Label>
+                        <Input
+                          type="date"
+                          value={formData.data_aprovacao_epi || ''}
+                          onChange={(e) => setFormData({ ...formData, data_aprovacao_epi: e.target.value })}
+                        />
+                      </div>
                     </div>
                   </div>
                 </TabsContent>

@@ -167,6 +167,16 @@
     "instalacao_destino_id": {
       "type": "string"
     },
+    "data_ressuprimento": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de ressuprimento do material"
+    },
+    "data_aprovacao_epi": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de aprova\u00e7\u00e3o de EPI"
+    },
     "itens_documento": {
       "type": "array",
       "items": {
