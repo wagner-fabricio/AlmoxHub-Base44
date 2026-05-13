@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ImageIcon, Calendar, User, PackageCheck, MapPin } from 'lucide-react';
 import TimeSheetButton from '@/components/timesheet/TimeSheetButton';
+import { useApp } from '@/components/contexts/AppContext';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -14,11 +15,16 @@ const prioridadeConfig = {
 };
 
 function OSCard({ os, pessoas, categorias, regionais, instalacoes, onOSClick, currentPessoa, onOSChange }) {
+  const { subcategorias = [] } = useApp();
   const lider = pessoas.find(p => p.id === os.lider_id);
   const categoria = categorias.find(c => c.id === os.categoria_id);
   const regional = regionais.find(r => r.id === os.regional_id);
   const coverImage = os.imagens?.[0];
   const getInstalacao = (instId) => instalacoes?.find(i => i.id === instId);
+  const subcategoriasNomes = (os.subcategorias_ids || [])
+    .map(id => subcategorias.find(s => s.id === id)?.nome)
+    .filter(Boolean)
+    .join(', ');
 
   return (
     <Card
@@ -44,6 +50,9 @@ function OSCard({ os, pessoas, categorias, regionais, instalacoes, onOSClick, cu
           <div>
             <span className="text-xs font-mono text-slate-500 dark:text-slate-400">{os.codigo}</span>
             <h3 className="font-medium text-slate-900 dark:text-white mt-1 line-clamp-1">{categoria?.nome || 'Sem Categoria'}</h3>
+            {subcategoriasNomes && (
+              <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">{subcategoriasNomes}</p>
+            )}
           </div>
           <Badge variant="outline" className="shrink-0">{regional?.sigla || '-'}</Badge>
         </div>
