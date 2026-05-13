@@ -70,7 +70,6 @@ export default function IniciarSessaoModal({
       <DialogContent
         className="max-w-md"
         onClick={(e) => e.stopPropagation()}
-        onPointerDown={(e) => e.stopPropagation()}
       >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
