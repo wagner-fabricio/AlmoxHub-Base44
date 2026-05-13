@@ -228,7 +228,7 @@ export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxar
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div className="px-5 py-3 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
           <h3 className="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
-            <Users className="w-4 h-4 text-slate-500" /> Por Colaborador
+            <Users className="w-4 h-4 text-slate-500" /> Colaboradores Ocupados
           </h3>
           <span className="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold rounded-full">
             {Object.keys(porPessoa).length} envolvidos
