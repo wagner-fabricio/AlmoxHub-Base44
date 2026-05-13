@@ -97,9 +97,13 @@ function OSCard({ os, pessoas, categorias, regionais, instalacoes, onOSClick, cu
           </div>
           <div className="flex items-center gap-2">
             {currentPessoa && (
-              <span onClick={e => e.stopPropagation()}>
-                <TimeSheetButton os={os} currentPessoa={currentPessoa} onStateChange={onOSChange} size="sm" />
-              </span>
+              <TimeSheetButton
+                os={os}
+                currentPessoa={currentPessoa}
+                onStateChange={onOSChange}
+                onRequestSelecao={onRequestSelecaoSessao}
+                size="sm"
+              />
             )}
             {os.prazo && (
               <div className="flex items-center gap-1">
@@ -114,7 +118,7 @@ function OSCard({ os, pessoas, categorias, regionais, instalacoes, onOSClick, cu
   );
 }
 
-export default function OSGallery({ ordens, pessoas, categorias, regionais, instalacoes, onOSClick, rotulos = [], currentPessoa, onOSChange }) {
+export default function OSGallery({ ordens, pessoas, categorias, regionais, instalacoes, onOSClick, rotulos = [], currentPessoa, onOSChange, onRequestSelecaoSessao }) {
   // Build columns: one per rótulo + "Sem Rótulo"
   const colunas = [];
 
@@ -143,7 +147,7 @@ export default function OSGallery({ ordens, pessoas, categorias, regionais, inst
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {ordens.map(os => (
-          <OSCard key={os.id} os={os} pessoas={pessoas} categorias={categorias} regionais={regionais} instalacoes={instalacoes} onOSClick={onOSClick} currentPessoa={currentPessoa} onOSChange={onOSChange} />
+          <OSCard key={os.id} os={os} pessoas={pessoas} categorias={categorias} regionais={regionais} instalacoes={instalacoes} onOSClick={onOSClick} currentPessoa={currentPessoa} onOSChange={onOSChange} onRequestSelecaoSessao={onRequestSelecaoSessao} />
         ))}
       </div>
     );
@@ -171,7 +175,7 @@ export default function OSGallery({ ordens, pessoas, categorias, regionais, inst
               {/* Cards Stack */}
               <div className="space-y-4">
                 {colOrdens.map(os => (
-                  <OSCard key={os.id} os={os} pessoas={pessoas} categorias={categorias} regionais={regionais} instalacoes={instalacoes} onOSClick={onOSClick} currentPessoa={currentPessoa} onOSChange={onOSChange} />
+                  <OSCard key={os.id} os={os} pessoas={pessoas} categorias={categorias} regionais={regionais} instalacoes={instalacoes} onOSClick={onOSClick} currentPessoa={currentPessoa} onOSChange={onOSChange} onRequestSelecaoSessao={onRequestSelecaoSessao} />
                 ))}
               </div>
             </div>
