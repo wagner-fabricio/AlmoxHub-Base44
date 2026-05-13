@@ -7,6 +7,7 @@ import { format, isPast, isToday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import RotuloBadges from '@/components/rotulos/RotuloBadges';
 import TimeSheetButton from '@/components/timesheet/TimeSheetButton';
+import { useApp } from '@/components/contexts/AppContext';
 
 const prioridadeConfig = {
   baixa: { color: 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300', label: 'Baixa' },
@@ -31,6 +32,11 @@ const parseLocalDate = (str) => {
 
 // Memoize the component to avoid re-renders when parent re-renders but props haven't changed
 const OSCard = React.memo(function OSCard({ os, onClick, lider, categoria, regional, instalacoes, rotulos = [], currentPessoa, onOSChange }) {
+  const { subcategorias = [] } = useApp();
+  const subcategoriasNomes = (os.subcategorias_ids || [])
+    .map(id => subcategorias.find(s => s.id === id)?.nome)
+    .filter(Boolean)
+    .join(', ');
   const prazoDate = parseLocalDate(os.prazo);
   const isOverdue = prazoDate && isPast(prazoDate) && os.status !== 'concluido';
   const isDueToday = prazoDate && isToday(prazoDate);
@@ -75,6 +81,11 @@ const OSCard = React.memo(function OSCard({ os, onClick, lider, categoria, regio
           <h3 className="font-medium text-slate-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
             {categoria?.nome || 'Sem Categoria'}
           </h3>
+          {subcategoriasNomes && (
+            <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+              {subcategoriasNomes}
+            </p>
+          )}
         </div>
         <Badge className={prioridadeConfig[os.prioridade]?.color || prioridadeConfig.media.color}>
           {prioridadeConfig[os.prioridade]?.label || 'Média'}
