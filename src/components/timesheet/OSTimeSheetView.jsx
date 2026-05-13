@@ -63,16 +63,11 @@ export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxar
     );
   }
 
-  // Todos os envolvidos de uma OS (líder + executores + sessões ativas)
+  // Apenas colaboradores com sessão ativa
   const getEnvolvidos = (os) => {
-    const ids = new Set();
-    if (os.lider_id) ids.add(os.lider_id);
-    (os.executores_ids || []).forEach(id => ids.add(id));
-    (os.timesheet_sessoes_ativas || []).forEach(s => ids.add(s.pessoa_id));
-    return Array.from(ids).map(id => {
-      const p = (pessoas || []).find(x => x.id === id);
-      const sessaoAtiva = (os.timesheet_sessoes_ativas || []).find(s => s.pessoa_id === id);
-      return { id, nome: p?.nome || 'Desconhecido', foto: p?.foto_perfil, sessaoAtiva };
+    return (os.timesheet_sessoes_ativas || []).map(sessaoAtiva => {
+      const p = (pessoas || []).find(x => x.id === sessaoAtiva.pessoa_id);
+      return { id: sessaoAtiva.pessoa_id, nome: p?.nome || 'Desconhecido', foto: p?.foto_perfil, sessaoAtiva };
     });
   };
 
