@@ -12,7 +12,7 @@ const columns = [
   { id: 'cancelado', title: 'Cancelado', color: 'bg-red-500' },
 ];
 
-export default function OSKanban({ ordens, pessoas, categorias, regionais, instalacoes, onOSClick, onStatusChange, currentPessoa, onOSChange }) {
+export default function OSKanban({ ordens, pessoas, categorias, regionais, instalacoes, onOSClick, onStatusChange, currentPessoa, onOSChange, onRequestSelecaoSessao }) {
   // O(1) lookup maps — recomputed only when source arrays change
   const pessoasMap = useMemo(() => new Map(pessoas.map(p => [p.id, p])), [pessoas]);
   const categoriasMap = useMemo(() => new Map(categorias.map(c => [c.id, c])), [categorias]);
@@ -108,6 +108,7 @@ export default function OSKanban({ ordens, pessoas, categorias, regionais, insta
                                 onClick={onOSClick}
                                 currentPessoa={currentPessoa}
                                 onOSChange={onOSChange}
+                                onRequestSelecaoSessao={onRequestSelecaoSessao}
                               />
                             </div>
                           )}

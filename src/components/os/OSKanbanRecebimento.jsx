@@ -12,7 +12,7 @@ const columns = [
   { id: 'concluido', title: 'Concluído', color: 'bg-green-500', etapa: 5 },
 ];
 
-export default function OSKanbanRecebimento({ ordens, pessoas, categorias, regionais, instalacoes, onOSClick, onStatusChange, currentPessoa, onOSChange }) {
+export default function OSKanbanRecebimento({ ordens, pessoas, categorias, regionais, instalacoes, onOSClick, onStatusChange, currentPessoa, onOSChange, onRequestSelecaoSessao }) {
   const getOSByEtapaRecebimento = (columnId) => {
     return ordens.filter(os => {
       const fluxo = os.fluxo_recebimento || {};
@@ -135,6 +135,7 @@ export default function OSKanbanRecebimento({ ordens, pessoas, categorias, regio
                              onClick={onOSClick}
                              currentPessoa={currentPessoa}
                              onOSChange={onOSChange}
+                             onRequestSelecaoSessao={onRequestSelecaoSessao}
                             />
                           </div>
                         )}

@@ -24,6 +24,7 @@ import { notifyOSAssignment, notifyStatusChange } from '@/components/notificatio
 import OSTimeSheetView from '@/components/timesheet/OSTimeSheetView.jsx';
 import OSTimeSheetRelatorio from '@/components/timesheet/OSTimeSheetRelatorio.jsx';
 import OSPagination from '@/components/os/OSPagination.jsx';
+import IniciarSessaoModal from '@/components/timesheet/IniciarSessaoModal.jsx';
 
 export default function OrdensServico() {
   const { regionais, categorias, subcategorias = [], pessoas, currentUser: ctxUser, currentPessoa: ctxPessoa, almoxarifados, instalacoes, projetos, rotulos } = useApp();
@@ -95,6 +96,8 @@ export default function OrdensServico() {
   const [fullscreenMode, setFullscreenMode] = useState(false);
   const [showPresentationSetup, setShowPresentationSetup] = useState(false);
   const [presentationSlides, setPresentationSlides] = useState(null);
+  const [osSelecaoSessao, setOsSelecaoSessao] = useState(null);
+  const [iniciandoSessao, setIniciandoSessao] = useState(false);
 
   // Paginação client-side (para views list e gallery)
   const PAGE_SIZE = 100;
@@ -135,6 +138,31 @@ export default function OrdensServico() {
       typeof updater === 'function' ? updater(prev) : updater
     );
   }, [queryClient, currentQueryKey]);
+
+  const handleRequestSelecaoSessao = useCallback((os) => {
+    setOsSelecaoSessao(os);
+  }, []);
+
+  const handleConfirmarSessao = useCallback(async (pessoasIds) => {
+    if (!osSelecaoSessao) return;
+    setIniciandoSessao(true);
+    try {
+      const res = await base44.functions.invoke('registrarTimeSheet', {
+        acao: 'play_multi',
+        os_id: osSelecaoSessao.id,
+        pessoas_ids: pessoasIds
+      });
+      const updated = res?.data?.os;
+      if (updated) {
+        setOrdens(prev => prev.map(o => o.id === updated.id ? { ...o, ...updated } : o));
+      }
+      setOsSelecaoSessao(null);
+    } catch (err) {
+      console.error('TimeSheet error:', err);
+    } finally {
+      setIniciandoSessao(false);
+    }
+  }, [osSelecaoSessao, setOrdens]);
 
   useEffect(() => {
     loadData();
@@ -842,6 +870,7 @@ export default function OrdensServico() {
               onStatusChange={handleStatusChange}
               currentPessoa={currentPessoa}
               onOSChange={(updatedOS) => setOrdens(prev => prev.map(o => o.id === updatedOS.id ? { ...o, ...updatedOS } : o))}
+              onRequestSelecaoSessao={handleRequestSelecaoSessao}
             />
           )}
           {viewMode === 'kanban_expedicao' && (
@@ -855,6 +884,7 @@ export default function OrdensServico() {
               onStatusChange={handleStatusChange}
               currentPessoa={currentPessoa}
               onOSChange={(updatedOS) => setOrdens(prev => prev.map(o => o.id === updatedOS.id ? { ...o, ...updatedOS } : o))}
+              onRequestSelecaoSessao={handleRequestSelecaoSessao}
             />
           )}
           {viewMode === 'kanban_recebimento' && (
@@ -868,6 +898,7 @@ export default function OrdensServico() {
               onStatusChange={handleStatusChange}
               currentPessoa={currentPessoa}
               onOSChange={(updatedOS) => setOrdens(prev => prev.map(o => o.id === updatedOS.id ? { ...o, ...updatedOS } : o))}
+              onRequestSelecaoSessao={handleRequestSelecaoSessao}
             />
           )}
           {viewMode === 'list' && (
@@ -894,6 +925,7 @@ export default function OrdensServico() {
                 rotulos={rotulos}
                 currentPessoa={currentPessoa}
                 onOSChange={(updatedOS) => setOrdens(prev => prev.map(o => o.id === updatedOS.id ? { ...o, ...updatedOS } : o))}
+                onRequestSelecaoSessao={handleRequestSelecaoSessao}
               />
               <OSPagination currentPage={currentPage} totalPages={totalPages} total={totalApprox} onChange={setCurrentPage} />
             </>
@@ -990,6 +1022,16 @@ export default function OrdensServico() {
           onStop={() => setPresentationSlides(null)}
         />
       )}
+
+      {/* Modal global de seleção de sessão de TimeSheet */}
+      <IniciarSessaoModal
+        open={!!osSelecaoSessao}
+        onClose={() => setOsSelecaoSessao(null)}
+        os={osSelecaoSessao}
+        currentPessoa={currentPessoa}
+        onConfirm={handleConfirmarSessao}
+        loading={iniciandoSessao}
+      />
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

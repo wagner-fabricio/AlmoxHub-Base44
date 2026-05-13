@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, Square } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { useApp } from '@/components/contexts/AppContext';
 import IniciarSessaoModal from './IniciarSessaoModal';
 
 // Formata minutos acumulados + segundos correndo em "Xh YYmin" ou "YYmin"
@@ -23,6 +22,7 @@ export default function TimeSheetButton({
   os,
   currentPessoa,
   onStateChange,
+  onRequestSelecao, // callback opcional para abrir o modal no nível da página
   size = 'default', // 'sm' | 'default'
   className = ''
 }) {
@@ -30,7 +30,6 @@ export default function TimeSheetButton({
   const [tempoExibido, setTempoExibido] = useState(0); // em minutos (float)
   const [showSelecaoModal, setShowSelecaoModal] = useState(false);
   const intervalRef = useRef(null);
-  const { pessoas } = useApp();
 
   const sessaoAtiva = (os.timesheet_sessoes_ativas || []).find(
     s => s.pessoa_id === currentPessoa?.id
@@ -82,8 +81,13 @@ export default function TimeSheetButton({
       return;
     }
 
-    // Eu não estou em play (outros podem estar) → abre modal de seleção
-    setShowSelecaoModal(true);
+    // Eu não estou em play → abre modal de seleção
+    // Se o pai forneceu callback, delega (recomendado para evitar conflitos com cards)
+    if (onRequestSelecao) {
+      onRequestSelecao(os);
+    } else {
+      setShowSelecaoModal(true);
+    }
   };
 
   const handleConfirmarSelecao = async (pessoasIds) => {
@@ -169,15 +173,16 @@ export default function TimeSheetButton({
         {mostrarTempo && <span>{tempoTotal}</span>}
       </button>
 
-      <IniciarSessaoModal
-        open={showSelecaoModal}
-        onClose={() => setShowSelecaoModal(false)}
-        os={os}
-        pessoas={pessoas}
-        currentPessoa={currentPessoa}
-        onConfirm={handleConfirmarSelecao}
-        loading={loading}
-      />
+      {!onRequestSelecao && showSelecaoModal && (
+        <IniciarSessaoModal
+          open={showSelecaoModal}
+          onClose={() => setShowSelecaoModal(false)}
+          os={os}
+          currentPessoa={currentPessoa}
+          onConfirm={handleConfirmarSelecao}
+          loading={loading}
+        />
+      )}
     </>
   );
 }

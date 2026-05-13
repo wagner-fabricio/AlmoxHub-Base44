@@ -31,7 +31,7 @@ const parseLocalDate = (str) => {
 };
 
 // Memoize the component to avoid re-renders when parent re-renders but props haven't changed
-const OSCard = React.memo(function OSCard({ os, onClick, lider, categoria, regional, instalacoes, rotulos = [], currentPessoa, onOSChange }) {
+const OSCard = React.memo(function OSCard({ os, onClick, lider, categoria, regional, instalacoes, rotulos = [], currentPessoa, onOSChange, onRequestSelecaoSessao }) {
   const { subcategorias = [] } = useApp();
   const subcategoriasNomes = (os.subcategorias_ids || [])
     .map(id => subcategorias.find(s => s.id === id)?.nome)
@@ -204,14 +204,13 @@ const OSCard = React.memo(function OSCard({ os, onClick, lider, categoria, regio
 
         <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
           {/* TimeSheet Button */}
-          <span onClick={(e) => e.stopPropagation()}>
-            <TimeSheetButton
-              os={os}
-              currentPessoa={currentPessoa}
-              onStateChange={onOSChange}
-              size="sm"
-            />
-          </span>
+          <TimeSheetButton
+            os={os}
+            currentPessoa={currentPessoa}
+            onStateChange={onOSChange}
+            onRequestSelecao={onRequestSelecaoSessao}
+            size="sm"
+          />
 
           {os.anexos?.length > 0 && (
             <div className="flex items-center gap-1 text-xs">

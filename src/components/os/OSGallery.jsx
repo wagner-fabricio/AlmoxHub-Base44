@@ -14,7 +14,7 @@ const prioridadeConfig = {
   urgente: { color: 'bg-red-500', label: 'Urgente' },
 };
 
-function OSCard({ os, pessoas, categorias, regionais, instalacoes, onOSClick, currentPessoa, onOSChange }) {
+function OSCard({ os, pessoas, categorias, regionais, instalacoes, onOSClick, currentPessoa, onOSChange, onRequestSelecaoSessao }) {
   const { subcategorias = [] } = useApp();
   const lider = pessoas.find(p => p.id === os.lider_id);
   const categoria = categorias.find(c => c.id === os.categoria_id);

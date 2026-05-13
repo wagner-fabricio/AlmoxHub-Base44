@@ -13,7 +13,7 @@ const columns = [
   { id: 'entregue', title: 'Entregue', color: 'bg-green-500' },
 ];
 
-export default function OSKanbanExpedicao({ ordens, pessoas, categorias, regionais, instalacoes, onOSClick, onStatusChange, currentPessoa, onOSChange }) {
+export default function OSKanbanExpedicao({ ordens, pessoas, categorias, regionais, instalacoes, onOSClick, onStatusChange, currentPessoa, onOSChange, onRequestSelecaoSessao }) {
   const getOSByStatusSeparacao = (status) => {
     return ordens.filter(os => (os.status_separacao || 'pendente') === status);
   };
@@ -88,6 +88,7 @@ export default function OSKanbanExpedicao({ ordens, pessoas, categorias, regiona
                              onClick={onOSClick}
                              currentPessoa={currentPessoa}
                              onOSChange={onOSChange}
+                             onRequestSelecaoSessao={onRequestSelecaoSessao}
                             />
                           </div>
                         )}
