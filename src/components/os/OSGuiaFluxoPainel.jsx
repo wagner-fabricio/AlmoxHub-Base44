@@ -90,6 +90,9 @@ export default function OSGuiaFluxoPainel({
 
               {/* Pendências */}
               <div>
+                <div className="text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold mb-2">
+                  Campos pendentes da etapa atual
+                </div>
                 <OSGuiaFluxoPendencias
                   pendencias={pendencias}
                   etapaAtual={etapaAtual}

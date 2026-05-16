@@ -67,6 +67,13 @@ export function getPendenciasExpedicao(formData) {
     if (!formData.lider_id) pendencias.push({ etapa: 1, tab: 'geral', label: 'Líder' });
     if (!formData.prazo) pendencias.push({ etapa: 1, tab: 'geral', label: 'Prazo' });
     if (!formData.complexidade) pendencias.push({ etapa: 1, tab: 'geral', label: 'Complexidade' });
+    if (!formData.num_reserva) pendencias.push({ etapa: 1, tab: 'geral', label: 'Nº da Reserva' });
+    if (!formData.data_reserva) pendencias.push({ etapa: 1, tab: 'geral', label: 'Data da Reserva' });
+    if (!formData.usuario_reserva) pendencias.push({ etapa: 1, tab: 'geral', label: 'Nome do Usuário' });
+    if (!formData.orgao) pendencias.push({ etapa: 1, tab: 'geral', label: 'Órgão' });
+    if (!formData.vinculacao) pendencias.push({ etapa: 1, tab: 'geral', label: 'Vinculação (Custeio/Investimento)' });
+    if (!formData.instalacao_origem_id) pendencias.push({ etapa: 1, tab: 'geral', label: 'Instalação Origem' });
+    if (!formData.instalacao_destino_id) pendencias.push({ etapa: 1, tab: 'geral', label: 'Instalação Destino' });
     return pendencias;
   }
 

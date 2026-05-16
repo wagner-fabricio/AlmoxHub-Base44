@@ -1,9 +1,12 @@
 import React from 'react';
-import { AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react';
+import { CheckCircle2, ArrowRight } from 'lucide-react';
 
 /**
- * Lista clicável de pendências para avançar a etapa atual.
+ * Lista clicável de pendências da ETAPA ATUAL.
+ * Cabeçalho destacado: "Faltam N campos para concluir ETAPA X — NOME"
  * Cada item leva à aba correspondente quando clicado.
+ * À medida que campos são preenchidos, eles somem; quando a etapa zera,
+ * o validador automaticamente avança para a próxima etapa pendente.
  */
 export default function OSGuiaFluxoPendencias({ pendencias, etapaAtual, onNavigateTab }) {
   if (!pendencias || pendencias.length === 0) {
@@ -19,12 +22,21 @@ export default function OSGuiaFluxoPendencias({ pendencias, etapaAtual, onNaviga
     );
   }
 
+  const total = pendencias.length;
+  const etapaLabel = etapaAtual?.label?.toUpperCase() || '';
+  const etapaNum = etapaAtual?.id || '';
+
   return (
-    <div className="space-y-1.5">
-      <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-amber-700 dark:text-amber-400 font-semibold mb-1">
-        <AlertCircle className="w-3 h-3" />
-        Faltam {pendencias.length} {pendencias.length === 1 ? 'item' : 'itens'}
+    <div className="space-y-2">
+      {/* Cabeçalho destacado */}
+      <div className="text-[11px] font-bold text-slate-800 dark:text-slate-100 leading-snug">
+        Faltam{' '}
+        <span className="text-red-500 text-sm">{total}</span>{' '}
+        {total === 1 ? 'campo' : 'campos'} para concluir{' '}
+        <span className="uppercase">ETAPA {etapaNum} — {etapaLabel}</span>
       </div>
+
+      {/* Lista de campos pendentes */}
       <ul className="space-y-1">
         {pendencias.map((p, idx) => (
           <li key={idx}>
@@ -33,7 +45,7 @@ export default function OSGuiaFluxoPendencias({ pendencias, etapaAtual, onNaviga
               onClick={() => onNavigateTab?.(p.tab)}
               className="group w-full text-left flex items-start gap-2 p-2 rounded-md hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors border border-transparent hover:border-amber-200 dark:hover:border-amber-800"
             >
-              <span className="w-1 h-1 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0" />
               <span className="flex-1 text-xs text-slate-700 dark:text-slate-300 leading-snug">
                 {p.label}
               </span>
