@@ -6,44 +6,69 @@
 // EXPEDIÇÃO — 5 etapas: Solicitação → Separação → Preparação → Envio → Entrega
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Deriva o estado real das etapas a partir do conteúdo do formData (e não somente
+// das flags persistidas em fluxo_expedicao, que só são atualizadas pelo backend
+// ao salvar). Isso garante que o guia reflita a realidade enquanto o usuário
+// ainda está editando uma OS nova/não salva.
+function isEtapaCompletaExpedicao(etapaId, formData) {
+  const fluxo = formData.fluxo_expedicao || {};
+  switch (etapaId) {
+    case 1: {
+      // Solicitação: todos os campos básicos da etapa 1 preenchidos
+      return !!(
+        formData.categoria_id &&
+        formData.subcategorias_ids?.length &&
+        formData.regional_id &&
+        formData.almoxarifado_id &&
+        formData.lider_id &&
+        formData.prazo &&
+        formData.complexidade &&
+        formData.num_reserva &&
+        formData.data_reserva &&
+        formData.usuario_reserva &&
+        formData.orgao &&
+        formData.vinculacao &&
+        formData.instalacao_origem_id &&
+        formData.instalacao_destino_id
+      );
+    }
+    case 2: {
+      // Separação: itens existem e todos separados + campos administrativos se há volumes
+      const itens = formData.itens_documento || [];
+      if (itens.length === 0) return false;
+      if (!itens.every(i => i.separado)) return false;
+      if ((formData.volumes?.length || 0) > 0) {
+        if (!formData.responsavel_separacao) return false;
+        if (!formData.data_separacao) return false;
+        if (!formData.separacao_concluida_em) return false;
+      }
+      return true;
+    }
+    case 3: {
+      // Preparação: volumes e detalhamento de expedição cadastrados
+      return !!(formData.volumes?.length > 0 && formData.detalhamento_expedicao?.length > 0);
+    }
+    case 4: {
+      // Envio: data de expedição em pelo menos um detalhamento
+      return (formData.detalhamento_expedicao || []).some(e => e.data_expedicao);
+    }
+    case 5: {
+      // Entrega: data de necessidade e data de entrega preenchidas
+      return !!(formData.data_necessidade && formData.data_entrega);
+    }
+    default:
+      return false;
+  }
+}
+
 export function getEtapasExpedicao(formData) {
   const fluxo = formData.fluxo_expedicao || {};
   const etapas = [
-    {
-      id: 1,
-      key: 'solicitacao',
-      label: 'Solicitação',
-      completa: !!fluxo.solicitacao_completa,
-      data: fluxo.solicitacao_data,
-    },
-    {
-      id: 2,
-      key: 'separacao',
-      label: 'Separação',
-      completa: !!fluxo.separacao_completa,
-      data: fluxo.separacao_data,
-    },
-    {
-      id: 3,
-      key: 'preparacao',
-      label: 'Preparação',
-      completa: !!fluxo.preparacao_completa,
-      data: fluxo.preparacao_data,
-    },
-    {
-      id: 4,
-      key: 'envio',
-      label: 'Envio',
-      completa: !!fluxo.envio_completo,
-      data: fluxo.envio_data,
-    },
-    {
-      id: 5,
-      key: 'entrega',
-      label: 'Entrega',
-      completa: !!fluxo.entrega_completa,
-      data: fluxo.entrega_data,
-    },
+    { id: 1, key: 'solicitacao', label: 'Solicitação', completa: isEtapaCompletaExpedicao(1, formData), data: fluxo.solicitacao_data },
+    { id: 2, key: 'separacao',   label: 'Separação',   completa: isEtapaCompletaExpedicao(2, formData), data: fluxo.separacao_data },
+    { id: 3, key: 'preparacao',  label: 'Preparação',  completa: isEtapaCompletaExpedicao(3, formData), data: fluxo.preparacao_data },
+    { id: 4, key: 'envio',       label: 'Envio',       completa: isEtapaCompletaExpedicao(4, formData), data: fluxo.envio_data },
+    { id: 5, key: 'entrega',     label: 'Entrega',     completa: isEtapaCompletaExpedicao(5, formData), data: fluxo.entrega_data },
   ];
 
   // Etapa atual = primeira não completa, ou 5 se tudo completo
@@ -55,10 +80,9 @@ export function getEtapasExpedicao(formData) {
 }
 
 export function getPendenciasExpedicao(formData) {
-  const fluxo = formData.fluxo_expedicao || {};
   const pendencias = [];
 
-  // Etapa 1 — Solicitação: sempre validada (campos básicos obrigatórios)
+  // Etapa 1 — Solicitação
   const pend1 = [];
   if (!formData.categoria_id) pend1.push({ etapa: 1, tab: 'geral', label: 'Categoria' });
   if (!formData.subcategorias_ids?.length) pend1.push({ etapa: 1, tab: 'geral', label: 'Subcategoria' });
@@ -75,10 +99,10 @@ export function getPendenciasExpedicao(formData) {
   if (!formData.instalacao_origem_id) pend1.push({ etapa: 1, tab: 'documento', label: 'Instalação Origem' });
   if (!formData.instalacao_destino_id) pend1.push({ etapa: 1, tab: 'documento', label: 'Instalação Destino' });
   pendencias.push(...pend1);
-  if (pend1.length > 0) return pendencias; // só avança se etapa 1 está OK
+  if (pend1.length > 0) return pendencias;
 
-  // Etapa 2 — Separação: todos os itens marcados como separados
-  if (!fluxo.separacao_completa) {
+  // Etapa 2 — Separação
+  if (!isEtapaCompletaExpedicao(2, formData)) {
     const itens = formData.itens_documento || [];
     if (itens.length === 0) {
       pendencias.push({ etapa: 2, tab: 'materiais', label: 'Adicione itens ao documento (aba Materiais)' });
@@ -92,7 +116,6 @@ export function getPendenciasExpedicao(formData) {
         });
       }
     }
-    // Campos administrativos da separação (se já há volumes)
     if ((formData.volumes?.length || 0) > 0) {
       if (!formData.responsavel_separacao) pendencias.push({ etapa: 2, tab: 'volumes', label: 'Responsável pela separação' });
       if (!formData.data_separacao) pendencias.push({ etapa: 2, tab: 'volumes', label: 'Data de início da separação' });
@@ -101,8 +124,8 @@ export function getPendenciasExpedicao(formData) {
     return pendencias;
   }
 
-  // Etapa 3 — Preparação: volumes + detalhamento de expedição
-  if (!fluxo.preparacao_completa) {
+  // Etapa 3 — Preparação
+  if (!isEtapaCompletaExpedicao(3, formData)) {
     if (!(formData.volumes?.length > 0)) {
       pendencias.push({ etapa: 3, tab: 'volumes', label: 'Adicione pelo menos um volume' });
     }
@@ -112,17 +135,14 @@ export function getPendenciasExpedicao(formData) {
     return pendencias;
   }
 
-  // Etapa 4 — Envio: data de expedição em pelo menos um detalhamento
-  if (!fluxo.envio_completo) {
-    const temDataExp = (formData.detalhamento_expedicao || []).some(e => e.data_expedicao);
-    if (!temDataExp) {
-      pendencias.push({ etapa: 4, tab: 'expedicao', label: 'Preencha a data de expedição no detalhamento' });
-    }
+  // Etapa 4 — Envio
+  if (!isEtapaCompletaExpedicao(4, formData)) {
+    pendencias.push({ etapa: 4, tab: 'expedicao', label: 'Preencha a data de expedição no detalhamento' });
     return pendencias;
   }
 
-  // Etapa 5 — Entrega: data_entrega preenchida
-  if (!fluxo.entrega_completa) {
+  // Etapa 5 — Entrega
+  if (!isEtapaCompletaExpedicao(5, formData)) {
     if (!formData.data_necessidade) pendencias.push({ etapa: 5, tab: 'expedicao', label: 'Data de necessidade' });
     if (!formData.data_entrega) pendencias.push({ etapa: 5, tab: 'expedicao', label: 'Data de entrega' });
     return pendencias;
