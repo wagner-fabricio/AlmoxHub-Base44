@@ -43,6 +43,8 @@ import OSHeaderIconButton from './OSHeaderIconButton';
 import OSHeaderTimeSheetButton from './OSHeaderTimeSheetButton';
 import OSComentariosTab from './OSComentariosTab';
 import OSHistoricoTab from './OSHistoricoTab';
+import OSGuiaFluxoPainel from './OSGuiaFluxoPainel';
+import { getFluxoState } from '@/lib/osFluxoValidator';
 import { toast as sonnerToast } from 'sonner';
 
 const EMPTY_FORM = {
@@ -358,13 +360,23 @@ export default function OSFormModal({
         fluxoExpedicao = { etapa_atual: 1, solicitacao_completa: true, solicitacao_data: new Date().toISOString(), separacao_completa: false, preparacao_completa: false, envio_completo: false, entrega_completa: false };
       }
 
+      const progressoCalculado = (usaFluxoExpedicao || usaFluxoRecebimento)
+        ? calculateProgress({ ...formData, fluxo_expedicao: usaFluxoExpedicao ? fluxoExpedicao : formData.fluxo_expedicao })
+        : (formData.progresso || 0);
+
+      // Auto-conclusão: em OS com fluxo, se progresso === 100, status passa para 'concluido'
+      // (somente no save manual; não sobrescreve status 'cancelado').
+      const temFluxo = usaFluxoExpedicao || usaFluxoRecebimento;
+      const statusAutoConcluido = (temFluxo && progressoCalculado === 100 && formData.status !== 'cancelado' && formData.status !== 'concluido')
+        ? 'concluido'
+        : formData.status;
+      const autoConcluiuAgora = statusAutoConcluido === 'concluido' && formData.status !== 'concluido';
+
       const dataToSave = {
         ...formData, codigo,
         fluxo_expedicao: usaFluxoExpedicao ? fluxoExpedicao : formData.fluxo_expedicao,
-        // Progresso automático apenas quando há fluxo (Expedição c/ Reserva ou Recebimento c/ Compra). Demais usam progresso manual.
-        progresso: (usaFluxoExpedicao || usaFluxoRecebimento)
-          ? calculateProgress({ ...formData, fluxo_expedicao: usaFluxoExpedicao ? fluxoExpedicao : formData.fluxo_expedicao })
-          : (formData.progresso || 0)
+        status: statusAutoConcluido,
+        progresso: progressoCalculado
       };
 
       let savedOS;
@@ -432,12 +444,23 @@ export default function OSFormModal({
         }
       }
 
+      // Se houve auto-conclusão, encerra TimeSheet e avisa o usuário
+      if (autoConcluiuAgora) {
+        try { await base44.functions.invoke('encerrarTimeSheetOS', { os_id: savedOS.id || os?.id }); } catch (e) {}
+      }
+
       if (closeAfter && isMountedRef.current) {
         onClose();
       }
       if (isMountedRef.current) {
         onSave?.(isNew, { ...dataToSave, id: savedOS.id || os?.id });
-        toast.success(`OS ${codigo || savedOS.codigo} salva com sucesso!`);
+        if (autoConcluiuAgora) {
+          toast.success(`OS ${codigo || savedOS.codigo} concluída automaticamente`, {
+            description: 'Progresso atingiu 100% — status alterado para Concluído.',
+          });
+        } else {
+          toast.success(`OS ${codigo || savedOS.codigo} salva com sucesso!`);
+        }
       }
     } catch (error) {
       console.error('Error saving OS:', error);
@@ -618,6 +641,30 @@ export default function OSFormModal({
     return () => unsub?.();
   }, [open, os?.id]);
 
+  // Mapa de pendências por aba (para badges nos TabsTrigger)
+  const pendenciasPorAba = React.useMemo(() => {
+    if (!usaFluxoExpedicao && !usaFluxoRecebimento) return {};
+    const state = getFluxoState(formData, { usaFluxoExpedicao, usaFluxoRecebimento });
+    const map = {};
+    (state?.pendencias || []).forEach(p => {
+      if (p.tab) map[p.tab] = (map[p.tab] || 0) + 1;
+    });
+    return map;
+  }, [formData, usaFluxoExpedicao, usaFluxoRecebimento]);
+
+  const PendBadge = ({ tab }) => {
+    const n = pendenciasPorAba[tab];
+    if (!n) return null;
+    return (
+      <span
+        title={`${n} ${n === 1 ? 'pendência' : 'pendências'} nesta aba`}
+        className="ml-1.5 inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 rounded-full text-[9px] font-bold bg-amber-500 text-white"
+      >
+        {n}
+      </span>
+    );
+  };
+
   const problemasNaoPreenchidos = formData.problema_recebimento && (!formData.problemas_recebimento_ids || formData.problemas_recebimento_ids.length === 0);
   const hasVolumes = (formData.volumes?.length || 0) > 0;
   const separacaoIncompleta = usaFluxoExpedicao && hasVolumes && (!formData.responsavel_separacao || !formData.data_separacao || !formData.separacao_concluida_em);
@@ -631,7 +678,7 @@ export default function OSFormModal({
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) handleCloseRequest(); }}>
-      <DialogContent className="max-w-5xl w-[calc(100vw-1rem)] sm:w-full max-h-[95vh] sm:max-h-[90vh] p-0 gap-0 flex flex-col overflow-hidden" aria-describedby={undefined}>
+      <DialogContent className={`${(usaFluxoExpedicao || usaFluxoRecebimento) ? 'max-w-7xl' : 'max-w-5xl'} w-[calc(100vw-1rem)] sm:w-full max-h-[95vh] sm:max-h-[90vh] p-0 gap-0 flex flex-col overflow-hidden`} aria-describedby={undefined}>
         <DialogHeader className="px-4 sm:px-6 py-3 sm:py-5 border-b shrink-0" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
           <div className="flex items-center justify-between gap-2 pr-6">
             <DialogTitle className="text-base sm:text-xl font-semibold text-white truncate min-w-0 flex-1">
@@ -698,28 +745,28 @@ export default function OSFormModal({
         </DialogHeader>
 
         <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
-          <div className="p-3 sm:p-8 bg-slate-50/30 dark:bg-slate-900/30">
-            <Tabs value={activeTab} onValueChange={handleFormTabChange} className="w-full">
+          <div className="p-3 sm:p-8 bg-slate-50/30 dark:bg-slate-900/30 flex gap-4 items-start">
+            <Tabs value={activeTab} onValueChange={handleFormTabChange} className="flex-1 min-w-0">
               <div className="flex items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-700 mb-5 sm:mb-8 overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
               <TabsList className="bg-transparent rounded-none h-auto p-0 space-x-4 sm:space-x-8 border-b-0 flex-nowrap">
                 <TabsTrigger value="geral" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Dados Gerais</TabsTrigger>
                 {isAtendimentoCategory && (<TabsTrigger value="materiais" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Materiais ({formData.itens_documento?.length || 0})</TabsTrigger>)}
                 {usaFluxoExpedicao && (<>
-                  <TabsTrigger value="documento" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Documento</TabsTrigger>
-                  <TabsTrigger value="materiais" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Materiais</TabsTrigger>
-                  <TabsTrigger value="volumes" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Volumes</TabsTrigger>
-                  <TabsTrigger value="expedicao" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Expedição</TabsTrigger>
+                  <TabsTrigger value="documento" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Documento<PendBadge tab="documento" /></TabsTrigger>
+                  <TabsTrigger value="materiais" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Materiais<PendBadge tab="materiais" /></TabsTrigger>
+                  <TabsTrigger value="volumes" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Volumes<PendBadge tab="volumes" /></TabsTrigger>
+                  <TabsTrigger value="expedicao" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Expedição<PendBadge tab="expedicao" /></TabsTrigger>
                   {os?.id && <TabsTrigger value="assinaturas" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">✍️ Assinaturas</TabsTrigger>}
                 </>)}
                 {usaFluxoRecebimento && (<>
-                  <TabsTrigger value="receb-dados" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Dados Recebimento</TabsTrigger>
-                  <TabsTrigger value="receb-documento" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Documento</TabsTrigger>
-                  <TabsTrigger value="receb-doc" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Cabeçalho NF</TabsTrigger>
-                  <TabsTrigger value="receb-mat" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Materiais</TabsTrigger>
-                  <TabsTrigger value="receb-transp" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Transportador</TabsTrigger>
-                  <TabsTrigger value="receb-rodape" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Rodapé NF</TabsTrigger>
+                  <TabsTrigger value="receb-dados" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Dados Recebimento<PendBadge tab="receb-dados" /></TabsTrigger>
+                  <TabsTrigger value="receb-documento" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Documento<PendBadge tab="receb-documento" /></TabsTrigger>
+                  <TabsTrigger value="receb-doc" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Cabeçalho NF<PendBadge tab="receb-doc" /></TabsTrigger>
+                  <TabsTrigger value="receb-mat" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Materiais<PendBadge tab="receb-mat" /></TabsTrigger>
+                  <TabsTrigger value="receb-transp" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Transportador<PendBadge tab="receb-transp" /></TabsTrigger>
+                  <TabsTrigger value="receb-rodape" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Rodapé NF<PendBadge tab="receb-rodape" /></TabsTrigger>
                 </>)}
-                <TabsTrigger value="anexos" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Anexos</TabsTrigger>
+                <TabsTrigger value="anexos" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Anexos<PendBadge tab="anexos" /></TabsTrigger>
                 {os?.id && (<>
                   <TabsTrigger value="comentarios" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3 flex items-center gap-1.5"><MessageSquare className="w-3.5 h-3.5" />Comentários</TabsTrigger>
                   <TabsTrigger value="historico" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3 flex items-center gap-1.5"><History className="w-3.5 h-3.5" />Histórico</TabsTrigger>
@@ -1317,6 +1364,15 @@ export default function OSFormModal({
               )}
               </fieldset>
             </Tabs>
+
+            {(usaFluxoExpedicao || usaFluxoRecebimento) && (
+              <OSGuiaFluxoPainel
+                formData={formData}
+                usaFluxoExpedicao={usaFluxoExpedicao}
+                usaFluxoRecebimento={usaFluxoRecebimento}
+                onNavigateTab={handleFormTabChange}
+              />
+            )}
           </div>
         </div>
 
