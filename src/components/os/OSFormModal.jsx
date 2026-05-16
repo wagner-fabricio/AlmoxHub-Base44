@@ -41,6 +41,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
 } from '@/components/ui/alert-dialog';
 import OSHeaderIconButton from './OSHeaderIconButton';
+import OSHeaderTimeSheetButton from './OSHeaderTimeSheetButton';
 import OSComentariosTab from './OSComentariosTab';
 import OSHistoricoTab from './OSHistoricoTab';
 import { toast as sonnerToast } from 'sonner';
@@ -647,6 +648,25 @@ export default function OSFormModal({
                     <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
                   )}
                 </div>
+              )}
+              {os?.id && (
+                <OSHeaderTimeSheetButton
+                  os={{ ...os, ...{
+                    timesheet_status: formData.timesheet_status ?? os.timesheet_status,
+                    timesheet_sessoes_ativas: formData.timesheet_sessoes_ativas ?? os.timesheet_sessoes_ativas,
+                    timesheet_total_minutos: formData.timesheet_total_minutos ?? os.timesheet_total_minutos,
+                  } }}
+                  currentPessoa={currentPessoa}
+                  onStateChange={(updatedOS) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      timesheet_status: updatedOS.timesheet_status,
+                      timesheet_sessoes_ativas: updatedOS.timesheet_sessoes_ativas,
+                      timesheet_total_minutos: updatedOS.timesheet_total_minutos
+                    }));
+                    onSave?.(false, updatedOS);
+                  }}
+                />
               )}
               {readOnly && userCanEdit && (
                 <OSHeaderIconButton
