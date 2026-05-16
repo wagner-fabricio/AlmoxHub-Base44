@@ -29,7 +29,6 @@ import RotuloSelector from '@/components/rotulos/RotuloSelector';
 import OSAssinaturaTab from './OSAssinaturaTab.jsx';
 import EtiquetaVolumesModal from './EtiquetaVolumesModal';
 import OSFormHelp from './OSFormHelp';
-import useTimeSheetEdit from '@/components/timesheet/useTimeSheetEdit';
 import { formatarTempo } from '@/components/timesheet/TimeSheetButton';
 import RelatorioOS from './RelatorioOS';
 import html2canvas from 'html2canvas';
@@ -602,22 +601,22 @@ export default function OSFormModal({
     finally { setGeneratingOSPDF(false); setShowRelatorioOS(false); }
   };
 
-  // TimeSheet: play automático ao abrir para edição
-  useTimeSheetEdit({
-    os,
-    currentPessoa,
-    open,
-    onOSChange: (updatedOS) => {
-      // Atualizar apenas os campos de timesheet no formData para não sobrescrever edições
-      setFormData(prev => ({
-        ...prev,
-        timesheet_status: updatedOS.timesheet_status,
-        timesheet_sessoes_ativas: updatedOS.timesheet_sessoes_ativas,
-        timesheet_total_minutos: updatedOS.timesheet_total_minutos
-      }));
-      onSave?.(false, updatedOS);
-    }
-  });
+  // TimeSheet: subscrição em tempo real para refletir mudanças no header.
+  // O play é manual via OSHeaderTimeSheetButton (com modal de seleção).
+  useEffect(() => {
+    if (!open || !os?.id) return;
+    const unsub = base44.entities.OrdemServico.subscribe((event) => {
+      if (event.id === os.id && event.data) {
+        setFormData(prev => ({
+          ...prev,
+          timesheet_status: event.data.timesheet_status,
+          timesheet_sessoes_ativas: event.data.timesheet_sessoes_ativas,
+          timesheet_total_minutos: event.data.timesheet_total_minutos
+        }));
+      }
+    });
+    return () => unsub?.();
+  }, [open, os?.id]);
 
   const problemasNaoPreenchidos = formData.problema_recebimento && (!formData.problemas_recebimento_ids || formData.problemas_recebimento_ids.length === 0);
   const hasVolumes = (formData.volumes?.length || 0) > 0;

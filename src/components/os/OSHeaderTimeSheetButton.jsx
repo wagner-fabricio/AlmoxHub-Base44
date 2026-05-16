@@ -3,6 +3,7 @@ import { Play, Pause, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import IniciarSessaoModal from '@/components/timesheet/IniciarSessaoModal';
+import { useApp } from '@/components/contexts/AppContext';
 
 /**
  * Botão Play/Pause de TimeSheet para o cabeçalho da OS.
@@ -13,6 +14,7 @@ export default function OSHeaderTimeSheetButton({ os, currentPessoa, onStateChan
   const [loading, setLoading] = useState(false);
   const [showSelecaoModal, setShowSelecaoModal] = useState(false);
   const isMountedRef = useRef(true);
+  const { pessoas = [] } = useApp();
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -101,6 +103,7 @@ export default function OSHeaderTimeSheetButton({ os, currentPessoa, onStateChan
           open={showSelecaoModal}
           onClose={() => setShowSelecaoModal(false)}
           os={os}
+          pessoas={pessoas}
           currentPessoa={currentPessoa}
           onConfirm={handleConfirmarSelecao}
           loading={loading}
