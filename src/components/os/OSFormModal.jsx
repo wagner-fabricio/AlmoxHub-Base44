@@ -708,7 +708,7 @@ export default function OSFormModal({
         </DialogHeader>
 
         <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
-          <fieldset disabled={readOnly} className="p-3 sm:p-8 bg-slate-50/30 dark:bg-slate-900/30 disabled:opacity-100">
+          <div className="p-3 sm:p-8 bg-slate-50/30 dark:bg-slate-900/30">
             <Tabs value={activeTab} onValueChange={handleFormTabChange} className="w-full">
               <div className="flex items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-700 mb-5 sm:mb-8 overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
               <TabsList className="bg-transparent rounded-none h-auto p-0 space-x-4 sm:space-x-8 border-b-0 flex-nowrap">
@@ -737,6 +737,7 @@ export default function OSFormModal({
               </TabsList>
               </div>
 
+              <fieldset disabled={readOnly} className="disabled:opacity-100 border-0 p-0 m-0 min-w-0">
               {/* TAB: Dados Gerais */}
               <TabsContent value="geral" className="space-y-8">
                 {/* Seção 1: Classificação */}
@@ -1324,8 +1325,9 @@ export default function OSFormModal({
                   pessoas={pessoas}
                 />
               )}
+              </fieldset>
             </Tabs>
-          </fieldset>
+          </div>
         </div>
 
         {showEtiquetaModal && (
