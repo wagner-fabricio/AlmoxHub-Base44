@@ -469,6 +469,8 @@ export default function OrdensServico() {
     // Update local state optimistically — no full reload needed
     if (isNew && osData) {
       setOrdens(prev => prev.some(o => o.id === osData.id) ? prev.map(o => o.id === osData.id ? { ...o, ...osData } : o) : [osData, ...prev]);
+      // Abrir modal de iniciar sessão para a nova OS recém-criada
+      setOsSelecaoSessao(osData);
     } else if (!isNew && osData) {
       setOrdens(prev => prev.map(o => o.id === osData.id ? { ...o, ...osData } : o));
       setSelectedOS(prev => prev ? { ...prev, ...osData } : prev);
