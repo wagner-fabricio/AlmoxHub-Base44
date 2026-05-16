@@ -764,7 +764,6 @@ export default function OSFormModal({
                   <TabsTrigger value="receb-doc" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Cabeçalho NF<PendBadge tab="receb-doc" /></TabsTrigger>
                   <TabsTrigger value="receb-mat" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Materiais<PendBadge tab="receb-mat" /></TabsTrigger>
                   <TabsTrigger value="receb-transp" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Transportador<PendBadge tab="receb-transp" /></TabsTrigger>
-                  <TabsTrigger value="receb-rodape" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Rodapé NF<PendBadge tab="receb-rodape" /></TabsTrigger>
                 </>)}
                 <TabsTrigger value="anexos" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Anexos<PendBadge tab="anexos" /></TabsTrigger>
                 {os?.id && (<>
@@ -1259,7 +1258,6 @@ export default function OSFormModal({
               )}
 
               {usaFluxoRecebimento && (<TabsContent value="receb-doc" className="space-y-6">{loadedFormTabs.has('receb-doc') && <OSRecebimentoDocumento emissor={formData.nfe_dados_emissor} destinatario={formData.nfe_dados_destinatario} onChange={(data) => setFormData(prev => ({ ...prev, nfe_dados_emissor: data.emissor || prev.nfe_dados_emissor, nfe_dados_destinatario: data.destinatario || prev.nfe_dados_destinatario }))} />}</TabsContent>)}
-              {usaFluxoRecebimento && (<TabsContent value="receb-rodape" className="space-y-6"><div className="space-y-2"><Label>Informações Complementares</Label><Textarea value={formData.nfe_info_complementares} onChange={(e) => setFormData({ ...formData, nfe_info_complementares: e.target.value })} placeholder="Informações complementares da nota fiscal..." rows={8} className="font-mono text-sm" /></div></TabsContent>)}
 
               {usaFluxoRecebimento && (
                 <TabsContent value="receb-documento" className="space-y-6">
@@ -1280,6 +1278,16 @@ export default function OSFormModal({
                       </div>
                     </div>
                     <div className="space-y-2"><Label>Doc Referência</Label><Input type="text" value={formData.doc_referencia} onChange={(e) => setFormData({ ...formData, doc_referencia: e.target.value })} placeholder="Texto livre" /></div>
+                  </div>
+                  <div className="space-y-2 pt-4 border-t border-slate-200 dark:border-slate-700">
+                    <Label>Informações Complementares</Label>
+                    <Textarea
+                      value={formData.nfe_info_complementares}
+                      onChange={(e) => setFormData({ ...formData, nfe_info_complementares: e.target.value })}
+                      placeholder="Informações complementares da nota fiscal..."
+                      rows={8}
+                      className="font-mono text-sm"
+                    />
                   </div>
                 </TabsContent>
               )}
