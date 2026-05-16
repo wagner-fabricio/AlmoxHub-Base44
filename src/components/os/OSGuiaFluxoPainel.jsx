@@ -17,14 +17,15 @@ export default function OSGuiaFluxoPainel({
   formData,
   usaFluxoExpedicao,
   usaFluxoRecebimento,
+  fluxoEstrito = true,
   onNavigateTab,
   defaultCollapsed = false,
 }) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
 
   const state = useMemo(
-    () => getFluxoState(formData, { usaFluxoExpedicao, usaFluxoRecebimento }),
-    [formData, usaFluxoExpedicao, usaFluxoRecebimento]
+    () => getFluxoState(formData, { usaFluxoExpedicao, usaFluxoRecebimento, fluxoEstrito }),
+    [formData, usaFluxoExpedicao, usaFluxoRecebimento, fluxoEstrito]
   );
 
   if (!state) return null;

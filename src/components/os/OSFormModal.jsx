@@ -291,9 +291,11 @@ export default function OSFormModal({
   const isExpedicaoCategory = selectedCategoria?.nome?.toLowerCase().includes('expedição');
   const isRecebimentoCategory = selectedCategoria?.nome?.toLowerCase().includes('recebimento');
   const isAtendimentoCategory = selectedCategoria?.nome?.toLowerCase().includes('atendimento');
-  // Abas de fluxo de expedição (Documento/Materiais/Volumes/Expedição) só aparecem
-  // para subcategorias "Com Reserva" ou "Sem Reserva". Demais subcategorias usam progresso manual.
-  const usaFluxoExpedicao = isExpedicaoCategory && selectedSubcategorias.some(s => {
+  // Abas de fluxo de expedição (Documento/Materiais/Volumes/Expedição) aparecem
+  // para QUALQUER subcategoria de Expedição. As regras estritas de campos obrigatórios
+  // (reserva, usuário, vinculação, etc.) só se aplicam para "Com Reserva" e "Sem Reserva".
+  const usaFluxoExpedicao = isExpedicaoCategory;
+  const usaFluxoExpedicaoEstrito = isExpedicaoCategory && selectedSubcategorias.some(s => {
     const nome = s?.nome?.toLowerCase() || '';
     return nome.includes('com reserva') || nome.includes('sem reserva');
   });
@@ -644,13 +646,13 @@ export default function OSFormModal({
   // Mapa de pendências por aba (para badges nos TabsTrigger)
   const pendenciasPorAba = React.useMemo(() => {
     if (!usaFluxoExpedicao && !usaFluxoRecebimento) return {};
-    const state = getFluxoState(formData, { usaFluxoExpedicao, usaFluxoRecebimento });
+    const state = getFluxoState(formData, { usaFluxoExpedicao, usaFluxoRecebimento, fluxoEstrito: usaFluxoExpedicaoEstrito });
     const map = {};
     (state?.pendencias || []).forEach(p => {
       if (p.tab) map[p.tab] = (map[p.tab] || 0) + 1;
     });
     return map;
-  }, [formData, usaFluxoExpedicao, usaFluxoRecebimento]);
+  }, [formData, usaFluxoExpedicao, usaFluxoRecebimento, usaFluxoExpedicaoEstrito]);
 
   const PendBadge = ({ tab }) => {
     const n = pendenciasPorAba[tab];
@@ -669,9 +671,13 @@ export default function OSFormModal({
   const hasVolumes = (formData.volumes?.length || 0) > 0;
   const separacaoIncompleta = usaFluxoExpedicao && hasVolumes && (!formData.responsavel_separacao || !formData.data_separacao || !formData.separacao_concluida_em);
   const documentoIncompleto = usaFluxoExpedicao && (
-    !formData.num_reserva || !formData.data_reserva || !formData.usuario_reserva ||
-    !formData.orgao || !formData.vinculacao || !formData.instalacao_origem_id || !formData.instalacao_destino_id ||
-    (formData.num_migo && !formData.data_migo)
+    usaFluxoExpedicaoEstrito
+      ? (
+          !formData.num_reserva || !formData.data_reserva || !formData.usuario_reserva ||
+          !formData.orgao || !formData.vinculacao || !formData.instalacao_origem_id || !formData.instalacao_destino_id ||
+          (formData.num_migo && !formData.data_migo)
+        )
+      : (!formData.instalacao_origem_id || !formData.instalacao_destino_id)
   );
   const migoRecebIncompleto = usaFluxoRecebimento && formData.numero_migo_receb && !formData.data_migo_receb;
   const isValid = formData.categoria_id && formData.subcategorias_ids?.length > 0 && formData.regional_id && formData.almoxarifado_id && formData.lider_id && formData.prazo && formData.complexidade && !prazoError && !problemasNaoPreenchidos && !separacaoIncompleta && !documentoIncompleto && !migoRecebIncompleto;
@@ -935,19 +941,19 @@ export default function OSFormModal({
               {/* TAB: Documento (Expedição) */}
               {usaFluxoExpedicao && (
                 <TabsContent value="documento" className="space-y-8">
-                  {/* Seção 1: Dados da Reserva */}
+                  {/* Seção 1: Dados da Solicitação */}
                   <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
                     <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
                       <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
-                      Dados da Reserva
+                      Dados da Solicitação
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                       <div className="space-y-2">
-                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Número da Reserva <span className="text-red-500">*</span></Label>
-                        <Input value={formData.num_reserva} onChange={(e) => setFormData({ ...formData, num_reserva: e.target.value })} className={`rounded-lg ${!formData.num_reserva ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`} />
+                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Número da Reserva/Pedido {usaFluxoExpedicaoEstrito && <span className="text-red-500">*</span>}</Label>
+                        <Input value={formData.num_reserva} onChange={(e) => setFormData({ ...formData, num_reserva: e.target.value })} className={`rounded-lg ${usaFluxoExpedicaoEstrito && !formData.num_reserva ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`} />
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Data Criação <span className="text-red-500">*</span></Label>
+                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Data Criação {usaFluxoExpedicaoEstrito && <span className="text-red-500">*</span>}</Label>
                         <Input type="date" value={formData.data_reserva} onChange={(e) => {
                           const newDate = e.target.value;
                           const updates = { data_reserva: newDate };
@@ -962,12 +968,12 @@ export default function OSFormModal({
                             updates.data_necessidade = d.toISOString().split('T')[0];
                           }
                           setFormData({ ...formData, ...updates });
-                        }} className={`rounded-lg ${!formData.data_reserva ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`} />
+                        }} className={`rounded-lg ${usaFluxoExpedicaoEstrito && !formData.data_reserva ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`} />
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Vinculação <span className="text-red-500">*</span></Label>
+                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Vinculação {usaFluxoExpedicaoEstrito && <span className="text-red-500">*</span>}</Label>
                         <Select value={formData.vinculacao} onValueChange={(v) => setFormData({ ...formData, vinculacao: v })}>
-                          <SelectTrigger className={`rounded-lg ${!formData.vinculacao ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`}><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                          <SelectTrigger className={`rounded-lg ${usaFluxoExpedicaoEstrito && !formData.vinculacao ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`}><SelectValue placeholder="Selecione..." /></SelectTrigger>
                           <SelectContent><SelectItem value="custeio">Custeio</SelectItem><SelectItem value="investimento">Investimento</SelectItem></SelectContent>
                         </Select>
                       </div>
@@ -982,16 +988,16 @@ export default function OSFormModal({
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                       <div className="space-y-2">
-                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Nome Usuário <span className="text-red-500">*</span></Label>
-                        <Input value={formData.usuario_reserva} onChange={(e) => setFormData({ ...formData, usuario_reserva: e.target.value })} className={`rounded-lg ${!formData.usuario_reserva ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`} />
+                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Nome Usuário {usaFluxoExpedicaoEstrito && <span className="text-red-500">*</span>}</Label>
+                        <Input value={formData.usuario_reserva} onChange={(e) => setFormData({ ...formData, usuario_reserva: e.target.value })} className={`rounded-lg ${usaFluxoExpedicaoEstrito && !formData.usuario_reserva ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`} />
                       </div>
                       <div className="space-y-2">
                         <Label className="text-slate-700 dark:text-slate-300 font-medium">Email Usuário</Label>
                         <Input type="email" value={formData.usuario_reserva_email} onChange={(e) => setFormData({ ...formData, usuario_reserva_email: e.target.value })} className="rounded-lg border-slate-300 dark:border-slate-600" />
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Área do Usuário <span className="text-red-500">*</span></Label>
-                        <Input value={formData.orgao} onChange={(e) => setFormData({ ...formData, orgao: e.target.value })} className={`rounded-lg ${!formData.orgao ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`} />
+                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Área do Usuário {usaFluxoExpedicaoEstrito && <span className="text-red-500">*</span>}</Label>
+                        <Input value={formData.orgao} onChange={(e) => setFormData({ ...formData, orgao: e.target.value })} className={`rounded-lg ${usaFluxoExpedicaoEstrito && !formData.orgao ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`} />
                       </div>
                     </div>
                   </div>
@@ -1378,6 +1384,7 @@ export default function OSFormModal({
                 formData={formData}
                 usaFluxoExpedicao={usaFluxoExpedicao}
                 usaFluxoRecebimento={usaFluxoRecebimento}
+                fluxoEstrito={usaFluxoExpedicaoEstrito}
                 onNavigateTab={handleFormTabChange}
               />
             )}
