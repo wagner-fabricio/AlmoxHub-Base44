@@ -159,7 +159,7 @@ export default function TimeSheetButton({
         disabled={loading}
         title={tooltip}
         className={`
-          inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all duration-200
+          inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all duration-200 whitespace-nowrap shrink-0
           ${sizeClass}
           ${bgColor}
           ${pulsar ? 'animate-pulse' : ''}
@@ -170,7 +170,7 @@ export default function TimeSheetButton({
         {loading ? (
           <span className={`inline-block rounded-full border-2 border-white border-t-transparent animate-spin ${isMobile ? 'w-5 h-5' : isSmall ? 'w-3 h-3' : 'w-3.5 h-3.5'}`} />
         ) : icon}
-        {mostrarTempo && <span>{tempoTotal}</span>}
+        {mostrarTempo && <span className="whitespace-nowrap">{tempoTotal}</span>}
       </button>
 
       {!onRequestSelecao && showSelecaoModal && (
