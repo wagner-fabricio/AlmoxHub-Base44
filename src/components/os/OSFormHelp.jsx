@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { HelpCircle, ChevronDown, ChevronRight } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Conteúdo de ajuda por aba — dados estáticos, sem impacto de performance
 const HELP_CONTENT = {
@@ -336,16 +337,22 @@ export default function OSFormHelp({ activeTab }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg px-3 py-1.5 text-xs font-medium transition-all"
-        >
-          <HelpCircle className="w-3.5 h-3.5" />
-          Ajuda
-        </Button>
-      </DialogTrigger>
+      <TooltipProvider delayDuration={300}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DialogTrigger asChild>
+              <button
+                type="button"
+                aria-label="Ajuda desta aba"
+                className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors"
+              >
+                <HelpCircle className="w-4 h-4" />
+              </button>
+            </DialogTrigger>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Ajuda desta aba</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <DialogContent className="max-w-lg p-0 overflow-hidden">
         <DialogHeader className="px-6 py-4 border-b" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
           <div className="flex items-center gap-3">

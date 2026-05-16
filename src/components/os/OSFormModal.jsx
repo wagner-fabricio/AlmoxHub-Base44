@@ -683,6 +683,7 @@ export default function OSFormModal({
                   onClick={() => onDelete(os)}
                 />
               )}
+              <OSFormHelp activeTab={activeTab} />
             </div>
           </div>
         </DialogHeader>
@@ -715,9 +716,6 @@ export default function OSFormModal({
                   <TabsTrigger value="historico" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3 flex items-center gap-1.5"><History className="w-3.5 h-3.5" />Histórico</TabsTrigger>
                 </>)}
               </TabsList>
-              <div className="pb-2 flex-shrink-0">
-                <OSFormHelp activeTab={activeTab} />
-              </div>
               </div>
 
               {/* TAB: Dados Gerais */}
