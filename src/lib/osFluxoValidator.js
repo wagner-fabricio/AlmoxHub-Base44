@@ -58,24 +58,24 @@ export function getPendenciasExpedicao(formData) {
   const fluxo = formData.fluxo_expedicao || {};
   const pendencias = [];
 
-  // Etapa 1 — Solicitação: dados gerais obrigatórios
-  if (!fluxo.solicitacao_completa) {
-    if (!formData.categoria_id) pendencias.push({ etapa: 1, tab: 'geral', label: 'Categoria' });
-    if (!formData.subcategorias_ids?.length) pendencias.push({ etapa: 1, tab: 'geral', label: 'Subcategoria' });
-    if (!formData.regional_id) pendencias.push({ etapa: 1, tab: 'geral', label: 'Regional' });
-    if (!formData.almoxarifado_id) pendencias.push({ etapa: 1, tab: 'geral', label: 'Almoxarifado' });
-    if (!formData.lider_id) pendencias.push({ etapa: 1, tab: 'geral', label: 'Líder' });
-    if (!formData.prazo) pendencias.push({ etapa: 1, tab: 'geral', label: 'Prazo' });
-    if (!formData.complexidade) pendencias.push({ etapa: 1, tab: 'geral', label: 'Complexidade' });
-    if (!formData.num_reserva) pendencias.push({ etapa: 1, tab: 'geral', label: 'Nº da Reserva' });
-    if (!formData.data_reserva) pendencias.push({ etapa: 1, tab: 'geral', label: 'Data da Reserva' });
-    if (!formData.usuario_reserva) pendencias.push({ etapa: 1, tab: 'geral', label: 'Nome do Usuário' });
-    if (!formData.orgao) pendencias.push({ etapa: 1, tab: 'geral', label: 'Órgão' });
-    if (!formData.vinculacao) pendencias.push({ etapa: 1, tab: 'geral', label: 'Vinculação (Custeio/Investimento)' });
-    if (!formData.instalacao_origem_id) pendencias.push({ etapa: 1, tab: 'geral', label: 'Instalação Origem' });
-    if (!formData.instalacao_destino_id) pendencias.push({ etapa: 1, tab: 'geral', label: 'Instalação Destino' });
-    return pendencias;
-  }
+  // Etapa 1 — Solicitação: sempre validada (campos básicos obrigatórios)
+  const pend1 = [];
+  if (!formData.categoria_id) pend1.push({ etapa: 1, tab: 'geral', label: 'Categoria' });
+  if (!formData.subcategorias_ids?.length) pend1.push({ etapa: 1, tab: 'geral', label: 'Subcategoria' });
+  if (!formData.regional_id) pend1.push({ etapa: 1, tab: 'geral', label: 'Regional' });
+  if (!formData.almoxarifado_id) pend1.push({ etapa: 1, tab: 'geral', label: 'Almoxarifado' });
+  if (!formData.lider_id) pend1.push({ etapa: 1, tab: 'geral', label: 'Líder' });
+  if (!formData.prazo) pend1.push({ etapa: 1, tab: 'geral', label: 'Prazo' });
+  if (!formData.complexidade) pend1.push({ etapa: 1, tab: 'geral', label: 'Complexidade' });
+  if (!formData.num_reserva) pend1.push({ etapa: 1, tab: 'geral', label: 'Nº da Reserva' });
+  if (!formData.data_reserva) pend1.push({ etapa: 1, tab: 'geral', label: 'Data da Reserva' });
+  if (!formData.usuario_reserva) pend1.push({ etapa: 1, tab: 'geral', label: 'Nome do Usuário' });
+  if (!formData.orgao) pend1.push({ etapa: 1, tab: 'geral', label: 'Órgão' });
+  if (!formData.vinculacao) pend1.push({ etapa: 1, tab: 'geral', label: 'Vinculação (Custeio/Investimento)' });
+  if (!formData.instalacao_origem_id) pend1.push({ etapa: 1, tab: 'geral', label: 'Instalação Origem' });
+  if (!formData.instalacao_destino_id) pend1.push({ etapa: 1, tab: 'geral', label: 'Instalação Destino' });
+  pendencias.push(...pend1);
+  if (pend1.length > 0) return pendencias; // só avança se etapa 1 está OK
 
   // Etapa 2 — Separação: todos os itens marcados como separados
   if (!fluxo.separacao_completa) {
@@ -212,16 +212,33 @@ export function getPendenciasRecebimento(formData) {
 // API unificada
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Reconcilia o estado de "completa" das etapas com as pendências reais.
+// Uma etapa só é considerada completa se: a flag do fluxo dizia que sim
+// E não há mais nenhuma pendência apontada por aquela etapa.
+// Isso evita que uma OS nova apareça com etapas marcadas como concluídas
+// sem que os campos obrigatórios tenham sido preenchidos.
+function reconciliarEtapas(etapas, pendencias) {
+  const pendentesPorEtapa = new Set((pendencias || []).map(p => p.etapa));
+  const reconciliadas = etapas.map(e => ({
+    ...e,
+    completa: e.completa && !pendentesPorEtapa.has(e.id),
+  }));
+  const proxima = reconciliadas.find(e => !e.completa);
+  const etapaAtualId = proxima ? proxima.id : reconciliadas[reconciliadas.length - 1].id;
+  reconciliadas.forEach(e => { e.atual = e.id === etapaAtualId && !e.completa; });
+  return reconciliadas;
+}
+
 export function getFluxoState(formData, { usaFluxoExpedicao, usaFluxoRecebimento }) {
   if (usaFluxoExpedicao) {
-    const etapas = getEtapasExpedicao(formData);
     const pendencias = getPendenciasExpedicao(formData);
+    const etapas = reconciliarEtapas(getEtapasExpedicao(formData), pendencias);
     const etapaAtual = etapas.find(e => e.atual) || etapas[etapas.length - 1];
     return { tipo: 'expedicao', etapas, pendencias, etapaAtual, progresso: formData.progresso || 0 };
   }
   if (usaFluxoRecebimento) {
-    const etapas = getEtapasRecebimento(formData);
     const pendencias = getPendenciasRecebimento(formData);
+    const etapas = reconciliarEtapas(getEtapasRecebimento(formData), pendencias);
     const etapaAtual = etapas.find(e => e.atual) || etapas[etapas.length - 1];
     return { tipo: 'recebimento', etapas, pendencias, etapaAtual, progresso: formData.progresso || 0 };
   }
