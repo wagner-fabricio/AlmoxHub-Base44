@@ -638,16 +638,6 @@ export default function OSFormModal({
               {os?.id ? `${readOnly ? 'OS' : 'Editar OS'}: ${os.codigo}` : 'Nova Ordem de Serviço'}
             </DialogTitle>
             <div className="flex items-center gap-2 shrink-0">
-              {os?.id && (formData.timesheet_total_minutos > 0 || formData.timesheet_status === 'playing') && (
-                <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 bg-white/20 rounded-full">
-                  <span className="text-xs font-medium text-white">
-                    ⏱ {formatarTempo(formData.timesheet_total_minutos || 0)}
-                  </span>
-                  {formData.timesheet_status === 'playing' && (
-                    <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-                  )}
-                </div>
-              )}
               {os?.id && (
                 <OSHeaderTimeSheetButton
                   os={{ ...os, ...{
