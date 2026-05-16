@@ -186,6 +186,8 @@ export default function OSPrazosControle({
                const novoStatus = v;
                const novaData = { ...formData, status: novoStatus };
                const isFinal = novoStatus === 'concluido' || novoStatus === 'cancelado';
+               const eraFinal = formData.status === 'concluido' || formData.status === 'cancelado';
+               const semFluxo = !isExpedicaoCategory && !isRecebimentoCategory;
 
                // Se mudando para 'concluído' ou 'cancelado', preencher data_conclusao com data de hoje
                if (isFinal && !formData.data_conclusao) {
@@ -194,6 +196,12 @@ export default function OSPrazosControle({
                // Se saindo de status final, limpar data_conclusao
                else if (!isFinal && formData.data_conclusao) {
                  novaData.data_conclusao = '';
+               }
+
+               // Progresso automático para categorias sem fluxo definido
+               if (semFluxo) {
+                 if (isFinal) novaData.progresso = 100;
+                 else if (eraFinal) novaData.progresso = 0;
                }
 
                setFormData(novaData);

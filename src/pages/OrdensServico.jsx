@@ -370,6 +370,16 @@ export default function OrdensServico() {
         updateData = { status_separacao: newStatus };
       } else {
         updateData = { status: newStatus };
+        // Progresso automático para categorias sem fluxo (não Expedição/Recebimento)
+        const categoria = Array.isArray(categorias) ? categorias.find(c => c?.id === os?.categoria_id) : null;
+        const nomeCat = categoria?.nome?.toLowerCase() || '';
+        const semFluxo = !nomeCat.includes('expedição') && !nomeCat.includes('expedicao') && !nomeCat.includes('recebimento');
+        const isFinal = newStatus === 'concluido' || newStatus === 'cancelado';
+        const eraFinal = os?.status === 'concluido' || os?.status === 'cancelado';
+        if (semFluxo) {
+          if (isFinal) updateData.progresso = 100;
+          else if (eraFinal) updateData.progresso = 0;
+        }
       }
       
       await base44.entities.OrdemServico.update(osId, updateData);
