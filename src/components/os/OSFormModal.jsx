@@ -13,7 +13,7 @@ import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, Command
 import { Slider } from '@/components/ui/slider';
 import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
-import { Save, Plus, Trash2, Upload, X, Loader2, Paperclip, Check, ChevronsUpDown, ExternalLink, Tag, Printer } from 'lucide-react';
+import { Save, Plus, Trash2, Upload, X, Loader2, Paperclip, Check, ChevronsUpDown, ExternalLink, Tag, Printer, Share2, MessageSquare, History, Image as ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from "sonner";
 import OSItensDocumento from './OSItensDocumento';
@@ -40,6 +40,10 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
 } from '@/components/ui/alert-dialog';
+import OSHeaderIconButton from './OSHeaderIconButton';
+import OSComentariosTab from './OSComentariosTab';
+import OSHistoricoTab from './OSHistoricoTab';
+import { toast as sonnerToast } from 'sonner';
 
 const EMPTY_FORM = {
   categoria_id: '', subcategorias_ids: [], regional_id: '', almoxarifado_id: '',
@@ -74,6 +78,9 @@ export default function OSFormModal({
   const [loading, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('geral');
   const [loadedFormTabs, setLoadedFormTabs] = useState(new Set(['geral']));
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [auditPage, setAuditPage] = useState(1);
+  const PAGE_SIZE = 20;
   // Modo leitura/edição (apenas para OS existentes; novas sempre em edição)
   const [readOnly, setReadOnly] = useState(initialMode === 'read' && !!os?.id);
   const [isDirty, setIsDirty] = useState(false);
@@ -82,6 +89,30 @@ export default function OSFormModal({
   const handleFormTabChange = (tab) => {
     setActiveTab(tab);
     setLoadedFormTabs(prev => new Set([...prev, tab]));
+    // Lazy-load histórico
+    if (tab === 'historico' && os?.id && auditLogs.length === 0) {
+      loadAuditLogsInternal();
+    }
+  };
+
+  const loadAuditLogsInternal = async () => {
+    if (!os?.id) return;
+    try {
+      const logs = await base44.entities.AuditLog.filter(
+        { entity_type: 'OrdemServico', entity_id: os.id },
+        '-created_date', 200
+      );
+      const arr = Array.isArray(logs) ? logs : [];
+      setAuditLogs(arr.sort((a, b) => new Date(b.timestamp || b.created_date) - new Date(a.timestamp || a.created_date)));
+    } catch (e) { /* silently fail — audit log is non-critical */ }
+  };
+
+  const handleShareOS = () => {
+    if (!os?.id) return;
+    const url = `${window.location.origin}${window.location.pathname}?os_id=${os.id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      sonnerToast.success('Link copiado!');
+    }).catch(() => sonnerToast.error('Erro ao copiar link'));
   };
   const [generatingOSPDF, setGeneratingOSPDF] = useState(false);
   const [showRelatorioOS, setShowRelatorioOS] = useState(false);
@@ -617,24 +648,26 @@ export default function OSFormModal({
                 </div>
               )}
               {readOnly && userCanEdit && (
-                <button
-                  type="button"
+                <OSHeaderIconButton
+                  icon={Edit}
+                  label="Editar"
                   onClick={() => setReadOnly(false)}
-                  className="flex items-center gap-1.5 px-2 sm:px-3 py-1 bg-white text-blue-800 hover:bg-blue-50 rounded-lg text-xs font-medium transition-colors whitespace-nowrap"
-                >
-                  <Edit className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Editar</span>
-                </button>
+                  variant="solid"
+                />
               )}
-              <button
-                type="button"
+              {os?.id && (
+                <OSHeaderIconButton
+                  icon={Share2}
+                  label="Copiar link"
+                  onClick={handleShareOS}
+                />
+              )}
+              <OSHeaderIconButton
+                icon={Printer}
+                label={generatingOSPDF ? 'Gerando...' : 'Imprimir OS'}
                 onClick={handleGenerateOSPDF}
                 disabled={generatingOSPDF}
-                className="flex items-center gap-1.5 px-2 sm:px-3 py-1 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-medium transition-colors whitespace-nowrap"
-              >
-                <Printer className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">{generatingOSPDF ? 'Gerando...' : 'Imprimir OS'}</span>
-              </button>
+              />
             </div>
           </div>
         </DialogHeader>
@@ -662,6 +695,10 @@ export default function OSFormModal({
                   <TabsTrigger value="receb-rodape" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Rodapé NF</TabsTrigger>
                 </>)}
                 <TabsTrigger value="anexos" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Anexos</TabsTrigger>
+                {os?.id && (<>
+                  <TabsTrigger value="comentarios" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3 flex items-center gap-1.5"><MessageSquare className="w-3.5 h-3.5" />Comentários</TabsTrigger>
+                  <TabsTrigger value="historico" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3 flex items-center gap-1.5"><History className="w-3.5 h-3.5" />Histórico</TabsTrigger>
+                </>)}
               </TabsList>
               <div className="pb-2 flex-shrink-0">
                 <OSFormHelp activeTab={activeTab} />
@@ -1230,6 +1267,31 @@ export default function OSFormModal({
                   </div>
                 </div>
               </TabsContent>
+
+              {/* TAB: Comentários (somente OS existente) */}
+              {os?.id && (
+                <TabsContent value="comentarios" className="min-h-[500px]">
+                  <OSComentariosTab
+                    os={os}
+                    pessoas={pessoas}
+                    currentUser={currentUser}
+                    currentUserPessoa={currentPessoa}
+                    isActive={activeTab === 'comentarios'}
+                  />
+                </TabsContent>
+              )}
+
+              {/* TAB: Histórico (somente OS existente) */}
+              {os?.id && (
+                <OSHistoricoTab
+                  loaded={loadedFormTabs.has('historico')}
+                  auditLogs={auditLogs}
+                  auditPage={auditPage}
+                  setAuditPage={setAuditPage}
+                  pageSize={PAGE_SIZE}
+                  pessoas={pessoas}
+                />
+              )}
             </Tabs>
           </fieldset>
         </div>
