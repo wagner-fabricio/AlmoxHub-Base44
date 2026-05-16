@@ -65,21 +65,6 @@ export default function OSPrazosControle({
           )}
         </div>
 
-        {/* Tempo Previsto */}
-        <div className="space-y-2">
-          <Label className="text-slate-700 dark:text-slate-300 font-medium">Tempo Previsto</Label>
-          <div className="h-9 flex items-center px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-slate-300">
-            {formData.data_inicial && formData.prazo ? (
-              (() => {
-                const dias = differenceInDays(new Date(formData.prazo), new Date(formData.data_inicial));
-                return <span className={dias < 0 ? 'text-red-500' : ''}>{dias} dia{Math.abs(dias) !== 1 ? 's' : ''}</span>;
-              })()
-            ) : (
-              <span className="text-slate-400">Preencha Data Inicial e Prazo</span>
-            )}
-          </div>
-        </div>
-
         {/* Data de Conclusão */}
          <div className="space-y-2">
            <div className="flex items-center gap-2">
@@ -119,6 +104,21 @@ export default function OSPrazosControle({
            )}
          </div>
 
+        {/* Tempo Previsto */}
+        <div className="space-y-2">
+          <Label className="text-slate-700 dark:text-slate-300 font-medium">Tempo Previsto</Label>
+          <div className="h-9 flex items-center px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-slate-300">
+            {formData.data_inicial && formData.prazo ? (
+              (() => {
+                const dias = differenceInDays(new Date(formData.prazo), new Date(formData.data_inicial));
+                return <span className={dias < 0 ? 'text-red-500' : ''}>{dias} dia{Math.abs(dias) !== 1 ? 's' : ''}</span>;
+              })()
+            ) : (
+              <span className="text-slate-400">Preencha Data Inicial e Prazo</span>
+            )}
+          </div>
+        </div>
+
         {/* Tempo Decorrido */}
         <div className="space-y-2">
           <Label className="text-slate-700 dark:text-slate-300 font-medium">Tempo Decorrido</Label>
@@ -140,23 +140,34 @@ export default function OSPrazosControle({
           </p>
         </div>
 
-        {/* Prioridade */}
+        {/* Progresso */}
         <div className="space-y-2">
-          <Label className="text-slate-700 dark:text-slate-300 font-medium">Prioridade</Label>
-          <Select
-            value={formData.prioridade}
-            onValueChange={(v) => setFormData({ ...formData, prioridade: v })}
-          >
-            <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="baixa">Baixa</SelectItem>
-              <SelectItem value="media">Média</SelectItem>
-              <SelectItem value="alta">Alta</SelectItem>
-              <SelectItem value="urgente">Urgente</SelectItem>
-            </SelectContent>
-          </Select>
+          <Label className="text-slate-700 dark:text-slate-300 font-medium">Progresso (%)</Label>
+          <Input
+            type="number"
+            min="0"
+            max="100"
+            value={formData.progresso || 0}
+            onChange={(e) => setFormData({ ...formData, progresso: parseInt(e.target.value) || 0 })}
+            disabled={isExpedicaoCategory || isRecebimentoCategory}
+            className={(isExpedicaoCategory || isRecebimentoCategory) ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed rounded-lg' : 'border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600'}
+          />
+          {!isExpedicaoCategory && !isRecebimentoCategory && (
+            <Slider
+              value={[formData.progresso || 0]}
+              onValueChange={(value) => setFormData({ ...formData, progresso: value[0] })}
+              min={0}
+              max={100}
+              step={1}
+              className="mt-3 [&_.slider-track]:bg-slate-200 dark:[&_.slider-track]:bg-slate-700 [&_.slider-range]:bg-gradient-to-r [&_.slider-range]:from-[#22c55e] [&_.slider-range]:to-[#84cc16] [&_.slider-thumb]:border-[#22c55e] [&_.slider-thumb]:bg-white"
+            />
+          )}
+          {isExpedicaoCategory && (
+            <p className="text-xs text-slate-500 mt-1">Progresso automático baseado no fluxo de expedição</p>
+          )}
+          {isRecebimentoCategory && (
+            <p className="text-xs text-slate-500 mt-1">Progresso automático baseado no fluxo de recebimento</p>
+          )}
         </div>
 
         {/* Complexidade */}
@@ -219,34 +230,23 @@ export default function OSPrazosControle({
           </Select>
         </div>
 
-        {/* Progresso */}
+        {/* Prioridade */}
         <div className="space-y-2">
-          <Label className="text-slate-700 dark:text-slate-300 font-medium">Progresso (%)</Label>
-          <Input
-            type="number"
-            min="0"
-            max="100"
-            value={formData.progresso || 0}
-            onChange={(e) => setFormData({ ...formData, progresso: parseInt(e.target.value) || 0 })}
-            disabled={isExpedicaoCategory || isRecebimentoCategory}
-            className={(isExpedicaoCategory || isRecebimentoCategory) ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed rounded-lg' : 'border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600'}
-          />
-          {!isExpedicaoCategory && !isRecebimentoCategory && (
-            <Slider
-              value={[formData.progresso || 0]}
-              onValueChange={(value) => setFormData({ ...formData, progresso: value[0] })}
-              min={0}
-              max={100}
-              step={1}
-              className="mt-3 [&_.slider-track]:bg-slate-200 dark:[&_.slider-track]:bg-slate-700 [&_.slider-range]:bg-gradient-to-r [&_.slider-range]:from-[#22c55e] [&_.slider-range]:to-[#84cc16] [&_.slider-thumb]:border-[#22c55e] [&_.slider-thumb]:bg-white"
-            />
-          )}
-          {isExpedicaoCategory && (
-            <p className="text-xs text-slate-500 mt-1">Progresso automático baseado no fluxo de expedição</p>
-          )}
-          {isRecebimentoCategory && (
-            <p className="text-xs text-slate-500 mt-1">Progresso automático baseado no fluxo de recebimento</p>
-          )}
+          <Label className="text-slate-700 dark:text-slate-300 font-medium">Prioridade</Label>
+          <Select
+            value={formData.prioridade}
+            onValueChange={(v) => setFormData({ ...formData, prioridade: v })}
+          >
+            <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="baixa">Baixa</SelectItem>
+              <SelectItem value="media">Média</SelectItem>
+              <SelectItem value="alta">Alta</SelectItem>
+              <SelectItem value="urgente">Urgente</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </div>
