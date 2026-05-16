@@ -13,7 +13,7 @@ import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, Command
 import { Slider } from '@/components/ui/slider';
 import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
-import { Save, Plus, Trash2, Upload, X, Loader2, Paperclip, Check, ChevronsUpDown, ExternalLink, Tag, Printer, Share2, MessageSquare, History, Image as ImageIcon } from 'lucide-react';
+import { Save, Plus, Trash2, Upload, X, Loader2, Paperclip, Check, ChevronsUpDown, ExternalLink, Tag, Printer, Share2, MessageSquare, History, Image as ImageIcon, Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from "sonner";
 import OSItensDocumento from './OSItensDocumento';
@@ -73,7 +73,8 @@ const EMPTY_FORM = {
 
 export default function OSFormModal({
   open, onClose, os, regionais, almoxarifados, pessoas, categorias, subcategorias,
-  projetos, instalacoes, currentUser, onSave, initialMode = 'edit'
+  projetos, instalacoes, currentUser, onSave, initialMode = 'edit',
+  onDelete, onCreateRelated, canDelete = false
 }) {
   const [loading, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('geral');
@@ -668,6 +669,20 @@ export default function OSFormModal({
                 onClick={handleGenerateOSPDF}
                 disabled={generatingOSPDF}
               />
+              {os?.id && onCreateRelated && (
+                <OSHeaderIconButton
+                  icon={Copy}
+                  label="Criar OS relacionada"
+                  onClick={() => onCreateRelated(os)}
+                />
+              )}
+              {os?.id && canDelete && onDelete && (
+                <OSHeaderIconButton
+                  icon={Trash2}
+                  label="Excluir OS"
+                  onClick={() => onDelete(os)}
+                />
+              )}
             </div>
           </div>
         </DialogHeader>

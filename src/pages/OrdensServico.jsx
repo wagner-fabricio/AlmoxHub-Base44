@@ -19,7 +19,6 @@ import OSByResponsavel from '@/components/os/OSByResponsavel.jsx';
 import OSPendenciasExpedicao from '@/components/os/OSPendenciasExpedicao.jsx';
 import OSPendenciasRecebimento from '@/components/os/OSPendenciasRecebimento.jsx';
 import OSFormModal from '@/components/os/OSFormModal.jsx';
-import OSDetailModal from '@/components/os/OSDetailModal.jsx';
 import { notifyOSAssignment, notifyStatusChange } from '@/components/notifications/PushNotificationHelper';
 import OSTimeSheetView from '@/components/timesheet/OSTimeSheetView.jsx';
 import OSTimeSheetRelatorio from '@/components/timesheet/OSTimeSheetRelatorio.jsx';
@@ -89,7 +88,7 @@ export default function OrdensServico() {
   }, [currentUser]);
 
   const [showFormModal, setShowFormModal] = useState(false);
-  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [formInitialMode, setFormInitialMode] = useState('edit');
   const [selectedOS, setSelectedOS] = useState(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deletingOS, setDeletingOS] = useState(null);
@@ -209,10 +208,11 @@ export default function OrdensServico() {
         const osFromCache = Array.isArray(cached) ? cached.find(o => o.id === osId) : null;
         if (osFromCache) {
           setSelectedOS(osFromCache);
-          setShowDetailModal(true);
+          setFormInitialMode('read');
+          setShowFormModal(true);
         } else {
           base44.entities.OrdemServico.filter({ id: osId }).then(res => {
-            if (res?.[0]) { setSelectedOS(res[0]); setShowDetailModal(true); }
+            if (res?.[0]) { setSelectedOS(res[0]); setFormInitialMode('read'); setShowFormModal(true); }
           }).catch(() => {});
         }
       }
@@ -352,7 +352,8 @@ export default function OrdensServico() {
 
   const handleOSClick = (os) => {
     setSelectedOS(os);
-    setShowDetailModal(true);
+    setFormInitialMode('read');
+    setShowFormModal(true);
   };
 
   const handleStatusChange = async (osId, newStatus, fluxoData) => {
@@ -436,11 +437,7 @@ export default function OrdensServico() {
 
   const handleNewOS = () => {
     setSelectedOS(null);
-    setShowFormModal(true);
-  };
-
-  const handleEditOS = () => {
-    setShowDetailModal(false);
+    setFormInitialMode('edit');
     setShowFormModal(true);
   };
 
@@ -456,13 +453,12 @@ export default function OrdensServico() {
       descricao_resumida: newOSDescription,
       _relatedToOS: originalOS // Passar OS original para referência após criação
     });
-    setShowDetailModal(false);
+    setFormInitialMode('edit');
     setShowFormModal(true);
   };
 
   const handleFormClose = () => {
     setShowFormModal(false);
-    setShowDetailModal(false);
   };
 
   const handleFormSave = async (isNew, osData) => {
@@ -531,7 +527,7 @@ export default function OrdensServico() {
       // Update local state — no reload needed
       setOrdens(prev => prev.filter(o => o.id !== deletingOS.id));
       setShowDeleteDialog(false);
-      setShowDetailModal(false);
+      setShowFormModal(false);
       setDeletingOS(null);
       setSelectedOS(null);
     } catch (error) {
@@ -686,11 +682,12 @@ export default function OrdensServico() {
                   onSelectOS={handleOSClick}
                   onNovaOS={(pessoa) => {
                     setSelectedOS({ lider_id: pessoa?.id });
+                    setFormInitialMode('edit');
                     setShowFormModal(true);
                   }}
-                />
-              )}
-              {viewMode === 'pendencias_expedicao' && (
+                  />
+                  )}
+                  {viewMode === 'pendencias_expedicao' && (
                 <OSPendenciasExpedicao
                   ordens={filteredOrdens}
                   categorias={categorias}
@@ -949,6 +946,7 @@ export default function OrdensServico() {
               onSelectOS={handleOSClick}
               onNovaOS={(pessoa) => {
                 setSelectedOS({ lider_id: pessoa?.id });
+                setFormInitialMode('edit');
                 setShowFormModal(true);
               }}
             />
@@ -956,7 +954,7 @@ export default function OrdensServico() {
         </>
       )}
 
-      {/* Form Modal — lazy mount */}
+      {/* Unified Form/Detail Modal — lazy mount */}
       {showFormModal && (
         <OSFormModal
           open={showFormModal}
@@ -971,27 +969,10 @@ export default function OrdensServico() {
           instalacoes={instalacoes}
           currentUser={currentUser}
           onSave={handleFormSave}
-        />
-      )}
-
-      {/* Detail Modal — lazy mount */}
-      {showDetailModal && (
-        <OSDetailModal
-          open={showDetailModal}
-          onClose={() => setShowDetailModal(false)}
-          os={selectedOS}
-          regionais={regionais}
-          almoxarifados={almoxarifados}
-          pessoas={pessoas}
-          categorias={categorias}
-          subcategorias={subcategorias}
-          instalacoes={instalacoes}
-          projetos={projetos}
-          onEdit={handleEditOS}
+          initialMode={formInitialMode}
           onDelete={handleDeleteOS}
           onCreateRelated={handleCreateRelated}
-          canDelete={selectedOS ? canDeleteOS(selectedOS) : false}
-          onRefresh={() => loadData(true)}
+          canDelete={selectedOS?.id ? canDeleteOS(selectedOS) : false}
         />
       )}
 
