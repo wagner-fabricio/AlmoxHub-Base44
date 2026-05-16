@@ -188,6 +188,25 @@ export default function OSPrazosControle({
           </Select>
         </div>
 
+        {/* Prioridade */}
+        <div className="space-y-2">
+          <Label className="text-slate-700 dark:text-slate-300 font-medium">Prioridade</Label>
+          <Select
+            value={formData.prioridade}
+            onValueChange={(v) => setFormData({ ...formData, prioridade: v })}
+          >
+            <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="baixa">Baixa</SelectItem>
+              <SelectItem value="media">Média</SelectItem>
+              <SelectItem value="alta">Alta</SelectItem>
+              <SelectItem value="urgente">Urgente</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
         {/* Status */}
          <div className="space-y-2">
            <Label className="text-slate-700 dark:text-slate-300 font-medium">Status</Label>
@@ -226,25 +245,6 @@ export default function OSPrazosControle({
               <SelectItem value="execucao">Em Execução</SelectItem>
               <SelectItem value="concluido">Concluído</SelectItem>
               <SelectItem value="cancelado">Cancelado</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Prioridade */}
-        <div className="space-y-2">
-          <Label className="text-slate-700 dark:text-slate-300 font-medium">Prioridade</Label>
-          <Select
-            value={formData.prioridade}
-            onValueChange={(v) => setFormData({ ...formData, prioridade: v })}
-          >
-            <SelectTrigger className="border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="baixa">Baixa</SelectItem>
-              <SelectItem value="media">Média</SelectItem>
-              <SelectItem value="alta">Alta</SelectItem>
-              <SelectItem value="urgente">Urgente</SelectItem>
             </SelectContent>
           </Select>
         </div>
