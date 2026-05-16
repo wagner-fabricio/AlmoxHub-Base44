@@ -67,13 +67,13 @@ export function getPendenciasExpedicao(formData) {
   if (!formData.lider_id) pend1.push({ etapa: 1, tab: 'geral', label: 'Líder' });
   if (!formData.prazo) pend1.push({ etapa: 1, tab: 'geral', label: 'Prazo' });
   if (!formData.complexidade) pend1.push({ etapa: 1, tab: 'geral', label: 'Complexidade' });
-  if (!formData.num_reserva) pend1.push({ etapa: 1, tab: 'geral', label: 'Nº da Reserva' });
-  if (!formData.data_reserva) pend1.push({ etapa: 1, tab: 'geral', label: 'Data da Reserva' });
-  if (!formData.usuario_reserva) pend1.push({ etapa: 1, tab: 'geral', label: 'Nome do Usuário' });
-  if (!formData.orgao) pend1.push({ etapa: 1, tab: 'geral', label: 'Órgão' });
-  if (!formData.vinculacao) pend1.push({ etapa: 1, tab: 'geral', label: 'Vinculação (Custeio/Investimento)' });
-  if (!formData.instalacao_origem_id) pend1.push({ etapa: 1, tab: 'geral', label: 'Instalação Origem' });
-  if (!formData.instalacao_destino_id) pend1.push({ etapa: 1, tab: 'geral', label: 'Instalação Destino' });
+  if (!formData.num_reserva) pend1.push({ etapa: 1, tab: 'documento', label: 'Nº da Reserva' });
+  if (!formData.data_reserva) pend1.push({ etapa: 1, tab: 'documento', label: 'Data da Reserva' });
+  if (!formData.usuario_reserva) pend1.push({ etapa: 1, tab: 'documento', label: 'Nome do Usuário' });
+  if (!formData.orgao) pend1.push({ etapa: 1, tab: 'documento', label: 'Órgão' });
+  if (!formData.vinculacao) pend1.push({ etapa: 1, tab: 'documento', label: 'Vinculação (Custeio/Investimento)' });
+  if (!formData.instalacao_origem_id) pend1.push({ etapa: 1, tab: 'documento', label: 'Instalação Origem' });
+  if (!formData.instalacao_destino_id) pend1.push({ etapa: 1, tab: 'documento', label: 'Instalação Destino' });
   pendencias.push(...pend1);
   if (pend1.length > 0) return pendencias; // só avança se etapa 1 está OK
 
