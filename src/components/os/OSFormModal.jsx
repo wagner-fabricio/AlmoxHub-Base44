@@ -34,6 +34,12 @@ import { formatarTempo } from '@/components/timesheet/TimeSheetButton';
 import RelatorioOS from './RelatorioOS';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { canEditOS } from '@/lib/osPermissions';
+import { Edit } from 'lucide-react';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
+} from '@/components/ui/alert-dialog';
 
 const EMPTY_FORM = {
   categoria_id: '', subcategorias_ids: [], regional_id: '', almoxarifado_id: '',
@@ -63,11 +69,15 @@ const EMPTY_FORM = {
 
 export default function OSFormModal({
   open, onClose, os, regionais, almoxarifados, pessoas, categorias, subcategorias,
-  projetos, instalacoes, currentUser, onSave
+  projetos, instalacoes, currentUser, onSave, initialMode = 'edit'
 }) {
   const [loading, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('geral');
   const [loadedFormTabs, setLoadedFormTabs] = useState(new Set(['geral']));
+  // Modo leitura/edição (apenas para OS existentes; novas sempre em edição)
+  const [readOnly, setReadOnly] = useState(initialMode === 'read' && !!os?.id);
+  const [isDirty, setIsDirty] = useState(false);
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
   const handleFormTabChange = (tab) => {
     setActiveTab(tab);
@@ -87,6 +97,34 @@ export default function OSFormModal({
   const isMountedRef = React.useRef(true);
   const initializedForRef = React.useRef(null); // tracks which os.id (or 'new') was last initialized
   const [formData, setFormData] = useState(EMPTY_FORM);
+
+  // Marca isDirty quando o formData muda após o init (apenas em modo edição)
+  const skipDirtyRef = React.useRef(true);
+  useEffect(() => {
+    if (skipDirtyRef.current) {
+      skipDirtyRef.current = false;
+      return;
+    }
+    if (!readOnly) setIsDirty(true);
+  }, [formData]);
+
+  // Reseta o skip quando reinicializa o form
+  useEffect(() => {
+    skipDirtyRef.current = true;
+  }, [os?.id, open]);
+
+  // Permissão para editar
+  const currentPessoaForPerms = pessoas?.find(p => p.user_id === currentUser?.id);
+  const userCanEdit = !os?.id || canEditOS(os, currentUser, currentPessoaForPerms);
+
+  // Handler de fechamento com confirmação se houver mudanças
+  const handleCloseRequest = () => {
+    if (isDirty && !readOnly) {
+      setShowDiscardConfirm(true);
+    } else {
+      onClose();
+    }
+  };
 
   // Load auxiliary data only once when modal opens
   useEffect(() => {
@@ -113,6 +151,7 @@ export default function OSFormModal({
       // Reset tracker when modal closes so next open reinitializes
       initializedForRef.current = null;
       setLoadedFormTabs(new Set(['geral']));
+      setIsDirty(false);
       return;
     }
 
@@ -120,6 +159,9 @@ export default function OSFormModal({
     // Only reinitialize if the modal just opened for a different OS
     if (initializedForRef.current === currentKey) return;
     initializedForRef.current = currentKey;
+    // Reset modo leitura/edição para o novo OS
+    setReadOnly(initialMode === 'read' && !!os?.id);
+    setIsDirty(false);
 
     const formatDateForInput = (d) => {
       if (!d) return '';
@@ -556,12 +598,12 @@ export default function OSFormModal({
   const isValid = formData.categoria_id && formData.subcategorias_ids?.length > 0 && formData.regional_id && formData.almoxarifado_id && formData.lider_id && formData.prazo && formData.complexidade && !prazoError && !problemasNaoPreenchidos && !separacaoIncompleta && !documentoIncompleto && !migoRecebIncompleto;
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={(o) => { if (!o) handleCloseRequest(); }}>
       <DialogContent className="max-w-5xl w-[calc(100vw-1rem)] sm:w-full max-h-[95vh] sm:max-h-[90vh] p-0 gap-0 flex flex-col overflow-hidden" aria-describedby={undefined}>
         <DialogHeader className="px-4 sm:px-6 py-3 sm:py-5 border-b shrink-0" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
           <div className="flex items-center justify-between gap-2 pr-6">
             <DialogTitle className="text-base sm:text-xl font-semibold text-white truncate min-w-0 flex-1">
-              {os?.id ? `Editar OS: ${os.codigo}` : 'Nova Ordem de Serviço'}
+              {os?.id ? `${readOnly ? 'OS' : 'Editar OS'}: ${os.codigo}` : 'Nova Ordem de Serviço'}
             </DialogTitle>
             <div className="flex items-center gap-2 shrink-0">
               {os?.id && (formData.timesheet_total_minutos > 0 || formData.timesheet_status === 'playing') && (
@@ -573,6 +615,16 @@ export default function OSFormModal({
                     <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
                   )}
                 </div>
+              )}
+              {readOnly && userCanEdit && (
+                <button
+                  type="button"
+                  onClick={() => setReadOnly(false)}
+                  className="flex items-center gap-1.5 px-2 sm:px-3 py-1 bg-white text-blue-800 hover:bg-blue-50 rounded-lg text-xs font-medium transition-colors whitespace-nowrap"
+                >
+                  <Edit className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Editar</span>
+                </button>
               )}
               <button
                 type="button"
@@ -588,7 +640,7 @@ export default function OSFormModal({
         </DialogHeader>
 
         <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
-          <div className="p-3 sm:p-8 bg-slate-50/30 dark:bg-slate-900/30">
+          <fieldset disabled={readOnly} className="p-3 sm:p-8 bg-slate-50/30 dark:bg-slate-900/30 disabled:opacity-100">
             <Tabs value={activeTab} onValueChange={handleFormTabChange} className="w-full">
               <div className="flex items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-700 mb-5 sm:mb-8 overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
               <TabsList className="bg-transparent rounded-none h-auto p-0 space-x-4 sm:space-x-8 border-b-0 flex-nowrap">
@@ -1179,7 +1231,7 @@ export default function OSFormModal({
                 </div>
               </TabsContent>
             </Tabs>
-          </div>
+          </fieldset>
         </div>
 
         {showEtiquetaModal && (
@@ -1212,21 +1264,42 @@ export default function OSFormModal({
 
         <div className="border-t bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 shrink-0">
           <div className="px-4 sm:px-8 py-3 sm:py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-6">
-            <p className="hidden sm:block text-sm text-slate-600 dark:text-slate-400 font-medium flex-shrink-0">* Campos obrigatórios</p>
+            {!readOnly && <p className="hidden sm:block text-sm text-slate-600 dark:text-slate-400 font-medium flex-shrink-0">* Campos obrigatórios</p>}
+            {readOnly && <div className="flex-shrink-0" />}
             <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto">
-              <Button variant="outline" onClick={onClose} className="rounded-lg px-4 sm:px-6 py-2 font-medium border-slate-300 dark:border-slate-600 w-full sm:w-auto">Cancelar</Button>
-              {os?.id && (
+              <Button variant="outline" onClick={handleCloseRequest} className="rounded-lg px-4 sm:px-6 py-2 font-medium border-slate-300 dark:border-slate-600 w-full sm:w-auto">{readOnly ? 'Fechar' : 'Cancelar'}</Button>
+              {!readOnly && os?.id && (
                 <Button onClick={() => handleSubmit(false)} disabled={!isValid || loading} variant="outline" className="rounded-lg px-4 sm:px-6 py-2 font-medium border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-300 w-full sm:w-auto">
                   {loading ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Salvando...</>) : (<><Save className="w-4 h-4 mr-2" />Salvar</>)}
                 </Button>
               )}
-              <Button onClick={() => handleSubmit(true)} disabled={!isValid || loading} className="rounded-lg px-4 sm:px-6 py-2 font-medium shadow-lg w-full sm:w-auto" style={{ background: (!isValid || loading) ? '#cbd5e1' : 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)', color: 'white' }}>
-                {loading ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Salvando...</>) : (<><Save className="w-4 h-4 mr-2" />{os?.id ? 'Salvar e Fechar' : 'Salvar OS'}</>)}
-              </Button>
+              {!readOnly && (
+                <Button onClick={() => handleSubmit(true)} disabled={!isValid || loading} className="rounded-lg px-4 sm:px-6 py-2 font-medium shadow-lg w-full sm:w-auto" style={{ background: (!isValid || loading) ? '#cbd5e1' : 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)', color: 'white' }}>
+                  {loading ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Salvando...</>) : (<><Save className="w-4 h-4 mr-2" />{os?.id ? 'Salvar e Fechar' : 'Salvar OS'}</>)}
+                </Button>
+              )}
             </div>
           </div>
         </div>
       </DialogContent>
+
+      {/* Confirmação de descarte de alterações */}
+      <AlertDialog open={showDiscardConfirm} onOpenChange={setShowDiscardConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Descartar alterações?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Você tem alterações não salvas. Se sair agora, elas serão perdidas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Continuar editando</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { setShowDiscardConfirm(false); setIsDirty(false); onClose(); }} className="bg-red-600 hover:bg-red-700">
+              Descartar e sair
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }
