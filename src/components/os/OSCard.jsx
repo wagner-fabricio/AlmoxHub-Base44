@@ -190,19 +190,19 @@ const OSCard = React.memo(function OSCard({ os, onClick, lider, categoria, regio
       )}
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700">
-        <div className="flex items-center gap-2">
-          <Avatar className="w-6 h-6">
+      <div className="flex items-center justify-between gap-2 pt-3 border-t border-slate-100 dark:border-slate-700 min-w-0">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <Avatar className="w-6 h-6 shrink-0">
             <AvatarFallback className="text-xs bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
               {lider?.nome?.charAt(0) || 'U'}
             </AvatarFallback>
           </Avatar>
-          <span className="text-xs text-slate-600 dark:text-slate-400 truncate max-w-[100px]">
+          <span className="text-xs text-slate-600 dark:text-slate-400 truncate min-w-0">
             {lider?.nome || 'Não atribuído'}
           </span>
         </div>
 
-        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 shrink-0">
           {/* TimeSheet Button */}
           <TimeSheetButton
             os={os}
