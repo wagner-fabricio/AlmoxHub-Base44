@@ -11,7 +11,7 @@ const etapas = [
   { id: 5, nome: 'Entrega', campo: 'entrega' }
 ];
 
-export default function ExpedicaoProgressTracker({ os, isMobile = false }) {
+export default function ExpedicaoProgressTracker({ os, isMobile = false, compact = false }) {
   const fluxo = os?.fluxo_expedicao || {};
   const etapaAtual = fluxo.etapa_atual || 1;
 
@@ -24,6 +24,51 @@ export default function ExpedicaoProgressTracker({ os, isMobile = false }) {
     if (etapa.id < etapaAtual) return { status: 'completa', data };
     return { status: 'pendente', data: null };
   };
+
+  // Variante compacta — mantém mesma lógica, reduz paddings e fontes
+  if (compact && !isMobile) {
+    return (
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 rounded-lg p-3 border border-blue-100 dark:border-slate-600">
+        <div className="relative">
+          <div className="absolute top-3 left-0 right-0 h-0.5 bg-slate-200 dark:bg-slate-600 rounded-full" />
+          <div
+            className="absolute top-3 left-0 h-0.5 bg-gradient-to-r from-green-500 to-blue-500 rounded-full transition-all duration-500"
+            style={{ width: `${((etapaAtual - 1) / (etapas.length - 1)) * 100}%` }}
+          />
+          <div className="relative flex justify-between">
+            {etapas.map((etapa) => {
+              const { status } = getEtapaStatus(etapa);
+              return (
+                <div key={etapa.id} className="flex flex-col items-center" style={{ width: '20%' }}>
+                  <div className={`
+                    w-6 h-6 rounded-full flex items-center justify-center z-10 shadow
+                    ${status === 'completa' ? 'bg-green-500' : ''}
+                    ${status === 'atual' ? 'bg-blue-500 ring-2 ring-blue-200 dark:ring-blue-900' : ''}
+                    ${status === 'pendente' ? 'bg-slate-200 dark:bg-slate-600' : ''}
+                  `}>
+                    {status === 'completa' ? (
+                      <CheckCircle className="w-3.5 h-3.5 text-white" />
+                    ) : status === 'atual' ? (
+                      <Clock className="w-3.5 h-3.5 text-white animate-pulse" />
+                    ) : (
+                      <Circle className="w-3.5 h-3.5 text-slate-400" />
+                    )}
+                  </div>
+                  <p className={`text-[10px] font-medium mt-1.5 text-center leading-tight ${
+                    status === 'completa' ? 'text-green-600 dark:text-green-400' :
+                    status === 'atual' ? 'text-blue-600 dark:text-blue-400' :
+                    'text-slate-400'
+                  }`}>
+                    {etapa.nome}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (isMobile) {
     return (
