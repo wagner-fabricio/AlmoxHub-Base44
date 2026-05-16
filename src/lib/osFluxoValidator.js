@@ -101,7 +101,7 @@ export function getPendenciasExpedicao(formData, fluxoEstrito = true) {
   if (!formData.prazo) pend1.push({ etapa: 1, tab: 'geral', label: 'Prazo' });
   if (!formData.complexidade) pend1.push({ etapa: 1, tab: 'geral', label: 'Complexidade' });
   if (fluxoEstrito) {
-    if (!formData.num_reserva) pend1.push({ etapa: 1, tab: 'documento', label: 'Nº da Reserva/Pedido' });
+    if (!formData.num_reserva) pend1.push({ etapa: 1, tab: 'documento', label: 'Nº do Documento' });
     if (!formData.data_reserva) pend1.push({ etapa: 1, tab: 'documento', label: 'Data da Reserva' });
     if (!formData.usuario_reserva) pend1.push({ etapa: 1, tab: 'documento', label: 'Nome do Usuário' });
     if (!formData.orgao) pend1.push({ etapa: 1, tab: 'documento', label: 'Área do Usuário' });

@@ -949,8 +949,9 @@ export default function OSFormModal({
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                       <div className="space-y-2">
-                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Número da Reserva/Pedido {usaFluxoExpedicaoEstrito && <span className="text-red-500">*</span>}</Label>
+                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Número do Documento {usaFluxoExpedicaoEstrito && <span className="text-red-500">*</span>}</Label>
                         <Input value={formData.num_reserva} onChange={(e) => setFormData({ ...formData, num_reserva: e.target.value })} className={`rounded-lg ${usaFluxoExpedicaoEstrito && !formData.num_reserva ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`} />
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Ex: número de reserva, pedido, alienação, etc.</p>
                       </div>
                       <div className="space-y-2">
                         <Label className="text-slate-700 dark:text-slate-300 font-medium">Data Criação {usaFluxoExpedicaoEstrito && <span className="text-red-500">*</span>}</Label>
