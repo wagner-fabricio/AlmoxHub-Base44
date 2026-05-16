@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, Loader2 } from 'lucide-react';
+import { Play, Pause, Loader2, Clock } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import IniciarSessaoModal from '@/components/timesheet/IniciarSessaoModal';
 import { useApp } from '@/components/contexts/AppContext';
+import { formatarTempo } from '@/components/timesheet/TimeSheetButton';
 
 /**
  * Botão Play/Pause de TimeSheet para o cabeçalho da OS.
@@ -13,6 +14,7 @@ import { useApp } from '@/components/contexts/AppContext';
 export default function OSHeaderTimeSheetButton({ os, currentPessoa, onStateChange }) {
   const [loading, setLoading] = useState(false);
   const [showSelecaoModal, setShowSelecaoModal] = useState(false);
+  const [now, setNow] = useState(Date.now());
   const isMountedRef = useRef(true);
   const { pessoas = [] } = useApp();
 
@@ -20,6 +22,14 @@ export default function OSHeaderTimeSheetButton({ os, currentPessoa, onStateChan
     isMountedRef.current = true;
     return () => { isMountedRef.current = false; };
   }, []);
+
+  // Tick a cada 1s enquanto houver sessão ativa para atualizar o contador ao vivo
+  const temSessaoAtivaNaOS = (os?.timesheet_sessoes_ativas || []).length > 0;
+  useEffect(() => {
+    if (!temSessaoAtivaNaOS) return;
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, [temSessaoAtivaNaOS]);
 
   if (!os?.id || !currentPessoa) return null;
 
@@ -79,6 +89,16 @@ export default function OSHeaderTimeSheetButton({ os, currentPessoa, onStateChan
     ? 'bg-amber-400/90 hover:bg-amber-400 animate-pulse'
     : 'bg-white/20 hover:bg-white/30';
 
+  // Cálculo do tempo total: minutos acumulados + tempo decorrido das sessões ativas
+  const totalMinutosBase = os.timesheet_total_minutos || 0;
+  const minutosSessoesAtivas = (os.timesheet_sessoes_ativas || []).reduce((sum, s) => {
+    if (!s.inicio) return sum;
+    const inicio = new Date(s.inicio).getTime();
+    return sum + Math.max(0, (now - inicio) / 60000);
+  }, 0);
+  const totalMinutos = totalMinutosBase + minutosSessoesAtivas;
+  const tempoFormatado = formatarTempo(totalMinutos);
+
   return (
     <>
       <TooltipProvider delayDuration={300}>
@@ -95,6 +115,21 @@ export default function OSHeaderTimeSheetButton({ os, currentPessoa, onStateChan
             </button>
           </TooltipTrigger>
           <TooltipContent side="bottom">{label}</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+
+      <TooltipProvider delayDuration={300}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div
+              className={`hidden sm:flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-white/15 text-white text-xs font-mono font-semibold tabular-nums select-none ${temSessaoAtivaNaOS ? 'ring-1 ring-amber-300/60' : ''}`}
+              aria-label={`Tempo total: ${tempoFormatado}`}
+            >
+              <Clock className="w-3.5 h-3.5 opacity-80" />
+              <span>{tempoFormatado}</span>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Tempo total registrado nesta OS</TooltipContent>
         </Tooltip>
       </TooltipProvider>
 
