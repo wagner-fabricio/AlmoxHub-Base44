@@ -102,43 +102,31 @@ export default function OSTimeSheetRelatorio({ pessoas: pessoasProp, categorias:
 
   // Lista combinada: ordens da prop + ordens buscadas individualmente
   const ordensCompletas = [...(ordens || []), ...ordensFaltantes];
+  // Set de IDs de OS que realmente existem (não foram deletadas)
+  const idsOrdensExistentes = new Set(ordensCompletas.map(o => o.id));
 
-  // Aplicar filtros principais nas entries/OS
+  // Aplicar filtros principais nas entries/OS — descartar entries cuja OS foi deletada
   const pessoaFiltroId = filters?.pessoa_id || '';
   const searchLower = filters?.search?.toLowerCase() || '';
 
   const entriesFiltradas = entries.filter(e => {
+    if (!idsOrdensExistentes.has(e.os_id)) return false; // OS deletada — não mostrar
     if (pessoaFiltroId && e.pessoa_id !== pessoaFiltroId) return false;
     return true;
   });
-
-  // Detectar se há filtros de OS ativos. Se houver, OS não encontradas devem ser descartadas
-  // (não podemos validar o filtro contra a OS) ao invés de aparecerem como linhas vazias.
-  const temFiltrosDeOS = !!(
-    (filters?.regional && filters.regional !== 'all') ||
-    (filters?.almoxarifado && filters.almoxarifado !== 'all') ||
-    (filters?.categorias?.length > 0) ||
-    (filters?.statusList?.length > 0) ||
-    (filters?.status && filters.status !== 'all') ||
-    searchLower
-  );
 
   // Consolidar por OS, aplicando filtros de regional/almoxarifado/categoria/busca
   const porOS = {};
   for (const e of entriesFiltradas) {
     if (!porOS[e.os_id]) {
       const os = ordensCompletas.find(o => o.id === e.os_id);
-      // Se há filtros de OS e não achamos a OS, descartar (não temos como validar)
-      if (!os && temFiltrosDeOS) continue;
       // Aplicar filtros de OS
-      if (os) {
-        if (filters?.regional && filters.regional !== 'all' && os.regional_id !== filters.regional) continue;
-        if (filters?.almoxarifado && filters.almoxarifado !== 'all' && os.almoxarifado_id !== filters.almoxarifado) continue;
-        if (filters?.categorias?.length > 0 && !filters.categorias.includes(os.categoria_id)) continue;
-        if (filters?.statusList?.length > 0 && !filters.statusList.includes(os.status)) continue;
-        if (filters?.status && filters.status !== 'all' && os.status !== filters.status) continue;
-        if (searchLower && !os.codigo?.toLowerCase().includes(searchLower) && !os.descricao_resumida?.toLowerCase().includes(searchLower)) continue;
-      }
+      if (filters?.regional && filters.regional !== 'all' && os.regional_id !== filters.regional) continue;
+      if (filters?.almoxarifado && filters.almoxarifado !== 'all' && os.almoxarifado_id !== filters.almoxarifado) continue;
+      if (filters?.categorias?.length > 0 && !filters.categorias.includes(os.categoria_id)) continue;
+      if (filters?.statusList?.length > 0 && !filters.statusList.includes(os.status)) continue;
+      if (filters?.status && filters.status !== 'all' && os.status !== filters.status) continue;
+      if (searchLower && !os.codigo?.toLowerCase().includes(searchLower) && !os.descricao_resumida?.toLowerCase().includes(searchLower)) continue;
       porOS[e.os_id] = { os_id: e.os_id, os_codigo: e.os_codigo, os, total_minutos: 0, sessoes: 0, pessoas: new Set() };
     }
     porOS[e.os_id].total_minutos += e.duracao_minutos || 0;
