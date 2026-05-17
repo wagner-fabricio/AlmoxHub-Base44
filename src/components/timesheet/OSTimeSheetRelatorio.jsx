@@ -7,6 +7,7 @@ import { Clock, ChevronDown } from 'lucide-react';
 
 export default function OSTimeSheetRelatorio({ pessoas, categorias, subcategorias, almoxarifados, ordens, filters }) {
   const [entries, setEntries] = useState([]);
+  const [ordensFaltantes, setOrdensFaltantes] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Derivar período dos filtros principais
@@ -14,7 +15,7 @@ export default function OSTimeSheetRelatorio({ pessoas, categorias, subcategoria
 
   useEffect(() => {
     carregarEntries();
-  }, [periodo]);
+  }, [periodo, filters?.dataInicio, filters?.dataFim]);
 
   const carregarEntries = async () => {
     setLoading(true);
@@ -47,12 +48,29 @@ export default function OSTimeSheetRelatorio({ pessoas, categorias, subcategoria
       if (dataFim) filtered = filtered.filter(e => e.inicio <= dataFim);
 
       setEntries(filtered);
+
+      // Buscar OS que não estão na lista paginada da página pai
+      const idsOrdensProp = new Set((ordens || []).map(o => o.id));
+      const idsFaltando = [...new Set(filtered.map(e => e.os_id).filter(id => id && !idsOrdensProp.has(id)))];
+      if (idsFaltando.length > 0) {
+        const buscas = await Promise.all(
+          idsFaltando.map(id =>
+            base44.entities.OrdemServico.filter({ id }).then(r => r?.[0]).catch(() => null)
+          )
+        );
+        setOrdensFaltantes(buscas.filter(Boolean));
+      } else {
+        setOrdensFaltantes([]);
+      }
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
+
+  // Lista combinada: ordens da prop + ordens buscadas individualmente
+  const ordensCompletas = [...(ordens || []), ...ordensFaltantes];
 
   // Aplicar filtros principais nas entries/OS
   const pessoaFiltroId = filters?.pessoa_id || '';
@@ -67,7 +85,7 @@ export default function OSTimeSheetRelatorio({ pessoas, categorias, subcategoria
   const porOS = {};
   for (const e of entriesFiltradas) {
     if (!porOS[e.os_id]) {
-      const os = (ordens || []).find(o => o.id === e.os_id);
+      const os = ordensCompletas.find(o => o.id === e.os_id);
       // Aplicar filtros de OS
       if (os) {
         if (filters?.regional && filters.regional !== 'all' && os.regional_id !== filters.regional) continue;
