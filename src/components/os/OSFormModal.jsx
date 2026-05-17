@@ -684,7 +684,7 @@ export default function OSFormModal({
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) handleCloseRequest(); }}>
-      <DialogContent className={`${(usaFluxoExpedicao || usaFluxoRecebimento) ? 'max-w-[1250px]' : 'max-w-5xl'} w-[calc(100vw-1rem)] sm:w-full max-h-[95vh] sm:max-h-[90vh] p-0 gap-0 flex flex-col overflow-hidden`} aria-describedby={undefined}>
+      <DialogContent className={`${(usaFluxoExpedicao || usaFluxoRecebimento) ? 'max-w-[1300px]' : 'max-w-5xl'} w-[calc(100vw-1rem)] sm:w-full max-h-[95vh] sm:max-h-[90vh] p-0 gap-0 flex flex-col overflow-hidden`} aria-describedby={undefined}>
         <DialogHeader className="px-4 sm:px-6 py-3 sm:py-5 border-b shrink-0" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)' }}>
           <div className="flex items-center justify-between gap-2 pr-6">
             <DialogTitle className="text-base sm:text-xl font-semibold text-white truncate min-w-0 flex-1">
