@@ -66,10 +66,15 @@ export default function OSTimeSheetRelatorio({ pessoas: pessoasProp, categorias:
         if (filters?.dataFim) { const d = new Date(filters.dataFim); d.setHours(23,59,59,999); dataFim = d.toISOString(); }
       }
 
-      const data = await base44.entities.TimeSheetEntry.filter({ status: 'closed' }, '-inicio', 500);
-      let filtered = data || [];
-      if (dataInicio) filtered = filtered.filter(e => e.inicio >= dataInicio);
-      if (dataFim) filtered = filtered.filter(e => e.inicio <= dataFim);
+      // Buscar sessões fechadas filtrando por intervalo no backend (mais preciso que limit local)
+      const backendFilter = { status: 'closed' };
+      if (dataInicio || dataFim) {
+        backendFilter.inicio = {};
+        if (dataInicio) backendFilter.inicio.$gte = dataInicio;
+        if (dataFim) backendFilter.inicio.$lte = dataFim;
+      }
+      const data = await base44.entities.TimeSheetEntry.filter(backendFilter, '-inicio', 10000);
+      const filtered = data || [];
 
       setEntries(filtered);
 
