@@ -7,7 +7,6 @@ import TorreControleDadosTabela from './TorreControleDadosTabela';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { HelpCircle } from 'lucide-react';
-import OSDetailModal from '@/components/os/OSDetailModal';
 import OSFormModal from '@/components/os/OSFormModal';
 import { useApp } from '@/components/contexts/AppContext';
 
@@ -210,7 +209,7 @@ export default function TorreControleContent({
 }) {
   const [showHelp, setShowHelp] = useState(false);
   const [selectedOS, setSelectedOS] = useState(null);
-  const [editingOS, setEditingOS] = useState(null);
+  const [formInitialMode, setFormInitialMode] = useState('read');
   const { subcategorias, instalacoes, projetos, currentUser, refreshOrdens } = useApp();
 
   return (
@@ -247,7 +246,7 @@ export default function TorreControleContent({
       />
 
       {selectedOS && (
-        <OSDetailModal
+        <OSFormModal
           open={!!selectedOS}
           onClose={() => setSelectedOS(null)}
           os={selectedOS}
@@ -256,32 +255,12 @@ export default function TorreControleContent({
           pessoas={pessoas}
           categorias={categorias}
           subcategorias={subcategorias || []}
-          instalacoes={instalacoes || []}
-          projetos={projetos || []}
-          onEdit={() => {
-            setEditingOS(selectedOS);
-            setSelectedOS(null);
-          }}
-          onDelete={() => setSelectedOS(null)}
-          canDelete={false}
-          onRefresh={() => {}}
-        />
-      )}
-
-      {editingOS && (
-        <OSFormModal
-          open={!!editingOS}
-          onClose={() => setEditingOS(null)}
-          os={editingOS}
-          regionais={regionais}
-          almoxarifados={almoxarifados}
-          pessoas={pessoas}
-          categorias={categorias}
-          subcategorias={subcategorias || []}
           projetos={projetos || []}
           instalacoes={instalacoes || []}
           currentUser={currentUser}
+          initialMode={formInitialMode}
           onSave={() => {
+            setFormInitialMode('read');
             refreshOrdens?.();
           }}
         />

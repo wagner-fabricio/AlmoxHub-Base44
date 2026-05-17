@@ -13,7 +13,6 @@ import { exportTabelaExcel } from '@/components/dashboard/exportTabelaExcel';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/components/contexts/AppContext';
-import OSDetailModal from '@/components/os/OSDetailModal';
 import OSFormModal from '@/components/os/OSFormModal';
 import { SortableTableHead, useTableSort, useColumnFilters } from '@/components/ui/table-sortable';
 import LeadTimeReservasMensal from '@/components/dashboard/LeadTimeReservasMensal';
@@ -173,7 +172,7 @@ export default function PainelRecebimento({
   const { regionais, categorias, subcategorias, pessoas, instalacoes: ctxInstalacoes, projetos: ctxProjetos } = useApp();
   const [showHelp, setShowHelp] = useState(false);
   const [selectedOS, setSelectedOS] = useState(null);
-  const [editingOS, setEditingOS] = useState(null);
+  const [formInitialMode, setFormInitialMode] = useState('read');
   const [tabelaPage, setTabelaPage] = useState(1);
   const TABELA_PAGE_SIZE = 200;
   const { sortConfig, handleSort } = useTableSort();
@@ -1102,7 +1101,7 @@ export default function PainelRecebimento({
       <HelpModalRecebimento open={showHelp} onClose={() => setShowHelp(false)} />
 
       {selectedOS && (
-        <OSDetailModal
+        <OSFormModal
           open={!!selectedOS}
           onClose={() => setSelectedOS(null)}
           os={selectedOS}
@@ -1111,26 +1110,10 @@ export default function PainelRecebimento({
           pessoas={pessoas}
           categorias={categorias}
           subcategorias={subcategorias}
-          instalacoes={instalacoes}
           projetos={projetos}
-          onEdit={() => { setEditingOS(selectedOS); setSelectedOS(null); }}
-          onDelete={() => setSelectedOS(null)}
-          canDelete={false}
-          onRefresh={() => {}}
-        />
-      )}
-      {editingOS && (
-        <OSFormModal
-          open={!!editingOS}
-          onClose={() => setEditingOS(null)}
-          os={editingOS}
-          regionais={regionais}
-          almoxarifados={almoxarifados}
-          pessoas={pessoas}
-          categorias={categorias}
-          subcategorias={subcategorias}
           instalacoes={instalacoes}
-          onSave={() => setEditingOS(null)}
+          initialMode={formInitialMode}
+          onSave={() => setFormInitialMode('read')}
         />
       )}
     </div>

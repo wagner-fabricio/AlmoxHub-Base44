@@ -284,10 +284,12 @@ export default function Notifications() {
       )}
       {selectedOS && (
         <OSFormModal
+          open={!!selectedOS}
           os={selectedOS}
+          pessoas={pessoas}
           onClose={() => setSelectedOS(null)}
           onSave={() => setSelectedOS(null)}
-          readOnly={true}
+          initialMode="read"
         />
       )}
     </div>

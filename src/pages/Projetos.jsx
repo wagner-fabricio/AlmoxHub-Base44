@@ -15,7 +15,7 @@ import { createPageUrl } from '../utils';
 import { useApp } from '@/components/contexts/AppContext';
 import ProjetosList from '../components/projetos/ProjetosList';
 import ProjetoGauge from '../components/projetos/ProjetoGauge';
-import OSDetailModal from '../components/os/OSDetailModal';
+import OSFormModal from '../components/os/OSFormModal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -666,22 +666,23 @@ export default function Projetos() {
 
       {/* OS Detail Modal */}
       {showOSModal && selectedOS && (
-        <OSDetailModal
+        <OSFormModal
           open={showOSModal}
           onClose={() => {
             setShowOSModal(false);
             setSelectedOS(null);
           }}
           os={selectedOS}
-          regionais={[]}
+          regionais={regionais}
           almoxarifados={almoxarifados}
           pessoas={pessoas}
           categorias={categorias}
           subcategorias={[]}
-          onEdit={() => {}}
-          onDelete={() => {}}
-          canDelete={false}
-          onRefresh={loadData}
+          projetos={projetos}
+          instalacoes={[]}
+          currentUser={currentUser}
+          initialMode="read"
+          onSave={loadData}
         />
       )}
     </div>

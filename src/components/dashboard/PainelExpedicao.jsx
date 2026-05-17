@@ -12,7 +12,6 @@ import { format, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { SortableTableHead, useTableSort, useColumnFilters } from '@/components/ui/table-sortable';
 import { useApp } from '@/components/contexts/AppContext';
-import OSDetailModal from '@/components/os/OSDetailModal';
 import OSFormModal from '@/components/os/OSFormModal';
 import LeadTimeReservasMensal from '@/components/dashboard/LeadTimeReservasMensal';
 
@@ -251,7 +250,7 @@ function HelpModalExpedicao({ open, onClose }) {
 export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToolbar = false }) {
   const { regionais, categorias, subcategorias, pessoas, instalacoes: ctxInstalacoes, projetos: ctxProjetos } = useApp();
   const [selectedOS, setSelectedOS] = useState(null);
-  const [editingOS, setEditingOS] = useState(null);
+  const [formInitialMode, setFormInitialMode] = useState('read');
   const [showHelp, setShowHelp] = useState(false);
   const [tabelaPage, setTabelaPage] = useState(1);
   const TABELA_PAGE_SIZE = 200;
@@ -1209,18 +1208,20 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
     <HelpModalExpedicao open={showHelp} onClose={() => setShowHelp(false)} />
 
     {selectedOS && (
-      <OSDetailModal open={!!selectedOS} onClose={() => setSelectedOS(null)} os={selectedOS}
-        regionais={regionais} almoxarifados={almoxarifados} pessoas={pessoas}
-        categorias={categorias} subcategorias={subcategorias}
-        instalacoes={instalacoes} projetos={projetos}
-        onEdit={() => { setEditingOS(selectedOS); setSelectedOS(null); }}
-        onDelete={() => setSelectedOS(null)} canDelete={false} onRefresh={() => {}} />
-    )}
-    {editingOS && (
-      <OSFormModal open={!!editingOS} onClose={() => setEditingOS(null)} os={editingOS}
-        regionais={regionais} almoxarifados={almoxarifados} pessoas={pessoas}
-        categorias={categorias} subcategorias={subcategorias}
-        instalacoes={instalacoes} onSave={() => setEditingOS(null)} />
+      <OSFormModal
+        open={!!selectedOS}
+        onClose={() => setSelectedOS(null)}
+        os={selectedOS}
+        regionais={regionais}
+        almoxarifados={almoxarifados}
+        pessoas={pessoas}
+        categorias={categorias}
+        subcategorias={subcategorias}
+        projetos={projetos}
+        instalacoes={instalacoes}
+        initialMode={formInitialMode}
+        onSave={() => setFormInitialMode('read')}
+      />
     )}
     </>
   );
