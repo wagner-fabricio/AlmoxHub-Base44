@@ -180,11 +180,11 @@ export default function TorreControleDadosTabela({ filteredOrdens, pessoas = [],
         case 'status': va = a.os.status || ''; vb = b.os.status || ''; break;
         case 'prioridade': va = a.os.prioridade || ''; vb = b.os.prioridade || ''; break;
         case 'prazo': va = a.os.prazo || ''; vb = b.os.prazo || ''; break;
-        case 'progresso': va = a.os.progresso || 0; vb = b.os.progresso || 0; break;
-        case 'diasPrazo': va = a.diasPrazo ?? 99999; vb = b.diasPrazo ?? 99999; break;
-        case 'valorTotal': va = a.valorTotal; vb = b.valorTotal; break;
-        case 'numItens': va = a.numItens; vb = b.numItens; break;
-        case 'tempoPrevistoD': va = a.tempoPrevistoD ?? 99999; vb = b.tempoPrevistoD ?? 99999; break;
+        case 'progresso': va = Number(a.os.progresso) || 0; vb = Number(b.os.progresso) || 0; break;
+        case 'diasPrazo': va = Number(a.diasPrazo ?? 99999); vb = Number(b.diasPrazo ?? 99999); break;
+        case 'valorTotal': va = Number(a.valorTotal) || 0; vb = Number(b.valorTotal) || 0; break;
+        case 'numItens': va = Number(a.numItens) || 0; vb = Number(b.numItens) || 0; break;
+        case 'tempoPrevistoD': va = Number(a.tempoPrevistoD ?? 99999); vb = Number(b.tempoPrevistoD ?? 99999); break;
         default: va = a.os.created_date || ''; vb = b.os.created_date || '';
       }
       if (va < vb) return sortDir === 'asc' ? -1 : 1;
