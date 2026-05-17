@@ -609,7 +609,7 @@ export default function OrdensServico() {
             />
           ) : viewMode === 'timesheet_relatorio' ? (
             <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-              <OSTimeSheetRelatorio pessoas={pessoas} categorias={categorias} subcategorias={subcategorias} almoxarifados={almoxarifados} ordens={ordens} filters={filters} />
+              <OSTimeSheetRelatorio pessoas={pessoas} categorias={categorias} subcategorias={subcategorias} almoxarifados={almoxarifados} ordens={ordens} filters={filters} onOSClick={handleOSClick} />
             </div>
           ) : filteredOrdens.length === 0 ? (
             <div className="bg-white dark:bg-slate-800 rounded-2xl p-12 text-center">
@@ -848,7 +848,7 @@ export default function OrdensServico() {
         </div>
       ) : viewMode === 'timesheet_relatorio' ? (
         <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-          <OSTimeSheetRelatorio pessoas={pessoas} categorias={categorias} subcategorias={subcategorias} almoxarifados={almoxarifados} ordens={ordens} filters={filters} />
+          <OSTimeSheetRelatorio pessoas={pessoas} categorias={categorias} subcategorias={subcategorias} almoxarifados={almoxarifados} ordens={ordens} filters={filters} onOSClick={handleOSClick} />
         </div>
       ) : filteredOrdens.length === 0 ? (
         <div className="bg-white dark:bg-slate-800 rounded-2xl p-12 text-center">

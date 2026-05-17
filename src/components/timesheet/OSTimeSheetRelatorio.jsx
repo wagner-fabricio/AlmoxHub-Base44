@@ -5,7 +5,7 @@ import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Clock, ChevronDown } from 'lucide-react';
 
-export default function OSTimeSheetRelatorio({ pessoas: pessoasProp, categorias: categoriasProp, subcategorias: subcategoriasProp, almoxarifados: almoxarifadosProp, ordens, filters }) {
+export default function OSTimeSheetRelatorio({ pessoas: pessoasProp, categorias: categoriasProp, subcategorias: subcategoriasProp, almoxarifados: almoxarifadosProp, ordens, filters, onOSClick }) {
   const [entries, setEntries] = useState([]);
   const [ordensFaltantes, setOrdensFaltantes] = useState([]);
   const [pessoasFull, setPessoasFull] = useState(null);
@@ -192,7 +192,20 @@ export default function OSTimeSheetRelatorio({ pessoas: pessoasProp, categorias:
                 const executores = os ? (pessoas || []).filter(p => (os.executores_ids || []).includes(p.id)) : [];
                 return (
                   <tr key={item.os_id} className={`border-b border-slate-100 dark:border-slate-700/50 ${idx % 2 !== 0 ? 'bg-slate-50/40 dark:bg-slate-700/20' : ''}`}>
-                    <td className="px-3 py-2 font-mono font-semibold text-blue-600 dark:text-blue-400 whitespace-nowrap">{item.os_codigo || item.os_id}</td>
+                    <td className="px-3 py-2 font-mono font-semibold whitespace-nowrap">
+                      {os && onOSClick ? (
+                        <button
+                          type="button"
+                          onClick={() => onOSClick(os)}
+                          className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline focus:outline-none focus:underline"
+                          title="Abrir OS"
+                        >
+                          {item.os_codigo || item.os_id}
+                        </button>
+                      ) : (
+                        <span className="text-blue-600 dark:text-blue-400">{item.os_codigo || item.os_id}</span>
+                      )}
+                    </td>
                     <td className="px-3 py-2 max-w-[160px] truncate text-slate-600 dark:text-slate-400" title={os?.descricao_resumida}>{os?.descricao_resumida || '—'}</td>
                     <td className="px-3 py-2 text-slate-700 dark:text-slate-300 whitespace-nowrap">{cat?.nome || '—'}</td>
                     <td className="px-3 py-2 max-w-[120px] truncate text-slate-600 dark:text-slate-400">{subcats.length ? subcats.map(s => s.nome).join(', ') : '—'}</td>
