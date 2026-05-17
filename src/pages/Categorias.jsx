@@ -12,7 +12,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { useApp } from '@/components/contexts/AppContext';
 
 export default function Categorias() {
-  const { refreshCategorias } = useApp();
+  const { refreshCategorias, currentUser } = useApp();
+  const isAdmin = currentUser?.role === 'admin';
   const [loading, setLoading] = useState(true);
   const [categorias, setCategorias] = useState([]);
   const [subcategorias, setSubcategorias] = useState([]);
@@ -174,10 +175,12 @@ export default function Categorias() {
           <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">Categorias</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">Gerencie categorias e subcategorias de OS</p>
         </div>
-        <Button onClick={handleNewCategoria} className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="w-4 h-4 mr-2" />
-          Nova Categoria
-        </Button>
+        {isAdmin && (
+          <Button onClick={handleNewCategoria} className="bg-blue-600 hover:bg-blue-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Nova Categoria
+          </Button>
+        )}
       </div>
 
       {/* Categories List */}
@@ -219,12 +222,16 @@ export default function Categorias() {
                         </Badge>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); handleEditCategoria(cat); }}>
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); handleDeleteCategoria(cat); }}>
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </Button>
+                        {isAdmin && (
+                          <>
+                            <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); handleEditCategoria(cat); }}>
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); handleDeleteCategoria(cat); }}>
+                              <Trash2 className="w-4 h-4 text-red-500" />
+                            </Button>
+                          </>
+                        )}
                         <ChevronRight className={`w-5 h-5 text-slate-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
                       </div>
                     </div>
@@ -234,10 +241,12 @@ export default function Categorias() {
                     <div className="px-4 pb-4 pl-14 space-y-2">
                       <div className="flex items-center justify-between py-2">
                         <span className="text-sm font-medium text-slate-500">Subcategorias</span>
-                        <Button size="sm" variant="outline" onClick={() => handleNewSubcategoria(cat.id)}>
-                          <Plus className="w-3 h-3 mr-1" />
-                          Adicionar
-                        </Button>
+                        {isAdmin && (
+                          <Button size="sm" variant="outline" onClick={() => handleNewSubcategoria(cat.id)}>
+                            <Plus className="w-3 h-3 mr-1" />
+                            Adicionar
+                          </Button>
+                        )}
                       </div>
                       {subs.length === 0 ? (
                         <p className="text-sm text-slate-400 italic py-2">Nenhuma subcategoria</p>
@@ -259,14 +268,16 @@ export default function Categorias() {
                                   )}
                                 </div>
                               </div>
-                              <div className="flex items-center gap-1">
-                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditSubcategoria(sub)}>
-                                  <Edit className="w-3.5 h-3.5" />
-                                </Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDeleteSubcategoria(sub)}>
-                                  <Trash2 className="w-3.5 h-3.5 text-red-500" />
-                                </Button>
-                              </div>
+                              {isAdmin && (
+                                <div className="flex items-center gap-1">
+                                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditSubcategoria(sub)}>
+                                    <Edit className="w-3.5 h-3.5" />
+                                  </Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDeleteSubcategoria(sub)}>
+                                    <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                                  </Button>
+                                </div>
+                              )}
                             </div>
                           ))}
                         </div>
