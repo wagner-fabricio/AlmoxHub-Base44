@@ -74,15 +74,20 @@ export default function OSTimeSheetRelatorio({ pessoas: pessoasProp, categorias:
       setEntries(filtered);
 
       // Buscar OS que não estão na lista paginada da página pai
+      // Em lotes para evitar sobrecarregar a API (centenas de requisições paralelas falham silenciosamente)
       const idsOrdensProp = new Set((ordens || []).map(o => o.id));
       const idsFaltando = [...new Set(filtered.map(e => e.os_id).filter(id => id && !idsOrdensProp.has(id)))];
       if (idsFaltando.length > 0) {
-        const buscas = await Promise.all(
-          idsFaltando.map(id =>
-            base44.entities.OrdemServico.get(id).catch(() => null)
-          )
-        );
-        setOrdensFaltantes(buscas.filter(Boolean));
+        const BATCH_SIZE = 20;
+        const encontradas = [];
+        for (let i = 0; i < idsFaltando.length; i += BATCH_SIZE) {
+          const lote = idsFaltando.slice(i, i + BATCH_SIZE);
+          const buscas = await Promise.all(
+            lote.map(id => base44.entities.OrdemServico.get(id).catch(() => null))
+          );
+          encontradas.push(...buscas.filter(Boolean));
+        }
+        setOrdensFaltantes(encontradas);
       } else {
         setOrdensFaltantes([]);
       }
@@ -105,11 +110,24 @@ export default function OSTimeSheetRelatorio({ pessoas: pessoasProp, categorias:
     return true;
   });
 
+  // Detectar se há filtros de OS ativos. Se houver, OS não encontradas devem ser descartadas
+  // (não podemos validar o filtro contra a OS) ao invés de aparecerem como linhas vazias.
+  const temFiltrosDeOS = !!(
+    (filters?.regional && filters.regional !== 'all') ||
+    (filters?.almoxarifado && filters.almoxarifado !== 'all') ||
+    (filters?.categorias?.length > 0) ||
+    (filters?.statusList?.length > 0) ||
+    (filters?.status && filters.status !== 'all') ||
+    searchLower
+  );
+
   // Consolidar por OS, aplicando filtros de regional/almoxarifado/categoria/busca
   const porOS = {};
   for (const e of entriesFiltradas) {
     if (!porOS[e.os_id]) {
       const os = ordensCompletas.find(o => o.id === e.os_id);
+      // Se há filtros de OS e não achamos a OS, descartar (não temos como validar)
+      if (!os && temFiltrosDeOS) continue;
       // Aplicar filtros de OS
       if (os) {
         if (filters?.regional && filters.regional !== 'all' && os.regional_id !== filters.regional) continue;
