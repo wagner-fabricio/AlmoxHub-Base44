@@ -258,11 +258,41 @@ export default function Dashboard() {
     [filteredOrdens, almoxarifados]
   );
 
-  // Heatmap data — memoized
+  // Heatmap data — responde aos filtros principais (regional, almox, status, período, subcategoria)
+  // A categoria é fixada em "Expedição" porque o mapa é específico para expedições.
   const heatmapData = useMemo(() => {
-    const categoriaExpedicaoHeatmap = Array.isArray(categorias) ? categorias.find(c => c?.nome?.toLowerCase().includes('expedi')) : null;
+    const categoriaExpedicaoHeatmap = categoriaExpedicao;
     const campoInstalacao = heatmapInstalacao === 'origem' ? 'instalacao_origem_id' : 'instalacao_destino_id';
-    const osExpedicaoHeatmap = Array.isArray(ordens) ? ordens.filter(os => os?.categoria_id === categoriaExpedicaoHeatmap?.id && os?.[campoInstalacao]) : [];
+
+    // Pre-compute period bounds (mesma lógica do filteredOrdens)
+    let periodoStart = null, periodoEnd = null, periodoCutoff = null;
+    if (filters.periodo === 'mes_atual') {
+      const now = new Date();
+      periodoStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      periodoEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    } else if (filters.periodo === 'customizado') {
+      if (filters.dataInicio) periodoStart = new Date(filters.dataInicio);
+      if (filters.dataFim) { periodoEnd = new Date(filters.dataFim); periodoEnd.setHours(23, 59, 59, 999); }
+    } else if (filters.periodo !== 'all') {
+      periodoCutoff = subDays(new Date(), parseInt(filters.periodo));
+    }
+
+    const activeStatuses = Array.isArray(filters.status) ? filters.status : (filters.status === 'all' ? [] : [filters.status]);
+
+    const osExpedicaoHeatmap = Array.isArray(ordens) ? ordens.filter(os => {
+      if (!os || os.categoria_id !== categoriaExpedicaoHeatmap?.id) return false;
+      if (!os[campoInstalacao]) return false;
+      if (filters.regional !== 'all' && os.regional_id !== filters.regional) return false;
+      if (filters.almoxarifado !== 'all' && os.almoxarifado_id !== filters.almoxarifado) return false;
+      if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
+      if (activeStatuses.length > 0 && !activeStatuses.includes(os.status)) return false;
+      const osDate = new Date(os.created_date);
+      if (periodoStart && periodoEnd) { if (osDate < periodoStart || osDate > periodoEnd) return false; }
+      else if (periodoStart) { if (osDate < periodoStart) return false; }
+      else if (periodoEnd) { if (osDate > periodoEnd) return false; }
+      else if (periodoCutoff) { if (osDate < periodoCutoff) return false; }
+      return true;
+    }) : [];
     return instalacoes
       .filter(inst => inst.latitude && inst.longitude)
       .map(inst => {
@@ -275,7 +305,7 @@ export default function Dashboard() {
         return { instalacao: inst, osCount: osDestino.length, value };
       })
       .filter(d => d.value > 0);
-  }, [ordens, instalacoes, categorias, heatmapInstalacao, heatmapCriteria]);
+  }, [ordens, instalacoes, categoriaExpedicao, heatmapInstalacao, heatmapCriteria, filters]);
 
   const maxValue = useMemo(() => Math.max(...heatmapData.map(d => d.value), 1), [heatmapData]);
   
