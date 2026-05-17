@@ -157,6 +157,13 @@ button:focus-visible {
   }
 }
 
+/* ── Leaflet: rebaixar z-index para não cobrir dropdowns/popovers ───────────── */
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom,
+.leaflet-control { z-index: 1 !important; }
+.leaflet-container { z-index: 0 !important; }
+
 /* ── Tamanho de Fonte ───────────────────────────────────────────────────────── */
 html.font-size-xs { font-size: 12px; }
 html.font-size-sm { font-size: 14px; }
