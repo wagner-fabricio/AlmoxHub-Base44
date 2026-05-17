@@ -5,10 +5,34 @@ import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Clock, ChevronDown } from 'lucide-react';
 
-export default function OSTimeSheetRelatorio({ pessoas, categorias, subcategorias, almoxarifados, ordens, filters }) {
+export default function OSTimeSheetRelatorio({ pessoas: pessoasProp, categorias: categoriasProp, subcategorias: subcategoriasProp, almoxarifados: almoxarifadosProp, ordens, filters }) {
   const [entries, setEntries] = useState([]);
   const [ordensFaltantes, setOrdensFaltantes] = useState([]);
+  const [pessoasFull, setPessoasFull] = useState(null);
+  const [categoriasFull, setCategoriasFull] = useState(null);
+  const [subcategoriasFull, setSubcategoriasFull] = useState(null);
+  const [almoxarifadosFull, setAlmoxarifadosFull] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Carregar listas de referência completas (props podem vir truncadas pelo limite padrão)
+  useEffect(() => {
+    Promise.all([
+      base44.entities.Pessoa.list('-created_date', 5000),
+      base44.entities.Categoria.list('-created_date', 1000),
+      base44.entities.Subcategoria.list('-created_date', 1000),
+      base44.entities.Almoxarifado.list('-created_date', 1000),
+    ]).then(([p, c, s, a]) => {
+      setPessoasFull(p || []);
+      setCategoriasFull(c || []);
+      setSubcategoriasFull(s || []);
+      setAlmoxarifadosFull(a || []);
+    }).catch(err => console.error('Erro ao carregar listas de referência:', err));
+  }, []);
+
+  const pessoas = pessoasFull || pessoasProp;
+  const categorias = categoriasFull || categoriasProp;
+  const subcategorias = subcategoriasFull || subcategoriasProp;
+  const almoxarifados = almoxarifadosFull || almoxarifadosProp;
 
   // Derivar período dos filtros principais
   const periodo = filters?.periodo || 'all';
