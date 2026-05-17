@@ -754,7 +754,7 @@ export default function OSFormModal({
           <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-8 bg-slate-50/30 dark:bg-slate-900/30 flex gap-4 items-start">
             <Tabs value={activeTab} onValueChange={handleFormTabChange} className="flex-1 min-w-0 flex flex-col">
               <div className="flex items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-700 mb-5 sm:mb-8 overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 shrink-0">
-               <TabsList className="bg-transparent rounded-none h-auto p-0 space-x-4 sm:space-x-8 border-b-0 flex-nowrap shrink-0">
+               <TabsList className="bg-transparent rounded-none h-auto p-0 space-x-2 sm:space-x-4 border-b-0 flex-nowrap shrink-0">
                 <TabsTrigger value="geral" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Dados Gerais</TabsTrigger>
                 {isAtendimentoCategory && (<TabsTrigger value="materiais" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Materiais ({formData.itens_documento?.length || 0})</TabsTrigger>)}
                 {usaFluxoExpedicao && (<>
