@@ -135,8 +135,11 @@ export default function OSTimeSheetRelatorio({ pessoas: pessoasProp, categorias:
   }
 
   const listaOS = Object.values(porOS).sort((a, b) => b.total_minutos - a.total_minutos);
-  const totalGeral = Object.values(porOS).reduce((s, item) => s + item.total_minutos, 0);
-  const totalSessoes = Object.values(porOS).reduce((s, item) => s + item.sessoes, 0);
+  // Entries efetivamente exibidas: apenas das OS que passaram nos filtros
+  const idsOSExibidas = new Set(Object.keys(porOS));
+  const entriesExibidas = entriesFiltradas.filter(e => idsOSExibidas.has(e.os_id));
+  const totalGeral = entriesExibidas.reduce((s, e) => s + (e.duracao_minutos || 0), 0);
+  const totalSessoes = entriesExibidas.length;
 
   return (
     <div className="space-y-5">
@@ -225,11 +228,11 @@ export default function OSTimeSheetRelatorio({ pessoas: pessoasProp, categorias:
       )}
 
       {/* Detalhe por sessão */}
-      {entriesFiltradas.length > 0 && (
+      {entriesExibidas.length > 0 && (
         <details className="group">
           <summary className="cursor-pointer text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center gap-2">
             <ChevronDown className="w-4 h-4 transition-transform group-open:rotate-180" />
-            Ver sessões individuais ({entriesFiltradas.length})
+            Ver sessões individuais ({entriesExibidas.length})
           </summary>
           <div className="mt-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
             <table className="w-full text-xs">
@@ -245,7 +248,7 @@ export default function OSTimeSheetRelatorio({ pessoas: pessoasProp, categorias:
                 </tr>
               </thead>
               <tbody>
-                {entriesFiltradas.map(e => (
+                {entriesExibidas.map(e => (
                   <tr key={e.id} className="border-t border-slate-100 dark:border-slate-700">
                     <td className="p-3 font-mono">{e.os_codigo || e.os_id}</td>
                     <td className="p-3">{e.pessoa_nome}</td>
