@@ -750,11 +750,11 @@ export default function OSFormModal({
           </div>
         </DialogHeader>
 
-        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
-          <div className="p-3 sm:p-8 bg-slate-50/30 dark:bg-slate-900/30 flex gap-4 items-start">
-            <Tabs value={activeTab} onValueChange={handleFormTabChange} className="flex-1 min-w-0">
-              <div className="flex items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-700 mb-5 sm:mb-8 overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
-              <TabsList className="bg-transparent rounded-none h-auto p-0 space-x-4 sm:space-x-8 border-b-0 flex-nowrap">
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-8 bg-slate-50/30 dark:bg-slate-900/30 flex gap-4 items-start">
+            <Tabs value={activeTab} onValueChange={handleFormTabChange} className="flex-1 min-w-0 flex flex-col">
+              <div className="flex items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-700 mb-5 sm:mb-8 overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 shrink-0">
+               <TabsList className="bg-transparent rounded-none h-auto p-0 space-x-4 sm:space-x-8 border-b-0 flex-nowrap shrink-0">
                 <TabsTrigger value="geral" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Dados Gerais</TabsTrigger>
                 {isAtendimentoCategory && (<TabsTrigger value="materiais" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Materiais ({formData.itens_documento?.length || 0})</TabsTrigger>)}
                 {usaFluxoExpedicao && (<>
@@ -779,9 +779,9 @@ export default function OSFormModal({
               </TabsList>
               </div>
 
-              <fieldset disabled={readOnly} className="disabled:opacity-100 border-0 p-0 m-0 min-w-0">
+              <fieldset disabled={readOnly} className="disabled:opacity-100 border-0 p-0 m-0 min-w-0 flex-1 min-h-0 overflow-y-auto flex flex-col">
               {/* TAB: Dados Gerais */}
-              <TabsContent value="geral" className="space-y-8">
+              <TabsContent value="geral" className="space-y-8 min-h-0 overflow-y-auto">
                 {/* Seção 1: Classificação */}
                 <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
                   <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
@@ -940,7 +940,7 @@ export default function OSFormModal({
 
               {/* TAB: Documento (Expedição) */}
               {usaFluxoExpedicao && (
-                <TabsContent value="documento" className="space-y-8">
+                <TabsContent value="documento" className="space-y-8 min-h-0 overflow-y-auto">
                   {/* Seção 1: Dados da Solicitação */}
                   <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
                     <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
@@ -1107,10 +1107,10 @@ export default function OSFormModal({
                 </TabsContent>
               )}
 
-              {usaFluxoExpedicao && (<TabsContent value="materiais">{loadedFormTabs.has('materiais') && <OSItensDocumento itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} />}</TabsContent>)}
-              {isAtendimentoCategory && (<TabsContent value="materiais">{loadedFormTabs.has('materiais') && <OSAtendimentoMateriais itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} />}</TabsContent>)}
+              {usaFluxoExpedicao && (<TabsContent value="materiais" className="min-h-0 overflow-y-auto">{loadedFormTabs.has('materiais') && <OSItensDocumento itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} />}</TabsContent>)}
+              {isAtendimentoCategory && (<TabsContent value="materiais" className="min-h-0 overflow-y-auto">{loadedFormTabs.has('materiais') && <OSAtendimentoMateriais itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} />}</TabsContent>)}
               {usaFluxoExpedicao && (
-                <TabsContent value="volumes" className="space-y-6">
+                <TabsContent value="volumes" className="space-y-6 min-h-0 overflow-y-auto">
                   <OSVolumes volumes={formData.volumes} onChange={(volumes) => setFormData(prev => ({ ...prev, volumes }))} onGerarEtiquetas={() => setShowEtiquetaModal(true)} />
                   {/* Seção Separação */}
                   <div className="border-t pt-6">
@@ -1147,7 +1147,7 @@ export default function OSFormModal({
               )}
 
               {usaFluxoExpedicao && (
-                <TabsContent value="expedicao" className="space-y-6">
+                <TabsContent value="expedicao" className="space-y-6 min-h-0 overflow-y-auto">
                   <OSDetalhamentoExpedicao detalhamento={formData.detalhamento_expedicao} onChange={(d) => setFormData(prev => ({ ...prev, detalhamento_expedicao: d }))} os={os} />
                   <div className="border-t pt-6">
                     <h4 className="font-semibold mb-4">Acompanhamento de Entrega</h4>
@@ -1216,7 +1216,7 @@ export default function OSFormModal({
               )}
 
               {usaFluxoRecebimento && (
-                <TabsContent value="receb-dados" className="space-y-6">
+                <TabsContent value="receb-dados" className="space-y-6 min-h-0 overflow-y-auto">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2"><Label>Data Recebimento</Label><Input type="date" value={formData.data_recebimento} onChange={(e) => setFormData({ ...formData, data_recebimento: e.target.value })} /></div>
                     <div className="space-y-2"><Label>Responsável Recebimento</Label><Input type="text" value={formData.responsavel_recebimento || ''} onChange={(e) => setFormData({ ...formData, responsavel_recebimento: e.target.value })} placeholder="Digite o nome do responsável..." /></div>
@@ -1264,10 +1264,10 @@ export default function OSFormModal({
                 </TabsContent>
               )}
 
-              {usaFluxoRecebimento && (<TabsContent value="receb-doc" className="space-y-6">{loadedFormTabs.has('receb-doc') && <OSRecebimentoDocumento emissor={formData.nfe_dados_emissor} destinatario={formData.nfe_dados_destinatario} onChange={(data) => setFormData(prev => ({ ...prev, nfe_dados_emissor: data.emissor || prev.nfe_dados_emissor, nfe_dados_destinatario: data.destinatario || prev.nfe_dados_destinatario }))} />}</TabsContent>)}
+              {usaFluxoRecebimento && (<TabsContent value="receb-doc" className="space-y-6 min-h-0 overflow-y-auto">{loadedFormTabs.has('receb-doc') && <OSRecebimentoDocumento emissor={formData.nfe_dados_emissor} destinatario={formData.nfe_dados_destinatario} onChange={(data) => setFormData(prev => ({ ...prev, nfe_dados_emissor: data.emissor || prev.nfe_dados_emissor, nfe_dados_destinatario: data.destinatario || prev.nfe_dados_destinatario }))} />}</TabsContent>)}
 
               {usaFluxoRecebimento && (
-                <TabsContent value="receb-documento" className="space-y-6">
+                <TabsContent value="receb-documento" className="space-y-6 min-h-0 overflow-y-auto">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2"><Label>Número da NF</Label><Input value={formData.nfe_numero_receb} onChange={(e) => setFormData({ ...formData, nfe_numero_receb: e.target.value })} placeholder="Preenchido automaticamente pelo XML ou digite manualmente" /></div>
                     <div className="space-y-2"><Label>Data da NF</Label><Input type="date" value={formData.nfe_data_receb} onChange={(e) => setFormData({ ...formData, nfe_data_receb: e.target.value })} /></div>
@@ -1299,8 +1299,8 @@ export default function OSFormModal({
                 </TabsContent>
               )}
 
-              {usaFluxoRecebimento && (<TabsContent value="receb-transp" className="space-y-6">{loadedFormTabs.has('receb-transp') && <OSRecebimentoTransportador transportador={formData.nfe_dados_transportador} onChange={(data) => setFormData(prev => ({ ...prev, nfe_dados_transportador: data }))} />}</TabsContent>)}
-              {usaFluxoRecebimento && (<TabsContent value="receb-mat" className="space-y-6">{loadedFormTabs.has('receb-mat') && <OSRecebimentoMateriais itens={formData.nfe_itens_conferencia} fluxo={formData.fluxo_recebimento} onChange={(data) => setFormData(prev => ({ ...prev, nfe_itens_conferencia: data.itens || prev.nfe_itens_conferencia, fluxo_recebimento: data.fluxo || prev.fluxo_recebimento }))} />}</TabsContent>)}
+              {usaFluxoRecebimento && (<TabsContent value="receb-transp" className="space-y-6 min-h-0 overflow-y-auto">{loadedFormTabs.has('receb-transp') && <OSRecebimentoTransportador transportador={formData.nfe_dados_transportador} onChange={(data) => setFormData(prev => ({ ...prev, nfe_dados_transportador: data }))} />}</TabsContent>)}
+              {usaFluxoRecebimento && (<TabsContent value="receb-mat" className="space-y-6 min-h-0 overflow-y-auto">{loadedFormTabs.has('receb-mat') && <OSRecebimentoMateriais itens={formData.nfe_itens_conferencia} fluxo={formData.fluxo_recebimento} onChange={(data) => setFormData(prev => ({ ...prev, nfe_itens_conferencia: data.itens || prev.nfe_itens_conferencia, fluxo_recebimento: data.fluxo || prev.fluxo_recebimento }))} />}</TabsContent>)}
 
               {usaFluxoExpedicao && os?.id && (
                 <TabsContent value="assinaturas" className="space-y-4">
@@ -1309,7 +1309,7 @@ export default function OSFormModal({
               )}
 
               {/* TAB: Anexos */}
-              <TabsContent value="anexos" className="space-y-6">
+              <TabsContent value="anexos" className="space-y-6 min-h-0 overflow-y-auto">
                 {usaFluxoRecebimento && (
                   <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border-2 border-amber-200 dark:border-amber-800">
                     <h4 className="font-semibold text-amber-900 dark:text-amber-100 mb-1">NFe XML</h4>
@@ -1355,7 +1355,7 @@ export default function OSFormModal({
 
               {/* TAB: Comentários (somente OS existente) */}
               {os?.id && (
-                <TabsContent value="comentarios" className="min-h-[500px]">
+                <TabsContent value="comentarios" className="min-h-0 overflow-y-auto">
                   <OSComentariosTab
                     os={os}
                     pessoas={pessoas}
