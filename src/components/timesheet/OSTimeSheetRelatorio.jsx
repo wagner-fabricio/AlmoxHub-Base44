@@ -74,18 +74,20 @@ export default function OSTimeSheetRelatorio({ pessoas: pessoasProp, categorias:
       setEntries(filtered);
 
       // Buscar OS que não estão na lista paginada da página pai
-      // Em lotes para evitar sobrecarregar a API (centenas de requisições paralelas falham silenciosamente)
+      // Usa filter com $in para buscar várias OS em UMA única requisição por lote (mais confiável que N chamadas paralelas de .get)
       const idsOrdensProp = new Set((ordens || []).map(o => o.id));
       const idsFaltando = [...new Set(filtered.map(e => e.os_id).filter(id => id && !idsOrdensProp.has(id)))];
       if (idsFaltando.length > 0) {
-        const BATCH_SIZE = 20;
+        const BATCH_SIZE = 50;
         const encontradas = [];
         for (let i = 0; i < idsFaltando.length; i += BATCH_SIZE) {
           const lote = idsFaltando.slice(i, i + BATCH_SIZE);
-          const buscas = await Promise.all(
-            lote.map(id => base44.entities.OrdemServico.get(id).catch(() => null))
-          );
-          encontradas.push(...buscas.filter(Boolean));
+          try {
+            const res = await base44.entities.OrdemServico.filter({ id: { $in: lote } }, '-created_date', BATCH_SIZE);
+            if (Array.isArray(res)) encontradas.push(...res);
+          } catch (err) {
+            console.error('Erro ao buscar lote de OS:', err);
+          }
         }
         setOrdensFaltantes(encontradas);
       } else {
