@@ -64,6 +64,20 @@ export function AppProvider({ children }) {
     return unsub;
   }, []);
 
+  // Keep Instalacao list in sync with real-time updates
+  useEffect(() => {
+    const unsub = base44.entities.Instalacao.subscribe((event) => {
+      if (event.type === 'create') {
+        setInstalacoes(prev => [...prev, event.data]);
+      } else if (event.type === 'update') {
+        setInstalacoes(prev => prev.map(i => i.id === event.id ? { ...i, ...event.data } : i));
+      } else if (event.type === 'delete') {
+        setInstalacoes(prev => prev.filter(i => i.id !== event.id));
+      }
+    });
+    return unsub;
+  }, []);
+
   // Sincronização real-time centralizada — atualiza global + filtradas em um único subscriber
   useOrdensRealTimeSync();
 
