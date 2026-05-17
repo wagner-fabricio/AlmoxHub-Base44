@@ -79,7 +79,7 @@ export default function OSTimeSheetRelatorio({ pessoas: pessoasProp, categorias:
       if (idsFaltando.length > 0) {
         const buscas = await Promise.all(
           idsFaltando.map(id =>
-            base44.entities.OrdemServico.filter({ id }).then(r => r?.[0]).catch(() => null)
+            base44.entities.OrdemServico.get(id).catch(() => null)
           )
         );
         setOrdensFaltantes(buscas.filter(Boolean));
