@@ -504,6 +504,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
           vb = (b.os.volumes || []).reduce((s, v) => s + (v.m3 || 0), 0);
         }
         else if (col === 'status_separacao') { va = a.os.status_separacao || ''; vb = b.os.status_separacao || ''; }
+        else if (col === 'progresso') { va = Number(a.os.progresso) || 0; vb = Number(b.os.progresso) || 0; }
         else { va = ''; vb = ''; }
         if (va < vb) return sortConfig.direction === 'asc' ? -1 : 1;
         if (va > vb) return sortConfig.direction === 'asc' ? 1 : -1;
