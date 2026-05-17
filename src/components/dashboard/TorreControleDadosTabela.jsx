@@ -25,7 +25,7 @@ const prioridadeLabels = {
   urgente: { label: 'Urgente', cls: 'bg-red-100 text-red-700' },
 };
 
-const situacaoLabels = ['No Prazo', 'Fora do Prazo', 'Sem prazo'];
+const situacaoLabels = ['No Prazo', 'Até 1 dia do Prazo', 'Fora do Prazo', 'Sem prazo'];
 
 // ── Filter Dropdown ───────────────────────────────────────────────────────────
 function FilterDropdown({ options, selected, onChange, label }) {
@@ -131,7 +131,18 @@ export default function TorreControleDadosTabela({ filteredOrdens, pessoas = [],
       const tempoPrevistoD = (os.data_inicial && os.prazo)
         ? differenceInDays(new Date(os.prazo), new Date(os.data_inicial)) : null;
 
-      const situacao = !os.prazo ? 'Sem prazo' : noPrazo ? 'No Prazo' : 'Fora do Prazo';
+      // Situação Prazo — mesma lógica do Kanban de Execução
+      let situacao;
+      if (!os.prazo) {
+        situacao = 'Sem prazo';
+      } else if (os.status === 'concluido' || os.status === 'cancelado') {
+        situacao = noPrazo ? 'No Prazo' : 'Fora do Prazo';
+      } else {
+        const d = differenceInDays(new Date(os.prazo), hoje);
+        if (d > 1) situacao = 'No Prazo';
+        else if (d >= 0 && d <= 1) situacao = 'Até 1 dia do Prazo';
+        else situacao = 'Fora do Prazo';
+      }
 
       return { os, categoria, lider, almox, noPrazo, foraPrazo, diasPrazo, valorTotal, numItens, tempoPrevistoD, situacao };
     });
@@ -320,6 +331,8 @@ export default function TorreControleDadosTabela({ filteredOrdens, pessoas = [],
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500">Sem prazo</span>
                     ) : situacao === 'No Prazo' ? (
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">No Prazo</span>
+                    ) : situacao === 'Até 1 dia do Prazo' ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">Até 1 dia do Prazo</span>
                     ) : (
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300">Fora do Prazo</span>
                     )}
