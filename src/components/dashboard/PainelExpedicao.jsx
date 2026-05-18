@@ -569,11 +569,17 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
           <Button variant="outline" size="sm" onClick={() => {
             const rows = osTabelaFiltrada.map(({ os, almox, qtdSol, qtdSep, tempoEntrega, tempoCicloSep, leadTimeReservaMigo }) => {
               const totalM3 = (os.volumes || []).reduce((sum, v) => sum + (v.m3 || 0), 0);
+              const origem = instalacoes?.find(i => i.id === os.instalacao_origem_id);
+              const destino = instalacoes?.find(i => i.id === os.instalacao_destino_id);
               return {
                 'Nº OS': os.codigo || os.id?.substring(0, 8) || '',
                 'Status Exp.': os.status_separacao || '',
                 'Progresso (%)': Math.max(0, Math.min(100, Math.round(os.progresso || 0))),
                 'Almoxarifado': almox?.nome || '',
+                'Origem': origem?.nome || '',
+                'Destino': destino?.nome || '',
+                'Nº Reserva': os.num_reserva || '',
+                'Nº MIGO': os.num_migo || '',
                 'Reserva': safeFormat(os.data_reserva),
                 'MIGO': safeFormat(os.data_migo),
                 'Sol.': qtdSol || 0,
