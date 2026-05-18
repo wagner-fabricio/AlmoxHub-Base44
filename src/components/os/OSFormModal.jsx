@@ -31,6 +31,9 @@ import EtiquetaVolumesModal from './EtiquetaVolumesModal';
 import OSFormHelp from './OSFormHelp';
 import { formatarTempo } from '@/components/timesheet/TimeSheetButton';
 import RelatorioOS from './RelatorioOS';
+import RelatorioSeparacao from './RelatorioSeparacao';
+import RelatorioConferencia from './RelatorioConferencia';
+import { ListChecks, ClipboardCheck } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { canEditOS } from '@/lib/osPermissions';
@@ -119,6 +122,10 @@ export default function OSFormModal({
   };
   const [generatingOSPDF, setGeneratingOSPDF] = useState(false);
   const [showRelatorioOS, setShowRelatorioOS] = useState(false);
+  const [generatingSeparacaoPDF, setGeneratingSeparacaoPDF] = useState(false);
+  const [showRelatorioSeparacao, setShowRelatorioSeparacao] = useState(false);
+  const [generatingConferenciaPDF, setGeneratingConferenciaPDF] = useState(false);
+  const [showRelatorioConferencia, setShowRelatorioConferencia] = useState(false);
   const [importingPDF, setImportingPDF] = useState(false);
   const [showEtiquetaModal, setShowEtiquetaModal] = useState(false);
   const [zmmtsePDF, setZmmtsePDF] = useState(null);
@@ -626,6 +633,43 @@ export default function OSFormModal({
     finally { setGeneratingOSPDF(false); setShowRelatorioOS(false); }
   };
 
+  const generatePDFFromElement = async (elementId, filename) => {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    const canvas = await html2canvas(element, { scale: 1.2, useCORS: true, backgroundColor: '#ffffff', windowWidth: element.scrollWidth, windowHeight: element.scrollHeight, allowTaint: true });
+    const imgData = canvas.toDataURL('image/jpeg', 0.75);
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const scaledHeight = pdfWidth / (canvas.width / canvas.height);
+    const totalPages = Math.ceil(scaledHeight / pdfHeight);
+    for (let i = 0; i < totalPages; i++) {
+      if (i > 0) pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 0, -(pdfHeight * i), pdfWidth, scaledHeight, '', 'FAST');
+    }
+    pdf.save(filename);
+  };
+
+  const handleGenerateSeparacaoPDF = async () => {
+    setGeneratingSeparacaoPDF(true);
+    setShowRelatorioSeparacao(true);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    try {
+      await generatePDFFromElement('relatorio-separacao', `Lista_Separacao_${formData.codigo || os?.codigo || 'OS'}.pdf`);
+    } catch (error) { console.error('Error generating Separação PDF:', error); }
+    finally { setGeneratingSeparacaoPDF(false); setShowRelatorioSeparacao(false); }
+  };
+
+  const handleGenerateConferenciaPDF = async () => {
+    setGeneratingConferenciaPDF(true);
+    setShowRelatorioConferencia(true);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    try {
+      await generatePDFFromElement('relatorio-conferencia', `Lista_Conferencia_${formData.codigo || os?.codigo || 'OS'}.pdf`);
+    } catch (error) { console.error('Error generating Conferência PDF:', error); }
+    finally { setGeneratingConferenciaPDF(false); setShowRelatorioConferencia(false); }
+  };
+
   // TimeSheet: subscrição em tempo real para refletir mudanças no header.
   // O play é manual via OSHeaderTimeSheetButton (com modal de seleção).
   useEffect(() => {
@@ -731,6 +775,22 @@ export default function OSFormModal({
                 onClick={handleGenerateOSPDF}
                 disabled={generatingOSPDF}
               />
+              {usaFluxoExpedicao && (
+                <OSHeaderIconButton
+                  icon={ListChecks}
+                  label={generatingSeparacaoPDF ? 'Gerando...' : 'Lista de Separação'}
+                  onClick={handleGenerateSeparacaoPDF}
+                  disabled={generatingSeparacaoPDF}
+                />
+              )}
+              {usaFluxoRecebimento && (
+                <OSHeaderIconButton
+                  icon={ClipboardCheck}
+                  label={generatingConferenciaPDF ? 'Gerando...' : 'Lista de Conferência'}
+                  onClick={handleGenerateConferenciaPDF}
+                  disabled={generatingConferenciaPDF}
+                />
+              )}
               {os?.id && onCreateRelated && (
                 <OSHeaderIconButton
                   icon={Copy}
@@ -1415,6 +1475,33 @@ export default function OSFormModal({
               projetos={projetos}
               instalacoes={instalacoes}
               rotulos={[]}
+              currentUser={currentUser}
+            />
+          </div>
+        )}
+
+        {showRelatorioSeparacao && (
+          <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+            <RelatorioSeparacao
+              os={{ ...formData, codigo: os?.codigo || formData.codigo }}
+              regional={(regionais || []).find(r => r.id === formData.regional_id)}
+              almoxarifado={(almoxarifados || []).find(a => a.id === formData.almoxarifado_id)}
+              lider={(pessoas || []).find(p => p.id === formData.lider_id)}
+              categoria={(categorias || []).find(c => c.id === formData.categoria_id)}
+              subcategorias={subcategorias}
+              currentUser={currentUser}
+            />
+          </div>
+        )}
+
+        {showRelatorioConferencia && (
+          <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+            <RelatorioConferencia
+              os={{ ...formData, codigo: os?.codigo || formData.codigo }}
+              regional={(regionais || []).find(r => r.id === formData.regional_id)}
+              almoxarifado={(almoxarifados || []).find(a => a.id === formData.almoxarifado_id)}
+              lider={(pessoas || []).find(p => p.id === formData.lider_id)}
+              categoria={(categorias || []).find(c => c.id === formData.categoria_id)}
               currentUser={currentUser}
             />
           </div>
