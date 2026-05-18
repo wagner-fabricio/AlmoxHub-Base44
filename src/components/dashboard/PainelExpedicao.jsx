@@ -473,6 +473,16 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
       if (!values || values.length === 0) return;
       rows = rows.filter(({ os, almox, tempoEntrega }) => {
         if (col === 'almox') return values.includes(almox?.nome || '—');
+        if (col === 'instalacao_origem') {
+          const inst = instalacoes?.find(i => i.id === os.instalacao_origem_id);
+          return values.includes(inst?.nome || '—');
+        }
+        if (col === 'instalacao_destino') {
+          const inst = instalacoes?.find(i => i.id === os.instalacao_destino_id);
+          return values.includes(inst?.nome || '—');
+        }
+        if (col === 'num_reserva') return values.includes(os.num_reserva || '—');
+        if (col === 'num_migo') return values.includes(os.num_migo || '—');
         if (col === 'data_reserva') return values.includes(safeFormat(os.data_reserva));
         if (col === 'data_migo') return values.includes(safeFormat(os.data_migo));
         if (col === 'data_necessidade') return values.includes(safeFormat(os.data_necessidade));
@@ -490,6 +500,16 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
         const col = sortConfig.column;
         if (col === 'codigo') { va = a.os.codigo || ''; vb = b.os.codigo || ''; }
         else if (col === 'almox') { va = a.almox?.nome || ''; vb = b.almox?.nome || ''; }
+        else if (col === 'instalacao_origem') {
+          va = instalacoes?.find(i => i.id === a.os.instalacao_origem_id)?.nome || '';
+          vb = instalacoes?.find(i => i.id === b.os.instalacao_origem_id)?.nome || '';
+        }
+        else if (col === 'instalacao_destino') {
+          va = instalacoes?.find(i => i.id === a.os.instalacao_destino_id)?.nome || '';
+          vb = instalacoes?.find(i => i.id === b.os.instalacao_destino_id)?.nome || '';
+        }
+        else if (col === 'num_reserva') { va = a.os.num_reserva || ''; vb = b.os.num_reserva || ''; }
+        else if (col === 'num_migo') { va = a.os.num_migo || ''; vb = b.os.num_migo || ''; }
         else if (col === 'data_reserva') { va = a.os.data_reserva || ''; vb = b.os.data_reserva || ''; }
         else if (col === 'data_migo') { va = a.os.data_migo || ''; vb = b.os.data_migo || ''; }
         else if (col === 'qtdSol') { va = a.qtdSol; vb = b.qtdSol; }
@@ -517,6 +537,16 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
   const getUniqueValues = (col) => {
     const vals = osTabela.map(({ os, almox, tempoEntrega }) => {
       if (col === 'almox') return almox?.nome || '—';
+      if (col === 'instalacao_origem') {
+        const inst = instalacoes?.find(i => i.id === os.instalacao_origem_id);
+        return inst?.nome || '—';
+      }
+      if (col === 'instalacao_destino') {
+        const inst = instalacoes?.find(i => i.id === os.instalacao_destino_id);
+        return inst?.nome || '—';
+      }
+      if (col === 'num_reserva') return os.num_reserva || '—';
+      if (col === 'num_migo') return os.num_migo || '—';
       if (col === 'data_reserva') return safeFormat(os.data_reserva);
       if (col === 'data_migo') return safeFormat(os.data_migo);
       if (col === 'data_necessidade') return safeFormat(os.data_necessidade);
