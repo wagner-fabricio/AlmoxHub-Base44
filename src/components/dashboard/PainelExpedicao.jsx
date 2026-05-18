@@ -1086,6 +1086,10 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
                         { col: 'status_separacao', label: 'Status Exp.', filter: false, width: 'w-32' },
                         { col: 'progresso', label: 'Progresso', filter: false, width: 'w-28' },
                         { col: 'almox', label: 'Almoxarifado', filter: true, width: 'w-36' },
+                        { col: 'instalacao_origem', label: 'Origem', filter: true, width: 'w-36' },
+                        { col: 'instalacao_destino', label: 'Destino', filter: true, width: 'w-36' },
+                        { col: 'num_reserva', label: 'Nº Reserva', filter: true, width: 'w-24' },
+                        { col: 'num_migo', label: 'Nº MIGO', filter: true, width: 'w-24' },
                         { col: 'data_reserva', label: 'Reserva', filter: true, width: 'w-24' },
                         { col: 'data_migo', label: 'MIGO', filter: true, width: 'w-24' },
                         { col: 'qtdSol', label: 'Sol.', filter: false, width: 'w-16' },
@@ -1151,6 +1155,10 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
                             })()}
                           </td>
                           <td className="px-2 py-2 text-slate-700 dark:text-slate-300 max-w-[144px] truncate">{almox?.nome || '—'}</td>
+                          <td className="px-2 py-2 text-slate-700 dark:text-slate-300 max-w-[144px] truncate">{(() => { const inst = instalacoes?.find(i => i.id === os.instalacao_origem_id); return inst?.nome || '—'; })()}</td>
+                          <td className="px-2 py-2 text-slate-700 dark:text-slate-300 max-w-[144px] truncate">{(() => { const inst = instalacoes?.find(i => i.id === os.instalacao_destino_id); return inst?.nome || '—'; })()}</td>
+                          <td className="px-2 py-2 text-center whitespace-nowrap">{os.num_reserva || '—'}</td>
+                          <td className="px-2 py-2 text-center whitespace-nowrap">{os.num_migo || '—'}</td>
                           <td className="px-2 py-2 text-center whitespace-nowrap">{safeFormat(os.data_reserva)}</td>
                           <td className="px-2 py-2 text-center whitespace-nowrap">{safeFormat(os.data_migo)}</td>
                           <td className="px-2 py-2 text-right">{qtdSol > 0 ? qtdSol.toLocaleString('pt-BR') : '—'}</td>
