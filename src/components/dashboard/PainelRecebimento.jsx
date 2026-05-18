@@ -403,6 +403,15 @@ export default function PainelRecebimento({
   };
 
   // ── Tabela: linhas enriquecidas + filtros + sort (compartilhado p/ Excel) ─
+  const ETAPAS_RECEB = ['Importar XML', 'Conferência Manual', 'Divergências', 'Armazenagem'];
+  const getEtapaAtualLabel = (os) => {
+    const f = os.fluxo_recebimento;
+    if (!f) return 'Importar XML';
+    if (f.armazenagem_completa) return 'Concluído';
+    const idx = (f.etapa_atual || 1) - 1;
+    return ETAPAS_RECEB[idx] || 'Importar XML';
+  };
+
   const osTabelaRows = useMemo(() => {
     const osTabela = osReceb.map(os => {
       const almox = almoxarifados.find(a => a.id === os.almoxarifado_id);
@@ -417,13 +426,19 @@ export default function PainelRecebimento({
       const tacPct = itens.length > 0 ? Math.round((itensComp / itens.length) * 100) : null;
       const armazenado = os.fluxo_recebimento?.armazenagem_completa === true;
       const temProblema = os.problema_recebimento === true;
-      return { os, almox, ltrDias, tmrpDias, itens, itensComp, tacPct, armazenado, temProblema };
+      const progresso = Math.max(0, Math.min(100, Math.round(os.progresso || 0)));
+      const subcatNomes = (os.subcategorias_ids || [])
+        .map(sid => subcategorias?.find(s => s.id === sid)?.nome)
+        .filter(Boolean)
+        .join(', ') || '—';
+      const etapaAtual = getEtapaAtualLabel(os);
+      return { os, almox, ltrDias, tmrpDias, itens, itensComp, tacPct, armazenado, temProblema, progresso, subcatNomes, etapaAtual };
     });
 
     let rows = [...osTabela];
     Object.entries(columnFilters).forEach(([col, values]) => {
       if (!values || values.length === 0) return;
-      rows = rows.filter(({ os, almox, ltrDias, tmrpDias, tacPct, armazenado, temProblema }) => {
+      rows = rows.filter(({ os, almox, ltrDias, tmrpDias, tacPct, armazenado, temProblema, subcatNomes, etapaAtual }) => {
         if (col === 'almox') return values.includes(almox?.nome || '—');
         if (col === 'nfe_data_receb') return values.includes(safeF(os.nfe_data_receb));
         if (col === 'data_migo_receb') return values.includes(safeF(os.data_migo_receb));
@@ -434,6 +449,9 @@ export default function PainelRecebimento({
         if (col === 'data_solucao') return values.includes(safeF(os.data_solucao));
         if (col === 'tmrpDias') return values.includes(tmrpDias !== null ? `${tmrpDias}d` : '—');
         if (col === 'tacPct') return values.includes(tacPct !== null ? `${tacPct}%` : '—');
+        if (col === 'numero_migo_receb') return values.includes(os.numero_migo_receb || '—');
+        if (col === 'subcategoria') return values.includes(subcatNomes);
+        if (col === 'etapaAtual') return values.includes(etapaAtual);
         return true;
       });
     });
@@ -452,6 +470,10 @@ export default function PainelRecebimento({
         else if (col === 'tacPct') { va = a.tacPct ?? -1; vb = b.tacPct ?? -1; }
         else if (col === 'itensConf') { va = a.itens.length; vb = b.itens.length; }
         else if (col === 'completos') { va = a.itensComp; vb = b.itensComp; }
+        else if (col === 'progresso') { va = a.progresso; vb = b.progresso; }
+        else if (col === 'numero_migo_receb') { va = a.os.numero_migo_receb || ''; vb = b.os.numero_migo_receb || ''; }
+        else if (col === 'subcategoria') { va = a.subcatNomes; vb = b.subcatNomes; }
+        else if (col === 'etapaAtual') { va = a.etapaAtual; vb = b.etapaAtual; }
         else { va = ''; vb = ''; }
         if (va < vb) return sortConfig.direction === 'asc' ? -1 : 1;
         if (va > vb) return sortConfig.direction === 'asc' ? 1 : -1;
@@ -459,7 +481,7 @@ export default function PainelRecebimento({
       });
     }
     return rows;
-  }, [osReceb, almoxarifados, columnFilters, sortConfig]);
+  }, [osReceb, almoxarifados, subcategorias, columnFilters, sortConfig]);
 
   // ── Chart: Ranking Problemas ──────────────────────────────────────────────
   const problemasChartData = useMemo(() => {
@@ -504,9 +526,13 @@ export default function PainelRecebimento({
       {!hideToolbar && (
         <div className="flex justify-end gap-2">
           <Button variant="outline" size="sm" onClick={() => {
-            const rows = osTabelaRows.map(({ os, almox, ltrDias, tmrpDias, itens, itensComp, tacPct, armazenado, temProblema }) => ({
+            const rows = osTabelaRows.map(({ os, almox, ltrDias, tmrpDias, itens, itensComp, tacPct, armazenado, temProblema, progresso, subcatNomes, etapaAtual }) => ({
               'Nº OS': os.codigo || os.id?.substring(0, 8) || '',
+              'Progresso (%)': progresso,
+              'Subcategoria': subcatNomes === '—' ? '' : subcatNomes,
+              'Etapa Atual': etapaAtual,
               'Almoxarifado': almox?.nome || '',
+              'Nº MIGO': os.numero_migo_receb || '',
               'NF-e Receb.': safeF(os.nfe_data_receb),
               'MIGO Receb.': safeF(os.data_migo_receb),
               'LTR (dias)': ltrDias !== null ? ltrDias : '',
@@ -952,7 +978,7 @@ export default function PainelRecebimento({
         const rows = osTabelaRows;
 
         const getUniqueValues = (col) => {
-          const vals = rows.map(({ os, almox, ltrDias, tmrpDias, tacPct, armazenado, temProblema }) => {
+          const vals = rows.map(({ os, almox, ltrDias, tmrpDias, tacPct, armazenado, temProblema, subcatNomes, etapaAtual }) => {
             if (col === 'almox') return almox?.nome || '—';
             if (col === 'nfe_data_receb') return safeF(os.nfe_data_receb);
             if (col === 'data_migo_receb') return safeF(os.data_migo_receb);
@@ -963,6 +989,9 @@ export default function PainelRecebimento({
             if (col === 'data_solucao') return safeF(os.data_solucao);
             if (col === 'tmrpDias') return tmrpDias !== null ? `${tmrpDias}d` : '—';
             if (col === 'tacPct') return tacPct !== null ? `${tacPct}%` : '—';
+            if (col === 'numero_migo_receb') return os.numero_migo_receb || '—';
+            if (col === 'subcategoria') return subcatNomes;
+            if (col === 'etapaAtual') return etapaAtual;
             return '—';
           });
           return [...new Set(vals)].sort();
@@ -976,7 +1005,11 @@ export default function PainelRecebimento({
 
         const COLS = [
           { col: 'codigo',          label: 'Nº OS',        filter: false, width: 'min-w-[160px]' },
+          { col: 'progresso',       label: 'Progresso',    filter: false, width: 'w-28' },
+          { col: 'subcategoria',    label: 'Subcategoria', filter: true,  width: 'w-36' },
+          { col: 'etapaAtual',      label: 'Etapa Atual',  filter: true,  width: 'w-32' },
           { col: 'almox',           label: 'Almoxarifado', filter: true,  width: 'w-36' },
+          { col: 'numero_migo_receb', label: 'Nº MIGO',    filter: true,  width: 'w-24' },
           { col: 'nfe_data_receb',  label: 'NF-e Receb.',  filter: true,  width: 'w-24' },
           { col: 'data_migo_receb', label: 'MIGO Receb.',  filter: true,  width: 'w-24' },
           { col: 'ltrDias',         label: 'LTR (d)',      filter: true,  width: 'w-20' },
@@ -1042,10 +1075,16 @@ export default function PainelRecebimento({
                   </tr>
                 </thead>
                 <tbody>
-                  {pageRows.map(({ os, almox, ltrDias, tmrpDias, itens, itensComp, tacPct, armazenado, temProblema }, idx) => {
+                  {pageRows.map(({ os, almox, ltrDias, tmrpDias, itens, itensComp, tacPct, armazenado, temProblema, progresso, subcatNomes, etapaAtual }, idx) => {
                     const ltrColor = ltrDias === null ? '' : ltrDias <= 3 ? 'text-green-600 font-semibold' : ltrDias <= 7 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold';
                     const tmrpColor = tmrpDias === null ? '' : tmrpDias <= 3 ? 'text-green-600 font-semibold' : tmrpDias <= 7 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold';
                     const tacColor = tacPct === null ? '' : tacPct >= 95 ? 'text-green-600 font-semibold' : tacPct >= 80 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold';
+                    const barColor = progresso >= 100 ? 'bg-green-500' : progresso >= 50 ? 'bg-blue-500' : progresso > 0 ? 'bg-amber-500' : 'bg-slate-300 dark:bg-slate-600';
+                    const etapaCls = etapaAtual === 'Concluído' ? 'bg-green-100 text-green-700' :
+                                     etapaAtual === 'Armazenagem' ? 'bg-blue-100 text-blue-700' :
+                                     etapaAtual === 'Divergências' ? 'bg-amber-100 text-amber-700' :
+                                     etapaAtual === 'Conferência Manual' ? 'bg-indigo-100 text-indigo-700' :
+                                     'bg-slate-100 text-slate-600';
                     return (
                       <tr key={os.id} className={`border-b border-slate-100 dark:border-slate-700/50 ${idx % 2 !== 0 ? 'bg-slate-50/50 dark:bg-slate-700/20' : ''} hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors`}>
                         <td className="px-2 py-2 whitespace-nowrap min-w-[160px]">
@@ -1053,7 +1092,20 @@ export default function PainelRecebimento({
                             {os.codigo || os.id?.substring(0, 8)}
                           </button>
                         </td>
+                        <td className="px-2 py-2 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden min-w-[60px]">
+                              <div className={`h-full ${barColor} transition-all`} style={{ width: `${progresso}%` }} />
+                            </div>
+                            <span className="text-xs font-medium text-slate-600 dark:text-slate-300 tabular-nums">{progresso}%</span>
+                          </div>
+                        </td>
+                        <td className="px-2 py-2 max-w-[144px] truncate text-slate-700 dark:text-slate-300" title={subcatNomes}>{subcatNomes}</td>
+                        <td className="px-2 py-2 text-center whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${etapaCls}`}>{etapaAtual}</span>
+                        </td>
                         <td className="px-2 py-2 max-w-[144px] truncate text-slate-700 dark:text-slate-300">{almox?.nome || '—'}</td>
+                        <td className="px-2 py-2 text-center whitespace-nowrap">{os.numero_migo_receb || '—'}</td>
                         <td className="px-2 py-2 text-center whitespace-nowrap">{safeF(os.nfe_data_receb)}</td>
                         <td className="px-2 py-2 text-center whitespace-nowrap">{safeF(os.data_migo_receb)}</td>
                         <td className={`px-2 py-2 text-center whitespace-nowrap ${ltrColor}`}>{ltrDias !== null ? `${ltrDias}d` : '—'}</td>
