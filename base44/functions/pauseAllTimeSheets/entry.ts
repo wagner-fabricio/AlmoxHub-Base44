@@ -1,4 +1,27 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Wrapper com retry e backoff exponencial para lidar com rate limit
+async function withRetry(operation, maxRetries = 5) {
+  let lastError;
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error;
+      const msg = (error?.message || '').toLowerCase();
+      const isRateLimit = msg.includes('rate limit') || msg.includes('429') || msg.includes('too many');
+      if (!isRateLimit || attempt === maxRetries - 1) {
+        throw error;
+      }
+      // Backoff exponencial: 1s, 2s, 4s, 8s, 16s
+      const waitMs = Math.pow(2, attempt) * 1000;
+      await sleep(waitMs);
+    }
+  }
+  throw lastError;
+}
 
 // Automação: Pausa todas as OS em play às 18h (America/Bahia)
 Deno.serve(async (req) => {
@@ -6,7 +29,9 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
 
     // Buscar todas as OS em playing
-    const osEmPlay = await base44.asServiceRole.entities.OrdemServico.filter({ timesheet_status: 'playing' });
+    const osEmPlay = await withRetry(() =>
+      base44.asServiceRole.entities.OrdemServico.filter({ timesheet_status: 'playing' })
+    );
 
     if (!osEmPlay || osEmPlay.length === 0) {
       return Response.json({ message: 'Nenhuma OS em play. Nenhuma ação necessária.' });
@@ -27,17 +52,18 @@ Deno.serve(async (req) => {
 
         // Fechar o TimeSheetEntry
         if (sessao.entry_id) {
-          await base44.asServiceRole.entities.TimeSheetEntry.update(sessao.entry_id, {
+          await withRetry(() => base44.asServiceRole.entities.TimeSheetEntry.update(sessao.entry_id, {
             fim: agora,
             duracao_minutos: duracaoMinutos,
             status: 'closed',
             tipo_encerramento: 'auto_fim_expediente',
             pessoa_id_pausa: 'sistema',
             pessoa_nome_pausa: 'Sistema (corte automático 18h)'
-          });
+          }));
+          await sleep(150);
         }
 
-        // Enviar notificação push para a pessoa
+        // Enviar notificação push para a pessoa (fire and forget, sem bloquear)
         base44.asServiceRole.functions.invoke('sendPushNotification', {
           pessoa_id: sessao.pessoa_id,
           title: 'TimeSheet pausado automaticamente',
@@ -48,14 +74,15 @@ Deno.serve(async (req) => {
 
       // Atualizar OS
       const novoTotal = (os.timesheet_total_minutos || 0) + totalMinutosAdicionados;
-      await base44.asServiceRole.entities.OrdemServico.update(os.id, {
+      await withRetry(() => base44.asServiceRole.entities.OrdemServico.update(os.id, {
         timesheet_status: 'paused',
         timesheet_sessoes_ativas: [],
         timesheet_total_minutos: novoTotal
-      });
+      }));
+      await sleep(150);
 
       // Registrar no audit log
-      await base44.asServiceRole.entities.AuditLog.create({
+      await withRetry(() => base44.asServiceRole.entities.AuditLog.create({
         action: 'timesheet_auto_pause',
         entity_type: 'OrdemServico',
         entity_id: os.id,
@@ -66,7 +93,8 @@ Deno.serve(async (req) => {
           minutos_adicionados: totalMinutosAdicionados
         }),
         timestamp: agora
-      });
+      }));
+      await sleep(150);
 
       resultados.push({ os_id: os.id, codigo: os.codigo, sessoes: sessoesAtivas.length });
     }
