@@ -141,16 +141,19 @@ export default function Dashboard() {
       periodoCutoff = subDays(new Date(), parseInt(filters.periodo));
     }
 
+    const almoxIds = Array.isArray(filters.almoxarifado) ? filters.almoxarifado : (filters.almoxarifado && filters.almoxarifado !== 'all' ? [filters.almoxarifado] : []);
+    const categoriaIds = Array.isArray(filters.categoria) ? filters.categoria : (filters.categoria && filters.categoria !== 'all' ? [filters.categoria] : []);
+
     return ordens.filter(os => {
       if (filters.regional !== 'all' && os.regional_id !== filters.regional) return false;
-      if (filters.almoxarifado !== 'all' && os.almoxarifado_id !== filters.almoxarifado) return false;
+      if (almoxIds.length > 0 && !almoxIds.includes(os.almoxarifado_id)) return false;
       
       if (activeTab === 'recebimento') {
         if (os.categoria_id !== categoriaRecebimento?.id) return false;
       } else if (activeTab === 'expedicao') {
         if (os.categoria_id !== categoriaExpedicao?.id) return false;
       } else {
-        if (filters.categoria !== 'all' && os.categoria_id !== filters.categoria) return false;
+        if (categoriaIds.length > 0 && !categoriaIds.includes(os.categoria_id)) return false;
       }
       
       if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
@@ -166,17 +169,21 @@ export default function Dashboard() {
     });
   }, [ordens, filters, activeTab, categoriaRecebimento?.id, categoriaExpedicao?.id]);
 
-  // Subcategorias filtradas pela categoria selecionada (ou pela categoria fixa da aba)
-  const activeCategoriaId = useMemo(() =>
-    activeTab === 'recebimento' ? categoriaRecebimento?.id :
-    activeTab === 'expedicao' ? categoriaExpedicao?.id :
-    filters.categoria !== 'all' ? filters.categoria : null,
-    [activeTab, categoriaRecebimento?.id, categoriaExpedicao?.id, filters.categoria]
-  );
+  // Subcategorias filtradas pelas categorias selecionadas (ou pela categoria fixa da aba)
+  const activeCategoriaIds = useMemo(() => {
+    if (activeTab === 'recebimento') return categoriaRecebimento?.id ? [categoriaRecebimento.id] : [];
+    if (activeTab === 'expedicao') return categoriaExpedicao?.id ? [categoriaExpedicao.id] : [];
+    if (Array.isArray(filters.categoria)) return filters.categoria;
+    return filters.categoria && filters.categoria !== 'all' ? [filters.categoria] : [];
+  }, [activeTab, categoriaRecebimento?.id, categoriaExpedicao?.id, filters.categoria]);
+
+  const activeCategoriaId = activeCategoriaIds[0] || null;
 
   const filteredSubcategorias = useMemo(() =>
-    activeCategoriaId ? subcategorias.filter(s => s.categoria_id === activeCategoriaId) : subcategorias,
-    [activeCategoriaId, subcategorias]
+    activeCategoriaIds.length > 0
+      ? subcategorias.filter(s => activeCategoriaIds.includes(s.categoria_id))
+      : subcategorias,
+    [activeCategoriaIds, subcategorias]
   );
 
   // KPIs — all memoized to avoid recalculation on irrelevant state changes
@@ -283,7 +290,8 @@ export default function Dashboard() {
       if (!os || os.categoria_id !== categoriaExpedicaoHeatmap?.id) return false;
       if (!os[campoInstalacao]) return false;
       if (filters.regional !== 'all' && os.regional_id !== filters.regional) return false;
-      if (filters.almoxarifado !== 'all' && os.almoxarifado_id !== filters.almoxarifado) return false;
+      const almoxIdsH = Array.isArray(filters.almoxarifado) ? filters.almoxarifado : (filters.almoxarifado && filters.almoxarifado !== 'all' ? [filters.almoxarifado] : []);
+      if (almoxIdsH.length > 0 && !almoxIdsH.includes(os.almoxarifado_id)) return false;
       if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
       if (activeStatuses.length > 0 && !activeStatuses.includes(os.status)) return false;
       const osDate = new Date(os.created_date);
@@ -391,7 +399,7 @@ export default function Dashboard() {
         
         {/* Filtros - Mobile First */}
         <div className={`grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-2 ${fullscreen ? 'hidden' : ''}`}>
-          <Select value={filters.regional} onValueChange={(v) => updateFilters({ ...filters, regional: v, almoxarifado: 'all' })}>
+          <Select value={filters.regional} onValueChange={(v) => updateFilters({ ...filters, regional: v, almoxarifado: [] })}>
             <SelectTrigger className="w-full bg-white dark:bg-slate-800">
               <SelectValue placeholder="Regional" />
             </SelectTrigger>
@@ -402,43 +410,84 @@ export default function Dashboard() {
               ))}
             </SelectContent>
           </Select>
-          <Select value={filters.almoxarifado} onValueChange={(v) => updateFilters({ ...filters, almoxarifado: v })}>
-            <SelectTrigger className="w-full bg-white dark:bg-slate-800">
-              <SelectValue placeholder="Almoxarifado" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos Almoxarifados</SelectItem>
-              {almoxarifados
-                .filter(a => filters.regional === 'all' || a.regional_id === filters.regional)
-                .sort((a, b) => a.nome.localeCompare(b.nome))
-                .map(a => (
-                  <SelectItem key={a.id} value={a.id}>{a.nome}</SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-          <Select 
-            value={activeTab === 'recebimento' ? categoriaRecebimento?.id : activeTab === 'expedicao' ? categoriaExpedicao?.id : filters.categoria}
-            onValueChange={(v) => updateFilters({ ...filters, categoria: v, subcategoria: 'all' })}
-            disabled={activeTab === 'recebimento' || activeTab === 'expedicao'}
-          >
-            <SelectTrigger className="w-full bg-white dark:bg-slate-800">
-              <SelectValue placeholder="Categoria" />
-            </SelectTrigger>
-            <SelectContent>
-              {activeTab === 'recebimento' ? (
-                <SelectItem value={categoriaRecebimento?.id}>{categoriaRecebimento?.nome}</SelectItem>
-              ) : activeTab === 'expedicao' ? (
-                <SelectItem value={categoriaExpedicao?.id}>{categoriaExpedicao?.nome}</SelectItem>
-              ) : (
-                <>
-                  <SelectItem value="all">Todas Categorias</SelectItem>
-                  {[...categorias].sort((a, b) => a.nome.localeCompare(b.nome)).map(c => (
-                    <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-                  ))}
-                </>
-              )}
-            </SelectContent>
-          </Select>
+          {(() => {
+            const selected = Array.isArray(filters.almoxarifado) ? filters.almoxarifado : (filters.almoxarifado && filters.almoxarifado !== 'all' ? [filters.almoxarifado] : []);
+            const opts = almoxarifados
+              .filter(a => filters.regional === 'all' || a.regional_id === filters.regional)
+              .sort((a, b) => a.nome.localeCompare(b.nome));
+            const label = selected.length === 0 ? 'Todos Almoxarifados' : selected.length === 1 ? (opts.find(a => a.id === selected[0])?.nome || '1 almoxarifado') : `${selected.length} almoxarifados`;
+            const toggle = (id) => {
+              const next = selected.includes(id) ? selected.filter(s => s !== id) : [...selected, id];
+              updateFilters({ ...filters, almoxarifado: next });
+            };
+            return (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="flex items-center justify-between w-full h-9 rounded-md border border-input bg-white dark:bg-slate-800 px-3 py-2 text-sm shadow-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    <span className={`truncate ${selected.length === 0 ? 'text-slate-500' : ''}`}>{label}</span>
+                    <ChevronDown className="w-4 h-4 opacity-50 ml-2 shrink-0" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-72 p-2 max-h-80 overflow-y-auto" align="start">
+                  <div className="space-y-1">
+                    {opts.length === 0 ? (
+                      <p className="text-xs text-slate-400 px-2 py-1.5">Nenhum almoxarifado</p>
+                    ) : opts.map(a => (
+                      <label key={a.id} className="flex items-center gap-2 cursor-pointer px-2 py-1.5 rounded hover:bg-slate-50 dark:hover:bg-slate-800">
+                        <Checkbox checked={selected.includes(a.id)} onCheckedChange={() => toggle(a.id)} />
+                        <span className="text-sm text-slate-700 dark:text-slate-300">{a.nome}</span>
+                      </label>
+                    ))}
+                    {selected.length > 0 && (
+                      <button onClick={() => updateFilters({ ...filters, almoxarifado: [] })} className="w-full text-xs text-blue-600 hover:underline text-left px-2 pt-1 mt-1 border-t border-slate-100 dark:border-slate-700">Limpar seleção</button>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            );
+          })()}
+          {(() => {
+            const isLocked = activeTab === 'recebimento' || activeTab === 'expedicao';
+            if (isLocked) {
+              const cat = activeTab === 'recebimento' ? categoriaRecebimento : categoriaExpedicao;
+              return (
+                <button disabled className="flex items-center justify-between w-full h-9 rounded-md border border-input bg-white dark:bg-slate-800 px-3 py-2 text-sm shadow-sm text-slate-500 opacity-60 cursor-not-allowed">
+                  <span className="truncate">{cat?.nome || 'Categoria'}</span>
+                  <ChevronDown className="w-4 h-4 opacity-50 ml-2 shrink-0" />
+                </button>
+              );
+            }
+            const selected = Array.isArray(filters.categoria) ? filters.categoria : (filters.categoria && filters.categoria !== 'all' ? [filters.categoria] : []);
+            const opts = [...categorias].sort((a, b) => a.nome.localeCompare(b.nome));
+            const label = selected.length === 0 ? 'Todas Categorias' : selected.length === 1 ? (opts.find(c => c.id === selected[0])?.nome || '1 categoria') : `${selected.length} categorias`;
+            const toggle = (id) => {
+              const next = selected.includes(id) ? selected.filter(s => s !== id) : [...selected, id];
+              updateFilters({ ...filters, categoria: next, subcategoria: 'all' });
+            };
+            return (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="flex items-center justify-between w-full h-9 rounded-md border border-input bg-white dark:bg-slate-800 px-3 py-2 text-sm shadow-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    <span className={`truncate ${selected.length === 0 ? 'text-slate-500' : ''}`}>{label}</span>
+                    <ChevronDown className="w-4 h-4 opacity-50 ml-2 shrink-0" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-2 max-h-80 overflow-y-auto" align="start">
+                  <div className="space-y-1">
+                    {opts.map(c => (
+                      <label key={c.id} className="flex items-center gap-2 cursor-pointer px-2 py-1.5 rounded hover:bg-slate-50 dark:hover:bg-slate-800">
+                        <Checkbox checked={selected.includes(c.id)} onCheckedChange={() => toggle(c.id)} />
+                        <span className="text-sm text-slate-700 dark:text-slate-300">{c.nome}</span>
+                      </label>
+                    ))}
+                    {selected.length > 0 && (
+                      <button onClick={() => updateFilters({ ...filters, categoria: [], subcategoria: 'all' })} className="w-full text-xs text-blue-600 hover:underline text-left px-2 pt-1 mt-1 border-t border-slate-100 dark:border-slate-700">Limpar seleção</button>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            );
+          })()}
           <Select 
             value={filters.subcategoria} 
             onValueChange={(v) => updateFilters({ ...filters, subcategoria: v })}
@@ -506,8 +555,8 @@ export default function Dashboard() {
             <button
               onClick={() => updateFilters({
                 regional: 'all',
-                almoxarifado: 'all',
-                categoria: 'all',
+                almoxarifado: [],
+                categoria: [],
                 subcategoria: 'all',
                 status: [],
                 periodo: 'all',
