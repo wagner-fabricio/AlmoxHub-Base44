@@ -42,7 +42,7 @@ export default function OSIndicadoresPainel({
           <div className="flex items-center gap-2 min-w-0">
             <BarChart3 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wide truncate">
-              Indicadores da Aba
+              indicadores
             </span>
           </div>
           {collapsed ? <ChevronDown className="w-4 h-4 text-slate-500" /> : <ChevronUp className="w-4 h-4 text-slate-500" />}
