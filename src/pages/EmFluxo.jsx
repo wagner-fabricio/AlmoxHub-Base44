@@ -13,6 +13,7 @@ import {
   Loader2,
   AlertTriangle,
   User,
+  Users,
   MapPin,
   Plus,
   Filter,
@@ -652,6 +653,24 @@ export default function EmFluxo() {
                                 {regional.sigla}
                               </Badge>
                             )}
+                            {(() => {
+                              const liderOS = (pessoas || []).find(p => p && p.id === os.lider_id);
+                              return liderOS ? (
+                                <Badge variant="outline" className="text-xs">
+                                  <User className="w-3 h-3 mr-1" />
+                                  {liderOS.nome}
+                                </Badge>
+                              ) : null;
+                            })()}
+                            {(() => {
+                              const executoresOS = (pessoas || []).filter(p => p && os.executores_ids?.includes(p.id));
+                              return executoresOS.length > 0 ? (
+                                <Badge variant="outline" className="text-xs">
+                                  <Users className="w-3 h-3 mr-1" />
+                                  {executoresOS.map(e => e.nome.split(' ')[0]).join(', ')}
+                                </Badge>
+                              ) : null;
+                            })()}
                           </div>
 
                           {os.descricao_resumida && (
