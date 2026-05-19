@@ -628,10 +628,10 @@ export default function EmFluxo() {
                           </div>
                         )}
 
-                        <div className="p-4 pr-16 cursor-pointer">
-                          <div className="mb-3">
-                            <p className="text-xs font-mono text-slate-500 dark:text-slate-400">{os.codigo}</p>
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                        <div className="p-4 pr-28 cursor-pointer">
+                           <div className="mb-3">
+                             <p className="text-xs font-mono text-slate-500 dark:text-slate-400">{os.codigo}</p>
+                             <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                               {categoria?.nome || 'OS'}
                               {(() => {
                                 const subcategoriaEncontrada = (subcategorias || []).find(sub => 
