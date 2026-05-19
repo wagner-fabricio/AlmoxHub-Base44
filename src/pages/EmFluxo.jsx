@@ -78,87 +78,145 @@ export default function EmFluxo() {
     loadData();
   }, []);
 
+  // FASE 1: Carregamento essencial (rápido) — somente o necessário para a home
   const loadData = async () => {
     setLoading(true);
     try {
       const user = await base44.auth.me();
       setCurrentUser(user);
-      const [
-        pessoasData,
-        ordensData,
-        projetosData,
-        conversasData,
-        categoriasData,
-        subcategoriasData,
-        regionaisData,
-        almoxarifadosData,
-        instalacoesData,
-        participantesData,
-        notificacoesData
-      ] = await Promise.all([
-        base44.entities.Pessoa.list(),
-        base44.entities.OrdemServico.list(),
-        base44.entities.Projeto.list(),
-        base44.entities.Conversa.list(),
-        base44.entities.Categoria.list(),
-        base44.entities.Subcategoria.list(),
-        base44.entities.Regional.list(),
-        base44.entities.Almoxarifado.list(),
-        base44.entities.Instalacao.list(),
-        base44.entities.ParticipanteConversa.list(),
-        base44.entities.Notificacao.list(),
-      ]);
 
-      setTodasOrdens(ordensData || []);
-
-      setPessoas(pessoasData || []);
-      const pessoa = (pessoasData || []).find(p => p.email === user.email);
+      // Buscar pessoa atual (1 registro) antes do resto
+      const pessoasMatch = await base44.entities.Pessoa.filter({ email: user.email });
+      const pessoa = (pessoasMatch || [])[0];
       setCurrentPessoa(pessoa);
 
-      // Filtrar notificações do usuário
-      const minhasNotificacoes = (notificacoesData || [])
-        .filter(n => n.destinatario_id === pessoa?.id)
-        .sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
-      setNotificacoes(minhasNotificacoes);
+      if (!pessoa?.id) {
+        setLoading(false);
+        return;
+      }
 
-      // Filtrar apenas OS onde o usuário é líder ou executor
-      const minhasOrdens = (ordensData || []).filter(os => 
-        os.lider_id === pessoa?.id || (os.executores_ids || []).includes(pessoa?.id)
-      );
+      // Buscar em paralelo somente o essencial para a home, já filtrado server-side
+      const [
+        ordensComoLider,
+        ordensComoExecutor,
+        notificacoesData,
+        participantesDoUsuario,
+      ] = await Promise.all([
+        base44.entities.OrdemServico.filter({ lider_id: pessoa.id }),
+        base44.entities.OrdemServico.filter({ executores_ids: pessoa.id }),
+        base44.entities.Notificacao.filter({ destinatario_id: pessoa.id }, '-created_date', 100),
+        base44.entities.ParticipanteConversa.filter({ pessoa_id: pessoa.id }),
+      ]);
+
+      // Mesclar OS sem duplicar
+      const ordensMap = new Map();
+      (ordensComoLider || []).forEach(os => ordensMap.set(os.id, os));
+      (ordensComoExecutor || []).forEach(os => ordensMap.set(os.id, os));
+      const minhasOrdens = Array.from(ordensMap.values());
       setOrdens(minhasOrdens);
-      setProjetos(projetosData || []);
-      
-      // Filtrar conversas onde o usuário participa
-      const minhasConversas = (conversasData || []).filter(conv => {
-        const participaConversa = (participantesData || []).some(p => 
-          p && p.conversa_id === conv.id && p.pessoa_id === pessoa?.id
-        );
-        return participaConversa;
-      });
-      setConversas(minhasConversas);
-      setParticipantes(participantesData || []);
-      
-      setCategorias(categoriasData || []);
-      setSubcategorias(subcategoriasData || []);
-      setRegionais(regionaisData || []);
-      setAlmoxarifados(almoxarifadosData || []);
-      setInstalacoes(instalacoesData || []);
+
+      setNotificacoes(notificacoesData || []);
+
+      // Buscar conversas das quais o usuário participa (apenas as IDs necessárias)
+      const conversaIds = [...new Set((participantesDoUsuario || []).map(p => p.conversa_id).filter(Boolean))];
+      if (conversaIds.length > 0) {
+        const conversasData = await base44.entities.Conversa.filter({ id: conversaIds });
+        setConversas(conversasData || []);
+      } else {
+        setConversas([]);
+      }
+      setParticipantes(participantesDoUsuario || []);
 
       // Verificar se há um os_id na URL para abrir automaticamente
       const urlParams = new URLSearchParams(window.location.search);
       const osIdParam = urlParams.get('os_id');
       if (osIdParam) {
         const osToOpen = minhasOrdens.find(os => os.id === osIdParam);
-        if (osToOpen) {
-          setSelectedOS(osToOpen);
-        }
+        if (osToOpen) setSelectedOS(osToOpen);
       }
+
+      setLoading(false);
+
+      // FASE 2: Lazy-load dos dados auxiliares (não bloqueia a renderização da home)
+      loadAuxData(pessoa);
     } catch (error) {
       console.error('Error loading data:', error);
-    } finally {
       setLoading(false);
     }
   };
+
+  // FASE 2: Dados auxiliares carregados em background
+  const loadAuxData = async (pessoa) => {
+    try {
+      const [
+        pessoasData,
+        projetosData,
+        categoriasData,
+        subcategoriasData,
+        regionaisData,
+        almoxarifadosData,
+        instalacoesData,
+      ] = await Promise.all([
+        base44.entities.Pessoa.list(),
+        base44.entities.Projeto.list(),
+        base44.entities.Categoria.list(),
+        base44.entities.Subcategoria.list(),
+        base44.entities.Regional.list(),
+        base44.entities.Almoxarifado.list(),
+        base44.entities.Instalacao.list(),
+      ]);
+
+      setPessoas(pessoasData || []);
+      setProjetos(projetosData || []);
+      setCategorias(categoriasData || []);
+      setSubcategorias(subcategoriasData || []);
+      setRegionais(regionaisData || []);
+      setAlmoxarifados(almoxarifadosData || []);
+      setInstalacoes(instalacoesData || []);
+
+      // Carregar "todas as OS" apenas para a tela de Meu Desempenho (em background)
+      try {
+        const todas = await base44.entities.OrdemServico.list();
+        setTodasOrdens(todas || []);
+      } catch (e) { /* não crítico */ }
+    } catch (e) {
+      console.error('Error loading aux data:', e);
+    }
+  };
+
+  // Lookups O(1) — evita .find() em loop dentro do .map() de OS
+  const categoriasMap = useMemo(() => {
+    const m = new Map();
+    (categorias || []).forEach(c => c && m.set(c.id, c));
+    return m;
+  }, [categorias]);
+
+  const regionaisMap = useMemo(() => {
+    const m = new Map();
+    (regionais || []).forEach(r => r && m.set(r.id, r));
+    return m;
+  }, [regionais]);
+
+  const pessoasMap = useMemo(() => {
+    const m = new Map();
+    (pessoas || []).forEach(p => p && m.set(p.id, p));
+    return m;
+  }, [pessoas]);
+
+  const subcategoriasMap = useMemo(() => {
+    const m = new Map();
+    (subcategorias || []).forEach(s => s && m.set(s.id, s));
+    return m;
+  }, [subcategorias]);
+
+  // OS filtradas pelo status atual — memoizado para não recalcular em cada render
+  const ordensFiltradas = useMemo(() => {
+    return (ordens || []).filter(os => os && (
+      statusFilter === 'all' ? true :
+      statusFilter === 'pendentes' ? os.status !== 'concluido' && os.status !== 'cancelado' :
+      os.status === statusFilter
+    ));
+  }, [ordens, statusFilter]);
 
   // Filtrar projetos do usuário
   const projetosFiltrados = useMemo(() => {
@@ -582,23 +640,15 @@ export default function EmFluxo() {
               </div>
             </div>
 
-            {(ordens || []).filter(os => os && (
-              statusFilter === 'all' ? true :
-              statusFilter === 'pendentes' ? os.status !== 'concluido' && os.status !== 'cancelado' :
-              os.status === statusFilter
-            )).length === 0 ? (
+            {ordensFiltradas.length === 0 ? (
               <div className="text-center py-12 text-slate-500 dark:text-slate-400">
                 <ClipboardList className="w-16 h-16 mx-auto mb-4 opacity-50" />
                 <p>Nenhuma ordem de serviço</p>
               </div>
             ) : (
-              (ordens || []).filter(os => os && (
-                statusFilter === 'all' ? true :
-                statusFilter === 'pendentes' ? os.status !== 'concluido' && os.status !== 'cancelado' :
-                os.status === statusFilter
-              )).map((os) => {
-                const categoria = (categorias || []).find(c => c && c.id === os.categoria_id);
-                const regional = (regionais || []).find(r => r && r.id === os.regional_id);
+              ordensFiltradas.map((os) => {
+                const categoria = categoriasMap.get(os.categoria_id);
+                const regional = regionaisMap.get(os.regional_id);
                 const StatusIcon = statusConfig[os.status]?.icon || Clock;
 
                 return (
@@ -651,10 +701,9 @@ export default function EmFluxo() {
                              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                               {categoria?.nome || 'OS'}
                               {(() => {
-                                const subcategoriaEncontrada = (subcategorias || []).find(sub => 
-                                  os.subcategorias_ids?.includes(sub.id)
-                                );
-                                return subcategoriaEncontrada ? ` • ${subcategoriaEncontrada.nome}` : '';
+                                const subId = (os.subcategorias_ids || []).find(id => subcategoriasMap.has(id));
+                                const sub = subId ? subcategoriasMap.get(subId) : null;
+                                return sub ? ` • ${sub.nome}` : '';
                               })()}
                             </h3>
                           </div>
@@ -671,7 +720,7 @@ export default function EmFluxo() {
                               </Badge>
                             )}
                             {(() => {
-                              const liderOS = (pessoas || []).find(p => p && p.id === os.lider_id);
+                              const liderOS = pessoasMap.get(os.lider_id);
                               return liderOS ? (
                                 <Badge variant="outline" className="text-xs">
                                   <User className="w-3 h-3 mr-1" />
@@ -680,7 +729,7 @@ export default function EmFluxo() {
                               ) : null;
                             })()}
                             {(() => {
-                              const executoresOS = (pessoas || []).filter(p => p && os.executores_ids?.includes(p.id));
+                              const executoresOS = (os.executores_ids || []).map(id => pessoasMap.get(id)).filter(Boolean);
                               return executoresOS.length > 0 ? (
                                 <Badge variant="outline" className="text-xs">
                                   <Users className="w-3 h-3 mr-1" />
@@ -727,7 +776,7 @@ export default function EmFluxo() {
               </div>
             ) : (
               (projetosFiltrados || []).filter(p => p).map((projeto) => {
-                const lider = (pessoas || []).find(p => p && p.id === projeto.lider_id);
+                const lider = pessoasMap.get(projeto.lider_id);
                 
                 return (
                   <button
@@ -872,7 +921,7 @@ export default function EmFluxo() {
             ) : (
               <div className="space-y-2">
                 {notificacoes.map((notif) => {
-                  const remetente = pessoas.find(p => p.id === notif.remetente_id);
+                  const remetente = pessoasMap.get(notif.remetente_id);
                   
                   return (
                     <div
