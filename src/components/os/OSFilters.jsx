@@ -198,7 +198,7 @@ export default function OSFilters({
                   Limpar seleção
                 </button>
                 <div className="border-t border-slate-200 dark:border-slate-700 pt-2 max-h-48 overflow-y-auto">
-                  {regionais.map((r) => (
+                   {[...regionais].sort((a, b) => a.sigla.localeCompare(b.sigla)).map((r) => (
                     <label key={r.id} className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer">
                       <Checkbox
                         checked={regionaisSel.includes(r.id)}
@@ -295,7 +295,7 @@ export default function OSFilters({
                   Limpar seleção
                 </button>
                 <div className="border-t border-slate-200 dark:border-slate-700 pt-2 max-h-48 overflow-y-auto">
-                  {categorias.map((c) => (
+                   {[...categorias].sort((a, b) => a.nome.localeCompare(b.nome)).map((c) => (
                     <label key={c.id} className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer">
                       <Checkbox
                         checked={filters.categorias?.includes(c.id) || false}
@@ -333,7 +333,7 @@ export default function OSFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas Subcategorias</SelectItem>
-              {filteredSubcategorias.map((s) => (
+              {[...filteredSubcategorias].sort((a, b) => a.nome.localeCompare(b.nome)).map((s) => (
                 <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
               ))}
             </SelectContent>
@@ -426,7 +426,7 @@ export default function OSFilters({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas as pessoas</SelectItem>
-                {filteredPessoas.map((p) => (
+                {filteredPessoas.sort((a, b) => a.nome.localeCompare(b.nome)).map((p) => (
                   <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
                 ))}
               </SelectContent>
