@@ -52,6 +52,9 @@ export default function Dashboard() {
   });
   const [heatmapCriteria, setHeatmapCriteria] = useState('quantidade_os');
   const [heatmapInstalacao, setHeatmapInstalacao] = useState('destino');
+  const [mapaUF, setMapaUF] = useState('all');
+  const [mapaCidade, setMapaCidade] = useState('all');
+  const [mapaSearch, setMapaSearch] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
   const [activeTab, setActiveTab] = useState('geral');
   const [fullscreen, setFullscreen] = useState(false);
@@ -1126,6 +1129,47 @@ export default function Dashboard() {
             <MapPin className="w-5 h-5 text-blue-500" />
             Mapa de Instalações e Almoxarifados
           </CardTitle>
+          {(() => {
+            const ufsDisponiveis = [...new Set(instalacoes.map(i => i.estado).filter(Boolean))].sort();
+            const cidadesDisponiveis = [...new Set(
+              instalacoes
+                .filter(i => mapaUF === 'all' || i.estado === mapaUF)
+                .map(i => i.cidade)
+                .filter(Boolean)
+            )].sort();
+            return (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm mb-3">
+                <Input
+                  placeholder="Buscar por nome..."
+                  value={mapaSearch}
+                  onChange={(e) => setMapaSearch(e.target.value)}
+                  className="bg-white dark:bg-slate-700 h-9"
+                />
+                <Select value={mapaUF} onValueChange={(v) => { setMapaUF(v); setMapaCidade('all'); }}>
+                  <SelectTrigger className="bg-white dark:bg-slate-700 h-9">
+                    <SelectValue placeholder="UF" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos Estados</SelectItem>
+                    {ufsDisponiveis.map(uf => (
+                      <SelectItem key={uf} value={uf}>{uf}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={mapaCidade} onValueChange={setMapaCidade}>
+                  <SelectTrigger className="bg-white dark:bg-slate-700 h-9">
+                    <SelectValue placeholder="Cidade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas Cidades</SelectItem>
+                    {cidadesDisponiveis.map(c => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            );
+          })()}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
               <label className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700">
                 <Checkbox 
@@ -1185,6 +1229,9 @@ export default function Dashboard() {
                     return false;
                   })
                   .filter(inst => regionalIdsMap.length === 0 || regionalIdsMap.includes(inst.regional_id))
+                  .filter(inst => mapaUF === 'all' || inst.estado === mapaUF)
+                  .filter(inst => mapaCidade === 'all' || inst.cidade === mapaCidade)
+                  .filter(inst => !mapaSearch.trim() || inst.nome?.toLowerCase().includes(mapaSearch.toLowerCase()))
                   .filter(inst => inst.latitude && inst.longitude)
                 .map((inst) => {
                   const iconColor = 
@@ -1245,6 +1292,7 @@ export default function Dashboard() {
                 const regionalIdsAlmoxMap = Array.isArray(filters.regional) ? filters.regional : (filters.regional && filters.regional !== 'all' ? [filters.regional] : []);
                 return almoxarifados
                   .filter(almox => regionalIdsAlmoxMap.length === 0 || regionalIdsAlmoxMap.includes(almox.regional_id))
+                  .filter(almox => !mapaSearch.trim() || almox.nome?.toLowerCase().includes(mapaSearch.toLowerCase()))
                   .filter(almox => almox.latitude && almox.longitude)
                 .map((almox) => {
                   const iconHtml = `
