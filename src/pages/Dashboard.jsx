@@ -1292,6 +1292,14 @@ export default function Dashboard() {
                 const regionalIdsAlmoxMap = Array.isArray(filters.regional) ? filters.regional : (filters.regional && filters.regional !== 'all' ? [filters.regional] : []);
                 return almoxarifados
                   .filter(almox => regionalIdsAlmoxMap.length === 0 || regionalIdsAlmoxMap.includes(almox.regional_id))
+                  .filter(almox => {
+                    if (mapaUF === 'all' && mapaCidade === 'all') return true;
+                    const inst = instalacoes.find(i => i.id === almox.instalacao_id);
+                    if (!inst) return false;
+                    if (mapaUF !== 'all' && inst.estado !== mapaUF) return false;
+                    if (mapaCidade !== 'all' && inst.cidade !== mapaCidade) return false;
+                    return true;
+                  })
                   .filter(almox => !mapaSearch.trim() || almox.nome?.toLowerCase().includes(mapaSearch.toLowerCase()))
                   .filter(almox => almox.latitude && almox.longitude)
                 .map((almox) => {
