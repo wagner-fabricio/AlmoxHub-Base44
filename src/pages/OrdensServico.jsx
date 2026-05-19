@@ -38,8 +38,8 @@ export default function OrdensServico() {
     migo: '',
     reserva: '',
     codigoMaterial: '',
-    regional: 'all',
-    almoxarifado: 'all',
+    regional: [],
+    almoxarifado: [],
     categorias: [],
     subcategoria: 'all',
     status: 'all',
@@ -112,11 +112,14 @@ export default function OrdensServico() {
     // Se há exatamente um status selecionado no statusList, enviar para o backend
     // (evita que o backend devolva apenas as 100 OS mais recentes que podem não ter o status desejado)
     else if (filters.statusList?.length === 1) f.status = filters.statusList[0];
-    if (filters.regional !== 'all') f.regional_id = filters.regional;
-    if (filters.almoxarifado !== 'all') f.almoxarifado_id = filters.almoxarifado;
+    const regArr = Array.isArray(filters.regional) ? filters.regional : (filters.regional && filters.regional !== 'all' ? [filters.regional] : []);
+    const almoxArr = Array.isArray(filters.almoxarifado) ? filters.almoxarifado : (filters.almoxarifado && filters.almoxarifado !== 'all' ? [filters.almoxarifado] : []);
+    // Backend só aceita 1 valor — apenas enviamos quando há exatamente 1 selecionado; múltiplos são tratados no client
+    if (regArr.length === 1) f.regional_id = regArr[0];
+    if (almoxArr.length === 1) f.almoxarifado_id = almoxArr[0];
     if (filters.categorias?.length === 1) f.categoria_id = filters.categorias[0];
     // Visão "Minha Regional" — aplicar regional do usuário no backend
-    if (filters.visao === 'regional' && currentPessoa?.regional_id && filters.regional === 'all') {
+    if (filters.visao === 'regional' && currentPessoa?.regional_id && regArr.length === 0) {
       f.regional_id = currentPessoa.regional_id;
     }
     return f;
@@ -187,6 +190,13 @@ export default function OrdensServico() {
         // Garantir que categorias é sempre um array
         if (!savedFilters.categorias) {
           savedFilters.categorias = [];
+        }
+        // Migrar regional/almoxarifado de string para array
+        if (!Array.isArray(savedFilters.regional)) {
+          savedFilters.regional = (savedFilters.regional && savedFilters.regional !== 'all') ? [savedFilters.regional] : [];
+        }
+        if (!Array.isArray(savedFilters.almoxarifado)) {
+          savedFilters.almoxarifado = (savedFilters.almoxarifado && savedFilters.almoxarifado !== 'all') ? [savedFilters.almoxarifado] : [];
         }
         setFilters(savedFilters);
         // Sincronizar debounced filters com os valores salvos
@@ -288,11 +298,13 @@ export default function OrdensServico() {
         if (!hasItem) return false;
       }
 
-      // Regional filter
-      if (filters.regional !== 'all' && !os.is_global && os.regional_id !== filters.regional) return false;
+      // Regional filter (multi)
+      const regArr = Array.isArray(filters.regional) ? filters.regional : (filters.regional && filters.regional !== 'all' ? [filters.regional] : []);
+      if (regArr.length > 0 && !os.is_global && !regArr.includes(os.regional_id)) return false;
 
-      // Almoxarifado filter
-      if (filters.almoxarifado !== 'all' && !os.is_global && os.almoxarifado_id !== filters.almoxarifado) return false;
+      // Almoxarifado filter (multi)
+      const almoxArr = Array.isArray(filters.almoxarifado) ? filters.almoxarifado : (filters.almoxarifado && filters.almoxarifado !== 'all' ? [filters.almoxarifado] : []);
+      if (almoxArr.length > 0 && !os.is_global && !almoxArr.includes(os.almoxarifado_id)) return false;
 
       // Categoria filter
       if (categoriasFilter.length > 0 && !categoriasFilter.includes(os.categoria_id)) return false;

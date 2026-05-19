@@ -55,8 +55,8 @@ export default function OSFilters({
       migo: '',
       reserva: '',
       codigoMaterial: '',
-      regional: 'all',
-      almoxarifado: 'all',
+      regional: [],
+      almoxarifado: [],
       categorias: expedicaoCategoria ? [expedicaoCategoria.id] : (recebimentoCategoria ? [recebimentoCategoria.id] : []),
       subcategoria: 'all',
       status: 'all',
@@ -69,13 +69,21 @@ export default function OSFilters({
     });
   };
 
+  // Compatibilidade: regional/almoxarifado aceitam string antiga ('all'/id) ou array
+  const regionaisSel = Array.isArray(filters.regional)
+    ? filters.regional
+    : (filters.regional && filters.regional !== 'all' ? [filters.regional] : []);
+  const almoxSel = Array.isArray(filters.almoxarifado)
+    ? filters.almoxarifado
+    : (filters.almoxarifado && filters.almoxarifado !== 'all' ? [filters.almoxarifado] : []);
+
   const hasActiveFilters = 
     filters.search || 
     filters.migo ||
     filters.reserva ||
     filters.codigoMaterial ||
-    filters.regional !== 'all' ||
-    filters.almoxarifado !== 'all' || 
+    regionaisSel.length > 0 ||
+    almoxSel.length > 0 || 
     filters.categorias?.length > 0 || 
     filters.subcategoria !== 'all' ||
     filters.status !== 'all' ||
@@ -93,11 +101,11 @@ export default function OSFilters({
   const filteredPessoas = useMemo(() =>
     (pessoas || []).filter(p => {
       if (!p) return false;
-      if (filters.almoxarifado !== 'all') return p.almoxarifados_ids?.includes(filters.almoxarifado);
-      if (filters.regional !== 'all') return p.regional_id === filters.regional;
+      if (almoxSel.length > 0) return (p.almoxarifados_ids || []).some(id => almoxSel.includes(id));
+      if (regionaisSel.length > 0) return regionaisSel.includes(p.regional_id);
       return true;
     }).sort((a, b) => a.nome.localeCompare(b.nome)),
-    [pessoas, filters.almoxarifado, filters.regional]
+    [pessoas, almoxSel, regionaisSel]
   );
 
   return (
@@ -167,37 +175,97 @@ export default function OSFilters({
             </SelectContent>
           </Select>
 
-          <Select
-            value={filters.regional}
-            onValueChange={(value) => setFilters({ ...filters, regional: value, almoxarifado: 'all' })}
-          >
-            <SelectTrigger className="bg-slate-50 dark:bg-slate-900 text-sm">
-              <SelectValue placeholder="Regional" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas Regionais</SelectItem>
-              {regionais.map((r) => (
-                <SelectItem key={r.id} value={r.id}>{r.sigla}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="justify-between bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-sm h-9"
+              >
+                <span className="truncate text-xs sm:text-sm">
+                  {regionaisSel.length === 0 ? 'Regional' :
+                   regionaisSel.length === 1 ? (regionais.find(r => r.id === regionaisSel[0])?.sigla || '1 regional') :
+                   `${regionaisSel.length} regionais`}
+                </span>
+                <ChevronDown className="w-4 h-4 shrink-0 ml-1" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-56 p-3">
+              <div className="space-y-2">
+                <button
+                  onClick={() => setFilters({ ...filters, regional: [], almoxarifado: [] })}
+                  className="w-full text-left px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
+                  Limpar seleção
+                </button>
+                <div className="border-t border-slate-200 dark:border-slate-700 pt-2 max-h-48 overflow-y-auto">
+                  {regionais.map((r) => (
+                    <label key={r.id} className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer">
+                      <Checkbox
+                        checked={regionaisSel.includes(r.id)}
+                        onCheckedChange={(checked) => {
+                          const next = checked
+                            ? [...regionaisSel, r.id]
+                            : regionaisSel.filter(id => id !== r.id);
+                          // Ao mudar regional, limpar almoxarifados que não pertencem mais
+                          const validAlmoxIds = (almoxarifados || [])
+                            .filter(a => next.length === 0 || next.includes(a.regional_id))
+                            .map(a => a.id);
+                          const nextAlmox = almoxSel.filter(id => validAlmoxIds.includes(id));
+                          setFilters({ ...filters, regional: next, almoxarifado: nextAlmox });
+                        }}
+                      />
+                      <span className="text-sm text-slate-700 dark:text-slate-300">{r.sigla}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
 
-          <Select
-            value={filters.almoxarifado}
-            onValueChange={(value) => setFilters({ ...filters, almoxarifado: value })}
-          >
-            <SelectTrigger className="bg-slate-50 dark:bg-slate-900 text-sm">
-              <SelectValue placeholder="Almoxarifado" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos Almoxarifados</SelectItem>
-              {(almoxarifados || [])
-                .filter(a => a.ativo !== false && (filters.regional === 'all' || a.regional_id === filters.regional))
-                .map((a) => (
-                  <SelectItem key={a.id} value={a.id}>{a.nome}</SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="justify-between bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-sm h-9"
+              >
+                <span className="truncate text-xs sm:text-sm">
+                  {almoxSel.length === 0 ? 'Almoxarifado' :
+                   almoxSel.length === 1 ? ((almoxarifados || []).find(a => a.id === almoxSel[0])?.nome || '1 almox.') :
+                   `${almoxSel.length} almox.`}
+                </span>
+                <ChevronDown className="w-4 h-4 shrink-0 ml-1" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64 p-3">
+              <div className="space-y-2">
+                <button
+                  onClick={() => setFilters({ ...filters, almoxarifado: [] })}
+                  className="w-full text-left px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
+                  Limpar seleção
+                </button>
+                <div className="border-t border-slate-200 dark:border-slate-700 pt-2 max-h-60 overflow-y-auto">
+                  {(almoxarifados || [])
+                    .filter(a => a.ativo !== false && (regionaisSel.length === 0 || regionaisSel.includes(a.regional_id)))
+                    .sort((a, b) => a.nome.localeCompare(b.nome))
+                    .map((a) => (
+                      <label key={a.id} className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer">
+                        <Checkbox
+                          checked={almoxSel.includes(a.id)}
+                          onCheckedChange={(checked) => {
+                            const next = checked
+                              ? [...almoxSel, a.id]
+                              : almoxSel.filter(id => id !== a.id);
+                            setFilters({ ...filters, almoxarifado: next });
+                          }}
+                        />
+                        <span className="text-sm text-slate-700 dark:text-slate-300">{a.nome}</span>
+                      </label>
+                    ))}
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
 
           <Popover>
             <PopoverTrigger asChild>
