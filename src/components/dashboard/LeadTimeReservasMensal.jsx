@@ -3,9 +3,21 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LabelList
 } from 'recharts';
+import { HelpCircle } from 'lucide-react';
 
-const META_DIAS_UTEIS = 7;
 const MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+// SLA padrão (em dias úteis) por prioridade da OS
+const slaPorPrioridade = (prioridade) => prioridade === 'urgente' ? 1 : 7;
+
+// Retorna a maior data entre Data Reserva, Data Ressuprimento e Data Aprovação EPI (aba Documento)
+const maiorDataInicioDocumento = (os) => {
+  const candidatos = [os?.data_reserva, os?.data_ressuprimento, os?.data_aprovacao_epi]
+    .map(d => d ? new Date(d) : null)
+    .filter(d => d && !isNaN(d.getTime()));
+  if (candidatos.length === 0) return null;
+  return new Date(Math.max(...candidatos.map(d => d.getTime())));
+};
 
 const METRICAS = [
   { id: 'quantOS', label: 'Quant OS' },
@@ -59,14 +71,19 @@ export default function LeadTimeReservasMensal({
   valorField = 'r_total',
   filterFn = null,
 }) {
-  const [metrica, setMetrica] = useState('quantOS');
+  const [metrica, setMetrica] = useState('quantItens');
   const currentYear = new Date().getFullYear();
 
   const { dadosMensais, totalNoPrazo, totalForaPrazo, total, percentualNoPrazo } = useMemo(() => {
     const baseOrdens = filterFn ? filteredOrdens.filter(filterFn) : filteredOrdens;
-    // Filtra OS com datas válidas (agrupado pelo mês da data final)
+    // Início = maior data entre Data Reserva, Data Ressuprimento e Data Aprovação EPI
+    // Fim = endDateField (Data MIGO)
     const reservasValidas = baseOrdens
-      .map(os => ({ os, dias: diasUteisEntre(os[startDateField], os[endDateField]) }))
+      .map(os => {
+        const inicio = maiorDataInicioDocumento(os);
+        const dias = diasUteisEntre(inicio, os[endDateField]);
+        return { os, dias, sla: slaPorPrioridade(os.prioridade) };
+      })
       .filter(x => x.dias !== null && x.os[endDateField]);
 
     const dados = MESES.map((mes, idx) => {
@@ -75,10 +92,10 @@ export default function LeadTimeReservasMensal({
         return d.getFullYear() === currentYear && d.getMonth() === idx;
       });
       const noPrazo = doMes
-        .filter(x => x.dias <= META_DIAS_UTEIS)
+        .filter(x => x.dias <= x.sla)
         .reduce((s, x) => s + valorMetrica(x.os, metrica, itensField, valorField), 0);
       const foraPrazo = doMes
-        .filter(x => x.dias > META_DIAS_UTEIS)
+        .filter(x => x.dias > x.sla)
         .reduce((s, x) => s + valorMetrica(x.os, metrica, itensField, valorField), 0);
       return { mes, 'No Prazo': noPrazo, 'Fora do Prazo': foraPrazo };
     });
@@ -95,7 +112,7 @@ export default function LeadTimeReservasMensal({
       total: t,
       percentualNoPrazo: pct
     };
-  }, [filteredOrdens, currentYear, metrica, startDateField, endDateField, itensField, valorField, filterFn]);
+  }, [filteredOrdens, currentYear, metrica, endDateField, itensField, valorField, filterFn]);
 
   // Formatadores conforme métrica
   const formatTickY = (v) => {
@@ -144,6 +161,21 @@ export default function LeadTimeReservasMensal({
         <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide flex items-center gap-2">
           <div className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(to bottom, #0000FF, #4169E1)' }}></div>
           {titulo}
+          <span
+            className="relative group inline-flex items-center"
+            tabIndex={0}
+          >
+            <HelpCircle className="w-4 h-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-help" />
+            <span className="invisible group-hover:visible group-focus-within:visible absolute left-6 top-1/2 -translate-y-1/2 z-20 w-80 p-3 bg-slate-900 text-white text-xs font-normal normal-case tracking-normal rounded-lg shadow-xl">
+              <strong className="block mb-1">Como o prazo é calculado:</strong>
+              <span className="block mb-1.5">• <strong>Início:</strong> maior data entre <em>Data Reserva</em>, <em>Data Ressuprimento</em> e <em>Data Aprovação EPI</em> (aba Documento da OS).</span>
+              <span className="block mb-1.5">• <strong>Fim:</strong> <em>Data MIGO</em>.</span>
+              <span className="block mb-1.5">• Apenas dias úteis (segunda a sexta) são contados.</span>
+              <strong className="block mt-2 mb-1">SLA por prioridade:</strong>
+              <span className="block">• Baixa, Média, Alta: <strong>7 dias úteis</strong></span>
+              <span className="block">• Urgente: <strong>1 dia útil</strong></span>
+            </span>
+          </span>
         </h3>
         <div className="flex flex-wrap gap-1.5 p-1 bg-slate-100 dark:bg-slate-700/50 rounded-full">
           {METRICAS.map(opt => (
