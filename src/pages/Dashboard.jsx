@@ -143,9 +143,10 @@ export default function Dashboard() {
 
     const almoxIds = Array.isArray(filters.almoxarifado) ? filters.almoxarifado : (filters.almoxarifado && filters.almoxarifado !== 'all' ? [filters.almoxarifado] : []);
     const categoriaIds = Array.isArray(filters.categoria) ? filters.categoria : (filters.categoria && filters.categoria !== 'all' ? [filters.categoria] : []);
+    const regionalIds = Array.isArray(filters.regional) ? filters.regional : (filters.regional && filters.regional !== 'all' ? [filters.regional] : []);
 
     return ordens.filter(os => {
-      if (filters.regional !== 'all' && os.regional_id !== filters.regional) return false;
+      if (regionalIds.length > 0 && !regionalIds.includes(os.regional_id)) return false;
       if (almoxIds.length > 0 && !almoxIds.includes(os.almoxarifado_id)) return false;
       
       if (activeTab === 'recebimento') {
@@ -289,7 +290,8 @@ export default function Dashboard() {
     const osExpedicaoHeatmap = Array.isArray(ordens) ? ordens.filter(os => {
       if (!os || os.categoria_id !== categoriaExpedicaoHeatmap?.id) return false;
       if (!os[campoInstalacao]) return false;
-      if (filters.regional !== 'all' && os.regional_id !== filters.regional) return false;
+      const regionalIdsH = Array.isArray(filters.regional) ? filters.regional : (filters.regional && filters.regional !== 'all' ? [filters.regional] : []);
+      if (regionalIdsH.length > 0 && !regionalIdsH.includes(os.regional_id)) return false;
       const almoxIdsH = Array.isArray(filters.almoxarifado) ? filters.almoxarifado : (filters.almoxarifado && filters.almoxarifado !== 'all' ? [filters.almoxarifado] : []);
       if (almoxIdsH.length > 0 && !almoxIdsH.includes(os.almoxarifado_id)) return false;
       if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
@@ -399,21 +401,47 @@ export default function Dashboard() {
         
         {/* Filtros - Mobile First */}
         <div className={`grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-2 ${fullscreen ? 'hidden' : ''}`}>
-          <Select value={filters.regional} onValueChange={(v) => updateFilters({ ...filters, regional: v, almoxarifado: [] })}>
-            <SelectTrigger className="w-full bg-white dark:bg-slate-800">
-              <SelectValue placeholder="Regional" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas Regionais</SelectItem>
-              {[...regionais].sort((a, b) => a.sigla.localeCompare(b.sigla)).map(r => (
-                <SelectItem key={r.id} value={r.id}>{r.sigla}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {(() => {
+            const selected = Array.isArray(filters.regional) ? filters.regional : (filters.regional && filters.regional !== 'all' ? [filters.regional] : []);
+            const opts = [...regionais].sort((a, b) => a.sigla.localeCompare(b.sigla));
+            const label = selected.length === 0 ? 'Todas Regionais' : selected.length === 1 ? (opts.find(r => r.id === selected[0])?.sigla || '1 regional') : `${selected.length} regionais`;
+            const toggle = (id) => {
+              const next = selected.includes(id) ? selected.filter(s => s !== id) : [...selected, id];
+              // Limpar almoxarifados que não pertencem mais às regionais selecionadas
+              const currentAlmox = Array.isArray(filters.almoxarifado) ? filters.almoxarifado : [];
+              const validAlmoxIds = almoxarifados.filter(a => next.length === 0 || next.includes(a.regional_id)).map(a => a.id);
+              const nextAlmox = currentAlmox.filter(aid => validAlmoxIds.includes(aid));
+              updateFilters({ ...filters, regional: next, almoxarifado: nextAlmox });
+            };
+            return (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="flex items-center justify-between w-full h-9 rounded-md border border-input bg-white dark:bg-slate-800 px-3 py-2 text-sm shadow-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    <span className={`truncate ${selected.length === 0 ? 'text-slate-500' : ''}`}>{label}</span>
+                    <ChevronDown className="w-4 h-4 opacity-50 ml-2 shrink-0" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-56 p-2 max-h-80 overflow-y-auto" align="start">
+                  <div className="space-y-1">
+                    {opts.map(r => (
+                      <label key={r.id} className="flex items-center gap-2 cursor-pointer px-2 py-1.5 rounded hover:bg-slate-50 dark:hover:bg-slate-800">
+                        <Checkbox checked={selected.includes(r.id)} onCheckedChange={() => toggle(r.id)} />
+                        <span className="text-sm text-slate-700 dark:text-slate-300">{r.sigla}</span>
+                      </label>
+                    ))}
+                    {selected.length > 0 && (
+                      <button onClick={() => updateFilters({ ...filters, regional: [], almoxarifado: [] })} className="w-full text-xs text-blue-600 hover:underline text-left px-2 pt-1 mt-1 border-t border-slate-100 dark:border-slate-700">Limpar seleção</button>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            );
+          })()}
           {(() => {
             const selected = Array.isArray(filters.almoxarifado) ? filters.almoxarifado : (filters.almoxarifado && filters.almoxarifado !== 'all' ? [filters.almoxarifado] : []);
+            const regionalIdsForAlmox = Array.isArray(filters.regional) ? filters.regional : (filters.regional && filters.regional !== 'all' ? [filters.regional] : []);
             const opts = almoxarifados
-              .filter(a => filters.regional === 'all' || a.regional_id === filters.regional)
+              .filter(a => regionalIdsForAlmox.length === 0 || regionalIdsForAlmox.includes(a.regional_id))
               .sort((a, b) => a.nome.localeCompare(b.nome));
             const label = selected.length === 0 ? 'Todos Almoxarifados' : selected.length === 1 ? (opts.find(a => a.id === selected[0])?.nome || '1 almoxarifado') : `${selected.length} almoxarifados`;
             const toggle = (id) => {
@@ -554,7 +582,7 @@ export default function Dashboard() {
             </Select>
             <button
               onClick={() => updateFilters({
-                regional: 'all',
+                regional: [],
                 almoxarifado: [],
                 categoria: [],
                 subcategoria: 'all',
