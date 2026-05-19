@@ -1281,10 +1281,10 @@ export default function OSFormModal({
                     <div className="space-y-2"><Label>Data Recebimento</Label><Input type="date" value={formData.data_recebimento} onChange={(e) => setFormData({ ...formData, data_recebimento: e.target.value })} /></div>
                     <div className="space-y-2"><Label>Responsável Recebimento</Label><Input type="text" value={formData.responsavel_recebimento || ''} onChange={(e) => setFormData({ ...formData, responsavel_recebimento: e.target.value })} placeholder="Digite o nome do responsável..." /></div>
                     <div className="space-y-2">
-                      <Label>Houve um problema?</Label>
+                      <Label>Houve um problema? <span className="text-red-500">*</span></Label>
                       <div className="flex gap-4">
-                        <label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="problema_recebimento" checked={!formData.problema_recebimento} onChange={() => setFormData({ ...formData, problema_recebimento: false, problemas_recebimento_ids: [] })} className="w-4 h-4" /><span className="text-sm">Não</span></label>
-                        <label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="problema_recebimento" checked={formData.problema_recebimento} onChange={() => setFormData({ ...formData, problema_recebimento: true })} className="w-4 h-4" /><span className="text-sm">Sim</span></label>
+                        <label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="problema_recebimento" checked={formData.problema_recebimento === false} onChange={() => setFormData({ ...formData, problema_recebimento: false, problemas_recebimento_ids: [] })} className="w-4 h-4" /><span className="text-sm">Não</span></label>
+                        <label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="problema_recebimento" checked={formData.problema_recebimento === true} onChange={() => setFormData({ ...formData, problema_recebimento: true })} className="w-4 h-4" /><span className="text-sm">Sim</span></label>
                       </div>
                     </div>
                   </div>
