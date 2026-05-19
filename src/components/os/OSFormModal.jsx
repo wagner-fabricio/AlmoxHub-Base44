@@ -47,6 +47,7 @@ import OSHeaderTimeSheetButton from './OSHeaderTimeSheetButton';
 import OSComentariosTab from './OSComentariosTab';
 import OSHistoricoTab from './OSHistoricoTab';
 import OSGuiaFluxoPainel from './OSGuiaFluxoPainel';
+import OSIndicadoresPainel from './OSIndicadoresPainel';
 import { getFluxoState } from '@/lib/osFluxoValidator';
 import { toast as sonnerToast } from 'sonner';
 
@@ -1441,13 +1442,22 @@ export default function OSFormModal({
             </Tabs>
 
             {(usaFluxoExpedicao || usaFluxoRecebimento) && (
-              <OSGuiaFluxoPainel
-                formData={formData}
-                usaFluxoExpedicao={usaFluxoExpedicao}
-                usaFluxoRecebimento={usaFluxoRecebimento}
-                fluxoEstrito={usaFluxoExpedicaoEstrito}
-                onNavigateTab={handleFormTabChange}
-              />
+              <div className="hidden lg:flex flex-col w-72 shrink-0 sticky top-3 max-h-[calc(95vh-9rem)] overflow-y-auto pr-1">
+                <OSGuiaFluxoPainel
+                  formData={formData}
+                  usaFluxoExpedicao={usaFluxoExpedicao}
+                  usaFluxoRecebimento={usaFluxoRecebimento}
+                  fluxoEstrito={usaFluxoExpedicaoEstrito}
+                  onNavigateTab={handleFormTabChange}
+                />
+                <OSIndicadoresPainel
+                  formData={formData}
+                  activeTab={activeTab}
+                  usaFluxoExpedicao={usaFluxoExpedicao}
+                  usaFluxoRecebimento={usaFluxoRecebimento}
+                  subcategoriasAll={subcategorias}
+                />
+              </div>
             )}
           </div>
         </div>

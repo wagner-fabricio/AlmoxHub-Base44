@@ -34,12 +34,8 @@ export default function OSGuiaFluxoPainel({
   const tituloTipo = tipo === 'expedicao' ? 'Expedição' : 'Recebimento';
 
   return (
-    <aside
-      aria-label="Guia do fluxo da OS"
-      className="hidden lg:block w-72 shrink-0"
-    >
-      <div className="sticky top-3 max-h-[calc(95vh-9rem)] overflow-y-auto pr-1">
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+    <aside aria-label="Guia do fluxo da OS" className="w-full">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
           {/* Header */}
           <button
             type="button"
@@ -102,7 +98,6 @@ export default function OSGuiaFluxoPainel({
               </div>
             </div>
           )}
-        </div>
       </div>
     </aside>
   );
