@@ -586,25 +586,27 @@ export default function Instalacoes() {
                       ) : '-'}
                     </TableCell>
                     <TableCell className="text-right">
-                      {currentPessoa?.funcoes?.includes('gestor') && (
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEdit(inst)}
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </Button>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEdit(inst)}
+                          title="Editar instalação"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        {currentPessoa?.funcoes?.includes('gestor') && (
                           <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => handleDelete(inst)}
                             className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            title="Excluir instalação"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
