@@ -585,7 +585,7 @@ export default function EmFluxo() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       {/* Header */}
-      <div className="p-4 sticky top-0 z-10 shadow-lg" style={{ backgroundColor: activeModuleData?.color }}>
+      <div className="p-4 sticky top-0 z-30 shadow-lg" style={{ backgroundColor: activeModuleData?.color }}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button
@@ -666,7 +666,7 @@ export default function EmFluxo() {
                         {/* Botão TimeSheet — stopPropagation para não abrir a OS */}
                         {currentPessoa && (
                           <div
-                            className="absolute top-3 right-3 z-10"
+                            className="absolute top-3 right-3 z-0"
                             onClick={e => e.stopPropagation()}
                           >
                             <TimeSheetButton
