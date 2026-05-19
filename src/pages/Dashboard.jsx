@@ -1174,15 +1174,18 @@ export default function Dashboard() {
               />
 
               {/* Instalações */}
-              {instalacoes
-                .filter(inst => {
-                  if (inst.classificacao === 'Usina') return mapFilters.usina;
-                  if (inst.classificacao === 'Subestação') return mapFilters.subestacao;
-                  if (inst.classificacao === 'Outros') return mapFilters.outros;
-                  // Não exibir Almoxarifados do tipo Instalação aqui, apenas via entidade Almoxarifado
-                  return false;
-                })
-                .filter(inst => inst.latitude && inst.longitude)
+              {(() => {
+                const regionalIdsMap = Array.isArray(filters.regional) ? filters.regional : (filters.regional && filters.regional !== 'all' ? [filters.regional] : []);
+                return instalacoes
+                  .filter(inst => {
+                    if (inst.classificacao === 'Usina') return mapFilters.usina;
+                    if (inst.classificacao === 'Subestação') return mapFilters.subestacao;
+                    if (inst.classificacao === 'Outros') return mapFilters.outros;
+                    // Não exibir Almoxarifados do tipo Instalação aqui, apenas via entidade Almoxarifado
+                    return false;
+                  })
+                  .filter(inst => regionalIdsMap.length === 0 || regionalIdsMap.includes(inst.regional_id))
+                  .filter(inst => inst.latitude && inst.longitude)
                 .map((inst) => {
                   const iconColor = 
                     inst.classificacao === 'Usina' ? '#16a34a' :
@@ -1234,11 +1237,15 @@ export default function Dashboard() {
                       </Popup>
                     </Marker>
                   );
-                })}
+                });
+              })()}
               
               {/* Almoxarifados */}
-              {mapFilters.almoxarifadosEntidade && almoxarifados
-                .filter(almox => almox.latitude && almox.longitude)
+              {mapFilters.almoxarifadosEntidade && (() => {
+                const regionalIdsAlmoxMap = Array.isArray(filters.regional) ? filters.regional : (filters.regional && filters.regional !== 'all' ? [filters.regional] : []);
+                return almoxarifados
+                  .filter(almox => regionalIdsAlmoxMap.length === 0 || regionalIdsAlmoxMap.includes(almox.regional_id))
+                  .filter(almox => almox.latitude && almox.longitude)
                 .map((almox) => {
                   const iconHtml = `
                     <div style="
@@ -1284,7 +1291,8 @@ export default function Dashboard() {
                       </Popup>
                     </Marker>
                   );
-                })}
+                });
+              })()}
             </MapContainer>
           </div>
         </CardContent>
