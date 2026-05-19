@@ -429,9 +429,7 @@ export default function Dashboard() {
                         <span className="text-sm text-slate-700 dark:text-slate-300">{r.sigla}</span>
                       </label>
                     ))}
-                    {selected.length > 0 && (
-                      <button onClick={() => updateFilters({ ...filters, regional: [], almoxarifado: [] })} className="w-full text-xs text-blue-600 hover:underline text-left px-2 pt-1 mt-1 border-t border-slate-100 dark:border-slate-700">Limpar seleção</button>
-                    )}
+                    <button onClick={() => updateFilters({ ...filters, regional: [], almoxarifado: [] })} disabled={selected.length === 0} className="w-full text-xs text-blue-600 hover:underline disabled:text-slate-400 disabled:cursor-not-allowed disabled:no-underline text-left px-2 pt-1 mt-1 border-t border-slate-100 dark:border-slate-700">Limpar seleção</button>
                   </div>
                 </PopoverContent>
               </Popover>
@@ -466,9 +464,7 @@ export default function Dashboard() {
                         <span className="text-sm text-slate-700 dark:text-slate-300">{a.nome}</span>
                       </label>
                     ))}
-                    {selected.length > 0 && (
-                      <button onClick={() => updateFilters({ ...filters, almoxarifado: [] })} className="w-full text-xs text-blue-600 hover:underline text-left px-2 pt-1 mt-1 border-t border-slate-100 dark:border-slate-700">Limpar seleção</button>
-                    )}
+                    <button onClick={() => updateFilters({ ...filters, almoxarifado: [] })} disabled={selected.length === 0} className="w-full text-xs text-blue-600 hover:underline disabled:text-slate-400 disabled:cursor-not-allowed disabled:no-underline text-left px-2 pt-1 mt-1 border-t border-slate-100 dark:border-slate-700">Limpar seleção</button>
                   </div>
                 </PopoverContent>
               </Popover>
@@ -508,9 +504,7 @@ export default function Dashboard() {
                         <span className="text-sm text-slate-700 dark:text-slate-300">{c.nome}</span>
                       </label>
                     ))}
-                    {selected.length > 0 && (
-                      <button onClick={() => updateFilters({ ...filters, categoria: [], subcategoria: 'all' })} className="w-full text-xs text-blue-600 hover:underline text-left px-2 pt-1 mt-1 border-t border-slate-100 dark:border-slate-700">Limpar seleção</button>
-                    )}
+                    <button onClick={() => updateFilters({ ...filters, categoria: [], subcategoria: 'all' })} disabled={selected.length === 0} className="w-full text-xs text-blue-600 hover:underline disabled:text-slate-400 disabled:cursor-not-allowed disabled:no-underline text-left px-2 pt-1 mt-1 border-t border-slate-100 dark:border-slate-700">Limpar seleção</button>
                   </div>
                 </PopoverContent>
               </Popover>
@@ -557,9 +551,7 @@ export default function Dashboard() {
                         <span className="text-sm text-slate-700 dark:text-slate-300">{label}</span>
                       </label>
                     ))}
-                    {activeStatuses.length > 0 && (
-                      <button onClick={() => updateFilters({ ...filters, status: [] })} className="w-full text-xs text-blue-600 hover:underline text-left px-2 pt-1 mt-1 border-t border-slate-100 dark:border-slate-700">Limpar seleção</button>
-                    )}
+                    <button onClick={() => updateFilters({ ...filters, status: [] })} disabled={activeStatuses.length === 0} className="w-full text-xs text-blue-600 hover:underline disabled:text-slate-400 disabled:cursor-not-allowed disabled:no-underline text-left px-2 pt-1 mt-1 border-t border-slate-100 dark:border-slate-700">Limpar seleção</button>
                   </div>
                 </PopoverContent>
               </Popover>
