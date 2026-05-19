@@ -630,7 +630,24 @@ export default function EmFluxo() {
 
                         <div className="p-4 pr-28 cursor-pointer">
                            <div className="mb-3">
-                             <p className="text-xs font-mono text-slate-500 dark:text-slate-400">{os.codigo}</p>
+                             <div className="flex items-center gap-2 flex-wrap">
+                               <p className="text-xs font-mono text-slate-500 dark:text-slate-400">{os.codigo}</p>
+                               {os.num_migo && (
+                                 <span className="text-xs font-mono text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded">
+                                   MIGO: {os.num_migo}
+                                 </span>
+                               )}
+                               {os.num_reserva && (
+                                 <span className="text-xs font-mono text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded">
+                                   Reserva: {os.num_reserva}
+                                 </span>
+                               )}
+                               {os.usuario_reserva && (
+                                 <span className="text-xs text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded">
+                                   {os.usuario_reserva}
+                                 </span>
+                               )}
+                             </div>
                              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                               {categoria?.nome || 'OS'}
                               {(() => {
