@@ -167,6 +167,15 @@
     "instalacao_destino_id": {
       "type": "string"
     },
+    "destino_externo": {
+      "type": "boolean",
+      "default": false,
+      "description": "Indica se o destino \u00e9 fora da Axia"
+    },
+    "destino_externo_descricao": {
+      "type": "string",
+      "description": "Dados do destinat\u00e1rio quando o destino \u00e9 fora da Axia"
+    },
     "data_ressuprimento": {
       "type": "string",
       "format": "date",

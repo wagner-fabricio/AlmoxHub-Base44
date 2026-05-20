@@ -60,6 +60,7 @@ const EMPTY_FORM = {
   usuario_reserva: '', usuario_reserva_email: '', orgao: '', data_migo: '',
   num_migo: '', vinculacao: '', instalacao_origem_id: '', instalacao_destino_id: '',
   data_ressuprimento: '', data_aprovacao_epi: '',
+  destino_externo: false, destino_externo_descricao: '',
   tipo_movimento: '', local_entrega: '', observacoes_adicionais: '',
   itens_documento: [], volumes: [], detalhamento_expedicao: [],
   status_separacao: 'pendente', responsavel_separacao: '', data_separacao: '',
@@ -238,6 +239,8 @@ export default function OSFormModal({
         instalacao_destino_id: os.instalacao_destino_id || '',
         data_ressuprimento: formatDateForInput(os.data_ressuprimento),
         data_aprovacao_epi: formatDateForInput(os.data_aprovacao_epi),
+        destino_externo: os.destino_externo || false,
+        destino_externo_descricao: os.destino_externo_descricao || '',
         tipo_movimento: os.tipo_movimento || '',
         local_entrega: os.local_entrega || '',
         observacoes_adicionais: os.observacoes_adicionais || '',
@@ -715,14 +718,17 @@ export default function OSFormModal({
   const problemasNaoPreenchidos = formData.problema_recebimento && (!formData.problemas_recebimento_ids || formData.problemas_recebimento_ids.length === 0);
   const hasVolumes = (formData.volumes?.length || 0) > 0;
   const separacaoIncompleta = usaFluxoExpedicao && hasVolumes && (!formData.responsavel_separacao || !formData.data_separacao || !formData.separacao_concluida_em);
+  const destinoOk = formData.destino_externo
+    ? !!formData.destino_externo_descricao
+    : !!formData.instalacao_destino_id;
   const documentoIncompleto = usaFluxoExpedicao && (
     usaFluxoExpedicaoEstrito
       ? (
           !formData.num_reserva || !formData.data_reserva || !formData.usuario_reserva ||
-          !formData.orgao || !formData.vinculacao || !formData.instalacao_origem_id || !formData.instalacao_destino_id ||
+          !formData.orgao || !formData.vinculacao || !formData.instalacao_origem_id || !destinoOk ||
           (formData.num_migo && !formData.data_migo)
         )
-      : (!formData.instalacao_origem_id || !formData.instalacao_destino_id)
+      : (!formData.instalacao_origem_id || !destinoOk)
   );
   const migoRecebIncompleto = usaFluxoRecebimento && formData.numero_migo_receb && !formData.data_migo_receb;
   const isValid = formData.categoria_id && formData.subcategorias_ids?.length > 0 && formData.regional_id && formData.almoxarifado_id && formData.lider_id && formData.prazo && formData.complexidade && !prazoError && !problemasNaoPreenchidos && !separacaoIncompleta && !documentoIncompleto && !migoRecebIncompleto;
@@ -1092,6 +1098,19 @@ export default function OSFormModal({
                       <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
                       Origem e Destino
                     </h3>
+                    {/* Toggle: Destino é fora da Axia? */}
+                    <div className="mb-5">
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, destino_externo: !formData.destino_externo, instalacao_destino_id: !formData.destino_externo ? '' : formData.instalacao_destino_id, destino_externo_descricao: formData.destino_externo ? '' : formData.destino_externo_descricao })}
+                        className={`flex items-center justify-between gap-3 px-4 py-2.5 rounded-lg border transition-colors w-full sm:w-auto ${formData.destino_externo ? 'border-orange-400 bg-orange-50 dark:bg-orange-900/20' : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800'}`}
+                      >
+                        <span className={`text-sm font-medium ${formData.destino_externo ? 'text-orange-700 dark:text-orange-300' : 'text-slate-600 dark:text-slate-400'}`}>📦 Destino é fora da Axia?</span>
+                        <span className={`relative w-10 h-5 rounded-full transition-colors ${formData.destino_externo ? 'bg-orange-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
+                          <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${formData.destino_externo ? 'translate-x-5' : 'translate-x-0'}`} />
+                        </span>
+                      </button>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                       <div className="space-y-2">
                         <Label className="text-slate-700 dark:text-slate-300 font-medium">Instalação Origem <span className="text-red-500">*</span></Label>
@@ -1115,28 +1134,41 @@ export default function OSFormModal({
                           </PopoverContent>
                         </Popover>
                       </div>
-                      <div className="space-y-2">
-                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Instalação Destino <span className="text-red-500">*</span></Label>
-                        <Popover open={openDestinoCombo} onOpenChange={setOpenDestinoCombo}>
-                          <PopoverTrigger asChild>
-                            <Button variant="outline" role="combobox" className={`w-full justify-between rounded-lg ${!formData.instalacao_destino_id ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`}>
-                              <span className="truncate">{formData.instalacao_destino_id ? (instalacoes || []).find(i => i.id === formData.instalacao_destino_id)?.nome : "Selecione..."}</span>
-                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-[400px] p-0">
-                            <Command>
-                              <CommandInput placeholder="Buscar instalação..." />
-                              <CommandList>
-                                <CommandEmpty>Nenhuma instalação encontrada.</CommandEmpty>
-                                <CommandGroup>
-                                  {(filteredInstalacoesDestino || []).map((i) => (<CommandItem key={i.id} value={i.nome} onSelect={() => { setFormData({ ...formData, instalacao_destino_id: i.id }); setOpenDestinoCombo(false); }}><Check className={cn("mr-2 h-4 w-4", formData.instalacao_destino_id === i.id ? "opacity-100" : "opacity-0")} />{i.nome}</CommandItem>))}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-                      </div>
+                      {!formData.destino_externo ? (
+                        <div className="space-y-2">
+                          <Label className="text-slate-700 dark:text-slate-300 font-medium">Instalação Destino <span className="text-red-500">*</span></Label>
+                          <Popover open={openDestinoCombo} onOpenChange={setOpenDestinoCombo}>
+                            <PopoverTrigger asChild>
+                              <Button variant="outline" role="combobox" className={`w-full justify-between rounded-lg ${!formData.instalacao_destino_id ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`}>
+                                <span className="truncate">{formData.instalacao_destino_id ? (instalacoes || []).find(i => i.id === formData.instalacao_destino_id)?.nome : "Selecione..."}</span>
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[400px] p-0">
+                              <Command>
+                                <CommandInput placeholder="Buscar instalação..." />
+                                <CommandList>
+                                  <CommandEmpty>Nenhuma instalação encontrada.</CommandEmpty>
+                                  <CommandGroup>
+                                    {(filteredInstalacoesDestino || []).map((i) => (<CommandItem key={i.id} value={i.nome} onSelect={() => { setFormData({ ...formData, instalacao_destino_id: i.id }); setOpenDestinoCombo(false); }}><Check className={cn("mr-2 h-4 w-4", formData.instalacao_destino_id === i.id ? "opacity-100" : "opacity-0")} />{i.nome}</CommandItem>))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                      ) : (
+                        <div className="space-y-2 md:col-span-2">
+                          <Label className="text-slate-700 dark:text-slate-300 font-medium">Dados do Destinatário (fora da Axia) <span className="text-red-500">*</span></Label>
+                          <Textarea
+                            value={formData.destino_externo_descricao || ''}
+                            onChange={(e) => setFormData({ ...formData, destino_externo_descricao: e.target.value })}
+                            placeholder="Razão social, CNPJ, endereço completo, contato..."
+                            rows={4}
+                            className={`rounded-lg ${!formData.destino_externo_descricao ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`}
+                          />
+                        </div>
+                      )}
                       <div className="space-y-2">
                         <Label className="text-slate-700 dark:text-slate-300 font-medium">Local Entrega</Label>
                         <Input value={formData.local_entrega || ''} onChange={(e) => setFormData({ ...formData, local_entrega: e.target.value })} placeholder="Manual ou via ZMMTSE" className="rounded-lg border-slate-300 dark:border-slate-600" />
