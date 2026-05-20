@@ -1111,30 +1111,30 @@ export default function OSFormModal({
                         </span>
                       </button>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                      <div className="space-y-2">
-                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Instalação Origem <span className="text-red-500">*</span></Label>
-                        <Popover open={openOrigemCombo} onOpenChange={setOpenOrigemCombo}>
-                          <PopoverTrigger asChild>
-                            <Button variant="outline" role="combobox" className={`w-full justify-between rounded-lg ${!formData.instalacao_origem_id ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`}>
-                              <span className="truncate">{formData.instalacao_origem_id ? (filteredInstalacoes || []).find(i => i.id === formData.instalacao_origem_id)?.nome : "Selecione..."}</span>
-                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-[400px] p-0">
-                            <Command>
-                              <CommandInput placeholder="Buscar instalação..." />
-                              <CommandList>
-                                <CommandEmpty>Nenhuma instalação encontrada.</CommandEmpty>
-                                <CommandGroup>
-                                  {(filteredInstalacoes || []).map((i) => (<CommandItem key={i.id} value={i.nome} onSelect={() => { setFormData({ ...formData, instalacao_origem_id: i.id }); setOpenOrigemCombo(false); }}><Check className={cn("mr-2 h-4 w-4", formData.instalacao_origem_id === i.id ? "opacity-100" : "opacity-0")} />{i.nome}</CommandItem>))}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-                      </div>
-                      {!formData.destino_externo ? (
+                    {!formData.destino_externo ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        <div className="space-y-2">
+                          <Label className="text-slate-700 dark:text-slate-300 font-medium">Instalação Origem <span className="text-red-500">*</span></Label>
+                          <Popover open={openOrigemCombo} onOpenChange={setOpenOrigemCombo}>
+                            <PopoverTrigger asChild>
+                              <Button variant="outline" role="combobox" className={`w-full justify-between rounded-lg ${!formData.instalacao_origem_id ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`}>
+                                <span className="truncate">{formData.instalacao_origem_id ? (filteredInstalacoes || []).find(i => i.id === formData.instalacao_origem_id)?.nome : "Selecione..."}</span>
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[400px] p-0">
+                              <Command>
+                                <CommandInput placeholder="Buscar instalação..." />
+                                <CommandList>
+                                  <CommandEmpty>Nenhuma instalação encontrada.</CommandEmpty>
+                                  <CommandGroup>
+                                    {(filteredInstalacoes || []).map((i) => (<CommandItem key={i.id} value={i.nome} onSelect={() => { setFormData({ ...formData, instalacao_origem_id: i.id }); setOpenOrigemCombo(false); }}><Check className={cn("mr-2 h-4 w-4", formData.instalacao_origem_id === i.id ? "opacity-100" : "opacity-0")} />{i.nome}</CommandItem>))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
                         <div className="space-y-2">
                           <Label className="text-slate-700 dark:text-slate-300 font-medium">Instalação Destino <span className="text-red-500">*</span></Label>
                           <Popover open={openDestinoCombo} onOpenChange={setOpenDestinoCombo}>
@@ -1157,7 +1157,39 @@ export default function OSFormModal({
                             </PopoverContent>
                           </Popover>
                         </div>
-                      ) : (
+                        <div className="space-y-2">
+                          <Label className="text-slate-700 dark:text-slate-300 font-medium">Local Entrega</Label>
+                          <Input value={formData.local_entrega || ''} onChange={(e) => setFormData({ ...formData, local_entrega: e.target.value })} placeholder="Manual ou via ZMMTSE" className="rounded-lg border-slate-300 dark:border-slate-600" />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="space-y-2">
+                          <Label className="text-slate-700 dark:text-slate-300 font-medium">Instalação Origem <span className="text-red-500">*</span></Label>
+                          <Popover open={openOrigemCombo} onOpenChange={setOpenOrigemCombo}>
+                            <PopoverTrigger asChild>
+                              <Button variant="outline" role="combobox" className={`w-full justify-between rounded-lg ${!formData.instalacao_origem_id ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`}>
+                                <span className="truncate">{formData.instalacao_origem_id ? (filteredInstalacoes || []).find(i => i.id === formData.instalacao_origem_id)?.nome : "Selecione..."}</span>
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[400px] p-0">
+                              <Command>
+                                <CommandInput placeholder="Buscar instalação..." />
+                                <CommandList>
+                                  <CommandEmpty>Nenhuma instalação encontrada.</CommandEmpty>
+                                  <CommandGroup>
+                                    {(filteredInstalacoes || []).map((i) => (<CommandItem key={i.id} value={i.nome} onSelect={() => { setFormData({ ...formData, instalacao_origem_id: i.id }); setOpenOrigemCombo(false); }}><Check className={cn("mr-2 h-4 w-4", formData.instalacao_origem_id === i.id ? "opacity-100" : "opacity-0")} />{i.nome}</CommandItem>))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-slate-700 dark:text-slate-300 font-medium">Local Entrega</Label>
+                          <Input value={formData.local_entrega || ''} onChange={(e) => setFormData({ ...formData, local_entrega: e.target.value })} placeholder="Manual ou via ZMMTSE" className="rounded-lg border-slate-300 dark:border-slate-600" />
+                        </div>
                         <div className="space-y-2 md:col-span-2">
                           <Label className="text-slate-700 dark:text-slate-300 font-medium">Dados do Destinatário (fora da Axia) <span className="text-red-500">*</span></Label>
                           <Textarea
@@ -1168,12 +1200,8 @@ export default function OSFormModal({
                             className={`rounded-lg ${!formData.destino_externo_descricao ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`}
                           />
                         </div>
-                      )}
-                      <div className="space-y-2">
-                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Local Entrega</Label>
-                        <Input value={formData.local_entrega || ''} onChange={(e) => setFormData({ ...formData, local_entrega: e.target.value })} placeholder="Manual ou via ZMMTSE" className="rounded-lg border-slate-300 dark:border-slate-600" />
                       </div>
-                    </div>
+                    )}
                   </div>
 
                   {/* Seção 5: Datas Complementares */}
