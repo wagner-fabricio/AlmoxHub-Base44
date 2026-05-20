@@ -1094,16 +1094,16 @@ export default function OSFormModal({
 
                   {/* Seção 4: Origem e Destino */}
                   <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
-                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-5 flex items-center gap-2">
-                      <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
-                      Origem e Destino
-                    </h3>
-                    {/* Toggle: Destino é fora da Axia? */}
-                    <div className="mb-5">
+                    <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
+                      <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide flex items-center gap-2">
+                        <div className="w-1 h-4 bg-gradient-to-b from-[#22c55e] to-[#84cc16] rounded-full"></div>
+                        Origem e Destino
+                      </h3>
+                      {/* Toggle: Destino é fora da Axia? */}
                       <button
                         type="button"
                         onClick={() => setFormData({ ...formData, destino_externo: !formData.destino_externo, instalacao_destino_id: !formData.destino_externo ? '' : formData.instalacao_destino_id, destino_externo_descricao: formData.destino_externo ? '' : formData.destino_externo_descricao })}
-                        className={`flex items-center justify-between gap-3 px-4 py-2.5 rounded-lg border transition-colors w-full sm:w-auto ${formData.destino_externo ? 'border-orange-400 bg-orange-50 dark:bg-orange-900/20' : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800'}`}
+                        className={`flex items-center gap-3 px-4 py-2 rounded-lg border transition-colors ${formData.destino_externo ? 'border-orange-400 bg-orange-50 dark:bg-orange-900/20' : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800'}`}
                       >
                         <span className={`text-sm font-medium ${formData.destino_externo ? 'text-orange-700 dark:text-orange-300' : 'text-slate-600 dark:text-slate-400'}`}>📦 Destino é fora da Axia?</span>
                         <span className={`relative w-10 h-5 rounded-full transition-colors ${formData.destino_externo ? 'bg-orange-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
