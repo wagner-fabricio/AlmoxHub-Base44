@@ -126,14 +126,14 @@ export default function OrdensServico() {
   }, [filters.status, filters.regional, filters.almoxarifado, filters.categorias, filters.statusList, filters.visao, currentPessoa?.regional_id]);
 
   const { data: ordens = [], isLoading: isOrdensLoading } = useOrdensFiltradas(
-    { backendFilter, sort: '-created_date', limit: effectiveLimit, page: currentPage },
+    { backendFilter, sort: '-created_date', limit: effectiveLimit, page: currentPage, textSearch: debouncedTextFilters },
     { enabled: true }
   );
 
   // setOrdens — optimistic update no cache da query filtrada ativa
   const currentQueryKey = useMemo(
-    () => ['ordens-filtradas', { backendFilter, sort: '-created_date', limit: effectiveLimit, page: currentPage }],
-    [backendFilter, currentPage, effectiveLimit]
+    () => ['ordens-filtradas', { backendFilter, sort: '-created_date', limit: effectiveLimit, page: currentPage, textSearch: debouncedTextFilters }],
+    [backendFilter, currentPage, effectiveLimit, debouncedTextFilters]
   );
   const setOrdens = useCallback((updater) => {
     queryClient.setQueryData(currentQueryKey, (prev = []) =>

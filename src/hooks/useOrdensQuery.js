@@ -25,8 +25,14 @@ async function fetchOrdensGlobal() {
 // Busca filtrada e paginada — usada pela página OrdensServico
 async function fetchOrdensFiltradas({ queryKey }) {
   const [, filtros] = queryKey;
-  const { backendFilter = {}, sort = '-created_date', limit = 100, page = 1 } = filtros || {};
+  const { backendFilter = {}, sort = '-created_date', limit = 100, page = 1, textSearch = {} } = filtros || {};
   const skip = (page - 1) * limit;
+
+  // Quando há busca de texto (código/MIGO/reserva), varremos todo o dataset
+  // paginando para garantir que OS antigas apareçam — filtro de texto é client-side
+  // mas só é eficaz se carregarmos todos os registros relevantes.
+  const { search, migo, reserva, codigoMaterial } = textSearch;
+  const hasTextSearch = !!(search || migo || reserva || codigoMaterial);
 
   // Construir filtro para o backend
   const filter = {};
@@ -36,6 +42,26 @@ async function fetchOrdensFiltradas({ queryKey }) {
   if (backendFilter.categoria_id) filter.categoria_id = backendFilter.categoria_id;
 
   const hasFilter = Object.keys(filter).length > 0;
+
+  // Se houver busca de texto, carregamos TODOS os registros (paginando o backend)
+  // para que o filtro client-side encontre OS antigas.
+  if (hasTextSearch) {
+    const PAGE = 5000;
+    const MAX_TOTAL = 50000;
+    const all = [];
+    let s = 0;
+    while (s < MAX_TOTAL) {
+      const batch = hasFilter
+        ? await base44.entities.OrdemServico.filter(filter, sort, PAGE, s)
+        : await base44.entities.OrdemServico.list(sort, PAGE, s);
+      if (!batch || batch.length === 0) break;
+      all.push(...batch);
+      if (batch.length < PAGE) break;
+      s += PAGE;
+    }
+    return all;
+  }
+
   if (hasFilter) {
     return base44.entities.OrdemServico.filter(filter, sort, limit, skip);
   }
