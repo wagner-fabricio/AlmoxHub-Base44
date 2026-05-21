@@ -1128,7 +1128,7 @@ export default function OSFormModal({
                                 <CommandList>
                                   <CommandEmpty>Nenhuma instalação encontrada.</CommandEmpty>
                                   <CommandGroup>
-                                    {(filteredInstalacoes || []).map((i) => (<CommandItem key={i.id} value={i.nome} onSelect={() => { setFormData({ ...formData, instalacao_origem_id: i.id }); setOpenOrigemCombo(false); }}><Check className={cn("mr-2 h-4 w-4", formData.instalacao_origem_id === i.id ? "opacity-100" : "opacity-0")} />{i.nome}</CommandItem>))}
+                                    {(filteredInstalacoes || []).slice().sort((a, b) => (a.nome || '').localeCompare(b.nome || '')).map((i) => (<CommandItem key={i.id} value={i.nome} onSelect={() => { setFormData({ ...formData, instalacao_origem_id: i.id }); setOpenOrigemCombo(false); }}><Check className={cn("mr-2 h-4 w-4", formData.instalacao_origem_id === i.id ? "opacity-100" : "opacity-0")} />{i.nome}</CommandItem>))}
                                   </CommandGroup>
                                 </CommandList>
                               </Command>
@@ -1150,7 +1150,7 @@ export default function OSFormModal({
                                 <CommandList>
                                   <CommandEmpty>Nenhuma instalação encontrada.</CommandEmpty>
                                   <CommandGroup>
-                                    {(filteredInstalacoesDestino || []).map((i) => (<CommandItem key={i.id} value={i.nome} onSelect={() => { setFormData({ ...formData, instalacao_destino_id: i.id }); setOpenDestinoCombo(false); }}><Check className={cn("mr-2 h-4 w-4", formData.instalacao_destino_id === i.id ? "opacity-100" : "opacity-0")} />{i.nome}</CommandItem>))}
+                                    {(filteredInstalacoesDestino || []).slice().sort((a, b) => (a.nome || '').localeCompare(b.nome || '')).map((i) => (<CommandItem key={i.id} value={i.nome} onSelect={() => { setFormData({ ...formData, instalacao_destino_id: i.id }); setOpenDestinoCombo(false); }}><Check className={cn("mr-2 h-4 w-4", formData.instalacao_destino_id === i.id ? "opacity-100" : "opacity-0")} />{i.nome}</CommandItem>))}
                                   </CommandGroup>
                                 </CommandList>
                               </Command>
@@ -1179,7 +1179,7 @@ export default function OSFormModal({
                                 <CommandList>
                                   <CommandEmpty>Nenhuma instalação encontrada.</CommandEmpty>
                                   <CommandGroup>
-                                    {(filteredInstalacoes || []).map((i) => (<CommandItem key={i.id} value={i.nome} onSelect={() => { setFormData({ ...formData, instalacao_origem_id: i.id }); setOpenOrigemCombo(false); }}><Check className={cn("mr-2 h-4 w-4", formData.instalacao_origem_id === i.id ? "opacity-100" : "opacity-0")} />{i.nome}</CommandItem>))}
+                                    {(filteredInstalacoes || []).slice().sort((a, b) => (a.nome || '').localeCompare(b.nome || '')).map((i) => (<CommandItem key={i.id} value={i.nome} onSelect={() => { setFormData({ ...formData, instalacao_origem_id: i.id }); setOpenOrigemCombo(false); }}><Check className={cn("mr-2 h-4 w-4", formData.instalacao_origem_id === i.id ? "opacity-100" : "opacity-0")} />{i.nome}</CommandItem>))}
                                   </CommandGroup>
                                 </CommandList>
                               </Command>
