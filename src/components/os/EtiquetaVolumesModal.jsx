@@ -230,11 +230,19 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
         const blockMaxFs = n === 1 ? FSA * 0.58 : FSA;
 
         // Render name + address+CNPJ concatenated
-        const renderAddrBlock = (inst, x, startY, colW) => {
-          const nome     = inst?.nome || '-';
-          const addr     = getEndereco(inst);
-          const cnpjPart = inst?.cnpj ? ` — CNPJ: ${inst.cnpj}` : '';
-          const addrLine = addr + cnpjPart;
+        const renderAddrBlock = (inst, x, startY, colW, freeText) => {
+          let nome, addrLine;
+          if (freeText) {
+            // Use first non-empty line as "nome" (bold) and remaining as address (normal)
+            const lines = (freeText || '').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+            nome = lines[0] || '-';
+            addrLine = lines.slice(1).join(', ');
+          } else {
+            nome = inst?.nome || '-';
+            const addr     = getEndereco(inst);
+            const cnpjPart = inst?.cnpj ? ` — CNPJ: ${inst.cnpj}` : '';
+            addrLine = addr + cnpjPart;
+          }
           const fullText = [nome, addrLine].filter(Boolean).join('\n');
           const block    = fitBlock(fullText, colW, blockH, blockMaxFs);
           const fs       = block.fs;
@@ -272,7 +280,11 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
         pdf.setFont('helvetica','bold'); pdf.setFontSize(FSL);
         pdf.text('DESTINATÁRIO:', colX_R, ry + lhOf(FSL)*0.76);
         ry += lhOf(FSL) + 0.8;
-        renderAddrBlock(instalacaoDestino, colX_R, ry, rightColW);
+        if (os?.destino_externo) {
+          renderAddrBlock(null, colX_R, ry, rightColW, os?.destino_externo_descricao || '');
+        } else {
+          renderAddrBlock(instalacaoDestino, colX_R, ry, rightColW);
+        }
 
         // Column divider
         pdf.setLineWidth(0.25);

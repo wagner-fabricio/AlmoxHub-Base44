@@ -26,7 +26,7 @@ function isEtapaCompletaExpedicao(etapaId, formData, fluxoEstrito = true) {
         formData.prazo &&
         formData.complexidade &&
         formData.instalacao_origem_id &&
-        formData.instalacao_destino_id
+        (formData.destino_externo ? !!formData.destino_externo_descricao : !!formData.instalacao_destino_id)
       );
       if (!basicos) return false;
       // Campos estritos só para "Com Reserva" e "Sem Reserva"
@@ -108,7 +108,11 @@ export function getPendenciasExpedicao(formData, fluxoEstrito = true) {
     if (!formData.vinculacao) pend1.push({ etapa: 1, tab: 'documento', label: 'Vinculação (Custeio/Investimento)' });
   }
   if (!formData.instalacao_origem_id) pend1.push({ etapa: 1, tab: 'documento', label: 'Instalação Origem' });
-  if (!formData.instalacao_destino_id) pend1.push({ etapa: 1, tab: 'documento', label: 'Instalação Destino' });
+  if (formData.destino_externo) {
+    if (!formData.destino_externo_descricao) pend1.push({ etapa: 1, tab: 'documento', label: 'Dados do Destinatário (fora da Axia)' });
+  } else {
+    if (!formData.instalacao_destino_id) pend1.push({ etapa: 1, tab: 'documento', label: 'Instalação Destino' });
+  }
   pendencias.push(...pend1);
   if (pend1.length > 0) return pendencias;
 
