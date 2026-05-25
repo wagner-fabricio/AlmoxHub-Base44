@@ -547,16 +547,16 @@ export default function PainelRecebimento({
               'Nº MIGO': os.numero_migo_receb || '',
               'NF-e Receb.': safeF(os.nfe_data_receb),
               'MIGO Receb.': safeF(os.data_migo_receb),
-              'LTR (dias)': ltrDias !== null ? ltrDias : '',
+              'LTR (d)': ltrDias !== null ? ltrDias : '',
               'Recebimento': safeF(os.data_recebimento),
               'Armazenagem': armazenado ? 'Sim' : 'Não',
               'Problema?': temProblema ? 'Sim' : 'Não',
               'Solução': temProblema ? safeF(os.data_solucao) : '',
-              'TMRP (dias)': tmrpDias !== null ? tmrpDias : '',
+              'TMRP (d)': tmrpDias !== null ? tmrpDias : '',
               'Itens Conf.': itens.length || 0,
               'Completos': itens.length > 0 ? itensComp : 0,
-              'TAC (%)': tacPct !== null ? tacPct : '',
-              'Líder': liderNome,
+              'TAC %': tacPct !== null ? tacPct : '',
+              'Líder': liderNome === '—' ? '' : liderNome,
             }));
             exportTabelaExcel(rows, 'painel_recebimento', 'Dados dos Indicadores');
           }} className="gap-2" disabled={osTabelaRows.length === 0}>
