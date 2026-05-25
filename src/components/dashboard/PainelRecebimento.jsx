@@ -406,7 +406,7 @@ export default function PainelRecebimento({
   const ETAPAS_RECEB = ['Importar XML', 'Conferência Manual', 'Divergências', 'Armazenagem'];
   const getEtapaAtualLabel = (os) => {
     const f = os.fluxo_recebimento;
-    if (!f) return 'Importar XML';
+    if (!f) return 'Sem Fluxo';
     if (f.armazenagem_completa) return 'Concluído';
     const idx = (f.etapa_atual || 1) - 1;
     return ETAPAS_RECEB[idx] || 'Importar XML';
