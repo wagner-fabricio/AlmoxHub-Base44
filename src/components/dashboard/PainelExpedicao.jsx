@@ -250,7 +250,7 @@ function HelpModalExpedicao({ open, onClose }) {
 export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToolbar = false }) {
   const { regionais, categorias, subcategorias, pessoas, instalacoes: ctxInstalacoes, projetos: ctxProjetos } = useApp();
   const [selectedOS, setSelectedOS] = useState(null);
-  const [formInitialMode, setFormInitialMode] = useState('read');
+  const [formInitialMode, setFormInitialMode] = useState('edit');
   const [showHelp, setShowHelp] = useState(false);
   const [tabelaPage, setTabelaPage] = useState(1);
   const TABELA_PAGE_SIZE = 200;
