@@ -404,9 +404,18 @@ export default function PainelRecebimento({
 
   // ── Tabela: linhas enriquecidas + filtros + sort (compartilhado p/ Excel) ─
   const ETAPAS_RECEB = ['Importar XML', 'Conferência Manual', 'Divergências', 'Armazenagem'];
+  // Verifica se a OS usa o fluxo de recebimento (apenas subcategorias "Compra - Aplicação Específica" ou "Compra - Estoque")
+  const osUsaFluxoRecebimento = (os) => {
+    const subs = (os.subcategorias_ids || []).map(sid => subcategorias?.find(s => s.id === sid)).filter(Boolean);
+    return subs.some(s => {
+      const nome = s?.nome?.toLowerCase() || '';
+      return nome.includes('aplicação específica') || nome.includes('aplicacao especifica') || nome.includes('estoque');
+    });
+  };
   const getEtapaAtualLabel = (os) => {
+    if (!osUsaFluxoRecebimento(os)) return 'Sem Fluxo';
     const f = os.fluxo_recebimento;
-    if (!f) return 'Sem Fluxo';
+    if (!f) return 'Importar XML';
     if (f.armazenagem_completa) return 'Concluído';
     const idx = (f.etapa_atual || 1) - 1;
     return ETAPAS_RECEB[idx] || 'Importar XML';
@@ -1084,6 +1093,7 @@ export default function PainelRecebimento({
                                      etapaAtual === 'Armazenagem' ? 'bg-blue-100 text-blue-700' :
                                      etapaAtual === 'Divergências' ? 'bg-amber-100 text-amber-700' :
                                      etapaAtual === 'Conferência Manual' ? 'bg-indigo-100 text-indigo-700' :
+                                     etapaAtual === 'Sem Fluxo' ? 'bg-slate-100 text-slate-500 italic' :
                                      'bg-slate-100 text-slate-600';
                     return (
                       <tr key={os.id} className={`border-b border-slate-100 dark:border-slate-700/50 ${idx % 2 !== 0 ? 'bg-slate-50/50 dark:bg-slate-700/20' : ''} hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors`}>
