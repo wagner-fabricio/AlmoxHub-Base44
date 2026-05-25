@@ -64,7 +64,7 @@ export default function Dashboard() {
     regional: 'all',
     almoxarifado: 'all',
     categoria: 'all',
-    subcategoria: 'all',
+    subcategoria: [],
     status: [],
     periodo: 'all',
     dataInicio: '',
@@ -160,7 +160,8 @@ export default function Dashboard() {
         if (categoriaIds.length > 0 && !categoriaIds.includes(os.categoria_id)) return false;
       }
       
-      if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
+      const subcategoriaIds = Array.isArray(filters.subcategoria) ? filters.subcategoria : (filters.subcategoria && filters.subcategoria !== 'all' ? [filters.subcategoria] : []);
+      if (subcategoriaIds.length > 0 && !(os.subcategorias_ids || []).some(sid => subcategoriaIds.includes(sid))) return false;
       const activeStatuses = Array.isArray(filters.status) ? filters.status : (filters.status === 'all' ? [] : [filters.status]);
       if (activeStatuses.length > 0 && !activeStatuses.includes(os.status)) return false;
       
@@ -297,7 +298,8 @@ export default function Dashboard() {
       if (regionalIdsH.length > 0 && !regionalIdsH.includes(os.regional_id)) return false;
       const almoxIdsH = Array.isArray(filters.almoxarifado) ? filters.almoxarifado : (filters.almoxarifado && filters.almoxarifado !== 'all' ? [filters.almoxarifado] : []);
       if (almoxIdsH.length > 0 && !almoxIdsH.includes(os.almoxarifado_id)) return false;
-      if (filters.subcategoria !== 'all' && !os.subcategorias_ids?.includes(filters.subcategoria)) return false;
+      const subcategoriaIdsH = Array.isArray(filters.subcategoria) ? filters.subcategoria : (filters.subcategoria && filters.subcategoria !== 'all' ? [filters.subcategoria] : []);
+      if (subcategoriaIdsH.length > 0 && !(os.subcategorias_ids || []).some(sid => subcategoriaIdsH.includes(sid))) return false;
       if (activeStatuses.length > 0 && !activeStatuses.includes(os.status)) return false;
       const osDate = new Date(os.created_date);
       if (periodoStart && periodoEnd) { if (osDate < periodoStart || osDate > periodoEnd) return false; }
@@ -507,27 +509,44 @@ export default function Dashboard() {
                         <span className="text-sm text-slate-700 dark:text-slate-300">{c.nome}</span>
                       </label>
                     ))}
-                    <button onClick={() => updateFilters({ ...filters, categoria: [], subcategoria: 'all' })} disabled={selected.length === 0} className="w-full text-xs text-blue-600 hover:underline disabled:text-slate-400 disabled:cursor-not-allowed disabled:no-underline text-left px-2 pt-1 mt-1 border-t border-slate-100 dark:border-slate-700">Limpar seleção</button>
+                    <button onClick={() => updateFilters({ ...filters, categoria: [], subcategoria: [] })} disabled={selected.length === 0} className="w-full text-xs text-blue-600 hover:underline disabled:text-slate-400 disabled:cursor-not-allowed disabled:no-underline text-left px-2 pt-1 mt-1 border-t border-slate-100 dark:border-slate-700">Limpar seleção</button>
                   </div>
                 </PopoverContent>
               </Popover>
             );
           })()}
-          <Select 
-            value={filters.subcategoria} 
-            onValueChange={(v) => updateFilters({ ...filters, subcategoria: v })}
-            disabled={!activeCategoriaId}
-          >
-            <SelectTrigger className="w-full bg-white dark:bg-slate-800">
-              <SelectValue placeholder="Subcategoria" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas Subcategorias</SelectItem>
-              {[...filteredSubcategorias].sort((a, b) => a.nome.localeCompare(b.nome)).map(s => (
-                <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {(() => {
+            const selected = Array.isArray(filters.subcategoria) ? filters.subcategoria : (filters.subcategoria && filters.subcategoria !== 'all' ? [filters.subcategoria] : []);
+            const opts = [...filteredSubcategorias].sort((a, b) => a.nome.localeCompare(b.nome));
+            const label = selected.length === 0 ? 'Todas Subcategorias' : selected.length === 1 ? (opts.find(s => s.id === selected[0])?.nome || '1 subcategoria') : `${selected.length} subcategorias`;
+            const toggle = (id) => {
+              const next = selected.includes(id) ? selected.filter(s => s !== id) : [...selected, id];
+              updateFilters({ ...filters, subcategoria: next });
+            };
+            return (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button disabled={!activeCategoriaId} className="flex items-center justify-between w-full h-9 rounded-md border border-input bg-white dark:bg-slate-800 px-3 py-2 text-sm shadow-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span className={`truncate ${selected.length === 0 ? 'text-slate-500' : ''}`}>{label}</span>
+                    <ChevronDown className="w-4 h-4 opacity-50 ml-2 shrink-0" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-2 max-h-80 overflow-y-auto" align="start">
+                  <div className="space-y-1">
+                    {opts.length === 0 ? (
+                      <p className="text-xs text-slate-400 px-2 py-1.5">Nenhuma subcategoria</p>
+                    ) : opts.map(s => (
+                      <label key={s.id} className="flex items-center gap-2 cursor-pointer px-2 py-1.5 rounded hover:bg-slate-50 dark:hover:bg-slate-800">
+                        <Checkbox checked={selected.includes(s.id)} onCheckedChange={() => toggle(s.id)} />
+                        <span className="text-sm text-slate-700 dark:text-slate-300">{s.nome}</span>
+                      </label>
+                    ))}
+                    <button onClick={() => updateFilters({ ...filters, subcategoria: [] })} disabled={selected.length === 0} className="w-full text-xs text-blue-600 hover:underline disabled:text-slate-400 disabled:cursor-not-allowed disabled:no-underline text-left px-2 pt-1 mt-1 border-t border-slate-100 dark:border-slate-700">Limpar seleção</button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            );
+          })()}
           {(() => {
             const activeStatuses = Array.isArray(filters.status) ? filters.status : (filters.status === 'all' ? [] : [filters.status]);
             const statusLabel = activeStatuses.length === 0 ? 'Todos Status' : activeStatuses.length === 1 ? statusLabels[activeStatuses[0]] : `${activeStatuses.length} status`;
@@ -580,7 +599,7 @@ export default function Dashboard() {
                 regional: [],
                 almoxarifado: [],
                 categoria: [],
-                subcategoria: 'all',
+                subcategoria: [],
                 status: [],
                 periodo: 'all',
                 dataInicio: '',
