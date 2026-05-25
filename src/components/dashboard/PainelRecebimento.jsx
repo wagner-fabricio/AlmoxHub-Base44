@@ -441,13 +441,14 @@ export default function PainelRecebimento({
         .filter(Boolean)
         .join(', ') || '—';
       const etapaAtual = getEtapaAtualLabel(os);
-      return { os, almox, ltrDias, tmrpDias, itens, itensComp, tacPct, armazenado, temProblema, progresso, subcatNomes, etapaAtual };
+      const liderNome = pessoas?.find(p => p.id === os.lider_id)?.full_name || '—';
+      return { os, almox, ltrDias, tmrpDias, itens, itensComp, tacPct, armazenado, temProblema, progresso, subcatNomes, etapaAtual, liderNome };
     });
 
     let rows = [...osTabela];
     Object.entries(columnFilters).forEach(([col, values]) => {
       if (!values || values.length === 0) return;
-      rows = rows.filter(({ os, almox, ltrDias, tmrpDias, tacPct, armazenado, temProblema, subcatNomes, etapaAtual }) => {
+      rows = rows.filter(({ os, almox, ltrDias, tmrpDias, tacPct, armazenado, temProblema, subcatNomes, etapaAtual, liderNome }) => {
         if (col === 'almox') return values.includes(almox?.nome || '—');
         if (col === 'nfe_data_receb') return values.includes(safeF(os.nfe_data_receb));
         if (col === 'data_migo_receb') return values.includes(safeF(os.data_migo_receb));
@@ -461,33 +462,35 @@ export default function PainelRecebimento({
         if (col === 'numero_migo_receb') return values.includes(os.numero_migo_receb || '—');
         if (col === 'subcategoria') return values.includes(subcatNomes);
         if (col === 'etapaAtual') return values.includes(etapaAtual);
+        if (col === 'lider') return values.includes(liderNome);
         return true;
       });
     });
 
     if (sortConfig.column && sortConfig.direction) {
-      rows.sort((a, b) => {
-        const col = sortConfig.column;
-        let va, vb;
-        if (col === 'codigo') { va = a.os.codigo || ''; vb = b.os.codigo || ''; }
-        else if (col === 'almox') { va = a.almox?.nome || ''; vb = b.almox?.nome || ''; }
-        else if (col === 'nfe_data_receb') { va = a.os.nfe_data_receb || ''; vb = b.os.nfe_data_receb || ''; }
-        else if (col === 'data_migo_receb') { va = a.os.data_migo_receb || ''; vb = b.os.data_migo_receb || ''; }
-        else if (col === 'ltrDias') { va = a.ltrDias ?? Infinity; vb = b.ltrDias ?? Infinity; }
-        else if (col === 'data_recebimento') { va = a.os.data_recebimento || ''; vb = b.os.data_recebimento || ''; }
-        else if (col === 'tmrpDias') { va = a.tmrpDias ?? Infinity; vb = b.tmrpDias ?? Infinity; }
-        else if (col === 'tacPct') { va = a.tacPct ?? -1; vb = b.tacPct ?? -1; }
-        else if (col === 'itensConf') { va = a.itens.length; vb = b.itens.length; }
-        else if (col === 'completos') { va = a.itensComp; vb = b.itensComp; }
-        else if (col === 'progresso') { va = a.progresso; vb = b.progresso; }
-        else if (col === 'numero_migo_receb') { va = a.os.numero_migo_receb || ''; vb = b.os.numero_migo_receb || ''; }
-        else if (col === 'subcategoria') { va = a.subcatNomes; vb = b.subcatNomes; }
-        else if (col === 'etapaAtual') { va = a.etapaAtual; vb = b.etapaAtual; }
-        else { va = ''; vb = ''; }
-        if (va < vb) return sortConfig.direction === 'asc' ? -1 : 1;
-        if (va > vb) return sortConfig.direction === 'asc' ? 1 : -1;
-        return 0;
-      });
+     rows.sort((a, b) => {
+       const col = sortConfig.column;
+       let va, vb;
+       if (col === 'codigo') { va = a.os.codigo || ''; vb = b.os.codigo || ''; }
+       else if (col === 'almox') { va = a.almox?.nome || ''; vb = b.almox?.nome || ''; }
+       else if (col === 'nfe_data_receb') { va = a.os.nfe_data_receb || ''; vb = b.os.nfe_data_receb || ''; }
+       else if (col === 'data_migo_receb') { va = a.os.data_migo_receb || ''; vb = b.os.data_migo_receb || ''; }
+       else if (col === 'ltrDias') { va = a.ltrDias ?? Infinity; vb = b.ltrDias ?? Infinity; }
+       else if (col === 'data_recebimento') { va = a.os.data_recebimento || ''; vb = b.os.data_recebimento || ''; }
+       else if (col === 'tmrpDias') { va = a.tmrpDias ?? Infinity; vb = b.tmrpDias ?? Infinity; }
+       else if (col === 'tacPct') { va = a.tacPct ?? -1; vb = b.tacPct ?? -1; }
+       else if (col === 'itensConf') { va = a.itens.length; vb = b.itens.length; }
+       else if (col === 'completos') { va = a.itensComp; vb = b.itensComp; }
+       else if (col === 'progresso') { va = a.progresso; vb = b.progresso; }
+       else if (col === 'numero_migo_receb') { va = a.os.numero_migo_receb || ''; vb = b.os.numero_migo_receb || ''; }
+       else if (col === 'subcategoria') { va = a.subcatNomes; vb = b.subcatNomes; }
+       else if (col === 'etapaAtual') { va = a.etapaAtual; vb = b.etapaAtual; }
+       else if (col === 'lider') { va = a.liderNome; vb = b.liderNome; }
+       else { va = ''; vb = ''; }
+       if (va < vb) return sortConfig.direction === 'asc' ? -1 : 1;
+       if (va > vb) return sortConfig.direction === 'asc' ? 1 : -1;
+       return 0;
+     });
     }
     return rows;
   }, [osReceb, almoxarifados, subcategorias, columnFilters, sortConfig]);
@@ -535,7 +538,7 @@ export default function PainelRecebimento({
       {!hideToolbar && (
         <div className="flex justify-end gap-2">
           <Button variant="outline" size="sm" onClick={() => {
-            const rows = osTabelaRows.map(({ os, almox, ltrDias, tmrpDias, itens, itensComp, tacPct, armazenado, temProblema, progresso, subcatNomes, etapaAtual }) => ({
+            const rows = osTabelaRows.map(({ os, almox, ltrDias, tmrpDias, itens, itensComp, tacPct, armazenado, temProblema, progresso, subcatNomes, etapaAtual, liderNome }) => ({
               'Nº OS': os.codigo || os.id?.substring(0, 8) || '',
               'Progresso (%)': progresso,
               'Subcategoria': subcatNomes === '—' ? '' : subcatNomes,
@@ -553,6 +556,7 @@ export default function PainelRecebimento({
               'Itens Conf.': itens.length || 0,
               'Completos': itens.length > 0 ? itensComp : 0,
               'TAC (%)': tacPct !== null ? tacPct : '',
+              'Líder': liderNome,
             }));
             exportTabelaExcel(rows, 'painel_recebimento', 'Dados dos Indicadores');
           }} className="gap-2" disabled={osTabelaRows.length === 0}>
@@ -987,24 +991,25 @@ export default function PainelRecebimento({
         const rows = osTabelaRows;
 
         const getUniqueValues = (col) => {
-          const vals = rows.map(({ os, almox, ltrDias, tmrpDias, tacPct, armazenado, temProblema, subcatNomes, etapaAtual }) => {
-            if (col === 'almox') return almox?.nome || '—';
-            if (col === 'nfe_data_receb') return safeF(os.nfe_data_receb);
-            if (col === 'data_migo_receb') return safeF(os.data_migo_receb);
-            if (col === 'ltrDias') return ltrDias !== null ? `${ltrDias}d` : '—';
-            if (col === 'data_recebimento') return safeF(os.data_recebimento);
-            if (col === 'armazenado') return armazenado ? 'Sim' : 'Não';
-            if (col === 'temProblema') return temProblema ? 'Sim' : 'Não';
-            if (col === 'data_solucao') return safeF(os.data_solucao);
-            if (col === 'tmrpDias') return tmrpDias !== null ? `${tmrpDias}d` : '—';
-            if (col === 'tacPct') return tacPct !== null ? `${tacPct}%` : '—';
-            if (col === 'numero_migo_receb') return os.numero_migo_receb || '—';
-            if (col === 'subcategoria') return subcatNomes;
-            if (col === 'etapaAtual') return etapaAtual;
-            return '—';
-          });
-          return [...new Set(vals)].sort();
-        };
+           const vals = rows.map(({ os, almox, ltrDias, tmrpDias, tacPct, armazenado, temProblema, subcatNomes, etapaAtual, liderNome }) => {
+             if (col === 'almox') return almox?.nome || '—';
+             if (col === 'nfe_data_receb') return safeF(os.nfe_data_receb);
+             if (col === 'data_migo_receb') return safeF(os.data_migo_receb);
+             if (col === 'ltrDias') return ltrDias !== null ? `${ltrDias}d` : '—';
+             if (col === 'data_recebimento') return safeF(os.data_recebimento);
+             if (col === 'armazenado') return armazenado ? 'Sim' : 'Não';
+             if (col === 'temProblema') return temProblema ? 'Sim' : 'Não';
+             if (col === 'data_solucao') return safeF(os.data_solucao);
+             if (col === 'tmrpDias') return tmrpDias !== null ? `${tmrpDias}d` : '—';
+             if (col === 'tacPct') return tacPct !== null ? `${tacPct}%` : '—';
+             if (col === 'numero_migo_receb') return os.numero_migo_receb || '—';
+             if (col === 'subcategoria') return subcatNomes;
+             if (col === 'etapaAtual') return etapaAtual;
+             if (col === 'lider') return liderNome;
+             return '—';
+           });
+           return [...new Set(vals)].sort();
+         };
 
         const totalPages = Math.max(1, Math.ceil(rows.length / TABELA_PAGE_SIZE));
         const safePage = Math.min(tabelaPage, totalPages);
@@ -1030,6 +1035,7 @@ export default function PainelRecebimento({
           { col: 'itensConf',       label: 'Itens Conf.',  filter: false, width: 'w-20' },
           { col: 'completos',       label: 'Completos',    filter: false, width: 'w-20' },
           { col: 'tacPct',          label: 'TAC %',        filter: true,  width: 'w-16' },
+          { col: 'lider',           label: 'Líder',        filter: true,  width: 'w-32' },
         ];
 
         return (
@@ -1084,7 +1090,7 @@ export default function PainelRecebimento({
                   </tr>
                 </thead>
                 <tbody>
-                  {pageRows.map(({ os, almox, ltrDias, tmrpDias, itens, itensComp, tacPct, armazenado, temProblema, progresso, subcatNomes, etapaAtual }, idx) => {
+                  {pageRows.map(({ os, almox, ltrDias, tmrpDias, itens, itensComp, tacPct, armazenado, temProblema, progresso, subcatNomes, etapaAtual, liderNome }, idx) => {
                     const ltrColor = ltrDias === null ? '' : ltrDias <= 3 ? 'text-green-600 font-semibold' : ltrDias <= 7 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold';
                     const tmrpColor = tmrpDias === null ? '' : tmrpDias <= 3 ? 'text-green-600 font-semibold' : tmrpDias <= 7 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold';
                     const tacColor = tacPct === null ? '' : tacPct >= 95 ? 'text-green-600 font-semibold' : tacPct >= 80 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold';
@@ -1135,6 +1141,7 @@ export default function PainelRecebimento({
                         <td className="px-2 py-2 text-right">{itens.length > 0 ? itens.length : '—'}</td>
                         <td className="px-2 py-2 text-right">{itens.length > 0 ? itensComp : '—'}</td>
                         <td className={`px-2 py-2 text-right whitespace-nowrap ${tacColor}`}>{tacPct !== null ? `${tacPct}%` : '—'}</td>
+                        <td className="px-2 py-2 max-w-[144px] truncate text-slate-700 dark:text-slate-300">{liderNome}</td>
                       </tr>
                     );
                   })}
