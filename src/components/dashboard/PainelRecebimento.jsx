@@ -1015,8 +1015,8 @@ export default function PainelRecebimento({
         const COLS = [
           { col: 'codigo',          label: 'Nº OS',        filter: false, width: 'min-w-[160px]' },
           { col: 'progresso',       label: 'Progresso',    filter: false, width: 'w-28' },
-          { col: 'etapaAtual',      label: 'Subcategoria', filter: true,  width: 'w-32' },
-          { col: 'subcategoria',    label: 'Etapa Atual',  filter: true,  width: 'w-36' },
+          { col: 'subcategoria',    label: 'Subcategoria', filter: true,  width: 'w-32' },
+          { col: 'etapaAtual',      label: 'Etapa Atual',  filter: true,  width: 'w-36' },
           { col: 'almox',           label: 'Almoxarifado', filter: true,  width: 'w-36' },
           { col: 'numero_migo_receb', label: 'Nº MIGO',    filter: true,  width: 'w-24' },
           { col: 'nfe_data_receb',  label: 'NF-e Receb.',  filter: true,  width: 'w-24' },
