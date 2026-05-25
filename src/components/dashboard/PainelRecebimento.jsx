@@ -172,7 +172,7 @@ export default function PainelRecebimento({
   const { regionais, categorias, subcategorias, pessoas, instalacoes: ctxInstalacoes, projetos: ctxProjetos } = useApp();
   const [showHelp, setShowHelp] = useState(false);
   const [selectedOS, setSelectedOS] = useState(null);
-  const [formInitialMode, setFormInitialMode] = useState('read');
+  const [formInitialMode, setFormInitialMode] = useState('edit');
   const [tabelaPage, setTabelaPage] = useState(1);
   const TABELA_PAGE_SIZE = 200;
   const { sortConfig, handleSort } = useTableSort();
