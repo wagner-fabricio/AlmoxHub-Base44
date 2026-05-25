@@ -441,7 +441,7 @@ export default function PainelRecebimento({
         .filter(Boolean)
         .join(', ') || '—';
       const etapaAtual = getEtapaAtualLabel(os);
-      const liderNome = pessoas?.find(p => p.id === os.lider_id)?.full_name || '—';
+      const liderNome = pessoas?.find(p => p.id === os.lider_id)?.nome || '—';
       return { os, almox, ltrDias, tmrpDias, itens, itensComp, tacPct, armazenado, temProblema, progresso, subcatNomes, etapaAtual, liderNome };
     });
 
