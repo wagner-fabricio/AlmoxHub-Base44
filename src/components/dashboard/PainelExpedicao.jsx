@@ -463,15 +463,20 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
         ? Math.abs(differenceInDays(new Date(os.separacao_concluida_em), new Date(os.data_separacao)))
         : null;
       const leadTimeReservaMigo = diasUteisEntre(os.data_reserva, os.data_migo);
-      return { os, almox, qtdSol, qtdSep, tempoEntrega, tempoCicloSep, leadTimeReservaMigo };
+      const subcatNomes = (os.subcategorias_ids || [])
+        .map(sid => subcategorias?.find(s => s.id === sid)?.nome)
+        .filter(Boolean)
+        .join(', ') || '—';
+      const liderNome = pessoas?.find(p => p.id === os.lider_id)?.nome || '—';
+      return { os, almox, qtdSol, qtdSep, tempoEntrega, tempoCicloSep, leadTimeReservaMigo, subcatNomes, liderNome };
     });
-  }, [filteredOrdens, almoxarifados]);
+  }, [filteredOrdens, almoxarifados, subcategorias, pessoas]);
 
   const osTabelaFiltrada = useMemo(() => {
     let rows = [...osTabela];
     Object.entries(columnFilters).forEach(([col, values]) => {
       if (!values || values.length === 0) return;
-      rows = rows.filter(({ os, almox, tempoEntrega }) => {
+      rows = rows.filter(({ os, almox, tempoEntrega, subcatNomes, liderNome }) => {
         if (col === 'almox') return values.includes(almox?.nome || '—');
         if (col === 'instalacao_origem') {
           const inst = instalacoes?.find(i => i.id === os.instalacao_origem_id);
@@ -491,6 +496,8 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
           const label = tempoEntrega === null ? '—' : (tempoEntrega === 0 ? 'No prazo' : `${tempoEntrega > 0 ? '+' : ''}${tempoEntrega}d`);
           return values.includes(label);
         }
+        if (col === 'subcategoria') return values.includes(subcatNomes);
+        if (col === 'lider') return values.includes(liderNome);
         return true;
       });
     });
@@ -525,6 +532,8 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
         }
         else if (col === 'status_separacao') { va = a.os.status_separacao || ''; vb = b.os.status_separacao || ''; }
         else if (col === 'progresso') { va = Number(a.os.progresso) || 0; vb = Number(b.os.progresso) || 0; }
+        else if (col === 'subcategoria') { va = a.subcatNomes; vb = b.subcatNomes; }
+        else if (col === 'lider') { va = a.liderNome; vb = b.liderNome; }
         else { va = ''; vb = ''; }
         if (va < vb) return sortConfig.direction === 'asc' ? -1 : 1;
         if (va > vb) return sortConfig.direction === 'asc' ? 1 : -1;
@@ -535,7 +544,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
   }, [osTabela, sortConfig, columnFilters]);
 
   const getUniqueValues = (col) => {
-    const vals = osTabela.map(({ os, almox, tempoEntrega }) => {
+    const vals = osTabela.map(({ os, almox, tempoEntrega, subcatNomes, liderNome }) => {
       if (col === 'almox') return almox?.nome || '—';
       if (col === 'instalacao_origem') {
         const inst = instalacoes?.find(i => i.id === os.instalacao_origem_id);
@@ -552,6 +561,8 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
       if (col === 'data_necessidade') return safeFormat(os.data_necessidade);
       if (col === 'data_entrega') return safeFormat(os.data_entrega);
       if (col === 'tempoEntrega') return tempoEntrega === null ? '—' : (tempoEntrega === 0 ? 'No prazo' : `${tempoEntrega > 0 ? '+' : ''}${tempoEntrega}d`);
+      if (col === 'subcategoria') return subcatNomes;
+      if (col === 'lider') return liderNome;
       return '—';
     });
     return [...new Set(vals)].sort();
@@ -567,7 +578,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
       {!hideToolbar && (
         <div className="flex justify-end gap-2">
           <Button variant="outline" size="sm" onClick={() => {
-            const rows = osTabelaFiltrada.map(({ os, almox, qtdSol, qtdSep, tempoEntrega, tempoCicloSep, leadTimeReservaMigo }) => {
+            const rows = osTabelaFiltrada.map(({ os, almox, qtdSol, qtdSep, tempoEntrega, tempoCicloSep, leadTimeReservaMigo, subcatNomes, liderNome }) => {
               const totalM3 = (os.volumes || []).reduce((sum, v) => sum + (v.m3 || 0), 0);
               const origem = instalacoes?.find(i => i.id === os.instalacao_origem_id);
               const destino = instalacoes?.find(i => i.id === os.instalacao_destino_id);
@@ -575,6 +586,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
                 'Nº OS': os.codigo || os.id?.substring(0, 8) || '',
                 'Status Exp.': os.status_separacao || '',
                 'Progresso (%)': Math.max(0, Math.min(100, Math.round(os.progresso || 0))),
+                'Subcategoria': subcatNomes === '—' ? '' : subcatNomes,
                 'Almoxarifado': almox?.nome || '',
                 'Origem': origem?.nome || '',
                 'Destino': destino?.nome || '',
@@ -590,6 +602,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
                 'Ciclo Sep. (dias)': tempoCicloSep !== null ? tempoCicloSep : '',
                 'Lead Time Atend. (dias úteis)': leadTimeReservaMigo !== null ? leadTimeReservaMigo : '',
                 'Vol. M³': totalM3 > 0 ? totalM3 : '',
+                'Líder': liderNome === '—' ? '' : liderNome,
               };
             });
             exportTabelaExcel(rows, 'painel_expedicao', 'Dados dos Indicadores');
@@ -1121,6 +1134,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
                         { col: 'codigo', label: 'Nº OS', filter: false, width: 'w-48' },
                         { col: 'status_separacao', label: 'Status Exp.', filter: false, width: 'w-32' },
                         { col: 'progresso', label: 'Progresso', filter: false, width: 'w-28' },
+                        { col: 'subcategoria', label: 'Subcategoria', filter: true, width: 'w-32' },
                         { col: 'almox', label: 'Almoxarifado', filter: true, width: 'w-36' },
                         { col: 'instalacao_origem', label: 'Origem', filter: true, width: 'w-36' },
                         { col: 'instalacao_destino', label: 'Destino', filter: true, width: 'w-36' },
@@ -1136,6 +1150,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
                         { col: 'cicloSep', label: 'Ciclo Sep.', filter: false, width: 'w-24' },
                         { col: 'leadTimeReservaMigo', label: 'Lead Time Atend.', filter: false, width: 'w-32' },
                         { col: 'volM3', label: 'Vol. M³', filter: false, width: 'w-20' },
+                        { col: 'lider', label: 'Líder', filter: true, width: 'w-32' },
                       ].map(({ col, label, filter, width }) => (
                         <th key={col} className={`px-2 py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-left ${width} whitespace-nowrap`}>
                           <SortableTableHead label={label} column={col} sortConfig={sortConfig} onSort={handleSort}
@@ -1146,7 +1161,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
                     </tr>
                   </thead>
                   <tbody>
-                    {pageRows.map(({ os, almox, qtdSol, qtdSep, tempoEntrega, tempoCicloSep, leadTimeReservaMigo }, idx) => {
+                    {pageRows.map(({ os, almox, qtdSol, qtdSep, tempoEntrega, tempoCicloSep, leadTimeReservaMigo, subcatNomes, liderNome }, idx) => {
                       let tempoColor = 'text-slate-600 dark:text-slate-400';
                       if (tempoEntrega !== null) {
                         if (tempoEntrega <= 0) tempoColor = 'text-green-600 font-semibold';
@@ -1190,6 +1205,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
                               );
                             })()}
                           </td>
+                          <td className="px-2 py-2 max-w-[144px] truncate text-slate-700 dark:text-slate-300" title={subcatNomes}>{subcatNomes}</td>
                           <td className="px-2 py-2 text-slate-700 dark:text-slate-300 max-w-[144px] truncate">{almox?.nome || '—'}</td>
                           <td className="px-2 py-2 text-slate-700 dark:text-slate-300 max-w-[144px] truncate">{(() => { const inst = instalacoes?.find(i => i.id === os.instalacao_origem_id); return inst?.nome || '—'; })()}</td>
                           <td className="px-2 py-2 text-slate-700 dark:text-slate-300 max-w-[144px] truncate">{(() => { const inst = instalacoes?.find(i => i.id === os.instalacao_destino_id); return inst?.nome || '—'; })()}</td>
@@ -1222,6 +1238,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
                               return totalM3 > 0 ? totalM3.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 3 }) : '—';
                             })()}
                           </td>
+                          <td className="px-2 py-2 max-w-[144px] truncate text-slate-700 dark:text-slate-300" title={liderNome}>{liderNome}</td>
                           </tr>
                       );
                     })}
