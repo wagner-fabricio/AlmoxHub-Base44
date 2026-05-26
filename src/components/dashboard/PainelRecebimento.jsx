@@ -1104,7 +1104,7 @@ export default function PainelRecebimento({
                     return (
                       <tr key={os.id} className={`border-b border-slate-100 dark:border-slate-700/50 ${idx % 2 !== 0 ? 'bg-slate-50/50 dark:bg-slate-700/20' : ''} hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors`}>
                         <td className="px-2 py-2 whitespace-nowrap min-w-[160px]">
-                          <button onClick={() => setSelectedOS(os)} className="font-mono text-blue-600 dark:text-blue-400 hover:underline text-left">
+                          <button onClick={() => { setFormInitialMode('edit'); setSelectedOS(os); }} className="font-mono text-blue-600 dark:text-blue-400 hover:underline text-left">
                             {os.codigo || os.id?.substring(0, 8)}
                           </button>
                         </td>
