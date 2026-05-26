@@ -172,10 +172,19 @@ export function getPendenciasExpedicao(formData, fluxoEstrito = true) {
 
 export function getEtapasRecebimento(formData) {
   const fluxo = formData.fluxo_recebimento || {};
+  // Etapa 3 (Divergências) é considerada completa se:
+  // - flag persistida diz que sim, OU
+  // - usuário respondeu "Não" ao "Houve um problema?" (problema_recebimento === false explícito), OU
+  // - usuário respondeu "Sim" e preencheu problemas + data de solução
+  const divergenciasCompleta = !!fluxo.validacao_divergencias_completa
+    || (formData.problema_recebimento === false)
+    || (formData.problema_recebimento === true
+        && (formData.problemas_recebimento_ids?.length > 0)
+        && !!formData.data_solucao);
   const etapas = [
     { id: 1, key: 'xml', label: 'Importar XML', completa: !!fluxo.xml_importado },
     { id: 2, key: 'conferencia', label: 'Conferência Manual', completa: !!fluxo.conferencia_manual_completa },
-    { id: 3, key: 'divergencias', label: 'Divergências', completa: !!fluxo.validacao_divergencias_completa },
+    { id: 3, key: 'divergencias', label: 'Divergências', completa: divergenciasCompleta },
     { id: 4, key: 'armazenagem', label: 'Armazenagem', completa: !!fluxo.armazenagem_completa },
   ];
 
@@ -216,8 +225,15 @@ export function getPendenciasRecebimento(formData) {
   }
 
   // Etapa 3 — Validação de divergências
-  if (!fluxo.validacao_divergencias_completa) {
-    if (formData.problema_recebimento) {
+  // Considera completa se: flag persistida ok, OU usuário respondeu "Não" (false explícito),
+  // OU respondeu "Sim" e preencheu problemas + data de solução.
+  const etapa3Completa = !!fluxo.validacao_divergencias_completa
+    || (formData.problema_recebimento === false)
+    || (formData.problema_recebimento === true
+        && (formData.problemas_recebimento_ids?.length > 0)
+        && !!formData.data_solucao);
+  if (!etapa3Completa) {
+    if (formData.problema_recebimento === true) {
       if (!(formData.problemas_recebimento_ids?.length > 0)) {
         pendencias.push({ etapa: 3, tab: 'receb-dados', label: 'Selecione o(s) problema(s) identificado(s)' });
       }
