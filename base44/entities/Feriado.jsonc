@@ -1,0 +1,89 @@
+{
+  "name": "Feriado",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome do feriado / ocorr\u00eancia"
+    },
+    "data": {
+      "type": "string",
+      "format": "date",
+      "description": "Data do feriado (YYYY-MM-DD)"
+    },
+    "ano": {
+      "type": "number",
+      "description": "Ano de refer\u00eancia (preenchido a partir da data)"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "nacional",
+        "estadual",
+        "municipal",
+        "local"
+      ],
+      "description": "Abrang\u00eancia: nacional aplica a todos; estadual a almoxarifados da UF; municipal a almoxarifados da cidade/UF; local a um almoxarifado espec\u00edfico"
+    },
+    "tipo_ocorrencia": {
+      "type": "string",
+      "enum": [
+        "feriado",
+        "ponto_facultativo",
+        "dia_ponte",
+        "fechamento_contabil",
+        "outros"
+      ],
+      "default": "feriado",
+      "description": "Tipo de ocorr\u00eancia do dia"
+    },
+    "estado": {
+      "type": "string",
+      "description": "UF (obrigat\u00f3rio para tipo estadual e municipal)"
+    },
+    "cidade": {
+      "type": "string",
+      "description": "Cidade (obrigat\u00f3rio para tipo municipal)"
+    },
+    "almoxarifado_id": {
+      "type": "string",
+      "description": "ID do almoxarifado (obrigat\u00f3rio para tipo local)"
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Observa\u00e7\u00f5es adicionais"
+    },
+    "ativo": {
+      "type": "boolean",
+      "default": true,
+      "description": "Se o dia deve ser considerado nos c\u00e1lculos de dias \u00fateis"
+    }
+  },
+  "required": [
+    "nome",
+    "data",
+    "tipo"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

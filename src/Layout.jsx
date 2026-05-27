@@ -26,7 +26,8 @@ import {
   Bell,
   BookOpen,
   DollarSign,
-  Eye
+  Eye,
+  CalendarDays
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -53,6 +54,7 @@ const menuItems = [
   { name: 'Pessoas', icon: Users, page: 'Pessoas' },
   { name: 'Equipes', icon: Users, page: 'Equipes' },
   { name: 'Categorias', icon: Tags, page: 'Categorias' },
+  { name: 'Feriados', icon: CalendarDays, page: 'Feriados', gestorOnly: true },
   { name: 'Veículos Axia', icon: Truck, page: 'VeiculosAxia' },
   { name: 'Transportadoras', icon: Building2, page: 'Transportadoras' },
   { name: 'Delegação Permissões', icon: Shield, page: 'DelegacaoPermissoes' },

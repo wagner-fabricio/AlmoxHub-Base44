@@ -58,6 +58,7 @@ import DelegacaoPermissoes from './pages/DelegacaoPermissoes';
 import Documentacao from './pages/Documentacao';
 import EmFluxo from './pages/EmFluxo';
 import Equipes from './pages/Equipes';
+import Feriados from './pages/Feriados';
 import Fornecedores from './pages/Fornecedores';
 import GestaoSolicitacoes from './pages/GestaoSolicitacoes';
 import Home from './pages/Home';
@@ -96,6 +97,7 @@ export const PAGES = {
     "Documentacao": Documentacao,
     "EmFluxo": EmFluxo,
     "Equipes": Equipes,
+    "Feriados": Feriados,
     "Fornecedores": Fornecedores,
     "GestaoSolicitacoes": GestaoSolicitacoes,
     "Home": Home,
