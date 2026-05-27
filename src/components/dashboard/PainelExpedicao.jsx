@@ -41,7 +41,17 @@ const diasUteisEntre = (start, end) => {
   return count;
 };
 
-const META_LEAD_TIME_RESERVA_MIGO = 7;
+// Início do prazo de atendimento = maior data entre Reserva, Ressuprimento e Aprovação EPI (aba Documento da OS)
+const maiorDataInicioDocumento = (os) => {
+  const candidatos = [os?.data_reserva, os?.data_ressuprimento, os?.data_aprovacao_epi]
+    .map(d => d ? new Date(d) : null)
+    .filter(d => d && !isNaN(d.getTime()));
+  if (candidatos.length === 0) return null;
+  return new Date(Math.max(...candidatos.map(d => d.getTime())));
+};
+
+// SLA por prioridade (em dias úteis): urgente = 1 dia útil; demais = 7 dias úteis
+const slaPorPrioridade = (prioridade) => prioridade === 'urgente' ? 1 : 7;
 
 const TOOLTIP_STYLE = {
   backgroundColor: '#fff', border: '1px solid #e2e8f0',
@@ -275,11 +285,15 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
     ? (osComSep.reduce((s, os) => s + Math.abs(differenceInDays(new Date(os.separacao_concluida_em), new Date(os.data_separacao))), 0) / osComSep.length).toFixed(1)
     : null;
 
-  // ── Lead Time Reservas: dias úteis entre data_reserva e data_migo ────────
+  // ── Lead Time Reservas: dias úteis entre maior(Reserva, Ressuprimento, Aprov.EPI) e data_migo ────────
   const osComMigo = useMemo(() => {
     return filteredOrdens
-      .map(os => ({ os, dias: diasUteisEntre(os.data_reserva, os.data_migo) }))
-      .filter(x => x.dias !== null);
+      .map(os => {
+        const inicio = maiorDataInicioDocumento(os);
+        const dias = diasUteisEntre(inicio, os.data_migo);
+        return { os, dias, sla: slaPorPrioridade(os.prioridade) };
+      })
+      .filter(x => x.dias !== null && x.os.data_migo);
   }, [filteredOrdens]);
   const tcrMigo = osComMigo.length > 0
     ? (osComMigo.reduce((s, x) => s + x.dias, 0) / osComMigo.length).toFixed(1)
@@ -399,7 +413,10 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
   const cicloMigoMensal = useMemo(() => {
     const map = {};
     osComMigo.forEach(({ os, dias }) => {
-      const key = os.data_reserva.substring(0, 7);
+      const inicio = maiorDataInicioDocumento(os);
+      if (!inicio) return;
+      const iso = inicio.toISOString();
+      const key = iso.substring(0, 7);
       if (!map[key]) map[key] = { total: 0, dias: 0 };
       map[key].total++;
       map[key].dias += dias;
@@ -462,13 +479,14 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
       const tempoCicloSep = (os.data_separacao && os.separacao_concluida_em)
         ? Math.abs(differenceInDays(new Date(os.separacao_concluida_em), new Date(os.data_separacao)))
         : null;
-      const leadTimeReservaMigo = diasUteisEntre(os.data_reserva, os.data_migo);
+      const leadTimeReservaMigo = diasUteisEntre(maiorDataInicioDocumento(os), os.data_migo);
+      const leadTimeSLA = slaPorPrioridade(os.prioridade);
       const subcatNomes = (os.subcategorias_ids || [])
         .map(sid => subcategorias?.find(s => s.id === sid)?.nome)
         .filter(Boolean)
         .join(', ') || '—';
       const liderNome = pessoas?.find(p => p.id === os.lider_id)?.nome || '—';
-      return { os, almox, qtdSol, qtdSep, tempoEntrega, tempoCicloSep, leadTimeReservaMigo, subcatNomes, liderNome };
+      return { os, almox, qtdSol, qtdSep, tempoEntrega, tempoCicloSep, leadTimeReservaMigo, leadTimeSLA, subcatNomes, liderNome };
     });
   }, [filteredOrdens, almoxarifados, subcategorias, pessoas]);
 
@@ -1161,7 +1179,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
                     </tr>
                   </thead>
                   <tbody>
-                    {pageRows.map(({ os, almox, qtdSol, qtdSep, tempoEntrega, tempoCicloSep, leadTimeReservaMigo, subcatNomes, liderNome }, idx) => {
+                    {pageRows.map(({ os, almox, qtdSol, qtdSep, tempoEntrega, tempoCicloSep, leadTimeReservaMigo, leadTimeSLA, subcatNomes, liderNome }, idx) => {
                       let tempoColor = 'text-slate-600 dark:text-slate-400';
                       if (tempoEntrega !== null) {
                         if (tempoEntrega <= 0) tempoColor = 'text-green-600 font-semibold';
@@ -1226,10 +1244,11 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
                           <td className="px-2 py-2 text-center whitespace-nowrap">
                             {(() => {
                               if (leadTimeReservaMigo === null) return <span className="text-slate-400">—</span>;
-                              const cls = leadTimeReservaMigo <= META_LEAD_TIME_RESERVA_MIGO
+                              const cls = leadTimeReservaMigo <= leadTimeSLA
                                 ? 'text-green-600 font-semibold'
                                 : 'text-red-600 font-semibold';
-                              return <span className={cls} title={`Meta: até ${META_LEAD_TIME_RESERVA_MIGO} dias úteis`}>{leadTimeReservaMigo}d úteis</span>;
+                              const slaLabel = os.prioridade === 'urgente' ? 'Urgente: 1 dia útil' : 'Baixa/Média/Alta: 7 dias úteis';
+                              return <span className={cls} title={`SLA — ${slaLabel}`}>{leadTimeReservaMigo}d úteis</span>;
                             })()}
                           </td>
                           <td className="px-2 py-2 text-right whitespace-nowrap">
