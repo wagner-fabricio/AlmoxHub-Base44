@@ -42,10 +42,13 @@ function isEtapaCompletaExpedicao(etapaId, formData, fluxoEstrito = true) {
       return true;
     }
     case 2: {
-      // Separação: itens existem e todos separados + campos administrativos se há volumes
+      // Separação: itens existem e todos com SEPARAÇÃO TRATADA — total OU parcial
+      // (separação a menor ou a maior também conclui a etapa; o indicador "Parcial"
+      // continua sinalizando a divergência sem bloquear o fluxo).
       const itens = formData.itens_documento || [];
       if (itens.length === 0) return false;
-      if (!itens.every(i => i.separado)) return false;
+      const todosTratados = itens.every(i => i.separado || (i.quantidade_separada || 0) > 0);
+      if (!todosTratados) return false;
       if ((formData.volumes?.length || 0) > 0) {
         if (!formData.responsavel_separacao) return false;
         if (!formData.data_separacao) return false;
@@ -122,12 +125,13 @@ export function getPendenciasExpedicao(formData, fluxoEstrito = true) {
     if (itens.length === 0) {
       pendencias.push({ etapa: 2, tab: 'materiais', label: 'Adicione itens ao documento (aba Materiais)' });
     } else {
-      const naoSeparados = itens.filter(i => !i.separado);
-      if (naoSeparados.length > 0) {
+      // Pendentes = nem marcado como separado nem com quantidade separada informada
+      const naoTratados = itens.filter(i => !i.separado && !((i.quantidade_separada || 0) > 0));
+      if (naoTratados.length > 0) {
         pendencias.push({
           etapa: 2,
           tab: 'materiais',
-          label: `Marque ${naoSeparados.length} ${naoSeparados.length === 1 ? 'item' : 'itens'} como separado(s)`,
+          label: `Informe a quantidade separada de ${naoTratados.length} ${naoTratados.length === 1 ? 'item' : 'itens'} (parcial, total ou a maior)`,
         });
       }
     }
