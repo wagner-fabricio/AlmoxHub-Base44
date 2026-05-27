@@ -24,15 +24,17 @@ export default function ColaboradoresDisponiveis({ pessoas, regionais, almoxarif
     // Excluir quem está em sessão ativa
     if (pessoasEmSessao.has(p.id)) return false;
 
-    // Respeitar filtro de regional
-    if (filters?.regional && filters.regional !== 'all') {
-      if (p.regional_id !== filters.regional) return false;
-    }
+    // Respeitar filtro de regional (suporta string OU array)
+    const regionalFilter = Array.isArray(filters?.regional)
+      ? filters.regional
+      : (filters?.regional && filters.regional !== 'all' ? [filters.regional] : []);
+    if (regionalFilter.length > 0 && !regionalFilter.includes(p.regional_id)) return false;
 
-    // Respeitar filtro de almoxarifado
-    if (filters?.almoxarifado && filters.almoxarifado !== 'all') {
-      if (!(p.almoxarifados_ids || []).includes(filters.almoxarifado)) return false;
-    }
+    // Respeitar filtro de almoxarifado (suporta string OU array)
+    const almoxFilter = Array.isArray(filters?.almoxarifado)
+      ? filters.almoxarifado
+      : (filters?.almoxarifado && filters.almoxarifado !== 'all' ? [filters.almoxarifado] : []);
+    if (almoxFilter.length > 0 && !(p.almoxarifados_ids || []).some(aid => almoxFilter.includes(aid))) return false;
 
     // Respeitar filtro de pessoa específica
     if (filters?.pessoa_id) {
@@ -41,8 +43,6 @@ export default function ColaboradoresDisponiveis({ pessoas, regionais, almoxarif
 
     return true;
   }).sort((a, b) => a.nome.localeCompare(b.nome));
-
-  if (disponiveis.length === 0) return null;
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -56,6 +56,11 @@ export default function ColaboradoresDisponiveis({ pessoas, regionais, almoxarif
         </span>
       </div>
 
+      {disponiveis.length === 0 ? (
+        <div className="px-5 py-8 text-center text-sm text-slate-400 dark:text-slate-500">
+          Nenhum colaborador disponível no momento — todos estão em sessão ou fora dos filtros selecionados.
+        </div>
+      ) : (
       <div className="overflow-x-auto">
         <table className="w-full text-xs border-collapse">
           <thead>
@@ -136,6 +141,7 @@ export default function ColaboradoresDisponiveis({ pessoas, regionais, almoxarif
           </tbody>
         </table>
       </div>
+      )}
     </div>
   );
 }
