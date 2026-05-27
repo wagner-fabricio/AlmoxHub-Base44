@@ -55,10 +55,20 @@ export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxar
 
   if (!osEmPlay || osEmPlay.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 text-slate-400 dark:text-slate-500">
-        <Radio className="w-12 h-12 mb-4 opacity-40" />
-        <p className="text-lg font-medium">Nenhuma OS em andamento</p>
-        <p className="text-sm mt-1">Quando alguém der play em uma OS, ela aparecerá aqui</p>
+      <div className="space-y-6">
+        <div className="flex flex-col items-center justify-center py-16 text-slate-400 dark:text-slate-500">
+          <Radio className="w-12 h-12 mb-4 opacity-40" />
+          <p className="text-lg font-medium">Nenhuma OS em andamento</p>
+          <p className="text-sm mt-1">Quando alguém der play em uma OS, ela aparecerá aqui</p>
+        </div>
+        {/* Colaboradores Disponíveis aparece mesmo sem OS em play */}
+        <ColaboradoresDisponiveis
+          pessoas={pessoas}
+          regionais={regionais}
+          almoxarifados={almoxarifados}
+          pessoasEmSessao={new Set()}
+          filters={filters}
+        />
       </div>
     );
   }
