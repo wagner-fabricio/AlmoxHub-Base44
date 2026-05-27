@@ -1,9 +1,13 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LabelList
 } from 'recharts';
 import { HelpCircle } from 'lucide-react';
+import { useApp } from '@/components/contexts/AppContext';
+import {
+  carregarFeriados, buildFeriadosSet, diasUteisEntreComFeriados, contextoDaOS,
+} from '@/lib/diasUteis';
 
 const MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
@@ -25,25 +29,6 @@ const METRICAS = [
   { id: 'valoresOS', label: 'Valores OS' },
   { id: 'pesoOS', label: 'Peso OS' },
 ];
-
-// Calcula dias úteis entre duas datas (exclui sábados/domingos)
-function diasUteisEntre(start, end) {
-  if (!start || !end) return null;
-  const s = new Date(start);
-  const e = new Date(end);
-  if (isNaN(s.getTime()) || isNaN(e.getTime())) return null;
-  s.setHours(0, 0, 0, 0);
-  e.setHours(0, 0, 0, 0);
-  if (e < s) return null;
-  let count = 0;
-  const cur = new Date(s);
-  while (cur < e) {
-    cur.setDate(cur.getDate() + 1);
-    const dow = cur.getDay();
-    if (dow !== 0 && dow !== 6) count++;
-  }
-  return count;
-}
 
 // Retorna o valor de uma OS conforme a métrica selecionada e a fonte de itens/valores
 function valorMetrica(os, metrica, itensField, valorField) {
@@ -73,15 +58,30 @@ export default function LeadTimeReservasMensal({
 }) {
   const [metrica, setMetrica] = useState('quantItens');
   const currentYear = new Date().getFullYear();
+  const { almoxarifados, instalacoes } = useApp();
+  const [feriados, setFeriados] = useState([]);
+  useEffect(() => { carregarFeriados().then(setFeriados); }, []);
+
+  // Set de feriados aplicáveis por contexto (almoxarifado/UF/cidade), memoizado por chave
+  const feriadosSetPorOS = useMemo(() => {
+    const cache = new Map();
+    return (os) => {
+      const ctx = contextoDaOS(os, almoxarifados, instalacoes);
+      const key = `${ctx.almoxarifado_id || ''}|${ctx.estado}|${ctx.cidade}`;
+      if (!cache.has(key)) cache.set(key, buildFeriadosSet(feriados, ctx));
+      return cache.get(key);
+    };
+  }, [feriados, almoxarifados, instalacoes]);
 
   const { dadosMensais, totalNoPrazo, totalForaPrazo, total, percentualNoPrazo } = useMemo(() => {
     const baseOrdens = filterFn ? filteredOrdens.filter(filterFn) : filteredOrdens;
     // Início = maior data entre Data Reserva, Data Ressuprimento e Data Aprovação EPI
     // Fim = endDateField (Data MIGO)
+    // Dias úteis descontam sábados/domingos E feriados aplicáveis ao almoxarifado da OS.
     const reservasValidas = baseOrdens
       .map(os => {
         const inicio = maiorDataInicioDocumento(os);
-        const dias = diasUteisEntre(inicio, os[endDateField]);
+        const dias = diasUteisEntreComFeriados(inicio, os[endDateField], feriadosSetPorOS(os));
         return { os, dias, sla: slaPorPrioridade(os.prioridade) };
       })
       .filter(x => x.dias !== null && x.os[endDateField]);
@@ -112,7 +112,7 @@ export default function LeadTimeReservasMensal({
       total: t,
       percentualNoPrazo: pct
     };
-  }, [filteredOrdens, currentYear, metrica, endDateField, itensField, valorField, filterFn]);
+  }, [filteredOrdens, currentYear, metrica, endDateField, itensField, valorField, filterFn, feriadosSetPorOS]);
 
   // Formatadores conforme métrica
   const formatTickY = (v) => {
@@ -170,7 +170,7 @@ export default function LeadTimeReservasMensal({
               <strong className="block mb-1">Como o prazo é calculado:</strong>
               <span className="block mb-1.5">• <strong>Início:</strong> maior data entre <em>Data Reserva</em>, <em>Data Ressuprimento</em> e <em>Data Aprovação EPI</em> (aba Documento da OS).</span>
               <span className="block mb-1.5">• <strong>Fim:</strong> <em>Data MIGO</em>.</span>
-              <span className="block mb-1.5">• Apenas dias úteis (segunda a sexta) são contados.</span>
+              <span className="block mb-1.5">• Apenas dias úteis (segunda a sexta) são contados — sábados, domingos e <em>feriados cadastrados</em> (nacionais, estaduais, municipais ou locais conforme o almoxarifado da OS) são descontados.</span>
               <strong className="block mt-2 mb-1">SLA por prioridade:</strong>
               <span className="block">• Baixa, Média, Alta: <strong>7 dias úteis</strong></span>
               <span className="block">• Urgente: <strong>1 dia útil</strong></span>

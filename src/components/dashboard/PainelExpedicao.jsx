@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, Legend, LineChart, Line, ReferenceLine, LabelList,
@@ -14,6 +14,7 @@ import { SortableTableHead, useTableSort, useColumnFilters } from '@/components/
 import { useApp } from '@/components/contexts/AppContext';
 import OSFormModal from '@/components/os/OSFormModal';
 import LeadTimeReservasMensal from '@/components/dashboard/LeadTimeReservasMensal';
+import { carregarFeriados, buildFeriadosSet, diasUteisEntreComFeriados, contextoDaOS } from '@/lib/diasUteis';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const safeFormat = (d) => {
@@ -22,24 +23,9 @@ const safeFormat = (d) => {
   return isNaN(dt.getTime()) ? '—' : format(dt, 'dd/MM/yy');
 };
 
-// Calcula dias úteis entre duas datas (exclui sábados/domingos)
-const diasUteisEntre = (start, end) => {
-  if (!start || !end) return null;
-  const s = new Date(start);
-  const e = new Date(end);
-  if (isNaN(s.getTime()) || isNaN(e.getTime())) return null;
-  s.setHours(0, 0, 0, 0);
-  e.setHours(0, 0, 0, 0);
-  if (e < s) return null;
-  let count = 0;
-  const cur = new Date(s);
-  while (cur < e) {
-    cur.setDate(cur.getDate() + 1);
-    const dow = cur.getDay();
-    if (dow !== 0 && dow !== 6) count++;
-  }
-  return count;
-};
+// Calcula dias úteis entre duas datas considerando feriados aplicáveis ao contexto da OS
+// (sábados/domingos + feriados nacionais/estaduais/municipais/locais cadastrados).
+const diasUteisEntre = (start, end, feriadosSet = null) => diasUteisEntreComFeriados(start, end, feriadosSet);
 
 // Início do prazo de atendimento = maior data entre Reserva, Ressuprimento e Aprovação EPI (aba Documento da OS)
 const maiorDataInicioDocumento = (os) => {
@@ -263,11 +249,26 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
   const [formInitialMode, setFormInitialMode] = useState('edit');
   const [showHelp, setShowHelp] = useState(false);
   const [tabelaPage, setTabelaPage] = useState(1);
+  const [feriados, setFeriados] = useState([]);
   const TABELA_PAGE_SIZE = 200;
 
   // Use AppContext data — no extra requests needed
   const instalacoes = ctxInstalacoes || [];
   const projetos = ctxProjetos || [];
+
+  // Carrega feriados (cacheado em memória) para usar no cálculo de dias úteis
+  useEffect(() => { carregarFeriados().then(setFeriados); }, []);
+
+  // Helper para obter o Set de feriados aplicáveis a uma OS específica (memoizado por chave)
+  const feriadosSetPorOS = useMemo(() => {
+    const cache = new Map();
+    return (os) => {
+      const ctx = contextoDaOS(os, almoxarifados, instalacoes);
+      const key = `${ctx.almoxarifado_id || ''}|${ctx.estado}|${ctx.cidade}`;
+      if (!cache.has(key)) cache.set(key, buildFeriadosSet(feriados, ctx));
+      return cache.get(key);
+    };
+  }, [feriados, almoxarifados, instalacoes]);
 
   // ── OTIF ──────────────────────────────────────────────────────────────────
   const { otRate, ifRate, otifRate, otCount, ifCount, otifCount, totalOT, totalIF, totalOTIF, entregues, isOnTime, isInFull } =
@@ -286,15 +287,16 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
     : null;
 
   // ── Lead Time Reservas: dias úteis entre maior(Reserva, Ressuprimento, Aprov.EPI) e data_migo ────────
+  // Desconta sábados, domingos E feriados (nacional/estadual/municipal/local) aplicáveis ao almoxarifado da OS.
   const osComMigo = useMemo(() => {
     return filteredOrdens
       .map(os => {
         const inicio = maiorDataInicioDocumento(os);
-        const dias = diasUteisEntre(inicio, os.data_migo);
+        const dias = diasUteisEntre(inicio, os.data_migo, feriadosSetPorOS(os));
         return { os, dias, sla: slaPorPrioridade(os.prioridade) };
       })
       .filter(x => x.dias !== null && x.os.data_migo);
-  }, [filteredOrdens]);
+  }, [filteredOrdens, feriadosSetPorOS]);
   const tcrMigo = osComMigo.length > 0
     ? (osComMigo.reduce((s, x) => s + x.dias, 0) / osComMigo.length).toFixed(1)
     : null;
@@ -479,7 +481,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
       const tempoCicloSep = (os.data_separacao && os.separacao_concluida_em)
         ? Math.abs(differenceInDays(new Date(os.separacao_concluida_em), new Date(os.data_separacao)))
         : null;
-      const leadTimeReservaMigo = diasUteisEntre(maiorDataInicioDocumento(os), os.data_migo);
+      const leadTimeReservaMigo = diasUteisEntre(maiorDataInicioDocumento(os), os.data_migo, feriadosSetPorOS(os));
       const leadTimeSLA = slaPorPrioridade(os.prioridade);
       const subcatNomes = (os.subcategorias_ids || [])
         .map(sid => subcategorias?.find(s => s.id === sid)?.nome)
@@ -488,7 +490,7 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
       const liderNome = pessoas?.find(p => p.id === os.lider_id)?.nome || '—';
       return { os, almox, qtdSol, qtdSep, tempoEntrega, tempoCicloSep, leadTimeReservaMigo, leadTimeSLA, subcatNomes, liderNome };
     });
-  }, [filteredOrdens, almoxarifados, subcategorias, pessoas]);
+  }, [filteredOrdens, almoxarifados, subcategorias, pessoas, feriadosSetPorOS]);
 
   const osTabelaFiltrada = useMemo(() => {
     let rows = [...osTabela];
