@@ -45,6 +45,7 @@ import {
 import OSHeaderIconButton from './OSHeaderIconButton';
 import OSHeaderTimeSheetButton from './OSHeaderTimeSheetButton';
 import OSComentariosTab from './OSComentariosTab';
+import OSOcorrenciasExpedicaoTab from './OSOcorrenciasExpedicaoTab';
 import OSHistoricoTab from './OSHistoricoTab';
 import OSGuiaFluxoPainel from './OSGuiaFluxoPainel';
 import OSIndicadoresPainel from './OSIndicadoresPainel';
@@ -73,6 +74,11 @@ const EMPTY_FORM = {
   responsavel_recebimento: '', problema_recebimento: null, problemas_recebimento_ids: [],
   resumo_pendencias: '', acoes_acompanhamento: '', como_foi_solucionado: '',
   data_solucao: '', problemas_anexos: [],
+  houve_ocorrencia_expedicao: false, problemas_expedicao_ids: [],
+  responsavel_relato_expedicao: '', data_relato_expedicao: '',
+  resumo_ocorrencia_expedicao: '', acoes_acompanhamento_expedicao: '',
+  como_foi_solucionado_expedicao: '', data_solucao_expedicao: '',
+  ocorrencias_expedicao_anexos: [],
   fluxo_recebimento: { etapa_atual: 1, xml_importado: false, conferencia_manual_completa: false, validacao_divergencias_completa: false, armazenagem_completa: false },
   fluxo_expedicao: { etapa_atual: 1, solicitacao_completa: true, solicitacao_data: new Date().toISOString(), separacao_completa: false, preparacao_completa: false, envio_completo: false, entrega_completa: false },
   is_global: false
@@ -136,6 +142,7 @@ export default function OSFormModal({
   const [prazoError, setPrazoError] = useState('');
   const [importingXML, setImportingXML] = useState(false);
   const [problemasRecebimento, setProblemasRecebimento] = useState([]);
+  const [problemasExpedicao, setProblemasExpedicao] = useState([]);
   const [equipes, setEquipes] = useState([]);
   const isMountedRef = React.useRef(true);
   const initializedForRef = React.useRef(null); // tracks which os.id (or 'new') was last initialized
@@ -175,12 +182,14 @@ export default function OSFormModal({
     isMountedRef.current = true;
     const loadData = async () => {
       try {
-        const [problemas, equipesData] = await Promise.all([
+        const [problemas, problemasExp, equipesData] = await Promise.all([
           base44.entities.ProblemaRecebimento.list('-descricao_resumida'),
+          base44.entities.ProblemaExpedicao.list('-descricao_resumida'),
           base44.entities.Equipe.filter({ ativa: true })
         ]);
         if (isMountedRef.current) {
           setProblemasRecebimento(problemas);
+          setProblemasExpedicao(problemasExp);
           setEquipes(equipesData);
         }
       } catch (error) { console.error('Erro ao carregar dados:', error); }
@@ -274,6 +283,15 @@ export default function OSFormModal({
         como_foi_solucionado: os.como_foi_solucionado || '',
         data_solucao: formatDateForInput(os.data_solucao),
         problemas_anexos: os.problemas_anexos || [],
+        houve_ocorrencia_expedicao: os.houve_ocorrencia_expedicao || false,
+        problemas_expedicao_ids: os.problemas_expedicao_ids || [],
+        responsavel_relato_expedicao: os.responsavel_relato_expedicao || '',
+        data_relato_expedicao: formatDateForInput(os.data_relato_expedicao),
+        resumo_ocorrencia_expedicao: os.resumo_ocorrencia_expedicao || '',
+        acoes_acompanhamento_expedicao: os.acoes_acompanhamento_expedicao || '',
+        como_foi_solucionado_expedicao: os.como_foi_solucionado_expedicao || '',
+        data_solucao_expedicao: formatDateForInput(os.data_solucao_expedicao),
+        ocorrencias_expedicao_anexos: os.ocorrencias_expedicao_anexos || [],
         fluxo_recebimento: os.fluxo_recebimento || EMPTY_FORM.fluxo_recebimento,
         fluxo_expedicao: os.fluxo_expedicao || { ...EMPTY_FORM.fluxo_expedicao, solicitacao_data: os.created_date || new Date().toISOString() },
         codigo: os.codigo || '', progresso: os.progresso || 0,
@@ -826,6 +844,7 @@ export default function OSFormModal({
                 {isAtendimentoCategory && (<TabsTrigger value="materiais" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Materiais ({formData.itens_documento?.length || 0})</TabsTrigger>)}
                 {usaFluxoExpedicao && (<>
                   <TabsTrigger value="documento" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Documento<PendBadge tab="documento" /></TabsTrigger>
+                  <TabsTrigger value="ocorrencias" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Ocorrências</TabsTrigger>
                   <TabsTrigger value="materiais" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Materiais<PendBadge tab="materiais" /></TabsTrigger>
                   <TabsTrigger value="volumes" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Volumes<PendBadge tab="volumes" /></TabsTrigger>
                   <TabsTrigger value="expedicao" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Expedição<PendBadge tab="expedicao" /></TabsTrigger>
@@ -1225,6 +1244,20 @@ export default function OSFormModal({
                       </div>
                     </div>
                   </div>
+                </TabsContent>
+              )}
+
+              {usaFluxoExpedicao && (
+                <TabsContent value="ocorrencias" className="space-y-6">
+                  {loadedFormTabs.has('ocorrencias') && (
+                    <OSOcorrenciasExpedicaoTab
+                      formData={formData}
+                      setFormData={setFormData}
+                      problemasExpedicao={problemasExpedicao}
+                      onFileUpload={handleFileUpload}
+                      onRemoveFile={removeFile}
+                    />
+                  )}
                 </TabsContent>
               )}
 
