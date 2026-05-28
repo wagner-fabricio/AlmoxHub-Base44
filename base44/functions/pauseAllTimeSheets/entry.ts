@@ -6,7 +6,7 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const TIME_BUDGET_MS = 150000;
 
 // Wrapper com retry e backoff exponencial + jitter para rate limit
-async function withRetry(operation, maxRetries = 4) {
+async function withRetry(operation, maxRetries = 6) {
   let lastError;
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
@@ -19,9 +19,9 @@ async function withRetry(operation, maxRetries = 4) {
       if (!isRateLimit || attempt === maxRetries - 1) {
         throw error;
       }
-      // Backoff: 800ms, 1.6s, 3.2s + jitter
-      const base = Math.pow(2, attempt) * 800;
-      const jitter = Math.floor(Math.random() * 400);
+      // Backoff mais agressivo: 1.5s, 3s, 6s, 12s, 24s + jitter
+      const base = Math.pow(2, attempt) * 1500;
+      const jitter = Math.floor(Math.random() * 600);
       await sleep(base + jitter);
     }
   }
@@ -101,43 +101,65 @@ Deno.serve(async (req) => {
 
     const agora = new Date().toISOString();
     const sucessos = [];
-    const falhas = [];
+    let falhas = [];
     let interrompido = false;
 
-    // Processar em pares (concorrência 2) para limitar rate limit
-    const CONCURRENCY = 2;
-    for (let i = 0; i < osEmPlay.length; i += CONCURRENCY) {
-      // Verifica budget de tempo antes de iniciar próximo lote
+    // Processar SEQUENCIALMENTE (concorrência 1) com pequeno delay entre OS
+    // para evitar rate limit. Cada OS faz ~3-4 chamadas internas.
+    const DELAY_ENTRE_OS_MS = 250;
+    for (let i = 0; i < osEmPlay.length; i++) {
       if (Date.now() - inicioExecucao > TIME_BUDGET_MS) {
         interrompido = true;
         const restantes = osEmPlay.slice(i);
-        restantes.forEach(os => falhas.push({ os_id: os.id, codigo: os.codigo, erro: 'time_budget_exceeded' }));
+        restantes.forEach(os => falhas.push({ os: os, erro: 'time_budget_exceeded' }));
         break;
       }
+      try {
+        const r = await processarOS(base44, osEmPlay[i], agora);
+        sucessos.push(r);
+      } catch (err) {
+        falhas.push({ os: osEmPlay[i], erro: err?.message || String(err) });
+      }
+      if (i < osEmPlay.length - 1) await sleep(DELAY_ENTRE_OS_MS);
+    }
 
-      const lote = osEmPlay.slice(i, i + CONCURRENCY);
-      const resultados = await Promise.allSettled(lote.map(os => processarOS(base44, os, agora)));
-      resultados.forEach((r, idx) => {
-        if (r.status === 'fulfilled') {
-          sucessos.push(r.value);
-        } else {
-          falhas.push({
-            os_id: lote[idx].id,
-            codigo: lote[idx].codigo,
-            erro: r.reason?.message || String(r.reason)
-          });
+    // Segunda passada: retentar OS que falharam por rate limit (uma vez, com delay maior)
+    const recuperados = [];
+    const falhasFinais = [];
+    if (falhas.length > 0 && Date.now() - inicioExecucao < TIME_BUDGET_MS - 10000) {
+      await sleep(3000); // pausa antes de retentar
+      for (const f of falhas) {
+        const msg = (f.erro || '').toLowerCase();
+        const ehRateLimit = msg.includes('rate limit') || msg.includes('429') || msg.includes('too many');
+        if (!ehRateLimit || f.erro === 'time_budget_exceeded') {
+          falhasFinais.push({ os_id: f.os.id, codigo: f.os.codigo, erro: f.erro });
+          continue;
         }
-      });
+        if (Date.now() - inicioExecucao > TIME_BUDGET_MS) {
+          falhasFinais.push({ os_id: f.os.id, codigo: f.os.codigo, erro: 'time_budget_exceeded' });
+          continue;
+        }
+        try {
+          const r = await processarOS(base44, f.os, agora);
+          recuperados.push(r);
+        } catch (err) {
+          falhasFinais.push({ os_id: f.os.id, codigo: f.os.codigo, erro: err?.message || String(err) });
+        }
+        await sleep(500);
+      }
+    } else {
+      falhas.forEach(f => falhasFinais.push({ os_id: f.os.id, codigo: f.os.codigo, erro: f.erro }));
     }
 
     return Response.json({
       success: true,
       total_os_em_play: osEmPlay.length,
-      total_os_pausadas: sucessos.length,
-      total_falhas: falhas.length,
+      total_os_pausadas: sucessos.length + recuperados.length,
+      total_falhas: falhasFinais.length,
+      recuperados_na_segunda_passada: recuperados.length,
       interrompido_por_tempo: interrompido,
       duracao_ms: Date.now() - inicioExecucao,
-      falhas: falhas.slice(0, 20) // limita resposta
+      falhas: falhasFinais.slice(0, 20)
     });
 
   } catch (error) {
