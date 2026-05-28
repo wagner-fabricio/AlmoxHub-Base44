@@ -326,9 +326,12 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
         // For 4/page reduce starting font slightly to avoid overflow
         const midFsMax  = n === 4 ? FSS * 0.82 : FSS;
         const midAvailH = midEnd - midStart - 3;
+        // Code font must fit OS code in ONE line within dataW
+        const osCodeText = os?.codigo || '-';
+        const codeFsMax  = fitFont(osCodeText, dataW, FSC, 5);
         let midFs = midFsMax;
         for (let testFs = midFsMax; testFs >= 5; testFs -= 0.5) {
-          const codeFsT = Math.min(FSC, testFs * 1.35);
+          const codeFsT = Math.min(codeFsMax, testFs * 1.35);
           let h = 0;
           midLines.forEach(ln => {
             if (ln.text === '---divider---') { h += 2; return; }
@@ -338,7 +341,7 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
           });
           if (h <= midAvailH) { midFs = testFs; break; }
         }
-        const midCodeFs = Math.min(FSC, midFs * 1.35);
+        const midCodeFs = Math.min(codeFsMax, midFs * 1.35);
 
         midLines.forEach(ln => {
           if (my > midEnd) return;
