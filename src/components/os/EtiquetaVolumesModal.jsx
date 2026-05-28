@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Tag, Package } from 'lucide-react';
+import { Loader2, Tag, Package, Printer, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import JsBarcode from 'jsbarcode';
 import QRCode from 'qrcode';
+import { drawLabelCorreios } from './EtiquetaCorreios';
 
 const ISO_SYMBOLS = [
   { id: 'fragil',           label: 'Frágil',              description: 'Conteúdo quebrável — manuseio cuidadoso' },
@@ -81,6 +82,8 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
   const [selectedSymbols, setSelectedSymbols] = useState([]);
   const [labelsPerPage, setLabelsPerPage]     = useState('2');
   const [generating, setGenerating]           = useState(false);
+  const [modelo, setModelo]                   = useState('transportadora'); // 'transportadora' | 'correios'
+  const [papel, setPapel]                     = useState('a4');             // 'a4' | 'termica'
 
   const instalacaoOrigem  = instalacoes?.find(i => i?.id === os?.instalacao_origem_id);
   const instalacaoDestino = instalacoes?.find(i => i?.id === os?.instalacao_destino_id);
@@ -102,28 +105,34 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
     ].filter(Boolean).join(', ');
   };
 
-  const handleGenerate = async () => {
-    if (!os?.volumes?.length) return;
-    setGenerating(true);
+  const buildPdf = async () => {
+    const symImages = {};
+    for (const sid of selectedSymbols)
+      if (SYMBOL_SVGS[sid]) symImages[sid] = await svgToPng(SYMBOL_SVGS[sid], 280);
+
+    // Pre-generate QR code (same link as "compartilhar" button)
+    const osUrl = `${window.location.origin}/OrdensServico?os_id=${os.id}`;
+    let qrDataUrl = null;
     try {
-      const symImages = {};
-      for (const sid of selectedSymbols)
-        if (SYMBOL_SVGS[sid]) symImages[sid] = await svgToPng(SYMBOL_SVGS[sid], 280);
+      qrDataUrl = await QRCode.toDataURL(osUrl, { width: 300, margin: 1, errorCorrectionLevel: 'M' });
+    } catch(e) { console.warn('QR generation failed', e); }
 
-      // Pre-generate QR code (same link as "compartilhar" button)
-      const osUrl = `${window.location.origin}/OrdensServico?os_id=${os.id}`;
-      let qrDataUrl = null;
-      try {
-        qrDataUrl = await QRCode.toDataURL(osUrl, { width: 300, margin: 1, errorCorrectionLevel: 'M' });
-      } catch(e) { console.warn('QR generation failed', e); }
-
-      const n    = parseInt(labelsPerPage);
-      const pdf  = new jsPDF('p', 'mm', 'a4');
-      const PW = 210, PH = 297, MG = 5, GAP = 2;
-      const grids = { 1:[1,1], 2:[1,2], 4:[2,2], 8:[2,4] };
-      const [cols, rows] = grids[n];
-      const LW = (PW - 2*MG - (cols-1)*GAP) / cols;
-      const LH = (PH - 2*MG - (rows-1)*GAP) / rows;
+    // ─── Configuração de papel e grade ───
+    // Térmica: 100×150 mm, 1 etiqueta por página, margem de 5 mm
+    // A4: usa labelsPerPage
+    const isTermica = papel === 'termica';
+    const n = isTermica ? 1 : parseInt(labelsPerPage);
+    const pdf = isTermica
+      ? new jsPDF({ orientation: 'p', unit: 'mm', format: [100, 150] })
+      : new jsPDF('p', 'mm', 'a4');
+    const PW = isTermica ? 100 : 210;
+    const PH = isTermica ? 150 : 297;
+    const MG = 5;
+    const GAP = isTermica ? 0 : 2;
+    const grids = { 1:[1,1], 2:[1,2], 4:[2,2], 8:[2,4] };
+    const [cols, rows] = grids[n];
+    const LW = (PW - 2*MG - (cols-1)*GAP) / cols;
+    const LH = (PH - 2*MG - (rows-1)*GAP) / rows;
 
       // ── Returns the largest fontSize ≤ maxFs where text fits in maxW ──
       const fitFont = (text, maxW, maxFs, minFs = 4) => {
@@ -457,15 +466,53 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
         }
       };
 
-      expandedVolumes.forEach((vol, vIdx) => {
-        const pos = vIdx % n, col = pos % cols, row = Math.floor(pos / cols);
-        if (vIdx > 0 && pos === 0) pdf.addPage();
-        drawLabel(MG + col*(LW+GAP), MG + row*(LH+GAP), LW, LH, vol, vIdx, expandedVolumes.length);
-      });
+    expandedVolumes.forEach((vol, vIdx) => {
+      const pos = vIdx % n, col = pos % cols, row = Math.floor(pos / cols);
+      if (vIdx > 0 && pos === 0) pdf.addPage();
+      const lx = MG + col*(LW+GAP);
+      const ly = MG + row*(LH+GAP);
+      if (modelo === 'correios') {
+        drawLabelCorreios(pdf, lx, ly, LW, LH, {
+          os, vol, vIdx, vTotal: expandedVolumes.length,
+          instalacaoOrigem, instalacaoDestino, almoxarifado,
+          totalWeight, totalM3,
+        });
+      } else {
+        drawLabel(lx, ly, LW, LH, vol, vIdx, expandedVolumes.length);
+      }
+    });
 
-      pdf.save(`Etiquetas_${os?.codigo||'OS'}.pdf`);
-    } catch(err) {
+    return pdf;
+  };
+
+  const handleDownload = async () => {
+    if (!os?.volumes?.length) return;
+    setGenerating(true);
+    try {
+      const pdf = await buildPdf();
+      pdf.save(`Etiquetas_${os?.codigo || 'OS'}.pdf`);
+    } catch (err) {
       console.error('Erro ao gerar etiquetas:', err);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handlePrint = async () => {
+    if (!os?.volumes?.length) return;
+    setGenerating(true);
+    try {
+      const pdf = await buildPdf();
+      const blobUrl = pdf.output('bloburl');
+      // Abre em nova janela e dispara o print após o PDF carregar
+      const win = window.open(blobUrl, '_blank');
+      if (win) {
+        win.addEventListener('load', () => {
+          try { win.focus(); win.print(); } catch (e) { /* ignore */ }
+        });
+      }
+    } catch (err) {
+      console.error('Erro ao gerar etiquetas para impressão:', err);
     } finally {
       setGenerating(false);
     }
@@ -495,17 +542,46 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm font-semibold">Etiquetas por Folha A4</Label>
-            <Select value={labelsPerPage} onValueChange={setLabelsPerPage}>
+            <Label className="text-sm font-semibold">Modelo de Etiqueta</Label>
+            <Select value={modelo} onValueChange={setModelo}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="1">1 por folha — máximo detalhe</SelectItem>
-                <SelectItem value="2">2 por folha</SelectItem>
-                <SelectItem value="4">4 por folha</SelectItem>
-                <SelectItem value="8">8 por folha — compacta</SelectItem>
+                <SelectItem value="transportadora">Etiqueta para Transportadora</SelectItem>
+                <SelectItem value="correios">Etiqueta para Correios</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              {modelo === 'correios'
+                ? 'Destinatário e remetente em blocos separados, com código de barras do CEP (Code 128C).'
+                : 'Modelo completo com QR, código de barras da OS, símbolos ISO e dados operacionais.'}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold">Papel</Label>
+            <Select value={papel} onValueChange={setPapel}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="a4">A4 (210 × 297 mm)</SelectItem>
+                <SelectItem value="termica">Térmica 100 × 150 mm</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          {papel === 'a4' && (
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Etiquetas por Folha A4</Label>
+              <Select value={labelsPerPage} onValueChange={setLabelsPerPage}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 por folha — máximo detalhe</SelectItem>
+                  <SelectItem value="2">2 por folha</SelectItem>
+                  <SelectItem value="4">4 por folha</SelectItem>
+                  <SelectItem value="8">8 por folha — compacta</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label className="text-sm font-semibold">Símbolos ISO 780 — Manuseio e Transporte</Label>
@@ -528,12 +604,28 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
           </div>
         </div>
 
-        <div className="flex gap-3 pt-3 border-t mt-2">
-          <Button variant="outline" onClick={onClose} className="flex-1">Cancelar</Button>
-          <Button onClick={handleGenerate} disabled={generating || totalLabels === 0} className="flex-1" style={{ backgroundColor: '#0000FF' }}>
+        <div className="flex flex-col sm:flex-row gap-3 pt-3 border-t mt-2">
+          <Button variant="outline" onClick={onClose} className="sm:flex-1">Cancelar</Button>
+          <Button
+            variant="outline"
+            onClick={handlePrint}
+            disabled={generating || totalLabels === 0}
+            className="sm:flex-1"
+          >
             {generating
               ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Gerando...</>
-              : <><Tag className="w-4 h-4 mr-2" />Gerar {totalLabels} Etiqueta{totalLabels !== 1 ? 's' : ''}</>
+              : <><Printer className="w-4 h-4 mr-2" />Imprimir</>
+            }
+          </Button>
+          <Button
+            onClick={handleDownload}
+            disabled={generating || totalLabels === 0}
+            className="sm:flex-1"
+            style={{ backgroundColor: '#0000FF' }}
+          >
+            {generating
+              ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Gerando...</>
+              : <><Download className="w-4 h-4 mr-2" />Baixar PDF</>
             }
           </Button>
         </div>
