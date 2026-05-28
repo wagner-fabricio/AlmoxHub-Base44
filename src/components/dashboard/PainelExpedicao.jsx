@@ -243,7 +243,7 @@ function HelpModalExpedicao({ open, onClose }) {
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
-export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToolbar = false }) {
+export default function PainelExpedicao({ filteredOrdens, almoxarifados, problemasExpedicao = [], hideToolbar = false }) {
   const { regionais, categorias, subcategorias, pessoas, instalacoes: ctxInstalacoes, projetos: ctxProjetos } = useApp();
   const [selectedOS, setSelectedOS] = useState(null);
   const [formInitialMode, setFormInitialMode] = useState('edit');
@@ -589,6 +589,30 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
   };
 
   const temDados = entregues.length > 0;
+
+  // ── Chart: Ranking de Principais Problemas de Expedição ───────────────────
+  const osComOcorrenciaArr = useMemo(
+    () => filteredOrdens.filter(os => os.houve_ocorrencia_expedicao === true),
+    [filteredOrdens]
+  );
+  const problemasExpChartData = useMemo(() => {
+    const pMap = {};
+    (problemasExpedicao || []).forEach(p => { pMap[p.id] = p; });
+    const contagem = {};
+    osComOcorrenciaArr.forEach(os => {
+      (os.problemas_expedicao_ids || []).forEach(pid => {
+        const p = pMap[pid];
+        if (p) {
+          const nome = p.descricao_resumida || p.nome;
+          contagem[nome] = (contagem[nome] || 0) + 1;
+        }
+      });
+    });
+    return Object.entries(contagem)
+      .filter(([n]) => n && n !== 'undefined')
+      .map(([nome, quantidade]) => ({ nome, quantidade }))
+      .sort((a, b) => b.quantidade - a.quantidade);
+  }, [osComOcorrenciaArr, problemasExpedicao]);
 
   return (
     <>
@@ -1075,6 +1099,60 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, hideToo
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+        )}
+      </div>
+
+      {/* ── Ranking de Principais Problemas de Expedição ── */}
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+        <SectionHeader title="Ranking de Principais Problemas de Expedição" />
+        {problemasExpChartData.length === 0 ? (
+          <div className="h-40 flex items-center justify-center text-green-500 text-sm font-medium">
+            ✓ Nenhum problema registrado
+          </div>
+        ) : (
+          <>
+            <ResponsiveContainer width="100%" height={Math.max(240, problemasExpChartData.length * 56)}>
+              <BarChart data={problemasExpChartData} layout="vertical"
+                margin={{ top: 5, right: 60, left: 10, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
+                <XAxis type="number" tick={{ fill: '#64748b', fontSize: 11 }} allowDecimals={false} />
+                <YAxis type="category" dataKey="nome" width={220}
+                  tick={({ x, y, payload }) => {
+                    const words = payload.value.split(' ');
+                    const lines = [];
+                    let current = '';
+                    words.forEach(word => {
+                      const test = current ? `${current} ${word}` : word;
+                      if (test.length > 28 && current) { lines.push(current); current = word; }
+                      else { current = test; }
+                    });
+                    if (current) lines.push(current);
+                    return (
+                      <g transform={`translate(${x},${y})`}>
+                        {lines.map((line, i) => (
+                          <text key={i} x={0} y={0} dy={i * 14 - ((lines.length - 1) * 7)} textAnchor="end"
+                            fill="#64748b" fontSize={11}>{line}</text>
+                        ))}
+                      </g>
+                    );
+                  }} />
+                <Tooltip contentStyle={TOOLTIP_STYLE} formatter={v => [v, 'Ocorrências']} />
+                <Bar dataKey="quantidade" radius={[0, 4, 4, 0]} fill="#0000FF">
+                  {problemasExpChartData.map((_, i) => {
+                    const t = problemasExpChartData.length;
+                    const ratio = i / t;
+                    const l = Math.round(80 - ratio * 50);
+                    return <Cell key={i} fill={`hsl(220, 80%, ${l}%)`} />;
+                  })}
+                  <LabelList dataKey="quantidade" position="right"
+                    style={{ fill: '#475569', fontSize: 11, fontWeight: 600 }} />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+            <p className="text-xs text-slate-400 mt-2">
+              Total de OS com ocorrências: {osComOcorrenciaArr.length}
+            </p>
+          </>
         )}
       </div>
 

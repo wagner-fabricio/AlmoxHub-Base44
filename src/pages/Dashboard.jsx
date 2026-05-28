@@ -43,6 +43,7 @@ export default function Dashboard() {
   const { regionais, categorias, subcategorias, pessoas, ordens, almoxarifados, instalacoes, loading: ctxLoading } = useApp();
   const [loading, setLoading] = useState(true);
   const [problemasRecebimento, setProblemasRecebimento] = useState([]);
+  const [problemasExpedicao, setProblemasExpedicao] = useState([]);
   const [mapFilters, setMapFilters] = useState({
     usina: true,
     subestacao: true,
@@ -93,12 +94,14 @@ export default function Dashboard() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [user, problemasData] = await Promise.all([
+      const [user, problemasData, problemasExpData] = await Promise.all([
         base44.auth.me(),
         base44.entities.ProblemaRecebimento.list(),
+        base44.entities.ProblemaExpedicao.list(),
       ]);
       setCurrentUser(user);
       setProblemasRecebimento(problemasData);
+      setProblemasExpedicao(problemasExpData);
 
       if (user.filtros_preferidos?.Dashboard) {
         setFilters(user.filtros_preferidos.Dashboard);
@@ -1406,6 +1409,7 @@ export default function Dashboard() {
                 <PainelExpedicao
                   filteredOrdens={filteredOrdens}
                   almoxarifados={almoxarifados}
+                  problemasExpedicao={problemasExpedicao}
                   hideToolbar={fullscreen}
                 />
               </TabsContent>
