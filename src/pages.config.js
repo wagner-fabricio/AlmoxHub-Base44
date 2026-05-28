@@ -74,6 +74,7 @@ import OrdensServico from './pages/OrdensServico';
 import PendingApproval from './pages/PendingApproval';
 import Pessoas from './pages/Pessoas';
 import PortalTitular from './pages/PortalTitular';
+import ProblemasExpedicao from './pages/ProblemasExpedicao';
 import ProblemasRecebimento from './pages/ProblemasRecebimento';
 import Projetos from './pages/Projetos';
 import Regionais from './pages/Regionais';
@@ -113,6 +114,7 @@ export const PAGES = {
     "PendingApproval": PendingApproval,
     "Pessoas": Pessoas,
     "PortalTitular": PortalTitular,
+    "ProblemasExpedicao": ProblemasExpedicao,
     "ProblemasRecebimento": ProblemasRecebimento,
     "Projetos": Projetos,
     "Regionais": Regionais,

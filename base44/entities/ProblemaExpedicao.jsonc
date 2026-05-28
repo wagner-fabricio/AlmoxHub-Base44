@@ -1,0 +1,40 @@
+{
+  "name": "ProblemaExpedicao",
+  "type": "object",
+  "properties": {
+    "descricao_resumida": {
+      "type": "string",
+      "description": "Descri\u00e7\u00e3o resumida do problema de expedi\u00e7\u00e3o"
+    },
+    "explicacao": {
+      "type": "string",
+      "description": "Explica\u00e7\u00e3o detalhada do problema"
+    }
+  },
+  "required": [
+    "descricao_resumida",
+    "explicacao"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

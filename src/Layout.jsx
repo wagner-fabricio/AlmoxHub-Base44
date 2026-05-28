@@ -58,6 +58,7 @@ const menuItems = [
   { name: 'Veículos Axia', icon: Truck, page: 'VeiculosAxia' },
   { name: 'Transportadoras', icon: Building2, page: 'Transportadoras' },
   { name: 'Delegação Permissões', icon: Shield, page: 'DelegacaoPermissoes' },
+  { name: 'Problemas Expedição', icon: Shield, page: 'ProblemasExpedicao', gestorOnly: true },
   { name: 'Problemas Recebimento', icon: Shield, page: 'ProblemasRecebimento', gestorOnly: true },
   { name: 'Documentação', icon: BookOpen, page: 'Documentacao', gestorOnly: true },
 
