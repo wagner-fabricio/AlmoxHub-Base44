@@ -73,6 +73,13 @@ function isEtapaCompletaExpedicao(etapaId, formData, fluxoEstrito = true) {
   }
 }
 
+// Ocorrência (etapa transversal): por padrão concluída; só "abre" quando o usuário
+// marca "Houve um problema? = Sim" na aba Ocorrências e ainda não informou a data de solução.
+export function isOcorrenciaExpedicaoCompleta(formData) {
+  if (formData.houve_ocorrencia_expedicao !== true) return true;
+  return !!formData.data_solucao_expedicao;
+}
+
 export function getEtapasExpedicao(formData, fluxoEstrito = true) {
   const fluxo = formData.fluxo_expedicao || {};
   const etapas = [
@@ -81,11 +88,14 @@ export function getEtapasExpedicao(formData, fluxoEstrito = true) {
     { id: 3, key: 'preparacao',  label: 'Preparação',  completa: isEtapaCompletaExpedicao(3, formData, fluxoEstrito), data: fluxo.preparacao_data },
     { id: 4, key: 'envio',       label: 'Envio',       completa: isEtapaCompletaExpedicao(4, formData, fluxoEstrito), data: fluxo.envio_data },
     { id: 5, key: 'entrega',     label: 'Entrega',     completa: isEtapaCompletaExpedicao(5, formData, fluxoEstrito), data: fluxo.entrega_data },
+    { id: 6, key: 'ocorrencia',  label: 'Ocorrências', completa: isOcorrenciaExpedicaoCompleta(formData), data: formData.data_relato_expedicao },
   ];
 
-  // Etapa atual = primeira não completa, ou 5 se tudo completo
+  // Etapa atual = primeira não completa, ou 6 (última) se tudo completo.
+  // Como "Ocorrências" é a última e por padrão começa completa, ela só vira "atual"
+  // se realmente houver uma ocorrência aberta (sem data de solução).
   const proxima = etapas.find(e => !e.completa);
-  const etapaAtualId = proxima ? proxima.id : 5;
+  const etapaAtualId = proxima ? proxima.id : 6;
   etapas.forEach(e => { e.atual = e.id === etapaAtualId && !e.completa; });
 
   return etapas;
@@ -164,6 +174,12 @@ export function getPendenciasExpedicao(formData, fluxoEstrito = true) {
   if (!isEtapaCompletaExpedicao(5, formData, fluxoEstrito)) {
     if (!formData.data_necessidade) pendencias.push({ etapa: 5, tab: 'expedicao', label: 'Data de necessidade' });
     if (!formData.data_entrega) pendencias.push({ etapa: 5, tab: 'expedicao', label: 'Data de entrega' });
+    return pendencias;
+  }
+
+  // Etapa 6 — Ocorrências (transversal: só gera pendência quando há ocorrência aberta)
+  if (!isOcorrenciaExpedicaoCompleta(formData)) {
+    pendencias.push({ etapa: 6, tab: 'ocorrencias', label: 'Informe a Data de Solução da ocorrência' });
     return pendencias;
   }
 

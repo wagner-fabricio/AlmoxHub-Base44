@@ -11,20 +11,33 @@ const columns = [
   { id: 'aguardando_transporte', title: 'Aguardando Transporte', color: 'bg-orange-500' },
   { id: 'em_rota', title: 'Em Rota', color: 'bg-indigo-500' },
   { id: 'entregue', title: 'Entregue', color: 'bg-green-500' },
+  { id: 'em_ocorrencia', title: 'Em Ocorrência', color: 'bg-red-500', isOcorrencia: true },
 ];
+
+// OS com ocorrência aberta = marcada "Sim" e sem data de solução
+const temOcorrenciaAberta = (os) =>
+  os?.houve_ocorrencia_expedicao === true && !os?.data_solucao_expedicao;
 
 export default function OSKanbanExpedicao({ ordens, pessoas, categorias, regionais, instalacoes, onOSClick, onStatusChange, currentPessoa, onOSChange, onRequestSelecaoSessao }) {
   const getOSByStatusSeparacao = (status) => {
-    return ordens.filter(os => (os.status_separacao || 'pendente') === status);
+    if (status === 'em_ocorrencia') {
+      return ordens.filter(temOcorrenciaAberta);
+    }
+    // OS com ocorrência aberta saem dos buckets normais e ficam só em "Em Ocorrência"
+    return ordens.filter(os => !temOcorrenciaAberta(os) && (os.status_separacao || 'pendente') === status);
   };
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
-    
+
     const { draggableId, destination } = result;
     const newStatus = destination.droppableId;
+    // Bucket "Em Ocorrência" não muda status_separacao — é derivado dos campos da ocorrência
+    if (newStatus === 'em_ocorrencia') return;
     const os = ordens.find(o => o.id === draggableId);
-    
+    // Não permite arrastar uma OS em ocorrência para outro bucket por drag
+    if (os && temOcorrenciaAberta(os)) return;
+
     if (os && (os.status_separacao || 'pendente') !== newStatus) {
       onStatusChange?.(os.id, newStatus);
     }
