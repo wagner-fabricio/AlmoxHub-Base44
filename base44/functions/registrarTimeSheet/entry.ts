@@ -149,6 +149,67 @@ Deno.serve(async (req) => {
 
       return Response.json({ success: true, acao: 'play_multi', iniciadas: criadas.length, os: osAtualizada });
 
+    } else if (acao === 'pause_multi') {
+      // Pausa um subconjunto específico de sessões ativas (pessoas_ids)
+      const pessoasIds = Array.isArray(body.pessoas_ids) ? body.pessoas_ids : [];
+      if (pessoasIds.length === 0) {
+        return Response.json({ error: 'pessoas_ids vazio' }, { status: 400 });
+      }
+
+      const sessoesAtivas = os.timesheet_sessoes_ativas || [];
+      const sessoesAlvo = sessoesAtivas.filter(s => pessoasIds.includes(s.pessoa_id));
+
+      if (sessoesAlvo.length === 0) {
+        return Response.json({ message: 'Nenhuma sessão ativa para as pessoas selecionadas', os }, { status: 200 });
+      }
+
+      // Fechar entries em paralelo
+      let totalDuracao = 0;
+      const fechamentos = sessoesAlvo.map(sessao => {
+        const inicioDate = new Date(sessao.inicio);
+        const fimDate = new Date(agora);
+        const duracaoMinutos = Math.round((fimDate - inicioDate) / 60000);
+        totalDuracao += duracaoMinutos;
+        return base44.asServiceRole.entities.TimeSheetEntry.update(sessao.entry_id, {
+          fim: agora,
+          duracao_minutos: duracaoMinutos,
+          status: 'closed',
+          tipo_encerramento: 'pause',
+          pessoa_id_pausa: pessoa.id,
+          pessoa_nome_pausa: pessoa.nome
+        });
+      });
+      await Promise.all(fechamentos);
+
+      // Sessões que permanecem ativas
+      const idsAlvo = new Set(sessoesAlvo.map(s => s.pessoa_id));
+      const novasSessoes = sessoesAtivas.filter(s => !idsAlvo.has(s.pessoa_id));
+      const novoTotal = (os.timesheet_total_minutos || 0) + totalDuracao;
+      const novoStatus = novasSessoes.length > 0 ? 'playing' : 'paused';
+
+      const osAtualizada = await base44.asServiceRole.entities.OrdemServico.update(os_id, {
+        timesheet_total_minutos: novoTotal,
+        timesheet_status: novoStatus,
+        timesheet_sessoes_ativas: novasSessoes
+      });
+
+      await base44.asServiceRole.entities.AuditLog.create({
+        action: 'timesheet_pause_multi',
+        entity_type: 'OrdemServico',
+        entity_id: os_id,
+        user_id: user.id,
+        details: JSON.stringify({
+          quantidade: sessoesAlvo.length,
+          pessoas: sessoesAlvo.map(s => s.pessoa_nome),
+          pausado_por: pessoa.nome,
+          duracao_total_minutos: totalDuracao,
+          fim: agora
+        }),
+        timestamp: agora
+      });
+
+      return Response.json({ success: true, acao: 'pause_multi', pausadas: sessoesAlvo.length, duracaoTotal: totalDuracao, os: osAtualizada });
+
     } else if (acao === 'pause_all') {
       // Pausa todas as sessões ativas da OS
       const sessoesAtivas = os.timesheet_sessoes_ativas || [];

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, Square } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import IniciarSessaoModal from './IniciarSessaoModal';
+import FinalizarSessaoModal from './FinalizarSessaoModal';
+import { useApp } from '@/components/contexts/AppContext';
 
 // Formata minutos acumulados + segundos correndo em "Xh YYmin" ou "YYmin"
 export const formatarTempo = (minutos) => {
@@ -29,7 +31,9 @@ export default function TimeSheetButton({
   const [loading, setLoading] = useState(false);
   const [tempoExibido, setTempoExibido] = useState(0); // em minutos (float)
   const [showSelecaoModal, setShowSelecaoModal] = useState(false);
+  const [showFinalizarModal, setShowFinalizarModal] = useState(false);
   const intervalRef = useRef(null);
+  const { pessoas = [] } = useApp();
 
   const sessaoAtiva = (os.timesheet_sessoes_ativas || []).find(
     s => s.pessoa_id === currentPessoa?.id
@@ -63,8 +67,15 @@ export default function TimeSheetButton({
     e.preventDefault();
     if (loading || osConcluida || !currentPessoa) return;
 
-    // Se EU estou em play → pausa minha sessão
+    // Se EU estou em play → abrir modal de finalizar (ou pausar direto se só eu estiver)
     if (estaPlayandoEu) {
+      const totalSessoes = (os.timesheet_sessoes_ativas || []).length;
+      if (totalSessoes > 1) {
+        // Há outras pessoas em sessão → abrir modal para escolher
+        setShowFinalizarModal(true);
+        return;
+      }
+      // Só eu em sessão → pausa direto (comportamento antigo, sem fricção)
       setLoading(true);
       try {
         const res = await base44.functions.invoke('registrarTimeSheet', {
@@ -100,6 +111,23 @@ export default function TimeSheetButton({
       });
       if (res?.data?.os && onStateChange) onStateChange(res.data.os);
       setShowSelecaoModal(false);
+    } catch (err) {
+      console.error('TimeSheet error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConfirmarFinalizacao = async (pessoasIds) => {
+    setLoading(true);
+    try {
+      const res = await base44.functions.invoke('registrarTimeSheet', {
+        acao: 'pause_multi',
+        os_id: os.id,
+        pessoas_ids: pessoasIds
+      });
+      if (res?.data?.os && onStateChange) onStateChange(res.data.os);
+      setShowFinalizarModal(false);
     } catch (err) {
       console.error('TimeSheet error:', err);
     } finally {
@@ -178,8 +206,21 @@ export default function TimeSheetButton({
           open={showSelecaoModal}
           onClose={() => setShowSelecaoModal(false)}
           os={os}
+          pessoas={pessoas}
           currentPessoa={currentPessoa}
           onConfirm={handleConfirmarSelecao}
+          loading={loading}
+        />
+      )}
+
+      {showFinalizarModal && (
+        <FinalizarSessaoModal
+          open={showFinalizarModal}
+          onClose={() => setShowFinalizarModal(false)}
+          os={os}
+          pessoas={pessoas}
+          currentPessoa={currentPessoa}
+          onConfirm={handleConfirmarFinalizacao}
           loading={loading}
         />
       )}
