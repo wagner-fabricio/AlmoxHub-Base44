@@ -617,6 +617,7 @@ export default function OrdensServico() {
               filters={filters}
               onClickOS={handleOSClick}
               currentUser={currentUser}
+              currentPessoa={currentPessoa}
               onPauseAll={() => queryClient.invalidateQueries({ queryKey: ['ordens-filtradas'] })}
             />
           ) : viewMode === 'timesheet_relatorio' ? (
@@ -855,6 +856,7 @@ export default function OrdensServico() {
             filters={filters}
             onClickOS={handleOSClick}
             currentUser={currentUser}
+            currentPessoa={currentPessoa}
             onPauseAll={() => queryClient.invalidateQueries({ queryKey: ['ordens-filtradas'] })}
           />
         </div>

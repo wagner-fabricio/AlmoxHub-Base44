@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { formatarTempo } from './TimeSheetButton';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Radio, Clock, Building2, Users, Calendar, AlertCircle, Tag, FileText, BarChart2, Play, ChevronDown, ChevronRight, Square, Loader2 } from 'lucide-react';
+import { Radio, Clock, Building2, Users, Calendar, AlertCircle, Tag, FileText, BarChart2, Play, Pause, ChevronDown, ChevronRight, Square, Loader2 } from 'lucide-react';
 import ColaboradoresDisponiveis from './ColaboradoresDisponiveis';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
@@ -27,10 +27,38 @@ const statusConfig = {
   cancelado:  { label: 'Cancelado',     color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' },
 };
 
-export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxarifados, subcategorias, regionais, filters, onClickOS, currentUser, onPauseAll }) {
+export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxarifados, subcategorias, regionais, filters, onClickOS, currentUser, currentPessoa, onPauseAll }) {
   const [tick, setTick] = useState(0);
   const [expandedPessoas, setExpandedPessoas] = useState({});
   const [pausingAll, setPausingAll] = useState(false);
+  const [pausingOSId, setPausingOSId] = useState(null);
+
+  const isAdminUser = currentUser?.role === 'admin';
+  const isGestor = (currentPessoa?.funcoes || []).includes('gestor');
+
+  const podeParar = (os) => {
+    if (isAdminUser || isGestor) return true;
+    if (currentPessoa?.id && os.lider_id === currentPessoa.id) return true;
+    return false;
+  };
+
+  const handlePauseOS = async (os, e) => {
+    e?.stopPropagation();
+    setPausingOSId(os.id);
+    try {
+      const res = await base44.functions.invoke('registrarTimeSheet', {
+        acao: 'pause_all',
+        os_id: os.id
+      });
+      const qtd = res?.data?.pausadas || 0;
+      toast.success(qtd > 0 ? `${qtd} sessão${qtd !== 1 ? 'ões' : ''} finalizada${qtd !== 1 ? 's' : ''}` : 'Nenhuma sessão ativa');
+      onPauseAll?.();
+    } catch (err) {
+      toast.error('Erro ao parar OS', { description: err.message });
+    } finally {
+      setPausingOSId(null);
+    }
+  };
 
   const handlePauseAll = async () => {
     setPausingAll(true);
@@ -46,7 +74,7 @@ export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxar
     }
   };
 
-  const isAdmin = currentUser?.role === 'admin';
+  const isAdmin = isAdminUser;
 
   useEffect(() => {
     const interval = setInterval(() => setTick(t => t + 1), 60000);
@@ -174,6 +202,7 @@ export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxar
                 <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-center w-28">Prazo</th>
                 <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-center w-36">Play em</th>
                 <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-right w-24">Tempo Total</th>
+                <th className="px-3 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-600 text-center w-16">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -225,6 +254,44 @@ export default function OSTimeSheetView({ osEmPlay, pessoas, categorias, almoxar
                     </td>
                     <td className="px-3 py-2.5 text-right font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap">
                       {formatarTempo(totalMins)}
+                    </td>
+                    <td className="px-3 py-2.5 text-center" onClick={(e) => e.stopPropagation()}>
+                      {podeParar(os) ? (
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <button
+                              disabled={pausingOSId === os.id}
+                              className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white transition-colors shadow-sm"
+                              title="Finalizar todas as sessões desta OS"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {pausingOSId === os.id
+                                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                : <Pause className="w-3.5 h-3.5" />
+                              }
+                            </button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Finalizar sessões desta OS?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Todas as {sessoes.length} sessão{sessoes.length !== 1 ? 'ões' : ''} ativa{sessoes.length !== 1 ? 's' : ''} da OS <strong>{os.codigo}</strong> serão encerradas. Os colaboradores poderão retomar manualmente depois.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={(e) => handlePauseOS(os, e)}
+                                className="bg-amber-500 hover:bg-amber-600"
+                              >
+                                Sim, finalizar
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      ) : (
+                        <span className="text-slate-300 dark:text-slate-600">—</span>
+                      )}
                     </td>
                   </tr>
                 );
