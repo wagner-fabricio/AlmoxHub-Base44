@@ -51,6 +51,18 @@
     "mensagem"
   ],
   "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        }
+      ]
+    },
     "read": {
       "data.destinatario_id": "{{user.id}}"
     },
