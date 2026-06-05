@@ -287,14 +287,22 @@ export default function ProjetosDashboard({ regionalFilter: externalRegionalFilt
 
   const loading = ctxLoading || loadingProjetos;
 
-  const almoxarifadosFiltrados = regionalFilter && regionalFilter !== 'all'
-    ? almoxarifados.filter(a => a.regional_id === regionalFilter)
+  // Normaliza filtros — aceita array (multi-select) ou string única
+  const regionalIds = Array.isArray(regionalFilter)
+    ? regionalFilter
+    : (regionalFilter && regionalFilter !== 'all' ? [regionalFilter] : []);
+  const almoxarifadoIds = Array.isArray(almoxarifadoFilter)
+    ? almoxarifadoFilter
+    : (almoxarifadoFilter && almoxarifadoFilter !== 'all' ? [almoxarifadoFilter] : []);
+
+  const almoxarifadosFiltrados = regionalIds.length > 0
+    ? almoxarifados.filter(a => regionalIds.includes(a.regional_id))
     : almoxarifados;
 
   const projetosFiltrados = projetos.filter(p => {
     const matchStatus = statusFilter === 'all' || p.status_projeto === statusFilter;
-    const matchRegional = !regionalFilter || regionalFilter === 'all' || p.regional_id === regionalFilter;
-    const matchAlmoxarifado = !almoxarifadoFilter || almoxarifadoFilter === 'all' || p.almoxarifado_id === almoxarifadoFilter;
+    const matchRegional = regionalIds.length === 0 || regionalIds.includes(p.regional_id);
+    const matchAlmoxarifado = almoxarifadoIds.length === 0 || almoxarifadoIds.includes(p.almoxarifado_id);
     return matchStatus && matchRegional && matchAlmoxarifado;
   });
 
