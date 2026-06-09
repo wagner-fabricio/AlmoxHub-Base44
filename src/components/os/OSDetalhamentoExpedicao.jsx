@@ -278,6 +278,33 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) 
     }
   };
 
+  const handlePlacaChange = (index, placaInput) => {
+    const placa = (placaInput || '').toUpperCase();
+
+    // Atualiza a placa imediatamente
+    updateExpedicao(index, 'veiculo.placa', placa);
+
+    // Busca veículo cadastrado pela placa
+    const veiculo = veiculosAxia.find(v => (v.placa || '').toUpperCase() === placa);
+    if (veiculo) {
+      const updated = [...detalhamento];
+      updated[index] = {
+        ...updated[index],
+        veiculo: {
+          ...updated[index].veiculo,
+          placa: veiculo.placa || '',
+          proprietario: veiculo.proprietario || '',
+          renavam: veiculo.renavam || '',
+          estado: veiculo.estado || '',
+          tara: veiculo.tara || 0,
+          carroceria: veiculo.carroceria || '',
+          tipo: veiculo.tipo || ''
+        }
+      };
+      onChange(updated);
+    }
+  };
+
   const handleVeiculoAxiaChange = (index, veiculoId) => {
     const veiculo = veiculosAxia.find(v => v.id === veiculoId);
     if (veiculo) {
@@ -694,6 +721,16 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) 
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div className="space-y-2">
+                      <Label>Placa</Label>
+                      <Input
+                        value={exp.veiculo?.placa || ''}
+                        onChange={(e) => handlePlacaChange(index, e.target.value)}
+                        disabled={exp.veiculo?.frota_axia}
+                        placeholder="ABC1D23"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
                       <Label>Proprietário</Label>
                       <Input
                         value={exp.veiculo?.proprietario || ''}
@@ -707,15 +744,6 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) 
                       <Input
                         value={exp.veiculo?.renavam || ''}
                         onChange={(e) => updateExpedicao(index, 'veiculo.renavam', e.target.value)}
-                        disabled={exp.veiculo?.frota_axia}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Placa</Label>
-                      <Input
-                        value={exp.veiculo?.placa || ''}
-                        onChange={(e) => updateExpedicao(index, 'veiculo.placa', e.target.value)}
                         disabled={exp.veiculo?.frota_axia}
                       />
                     </div>
