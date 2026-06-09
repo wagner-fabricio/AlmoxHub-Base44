@@ -124,12 +124,24 @@ export default function RelatoriosGerenciais() {
           };
         }).filter(d => d.total > 0).sort((a, b) => b.total - a.total);
 
-    // Top 10 almoxarifados
+    // Top 10 almoxarifados — empilhado por categoria
     const porAlmoxarifado = almoxarifados
-      .map(a => ({ name: a.nome, total: filteredOrdens.filter(os => os.almoxarifado_id === a.id).length }))
+      .map(a => {
+        const osDoAlmox = filteredOrdens.filter(os => os.almoxarifado_id === a.id);
+        const porCategoria = {};
+        categorias.forEach(c => {
+          const count = osDoAlmox.filter(os => os.categoria_id === c.id).length;
+          if (count > 0) porCategoria[c.nome] = count;
+        });
+        return { name: a.nome, total: osDoAlmox.length, ...porCategoria };
+      })
       .filter(d => d.total > 0)
       .sort((a, b) => b.total - a.total)
       .slice(0, 10);
+
+    const categoriasUsadas = categorias
+      .filter(c => porAlmoxarifado.some(a => (a[c.nome] || 0) > 0))
+      .map(c => ({ nome: c.nome, cor: c.cor || '#64748b' }));
 
     // Recebimento
     const osRecebimento = categoriaRecebimento ? filteredOrdens.filter(os => os.categoria_id === categoriaRecebimento.id) : [];
@@ -191,8 +203,8 @@ export default function RelatoriosGerenciais() {
         : 0
     };
 
-    return { kpis, porRegional, porAlmoxarifado, recebimento, expedicao, leadTimeReservas, leadTimeNFEstoque, agruparPorAlmoxarifado };
-  }, [filteredOrdens, regionais, almoxarifados, categoriaRecebimento, categoriaExpedicao, filters.regional, filters.almoxarifado]);
+    return { kpis, porRegional, porAlmoxarifado, categoriasUsadas, recebimento, expedicao, leadTimeReservas, leadTimeNFEstoque, agruparPorAlmoxarifado };
+  }, [filteredOrdens, regionais, almoxarifados, categorias, categoriaRecebimento, categoriaExpedicao, filters.regional, filters.almoxarifado]);
 
   const handleGerar = async () => {
     setLoading(true);
@@ -315,6 +327,7 @@ export default function RelatoriosGerenciais() {
           <RelatorioAnaliseRegional
             porRegional={dadosConsolidados.porRegional}
             porAlmoxarifado={dadosConsolidados.porAlmoxarifado}
+            categoriasUsadas={dadosConsolidados.categoriasUsadas}
             agruparPorAlmoxarifado={dadosConsolidados.agruparPorAlmoxarifado}
             regionalSelecionada={dadosConsolidados.agruparPorAlmoxarifado ? regionais.find(r => r.id === filters.regional[0])?.sigla : null}
           />

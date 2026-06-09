@@ -10,7 +10,7 @@ const statusLabels = {
   cancelado: 'Cancelado'
 };
 
-export default function RelatorioAnaliseRegional({ porRegional, porAlmoxarifado, agruparPorAlmoxarifado = false, regionalSelecionada = null }) {
+export default function RelatorioAnaliseRegional({ porRegional, porAlmoxarifado, categoriasUsadas = [], agruparPorAlmoxarifado = false, regionalSelecionada = null }) {
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-bold text-slate-900 dark:text-white">🗺️ Análise por Regional e Almoxarifado</h2>
@@ -54,33 +54,18 @@ export default function RelatorioAnaliseRegional({ porRegional, porAlmoxarifado,
         </CardHeader>
         <CardContent>
           {porAlmoxarifado.length > 0 ? (
-            <div className="space-y-3">
-              {porAlmoxarifado.map((item, index) => (
-                <div key={index} className="flex items-center gap-4">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-semibold text-sm shrink-0"
-                    style={{
-                      background: index === 0 ? '#0000FF' :
-                        index === 1 ? '#FF6B00' :
-                        index === 2 ? '#A0B4D2' : '#cbd5e1'
-                    }}>
-                    {index + 1}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-slate-900 dark:text-white text-sm truncate">{item.name}</p>
-                    <div className="mt-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full"
-                        style={{
-                          width: `${(item.total / porAlmoxarifado[0].total) * 100}%`,
-                          background: 'linear-gradient(90deg, #FF6B00 0%, #FF8C00 100%)'
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <span className="font-bold text-slate-900 dark:text-white">{item.total}</span>
-                </div>
-              ))}
-            </div>
+            <ResponsiveContainer width="100%" height={Math.max(320, porAlmoxarifado.length * 40 + 80)}>
+              <BarChart data={porAlmoxarifado} layout="vertical" margin={{ top: 10, right: 30, left: 10, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis type="number" tick={{ fill: '#64748b', fontSize: 12 }} />
+                <YAxis dataKey="name" type="category" tick={{ fill: '#64748b', fontSize: 11 }} width={140} interval={0} />
+                <Tooltip />
+                <Legend />
+                {categoriasUsadas.map((c, idx) => (
+                  <Bar key={c.nome} dataKey={c.nome} stackId="a" fill={c.cor || ['#0000FF', '#FF6B00', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4', '#A0B4D2'][idx % 8]} />
+                ))}
+              </BarChart>
+            </ResponsiveContainer>
           ) : (
             <div className="h-32 flex items-center justify-center text-slate-400">Sem dados</div>
           )}
