@@ -151,6 +151,28 @@ export default function RelatoriosGerenciais() {
     const leadTimeRec = recebimentoConcluidas.length > 0
       ? Math.round(recebimentoConcluidas.reduce((s, os) => s + Math.abs(differenceInDays(new Date(os.data_recebimento), new Date(os.created_date))), 0) / recebimentoConcluidas.length)
       : 0;
+    // Breakdown de recebimento — por regional ou por almoxarifado (quando 1 regional selecionada)
+    const breakdownRecebimento = (() => {
+      const calcBuckets = (osList) => {
+        const conf = osList.filter(o => !o.problema_recebimento && o.status === 'concluido').length;
+        const prob = osList.filter(o => o.problema_recebimento).length;
+        const pend = osList.filter(o => !o.problema_recebimento && o.status !== 'concluido').length;
+        return { conformes: conf, comProblemas: prob, pendentes: pend, total: osList.length };
+      };
+
+      if (agruparPorAlmoxarifado) {
+        return almoxarifados
+          .filter(a => a.regional_id === filters.regional[0])
+          .map(a => ({ name: a.nome, ...calcBuckets(osRecebimento.filter(os => os.almoxarifado_id === a.id)) }))
+          .filter(d => d.total > 0)
+          .sort((a, b) => b.total - a.total);
+      }
+      return regionais
+        .map(r => ({ name: r.sigla, ...calcBuckets(osRecebimento.filter(os => os.regional_id === r.id)) }))
+        .filter(d => d.total > 0)
+        .sort((a, b) => b.total - a.total);
+    })();
+
     const recebimento = {
       total: osRecebimento.length,
       taxaConformidade: osRecebimento.length > 0 ? Math.round((conformes / osRecebimento.length) * 100) : 0,
@@ -160,7 +182,9 @@ export default function RelatoriosGerenciais() {
         { name: 'Conformes', value: conformes },
         { name: 'Com Problemas', value: comProblemas },
         { name: 'Pendentes', value: osRecebimento.filter(os => os.status === 'elaboracao').length }
-      ].filter(d => d.value > 0)
+      ].filter(d => d.value > 0),
+      breakdown: breakdownRecebimento,
+      breakdownTipo: agruparPorAlmoxarifado ? 'almoxarifado' : 'regional'
     };
 
     // Expedição

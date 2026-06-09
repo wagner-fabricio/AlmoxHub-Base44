@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import { Package, Truck } from 'lucide-react';
 
 const KPIMini = ({ label, value, color = '#0000FF' }) => (
@@ -29,21 +29,47 @@ export default function RelatorioPaineis({ recebimento, expedicao }) {
           <KPIMini label="Com Problemas" value={recebimento.comProblemas} color="#ef4444" />
           <KPIMini label="Lead Time Médio" value={`${recebimento.leadTime} dias`} color="#0000FF" />
         </div>
-        <Card className="bg-white dark:bg-slate-800">
-          <CardContent className="p-5">
-            <h3 className="text-sm font-semibold mb-3 text-slate-700">Distribuição de Status</h3>
-            {recebimento.distribuicao.length > 0 ? (
-              <ResponsiveContainer width="100%" height={240}>
-                <PieChart>
-                  <Pie data={recebimento.distribuicao} cx="50%" cy="50%" innerRadius={50} outerRadius={90} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
-                    {recebimento.distribuicao.map((_, i) => <Cell key={i} fill={COLORS_REC[i % COLORS_REC.length]} />)}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : <p className="text-center text-slate-400 py-8">Sem dados</p>}
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Barras empilhadas — coluna maior */}
+          <Card className="bg-white dark:bg-slate-800 lg:col-span-2">
+            <CardContent className="p-5">
+              <h3 className="text-sm font-semibold mb-3 text-slate-700">
+                Recebimento por {recebimento.breakdownTipo === 'almoxarifado' ? 'Almoxarifado' : 'Regional'}
+              </h3>
+              {recebimento.breakdown && recebimento.breakdown.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={recebimento.breakdown} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 11 }} angle={-15} textAnchor="end" height={60} interval={0} />
+                    <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
+                    <Tooltip />
+                    <Legend wrapperStyle={{ fontSize: 12 }} />
+                    <Bar dataKey="conformes" name="Conformes" stackId="a" fill="#10b981" />
+                    <Bar dataKey="comProblemas" name="Com Problemas" stackId="a" fill="#ef4444" />
+                    <Bar dataKey="pendentes" name="Pendentes" stackId="a" fill="#f59e0b" />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : <p className="text-center text-slate-400 py-8">Sem dados</p>}
+            </CardContent>
+          </Card>
+
+          {/* Rosca — coluna menor */}
+          <Card className="bg-white dark:bg-slate-800">
+            <CardContent className="p-5">
+              <h3 className="text-sm font-semibold mb-3 text-slate-700">Distribuição de Status</h3>
+              {recebimento.distribuicao.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie data={recebimento.distribuicao} cx="50%" cy="50%" innerRadius={50} outerRadius={85} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                      {recebimento.distribuicao.map((_, i) => <Cell key={i} fill={COLORS_REC[i % COLORS_REC.length]} />)}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : <p className="text-center text-slate-400 py-8">Sem dados</p>}
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Expedição */}
