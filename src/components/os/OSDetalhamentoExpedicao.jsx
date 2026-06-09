@@ -236,13 +236,45 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) 
         nome_completo: motorista.nome,
         cpf: cpfLimpo,
         rg: motorista.rg || '',
-        email: '',
-        telefone: ''
+        email: motorista.email || '',
+        telefone: motorista.telefone || ''
       });
       alert('Condutor cadastrado com sucesso!');
     } catch (e) {
       console.error('Error saving condutor:', e);
       alert('Erro ao cadastrar condutor');
+    }
+  };
+
+  const handleCPFMotoristaChange = async (index, cpfInput) => {
+    const cpfLimpo = (cpfInput || '').replace(/\D/g, '');
+
+    // Atualiza o CPF imediatamente
+    updateExpedicao(index, 'motorista.cpf', cpfLimpo);
+
+    // Quando tiver 11 dígitos, busca o condutor
+    if (cpfLimpo.length === 11) {
+      try {
+        const condutores = await base44.entities.Condutor.filter({ cpf: cpfLimpo });
+        if (Array.isArray(condutores) && condutores.length > 0) {
+          const c = condutores[0];
+          const updated = [...detalhamento];
+          updated[index] = {
+            ...updated[index],
+            motorista: {
+              ...updated[index].motorista,
+              cpf: cpfLimpo,
+              nome: c.nome_completo || '',
+              rg: c.rg || '',
+              email: c.email || '',
+              telefone: c.telefone || ''
+            }
+          };
+          onChange(updated);
+        }
+      } catch (e) {
+        console.error('Erro ao buscar condutor:', e);
+      }
     }
   };
 
@@ -803,18 +835,19 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) 
                     {exp.motorista?.motorista_axia ? (
                       <>
                         <div className="space-y-2">
+                          <Label>CPF</Label>
+                          <Input
+                            value={exp.motorista?.cpf || ''}
+                            onChange={(e) => handleCPFMotoristaChange(index, e.target.value)}
+                            maxLength={11}
+                            placeholder="Apenas números"
+                          />
+                        </div>
+                        <div className="space-y-2">
                           <Label>ID SAP</Label>
                           <Input
                             value={exp.motorista?.id_sap || ''}
                             onChange={(e) => updateExpedicao(index, 'motorista.id_sap', e.target.value)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>CPF</Label>
-                          <Input
-                            value={exp.motorista?.cpf || ''}
-                            onChange={(e) => updateExpedicao(index, 'motorista.cpf', e.target.value.replace(/\D/g, ''))}
-                            maxLength={11}
                           />
                         </div>
                         <div className="space-y-2">
@@ -828,18 +861,19 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) 
                     ) : (
                       <>
                         <div className="space-y-2">
+                          <Label>CPF</Label>
+                          <Input
+                            value={exp.motorista?.cpf || ''}
+                            onChange={(e) => handleCPFMotoristaChange(index, e.target.value)}
+                            maxLength={11}
+                            placeholder="Apenas números"
+                          />
+                        </div>
+                        <div className="space-y-2">
                           <Label>RG</Label>
                           <Input
                             value={exp.motorista?.rg || ''}
                             onChange={(e) => updateExpedicao(index, 'motorista.rg', e.target.value.replace(/\D/g, ''))}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>CPF</Label>
-                          <Input
-                            value={exp.motorista?.cpf || ''}
-                            onChange={(e) => updateExpedicao(index, 'motorista.cpf', e.target.value.replace(/\D/g, ''))}
-                            maxLength={11}
                           />
                         </div>
                         <div className="space-y-2">
