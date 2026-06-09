@@ -41,16 +41,30 @@ Aplique ativamente o pensamento de **Engenharia de Produção**:
 - Cite causa-raiz provável usando Ishikawa ou 5 Porquês quando aplicável.
 - Referencie ferramentas (PDCA, kaizen, takt time, curva ABC, trabalho padrão, DMAIC, etc.).
 
+## ATENÇÃO ESPECIAL — ANÁLISE DE PROBLEMAS / INCIDÊNCIAS
+O bloco \`problemas\` contém:
+- \`problemas.expedicao.top\`: lista das principais incidências catalogadas de expedição (com descrição, explicação e número de ocorrências)
+- \`problemas.recebimento.top\`: lista das principais incidências catalogadas de recebimento (idem)
+- Totais de OS impactadas e total de incidentes catalogados em cada fluxo.
+
+Você DEVE OBRIGATORIAMENTE analisar esses dados e produzir o campo \`analise_problemas_incidentes\` com:
+1. Quais são as **3-5 incidências mais frequentes** em expedição e em recebimento (cite descrição e número de ocorrências).
+2. **Causas-raiz prováveis** de cada incidência principal (use Ishikawa/5 Porquês).
+3. **Ações direcionadas e específicas** para mitigar cada incidência (não genéricas — focadas no problema). Cada ação deve indicar: o problema atacado, a contramedida, o responsável típico e o ganho esperado.
+4. Impacto agregado dos problemas sobre OTIF, taxa de conformidade e lead time.
+Se uma das listas estiver vazia, mencione explicitamente que não há incidências registradas naquele fluxo.
+
 Sua análise deve cobrir:
 1. **Sumário Executivo**: 2-3 parágrafos sintetizando desempenho, resultados e tendências.
 2. **Destaques Positivos**: 3-5 pontos quantificados.
-3. **Destaques Negativos**: 3-5 pontos quantificados.
+3. **Destaques Negativos**: 3-5 pontos quantificados (inclua impacto de problemas/ocorrências quando relevante).
 4. **Pontos de Atenção**: 3-5 riscos operacionais.
 5. **Sugestões de Melhoria**: 4-6 ações práticas com ganho esperado.
 6. **Recomendações de Engenharia de Produção**: 4-6 recomendações específicas e tecnicamente fundamentadas em metodologias de engenharia de produção (Lean, TOC, Six Sigma, VSM, kaizen, takt time, curva ABC, DMAIC, padronização, balanceamento de capacidade, redução de WIP, etc.). Para cada recomendação cite a metodologia, o problema-alvo e o resultado esperado.
-7. **Análise de Projetos**: 1-2 parágrafos avaliando os projetos concluídos no período e os projetos em aberto (status_projeto = ativo ou parado). Avalie taxa de cumprimento de prazo, duração média, projetos atrasados ou parados, e impacto no throughput operacional. Cite números concretos.
-8. **Análise de Produtividade**: 1-2 parágrafos sobre carga de trabalho, equilíbrio de equipes e dimensionamento.
-9. **Conclusão Estratégica**: 1 parágrafo com a recomendação prioritária de maior impacto.
+7. **Análise de Problemas/Incidências**: 2-3 parágrafos detalhados conforme instruções acima, com ações direcionadas às principais incidências de expedição e recebimento.
+8. **Análise de Projetos**: 1-2 parágrafos avaliando os projetos concluídos no período e os projetos em aberto (status_projeto = ativo ou parado). Avalie taxa de cumprimento de prazo, duração média, projetos atrasados ou parados, e impacto no throughput operacional. Cite números concretos.
+9. **Análise de Produtividade**: 1-2 parágrafos sobre carga de trabalho, equilíbrio de equipes e dimensionamento.
+10. **Conclusão Estratégica**: 1 parágrafo com a recomendação prioritária de maior impacto.
 
 Use português brasileiro formal. Cite números específicos.`;
 
@@ -66,6 +80,7 @@ Use português brasileiro formal. Cite números específicos.`;
           pontos_atencao: { type: 'array', items: { type: 'string' } },
           sugestoes_melhorias: { type: 'array', items: { type: 'string' } },
           recomendacoes_engenharia_producao: { type: 'array', items: { type: 'string' } },
+          analise_problemas_incidentes: { type: 'string' },
           analise_projetos: { type: 'string' },
           analise_produtividade_rh: { type: 'string' },
           conclusao_estrategica: { type: 'string' }
@@ -77,6 +92,7 @@ Use português brasileiro formal. Cite números específicos.`;
           'pontos_atencao',
           'sugestoes_melhorias',
           'recomendacoes_engenharia_producao',
+          'analise_problemas_incidentes',
           'analise_projetos',
           'analise_produtividade_rh',
           'conclusao_estrategica'

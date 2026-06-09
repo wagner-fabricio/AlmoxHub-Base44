@@ -10,6 +10,7 @@ import RelatorioAnaliseRegional from '@/components/relatorios/RelatorioAnaliseRe
 import RelatorioPaineis from '@/components/relatorios/RelatorioPaineis';
 import RelatorioLeadTime from '@/components/relatorios/RelatorioLeadTime';
 import RelatorioProjetos from '@/components/relatorios/RelatorioProjetos';
+import RelatorioProblemasIncidentes from '@/components/relatorios/RelatorioProblemasIncidentes';
 import RelatorioIASection from '@/components/relatorios/RelatorioIASection';
 import ExportarRelatorioMenu from '@/components/relatorios/ExportarRelatorioMenu';
 
@@ -23,6 +24,24 @@ export default function RelatoriosGerenciais() {
   });
   const [loading, setLoading] = useState(false);
   const [relatorio, setRelatorio] = useState(null);
+  const [problemasExpedicao, setProblemasExpedicao] = useState([]);
+  const [problemasRecebimento, setProblemasRecebimento] = useState([]);
+
+  // Carrega catálogos de problemas (expedição e recebimento) para análise de incidências
+  useEffect(() => {
+    (async () => {
+      try {
+        const [pe, pr] = await Promise.all([
+          base44.entities.ProblemaExpedicao.list(),
+          base44.entities.ProblemaRecebimento.list(),
+        ]);
+        setProblemasExpedicao(Array.isArray(pe) ? pe : []);
+        setProblemasRecebimento(Array.isArray(pr) ? pr : []);
+      } catch (e) {
+        console.error('Erro ao carregar catálogos de problemas:', e);
+      }
+    })();
+  }, []);
 
   const isGestor = currentPessoa?.funcoes?.includes('gestor');
   const isAdmin = currentUser?.role === 'admin';
@@ -311,8 +330,46 @@ export default function RelatoriosGerenciais() {
       }))
     };
 
-    return { kpis, porRegional, porAlmoxarifado, categoriasUsadas, recebimento, expedicao, leadTimeReservas, leadTimeNFEstoque, agruparPorAlmoxarifado, projetos: projetosDados };
-  }, [filteredOrdens, regionais, almoxarifados, categorias, categoriaRecebimento, categoriaExpedicao, projetos, filters]);
+    // ============ INCIDÊNCIAS DE PROBLEMAS ============
+    // Conta ocorrências de cada problema (expedição e recebimento) entre as OS filtradas
+    const contarIncidencias = (catalog, getIds) => {
+      const contagem = new Map();
+      filteredOrdens.forEach(os => {
+        const ids = getIds(os) || [];
+        ids.forEach(id => contagem.set(id, (contagem.get(id) || 0) + 1));
+      });
+      return catalog
+        .map(p => ({
+          id: p.id,
+          descricao: p.descricao_resumida,
+          explicacao: p.explicacao,
+          ocorrencias: contagem.get(p.id) || 0,
+        }))
+        .filter(p => p.ocorrencias > 0)
+        .sort((a, b) => b.ocorrencias - a.ocorrencias);
+    };
+
+    const topProblemasExpedicao = contarIncidencias(problemasExpedicao, os => os.problemas_expedicao_ids);
+    const topProblemasRecebimento = contarIncidencias(problemasRecebimento, os => os.problemas_recebimento_ids);
+
+    const osComOcorrenciaExp = filteredOrdens.filter(os => os.houve_ocorrencia_expedicao).length;
+    const osComProblemaReceb = filteredOrdens.filter(os => os.problema_recebimento).length;
+
+    const problemas = {
+      expedicao: {
+        totalOSComOcorrencia: osComOcorrenciaExp,
+        totalIncidentesCatalogados: topProblemasExpedicao.reduce((s, p) => s + p.ocorrencias, 0),
+        top: topProblemasExpedicao.slice(0, 10),
+      },
+      recebimento: {
+        totalOSComProblema: osComProblemaReceb,
+        totalIncidentesCatalogados: topProblemasRecebimento.reduce((s, p) => s + p.ocorrencias, 0),
+        top: topProblemasRecebimento.slice(0, 10),
+      },
+    };
+
+    return { kpis, porRegional, porAlmoxarifado, categoriasUsadas, recebimento, expedicao, leadTimeReservas, leadTimeNFEstoque, agruparPorAlmoxarifado, projetos: projetosDados, problemas };
+  }, [filteredOrdens, regionais, almoxarifados, categorias, categoriaRecebimento, categoriaExpedicao, projetos, problemasExpedicao, problemasRecebimento, filters]);
 
   const handleGerar = async () => {
     setLoading(true);
@@ -445,6 +502,7 @@ export default function RelatoriosGerenciais() {
             expedicao={dadosConsolidados.expedicao}
           />
           <RelatorioProjetos projetos={dadosConsolidados.projetos} />
+          <RelatorioProblemasIncidentes problemas={dadosConsolidados.problemas} />
           <RelatorioIASection analise={relatorio.analise} />
         </div>
       )}

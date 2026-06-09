@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { FolderKanban, CheckCircle2, AlertTriangle, Pause, Clock, TrendingUp, Activity, Target } from 'lucide-react';
+import { AXIA } from './axiaColors';
 
 const Stat = ({ label, value, sub, color = '#0f172a', icon: Icon }) => (
   <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/60 dark:border-slate-700 p-5">
@@ -57,18 +58,18 @@ export default function RelatorioProjetos({ projetos }) {
 
       {/* KPIs principais */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        <Stat icon={CheckCircle2} label="Concluídos no Período" value={projetos.totalConcluidos} sub={`${projetos.taxaNoPrazo}% entregues no prazo`} color="#10b981" />
-        <Stat icon={Activity} label="Em Aberto" value={projetos.totalAbertos} sub={`${indicadores.ativos} ativos · ${projetos.parados} parados`} color="#0000FF" />
-        <Stat icon={AlertTriangle} label="Em Atraso" value={projetos.abertosAtrasados} sub="Prazo previsto vencido" color="#ef4444" />
-        <Stat icon={Clock} label="Duração Média" value={`${projetos.duracaoMediaDias}d`} sub="Projetos concluídos" color="#6366f1" />
+        <Stat icon={CheckCircle2} label="Concluídos no Período" value={projetos.totalConcluidos} sub={`${projetos.taxaNoPrazo}% entregues no prazo`} color={AXIA.success} />
+        <Stat icon={Activity} label="Em Aberto" value={projetos.totalAbertos} sub={`${indicadores.ativos} ativos · ${projetos.parados} parados`} color={AXIA.primary} />
+        <Stat icon={AlertTriangle} label="Em Atraso" value={projetos.abertosAtrasados} sub="Prazo previsto vencido" color={AXIA.danger} />
+        <Stat icon={Clock} label="Duração Média" value={`${projetos.duracaoMediaDias}d`} sub="Projetos concluídos" color={AXIA.indigo} />
       </div>
 
       {/* KPIs secundários */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        <Stat icon={Target} label="Taxa de Cumprimento" value={`${projetos.taxaNoPrazo}%`} sub={`${projetos.noPrazo} de ${projetos.totalConcluidos} no prazo`} color="#10b981" />
-        <Stat icon={TrendingUp} label="Throughput" value={`${indicadores.throughput}%`} sub="Concluídos / total avaliado" color="#0000FF" />
-        <Stat icon={Activity} label="Saúde do Backlog" value={`${indicadores.saudeAbertos}%`} sub="Ativos no prazo / em aberto" color="#06b6d4" />
-        <Stat icon={Clock} label="Variabilidade" value={indicadores.duracaoMax > 0 ? `${indicadores.duracaoMin}–${indicadores.duracaoMax}d` : '—'} sub="Menor e maior duração" color="#8b5cf6" />
+        <Stat icon={Target} label="Taxa de Cumprimento" value={`${projetos.taxaNoPrazo}%`} sub={`${projetos.noPrazo} de ${projetos.totalConcluidos} no prazo`} color={AXIA.success} />
+        <Stat icon={TrendingUp} label="Throughput" value={`${indicadores.throughput}%`} sub="Concluídos / total avaliado" color={AXIA.primary} />
+        <Stat icon={Activity} label="Saúde do Backlog" value={`${indicadores.saudeAbertos}%`} sub="Ativos no prazo / em aberto" color={AXIA.cyan} />
+        <Stat icon={Clock} label="Variabilidade" value={indicadores.duracaoMax > 0 ? `${indicadores.duracaoMin}–${indicadores.duracaoMax}d` : '—'} sub="Menor e maior duração" color={AXIA.purple} />
       </div>
 
       {/* Composição visual */}
@@ -78,9 +79,9 @@ export default function RelatorioProjetos({ projetos }) {
             <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">Composição dos Projetos em Aberto</h3>
             {projetos.totalAbertos > 0 ? (
               <div className="space-y-3">
-                <MixBar label="Ativos no prazo" value={Math.max(0, indicadores.ativos - projetos.abertosAtrasados)} total={projetos.totalAbertos} color="#10b981" />
-                <MixBar label="Atrasados" value={projetos.abertosAtrasados} total={projetos.totalAbertos} color="#ef4444" />
-                <MixBar label="Parados" value={projetos.parados} total={projetos.totalAbertos} color="#f59e0b" />
+                <MixBar label="Ativos no prazo" value={Math.max(0, indicadores.ativos - projetos.abertosAtrasados)} total={projetos.totalAbertos} color={AXIA.success} />
+                <MixBar label="Atrasados" value={projetos.abertosAtrasados} total={projetos.totalAbertos} color={AXIA.danger} />
+                <MixBar label="Parados" value={projetos.parados} total={projetos.totalAbertos} color={AXIA.warning} />
               </div>
             ) : <p className="text-sm text-slate-400 py-6 text-center">Nenhum projeto em aberto</p>}
           </CardContent>
@@ -91,8 +92,8 @@ export default function RelatorioProjetos({ projetos }) {
             <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">Entregas no Período</h3>
             {projetos.totalConcluidos > 0 ? (
               <div className="space-y-3">
-                <MixBar label="Entregues no prazo" value={projetos.noPrazo} total={projetos.totalConcluidos} color="#10b981" />
-                <MixBar label="Entregues com atraso" value={projetos.atrasados} total={projetos.totalConcluidos} color="#ef4444" />
+                <MixBar label="Entregues no prazo" value={projetos.noPrazo} total={projetos.totalConcluidos} color={AXIA.success} />
+                <MixBar label="Entregues com atraso" value={projetos.atrasados} total={projetos.totalConcluidos} color={AXIA.danger} />
                 <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700 grid grid-cols-2 gap-3 text-xs">
                   <div>
                     <p className="text-slate-500">Duração média</p>

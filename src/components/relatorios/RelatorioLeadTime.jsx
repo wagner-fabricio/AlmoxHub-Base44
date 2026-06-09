@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Clock, FileText } from 'lucide-react';
+import { AXIA } from './axiaColors';
 
 const LeadTimeCard = ({ icon: Icon, title, dias, descricao, total, color }) => (
   <Card className="bg-white dark:bg-slate-800 border-slate-200/60 dark:border-slate-700 shadow-none">

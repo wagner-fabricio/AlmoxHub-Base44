@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { MapPin } from 'lucide-react';
 import TopAlmoxarifadosTreemap from './TopAlmoxarifadosTreemap';
+import { STATUS_COLORS, AXIA } from './axiaColors';
 
 const statusLabels = {
   elaboracao: 'Em Elaboração',
@@ -16,10 +17,10 @@ export default function RelatorioAnaliseRegional({ porRegional, porAlmoxarifado,
     <div className="space-y-6">
       <h2 className="text-xl font-bold text-slate-900 dark:text-white">🗺️ Análise por Regional e Almoxarifado</h2>
 
-      <Card className="bg-white dark:bg-slate-800">
+      <Card className="bg-white dark:bg-slate-800 border-slate-200/60 dark:border-slate-700 shadow-none">
         <CardHeader>
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-blue-500" />
+            <MapPin className="w-5 h-5" style={{ color: AXIA.primary }} />
             {agruparPorAlmoxarifado
               ? `Distribuição de OS por Almoxarifado${regionalSelecionada ? ` — Regional ${regionalSelecionada}` : ''}`
               : 'Distribuição de OS por Regional'}
@@ -34,10 +35,10 @@ export default function RelatorioAnaliseRegional({ porRegional, porAlmoxarifado,
                 <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
                 <Tooltip formatter={(value, name) => [value, statusLabels[name] || name]} />
                 <Legend formatter={(value) => statusLabels[value] || value} />
-                <Bar dataKey="elaboracao" stackId="a" fill="#64748b" />
-                <Bar dataKey="execucao" stackId="a" fill="#0000FF" />
-                <Bar dataKey="concluido" stackId="a" fill="#10b981" />
-                <Bar dataKey="cancelado" stackId="a" fill="#ef4444" />
+                <Bar dataKey="elaboracao" stackId="a" fill={STATUS_COLORS.elaboracao} />
+                <Bar dataKey="execucao" stackId="a" fill={STATUS_COLORS.execucao} />
+                <Bar dataKey="concluido" stackId="a" fill={STATUS_COLORS.concluido} />
+                <Bar dataKey="cancelado" stackId="a" fill={STATUS_COLORS.cancelado} radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (

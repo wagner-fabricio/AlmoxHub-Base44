@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sparkles, ThumbsUp, ThumbsDown, AlertTriangle, Lightbulb, Users, Award, Cog, FolderKanban } from 'lucide-react';
+import { Sparkles, ThumbsUp, ThumbsDown, AlertTriangle, Lightbulb, Users, Award, Cog, FolderKanban, AlertOctagon } from 'lucide-react';
 
 const ListSection = ({ icon: Icon, title, items, color }) => (
   <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/60 dark:border-slate-700 p-5">
@@ -64,9 +64,14 @@ export default function RelatorioIASection({ analise }) {
         <ListSection icon={Cog} title="Recomendações de Engenharia de Produção" items={analise.recomendacoes_engenharia_producao} color="#6366f1" />
       )}
 
+      {/* Análise de Problemas / Incidências */}
+      {analise.analise_problemas_incidentes && (
+        <TextBlock icon={AlertOctagon} title="Análise de Problemas e Ações Direcionadas" text={analise.analise_problemas_incidentes} iconColor="#F59E0B" />
+      )}
+
       {/* Análise de Projetos */}
       {analise.analise_projetos && (
-        <TextBlock icon={FolderKanban} title="Análise de Projetos" text={analise.analise_projetos} iconColor="#0000FF" />
+        <TextBlock icon={FolderKanban} title="Análise de Projetos" text={analise.analise_projetos} iconColor="#4F6BED" />
       )}
 
       {/* Produtividade */}

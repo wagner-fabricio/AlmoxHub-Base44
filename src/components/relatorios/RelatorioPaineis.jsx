@@ -2,9 +2,10 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import { Package, Truck } from 'lucide-react';
+import { AXIA, RECEBIMENTO_COLORS } from './axiaColors';
 
-const KPIMini = ({ label, value, color = '#0000FF' }) => (
-  <Card className="bg-white dark:bg-slate-800">
+const KPIMini = ({ label, value, color = AXIA.primary }) => (
+  <Card className="bg-white dark:bg-slate-800 border-slate-200/60 dark:border-slate-700 shadow-none">
     <CardContent className="p-4">
       <p className="text-xs text-slate-500 uppercase tracking-wide">{label}</p>
       <p className="text-2xl font-bold mt-1" style={{ color }}>{value}</p>
@@ -13,21 +14,20 @@ const KPIMini = ({ label, value, color = '#0000FF' }) => (
 );
 
 export default function RelatorioPaineis({ recebimento, expedicao }) {
-  const COLORS_REC = ['#10b981', '#f59e0b', '#ef4444'];
-  const COLORS_EXP = ['#0000FF', '#FF6B00', '#A0B4D2', '#10b981'];
+  const COLORS_REC = [AXIA.success, AXIA.warning, AXIA.danger];
 
   return (
     <div className="space-y-8">
       {/* Recebimento */}
       <div>
         <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-          <Package className="w-6 h-6 text-emerald-600" /> Painel Recebimento
+          <Package className="w-6 h-6" style={{ color: AXIA.successDark }} /> Painel Recebimento
         </h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-          <KPIMini label="Total OS Recebimento" value={recebimento.total} color="#10b981" />
-          <KPIMini label="Conformidade" value={`${recebimento.taxaConformidade}%`} color="#10b981" />
-          <KPIMini label="Com Problemas" value={recebimento.comProblemas} color="#ef4444" />
-          <KPIMini label="Lead Time Médio" value={`${recebimento.leadTime} dias`} color="#0000FF" />
+          <KPIMini label="Total OS Recebimento" value={recebimento.total} color={AXIA.success} />
+          <KPIMini label="Conformidade" value={`${recebimento.taxaConformidade}%`} color={AXIA.success} />
+          <KPIMini label="Com Problemas" value={recebimento.comProblemas} color={AXIA.danger} />
+          <KPIMini label="Lead Time Médio" value={`${recebimento.leadTime} dias`} color={AXIA.primary} />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Barras empilhadas — coluna maior */}
@@ -44,9 +44,9 @@ export default function RelatorioPaineis({ recebimento, expedicao }) {
                     <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
                     <Tooltip />
                     <Legend wrapperStyle={{ fontSize: 12 }} />
-                    <Bar dataKey="conformes" name="Conformes" stackId="a" fill="#10b981" />
-                    <Bar dataKey="comProblemas" name="Com Problemas" stackId="a" fill="#ef4444" />
-                    <Bar dataKey="pendentes" name="Pendentes" stackId="a" fill="#f59e0b" />
+                    <Bar dataKey="conformes" name="Conformes" stackId="a" fill={RECEBIMENTO_COLORS.conformes} radius={[0, 0, 0, 0]} />
+                    <Bar dataKey="comProblemas" name="Com Problemas" stackId="a" fill={RECEBIMENTO_COLORS.comProblemas} />
+                    <Bar dataKey="pendentes" name="Pendentes" stackId="a" fill={RECEBIMENTO_COLORS.pendentes} radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : <p className="text-center text-slate-400 py-8">Sem dados</p>}
@@ -75,13 +75,13 @@ export default function RelatorioPaineis({ recebimento, expedicao }) {
       {/* Expedição */}
       <div>
         <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-          <Truck className="w-6 h-6 text-orange-600" /> Painel Expedição
+          <Truck className="w-6 h-6" style={{ color: AXIA.accent }} /> Painel Expedição
         </h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-          <KPIMini label="Total OS Expedição" value={expedicao.total} color="#FF6B00" />
-          <KPIMini label="OTIF" value={`${expedicao.otif}%`} color="#10b981" />
-          <KPIMini label="Em Trânsito" value={expedicao.emTransito} color="#0000FF" />
-          <KPIMini label="Lead Time Médio" value={`${expedicao.leadTime} dias`} color="#FF6B00" />
+          <KPIMini label="Total OS Expedição" value={expedicao.total} color={AXIA.accent} />
+          <KPIMini label="OTIF" value={`${expedicao.otif}%`} color={AXIA.success} />
+          <KPIMini label="Em Trânsito" value={expedicao.emTransito} color={AXIA.primary} />
+          <KPIMini label="Lead Time Médio" value={`${expedicao.leadTime} dias`} color={AXIA.accent} />
         </div>
         <Card className="bg-white dark:bg-slate-800">
           <CardContent className="p-5">
@@ -93,7 +93,7 @@ export default function RelatorioPaineis({ recebimento, expedicao }) {
                   <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 11 }} angle={-15} textAnchor="end" height={60} />
                   <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
                   <Tooltip />
-                  <Bar dataKey="total" fill="#FF6B00" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="total" fill={AXIA.accent} radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : <p className="text-center text-slate-400 py-8">Sem dados</p>}

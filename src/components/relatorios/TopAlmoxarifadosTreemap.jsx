@@ -2,8 +2,9 @@ import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ResponsiveContainer, Treemap, Tooltip } from 'recharts';
 import { Warehouse } from 'lucide-react';
+import { AXIA_PALETTE, AXIA } from './axiaColors';
 
-const PALETTE = ['#0000FF', '#FF6B00', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4', '#A0B4D2', '#ec4899', '#6366f1'];
+const PALETTE = AXIA_PALETTE;
 
 function buildData(porAlmoxarifado, categoriasUsadas) {
   return (porAlmoxarifado || []).map(item => {
@@ -98,7 +99,7 @@ export default function TopAlmoxarifadosTreemap({ porAlmoxarifado, categoriasUsa
     <Card className="bg-white dark:bg-slate-800 border-slate-200/60 dark:border-slate-700 shadow-none">
       <CardHeader className="pb-3">
         <CardTitle className="text-base font-semibold flex items-center gap-2 text-slate-900 dark:text-white tracking-tight">
-          <Warehouse className="w-4 h-4 text-amber-500" />
+          <Warehouse className="w-4 h-4" style={{ color: AXIA.accent }} />
           Top 10 Almoxarifados por Volume de OS
         </CardTitle>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">

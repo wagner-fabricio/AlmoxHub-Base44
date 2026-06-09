@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ClipboardList, CheckCircle, Clock, TrendingUp, Target, Timer } from 'lucide-react';
+import { AXIA } from './axiaColors';
 
 const KPICard = ({ label, value, sublabel, icon: Icon, color }) => (
   <Card className="bg-white dark:bg-slate-800 border-slate-200/60 dark:border-slate-700 shadow-none">
@@ -24,12 +25,12 @@ export default function RelatorioKPIsExecutivos({ kpis }) {
     <div>
       <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 tracking-tight">Indicadores-Chave de Desempenho</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        <KPICard label="Total de OS" value={kpis.totalOS} sublabel="No período" icon={ClipboardList} color="#0000FF" />
-        <KPICard label="Concluídas" value={kpis.osConcluidas} sublabel={`${kpis.percConclusao}% do total`} icon={CheckCircle} color="#10b981" />
-        <KPICard label="Em Execução" value={kpis.osEmExecucao} sublabel="Em andamento" icon={Clock} color="#FF6B00" />
-        <KPICard label="Taxa de Cumprimento" value={`${kpis.onTimeRate}%`} sublabel="OS no prazo" icon={Target} color="#7A95BA" />
-        <KPICard label="Tempo Médio Resolução" value={`${kpis.avgResolutionDays}d`} sublabel="Para conclusão" icon={Timer} color="#6366f1" />
-        <KPICard label="Progresso Médio" value={`${kpis.avgProgress}%`} sublabel="Geral" icon={TrendingUp} color="#ec4899" />
+        <KPICard label="Total de OS" value={kpis.totalOS} sublabel="No período" icon={ClipboardList} color={AXIA.primary} />
+        <KPICard label="Concluídas" value={kpis.osConcluidas} sublabel={`${kpis.percConclusao}% do total`} icon={CheckCircle} color={AXIA.success} />
+        <KPICard label="Em Execução" value={kpis.osEmExecucao} sublabel="Em andamento" icon={Clock} color={AXIA.accent} />
+        <KPICard label="Taxa de Cumprimento" value={`${kpis.onTimeRate}%`} sublabel="OS no prazo" icon={Target} color={AXIA.blueGrayDark} />
+        <KPICard label="Tempo Médio Resolução" value={`${kpis.avgResolutionDays}d`} sublabel="Para conclusão" icon={Timer} color={AXIA.indigo} />
+        <KPICard label="Progresso Médio" value={`${kpis.avgProgress}%`} sublabel="Geral" icon={TrendingUp} color={AXIA.purple} />
       </div>
     </div>
   );
