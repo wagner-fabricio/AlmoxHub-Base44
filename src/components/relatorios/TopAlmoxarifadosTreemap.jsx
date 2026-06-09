@@ -80,14 +80,19 @@ const TooltipContent = ({ active, payload }) => {
 export default function TopAlmoxarifadosTreemap({ porAlmoxarifado, categoriasUsadas = [] }) {
   const data = useMemo(() => buildData(porAlmoxarifado, categoriasUsadas), [porAlmoxarifado, categoriasUsadas]);
 
-  // Legenda apenas das categorias que aparecem como dominantes
+  // Top 10 categorias por volume total agregado em todos os almoxarifados
   const legendaCategorias = useMemo(() => {
-    const map = new Map();
-    data.forEach(d => {
-      if (!map.has(d.dominanteNome)) map.set(d.dominanteNome, d.fill);
+    const totais = new Map();
+    (categoriasUsadas || []).forEach((c, idx) => {
+      const cor = c.cor || PALETTE[idx % PALETTE.length];
+      const total = (porAlmoxarifado || []).reduce((acc, item) => acc + Number(item[c.nome] || 0), 0);
+      if (total > 0) totais.set(c.nome, { cor, total });
     });
-    return Array.from(map.entries());
-  }, [data]);
+    return Array.from(totais.entries())
+      .sort((a, b) => b[1].total - a[1].total)
+      .slice(0, 10)
+      .map(([nome, { cor, total }]) => [nome, cor, total]);
+  }, [porAlmoxarifado, categoriasUsadas]);
 
   return (
     <Card className="bg-white dark:bg-slate-800 border-slate-200/60 dark:border-slate-700 shadow-none">
@@ -115,13 +120,17 @@ export default function TopAlmoxarifadosTreemap({ porAlmoxarifado, categoriasUsa
               </Treemap>
             </ResponsiveContainer>
             {legendaCategorias.length > 0 && (
-              <div className="flex flex-wrap gap-x-4 gap-y-2 mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
-                {legendaCategorias.map(([nome, cor]) => (
-                  <div key={nome} className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-                    <span className="w-3 h-3 rounded-sm" style={{ background: cor }} />
-                    {nome}
-                  </div>
-                ))}
+              <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+                <p className="text-[11px] uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">Top 10 categorias por volume</p>
+                <div className="flex flex-wrap gap-x-4 gap-y-2">
+                  {legendaCategorias.map(([nome, cor, total]) => (
+                    <div key={nome} className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                      <span className="w-3 h-3 rounded-sm" style={{ background: cor }} />
+                      <span>{nome}</span>
+                      <span className="text-slate-400">· {total}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </>
