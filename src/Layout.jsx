@@ -58,6 +58,7 @@ const menuItems = [
   { name: 'Categorias', icon: Tags, page: 'Categorias' },
   { name: 'Feriados', icon: CalendarDays, page: 'Feriados', gestorOnly: true },
   { name: 'Veículos', icon: Truck, page: 'VeiculosAxia' },
+  { name: 'Condutores', icon: Users, page: 'Condutores' },
   { name: 'Transportadoras', icon: Building2, page: 'Transportadoras' },
   { name: 'Delegação Permissões', icon: Shield, page: 'DelegacaoPermissoes' },
   { name: 'Problemas Expedição', icon: Shield, page: 'ProblemasExpedicao', gestorOnly: true },

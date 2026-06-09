@@ -1,0 +1,52 @@
+{
+  "name": "Condutor",
+  "type": "object",
+  "properties": {
+    "nome_completo": {
+      "type": "string",
+      "description": "Nome completo do condutor"
+    },
+    "cpf": {
+      "type": "string",
+      "description": "CPF do condutor"
+    },
+    "rg": {
+      "type": "string",
+      "description": "RG do condutor"
+    },
+    "email": {
+      "type": "string",
+      "description": "E-mail de contato"
+    },
+    "telefone": {
+      "type": "string",
+      "description": "Telefone de contato"
+    }
+  },
+  "required": [
+    "nome_completo",
+    "cpf"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

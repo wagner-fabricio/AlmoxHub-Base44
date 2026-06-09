@@ -52,6 +52,7 @@ import Almoxarifados from './pages/Almoxarifados';
 import AuditLogs from './pages/AuditLogs';
 import Categorias from './pages/Categorias';
 import CentrosCusto from './pages/CentrosCusto';
+import Condutores from './pages/Condutores';
 import ConsentimentosPage from './pages/ConsentimentosPage';
 import Dashboard from './pages/Dashboard';
 import DelegacaoPermissoes from './pages/DelegacaoPermissoes';
@@ -93,6 +94,7 @@ export const PAGES = {
     "AuditLogs": AuditLogs,
     "Categorias": Categorias,
     "CentrosCusto": CentrosCusto,
+    "Condutores": Condutores,
     "ConsentimentosPage": ConsentimentosPage,
     "Dashboard": Dashboard,
     "DelegacaoPermissoes": DelegacaoPermissoes,
