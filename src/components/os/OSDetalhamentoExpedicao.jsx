@@ -82,11 +82,13 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) 
         tipo: ''
       },
       motorista: {
-        motorista_axia: false,
-        id_sap: '',
-        cpf: '',
-        nome: '',
-        rg: ''
+       motorista_axia: false,
+       id_sap: '',
+       cpf: '',
+       nome: '',
+       rg: '',
+       email: '',
+       telefone: ''
       }
     };
     onChange([...(detalhamento || []), newExpedicao]);
@@ -780,15 +782,17 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) 
                       onCheckedChange={(v) => {
                         const updated = [...detalhamento];
                         updated[index] = {
-                          ...updated[index],
-                          motorista: {
-                            motorista_axia: v,
-                            id_sap: '',
-                            cpf: '',
-                            nome: '',
-                            rg: ''
-                          }
-                        };
+                           ...updated[index],
+                           motorista: {
+                             motorista_axia: v,
+                             id_sap: '',
+                             cpf: '',
+                             nome: '',
+                             rg: '',
+                             email: '',
+                             telefone: ''
+                           }
+                         };
                         onChange(updated);
                       }}
                     />
@@ -847,6 +851,26 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) 
                         </div>
                       </>
                     )}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div className="space-y-2">
+                      <Label>E-mail</Label>
+                      <Input
+                        type="email"
+                        value={exp.motorista?.email || ''}
+                        onChange={(e) => updateExpedicao(index, 'motorista.email', e.target.value)}
+                        placeholder="email@exemplo.com"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Telefone Contato</Label>
+                      <Input
+                        value={exp.motorista?.telefone || ''}
+                        onChange={(e) => updateExpedicao(index, 'motorista.telefone', e.target.value)}
+                        placeholder="(11) 99999-9999"
+                      />
+                    </div>
                   </div>
                 </div>
 
