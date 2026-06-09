@@ -34,7 +34,7 @@ export default function RelatorioLeadTime({ leadTimeReservas, leadTimeNFEstoque 
           dias={leadTimeReservas.dias}
           descricao="Tempo médio entre reserva e conclusão (OS concluídas)"
           total={leadTimeReservas.total}
-          color="#0000FF"
+          color={AXIA.primary}
         />
         <LeadTimeCard
           icon={Clock}
@@ -42,7 +42,7 @@ export default function RelatorioLeadTime({ leadTimeReservas, leadTimeNFEstoque 
           dias={leadTimeNFEstoque.dias}
           descricao="Tempo médio entre emissão da NF e recebimento (OS concluídas)"
           total={leadTimeNFEstoque.total}
-          color="#FF6B00"
+          color={AXIA.accent}
         />
       </div>
     </div>
