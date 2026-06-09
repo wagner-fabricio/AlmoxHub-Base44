@@ -283,6 +283,8 @@ export default function RelatoriosGerenciais() {
             analise={relatorio.analise}
             periodoLabel={periodoLabel}
             orientacao={filters.orientacao}
+            filtrosAplicados={relatorio.filtrosAplicados}
+            dataGeracao={relatorio.dataGeracao}
           />
         )}
       </div>

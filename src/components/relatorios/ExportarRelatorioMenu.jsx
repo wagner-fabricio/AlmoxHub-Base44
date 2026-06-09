@@ -5,13 +5,13 @@ import { Download, FileText, FileType, Code2, Loader2, Presentation } from 'luci
 import { exportToHTML, exportToPDF, exportToDOCX } from './exportRelatorio';
 import { exportToPPTX } from './exportRelatorioPPTX';
 
-export default function ExportarRelatorioMenu({ elementId, dados, analise, periodoLabel, orientacao }) {
+export default function ExportarRelatorioMenu({ elementId, dados, analise, periodoLabel, orientacao, filtrosAplicados, dataGeracao }) {
   const [exporting, setExporting] = useState(null);
 
   const handle = async (tipo) => {
     setExporting(tipo);
     try {
-      if (tipo === 'html') await exportToHTML(elementId, orientacao);
+      if (tipo === 'html') await exportToHTML(elementId, orientacao, { dados, analise, periodoLabel, filtrosAplicados, dataGeracao });
       else if (tipo === 'pdf') await exportToPDF(elementId, orientacao);
       else if (tipo === 'docx') await exportToDOCX(dados, analise, periodoLabel, orientacao);
       else if (tipo === 'pptx') await exportToPPTX(dados, analise, periodoLabel, orientacao);
