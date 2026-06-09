@@ -96,18 +96,33 @@ export default function RelatoriosGerenciais() {
       avgProgress, onTimeRate, avgResolutionDays
     };
 
-    // Por regional
-    const porRegional = regionais.map(r => {
-      const reg = filteredOrdens.filter(os => os.regional_id === r.id);
-      return {
-        name: r.sigla,
-        elaboracao: reg.filter(os => os.status === 'elaboracao').length,
-        execucao: reg.filter(os => os.status === 'execucao').length,
-        concluido: reg.filter(os => os.status === 'concluido').length,
-        cancelado: reg.filter(os => os.status === 'cancelado').length,
-        total: reg.length
-      };
-    }).filter(d => d.total > 0).sort((a, b) => b.total - a.total);
+    // Por regional — quando apenas 1 regional está selecionada (sem almoxarifado), agrupa por almoxarifado dessa regional
+    const agruparPorAlmoxarifado = filters.regional.length === 1 && filters.almoxarifado.length === 0;
+    const porRegional = agruparPorAlmoxarifado
+      ? almoxarifados
+          .filter(a => a.regional_id === filters.regional[0])
+          .map(a => {
+            const reg = filteredOrdens.filter(os => os.almoxarifado_id === a.id);
+            return {
+              name: a.nome,
+              elaboracao: reg.filter(os => os.status === 'elaboracao').length,
+              execucao: reg.filter(os => os.status === 'execucao').length,
+              concluido: reg.filter(os => os.status === 'concluido').length,
+              cancelado: reg.filter(os => os.status === 'cancelado').length,
+              total: reg.length
+            };
+          }).filter(d => d.total > 0).sort((a, b) => b.total - a.total)
+      : regionais.map(r => {
+          const reg = filteredOrdens.filter(os => os.regional_id === r.id);
+          return {
+            name: r.sigla,
+            elaboracao: reg.filter(os => os.status === 'elaboracao').length,
+            execucao: reg.filter(os => os.status === 'execucao').length,
+            concluido: reg.filter(os => os.status === 'concluido').length,
+            cancelado: reg.filter(os => os.status === 'cancelado').length,
+            total: reg.length
+          };
+        }).filter(d => d.total > 0).sort((a, b) => b.total - a.total);
 
     // Top 10 almoxarifados
     const porAlmoxarifado = almoxarifados
@@ -176,8 +191,8 @@ export default function RelatoriosGerenciais() {
         : 0
     };
 
-    return { kpis, porRegional, porAlmoxarifado, recebimento, expedicao, leadTimeReservas, leadTimeNFEstoque };
-  }, [filteredOrdens, regionais, almoxarifados, categoriaRecebimento, categoriaExpedicao]);
+    return { kpis, porRegional, porAlmoxarifado, recebimento, expedicao, leadTimeReservas, leadTimeNFEstoque, agruparPorAlmoxarifado };
+  }, [filteredOrdens, regionais, almoxarifados, categoriaRecebimento, categoriaExpedicao, filters.regional, filters.almoxarifado]);
 
   const handleGerar = async () => {
     setLoading(true);
@@ -300,6 +315,8 @@ export default function RelatoriosGerenciais() {
           <RelatorioAnaliseRegional
             porRegional={dadosConsolidados.porRegional}
             porAlmoxarifado={dadosConsolidados.porAlmoxarifado}
+            agruparPorAlmoxarifado={dadosConsolidados.agruparPorAlmoxarifado}
+            regionalSelecionada={dadosConsolidados.agruparPorAlmoxarifado ? regionais.find(r => r.id === filters.regional[0])?.sigla : null}
           />
           <RelatorioPaineis
             recebimento={dadosConsolidados.recebimento}

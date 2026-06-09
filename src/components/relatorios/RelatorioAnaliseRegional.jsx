@@ -10,7 +10,7 @@ const statusLabels = {
   cancelado: 'Cancelado'
 };
 
-export default function RelatorioAnaliseRegional({ porRegional, porAlmoxarifado }) {
+export default function RelatorioAnaliseRegional({ porRegional, porAlmoxarifado, agruparPorAlmoxarifado = false, regionalSelecionada = null }) {
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-bold text-slate-900 dark:text-white">🗺️ Análise por Regional e Almoxarifado</h2>
@@ -19,15 +19,17 @@ export default function RelatorioAnaliseRegional({ porRegional, porAlmoxarifado 
         <CardHeader>
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <MapPin className="w-5 h-5 text-blue-500" />
-            Distribuição de OS por Regional
+            {agruparPorAlmoxarifado
+              ? `Distribuição de OS por Almoxarifado${regionalSelecionada ? ` — Regional ${regionalSelecionada}` : ''}`
+              : 'Distribuição de OS por Regional'}
           </CardTitle>
         </CardHeader>
         <CardContent>
           {porRegional.length > 0 ? (
             <ResponsiveContainer width="100%" height={320}>
-              <BarChart data={porRegional} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+              <BarChart data={porRegional} margin={{ top: 10, right: 10, left: -10, bottom: 40 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 12 }} />
+                <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 11 }} angle={agruparPorAlmoxarifado ? -25 : 0} textAnchor={agruparPorAlmoxarifado ? 'end' : 'middle'} height={agruparPorAlmoxarifado ? 60 : 30} interval={0} />
                 <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
                 <Tooltip formatter={(value, name) => [value, statusLabels[name] || name]} />
                 <Legend formatter={(value) => statusLabels[value] || value} />
