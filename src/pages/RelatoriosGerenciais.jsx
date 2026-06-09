@@ -208,7 +208,6 @@ export default function RelatoriosGerenciais() {
 
   const handleGerar = async () => {
     setLoading(true);
-    setRelatorio(null);
     try {
       const filtrosAplicados = {
         regionais: filters.regional.map(id => regionais.find(r => r.id === id)?.sigla).filter(Boolean),
@@ -311,8 +310,8 @@ export default function RelatoriosGerenciais() {
         </div>
       )}
 
-      {/* Conteúdo do Relatório */}
-      {relatorio && !loading && (
+      {/* Conteúdo do Relatório — permanece visível mesmo durante geração de novo */}
+      {relatorio && (
         <div id="relatorio-content" className="space-y-8 bg-slate-50 dark:bg-slate-900 rounded-xl p-6">
           <RelatorioHeader
             filtrosAplicados={relatorio.filtrosAplicados}
