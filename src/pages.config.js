@@ -78,6 +78,7 @@ import ProblemasExpedicao from './pages/ProblemasExpedicao';
 import ProblemasRecebimento from './pages/ProblemasRecebimento';
 import Projetos from './pages/Projetos';
 import Regionais from './pages/Regionais';
+import RelatoriosGerenciais from './pages/RelatoriosGerenciais';
 import Rotulos from './pages/Rotulos';
 import ThankYou from './pages/ThankYou';
 import Transportadoras from './pages/Transportadoras';
@@ -118,6 +119,7 @@ export const PAGES = {
     "ProblemasRecebimento": ProblemasRecebimento,
     "Projetos": Projetos,
     "Regionais": Regionais,
+    "RelatoriosGerenciais": RelatoriosGerenciais,
     "Rotulos": Rotulos,
     "ThankYou": ThankYou,
     "Transportadoras": Transportadoras,

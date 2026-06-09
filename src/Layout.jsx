@@ -27,7 +27,8 @@ import {
   BookOpen,
   DollarSign,
   Eye,
-  CalendarDays
+  CalendarDays,
+  FileBarChart
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -47,6 +48,7 @@ const menuItems = [
   { name: 'Em Fluxo', icon: Zap, page: 'EmFluxo' },
   { name: 'Ordens de Serviço', icon: ClipboardList, page: 'OrdensServico' },
   { name: 'Projetos', icon: FolderKanban, page: 'Projetos' },
+  { name: 'Relatórios Gerenciais', icon: FileBarChart, page: 'RelatoriosGerenciais', gestorOnly: true },
   { name: 'Mensagens', icon: MessageSquare, page: 'Mensagens' },
   { name: 'Regionais', icon: MapPin, page: 'Regionais' },
   { name: 'Almoxarifados', icon: Warehouse, page: 'Almoxarifados' },
