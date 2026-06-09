@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { Download, FileText, FileType, Code2, Loader2 } from 'lucide-react';
+import { Download, FileText, FileType, Code2, Loader2, Presentation } from 'lucide-react';
 import { exportToHTML, exportToPDF, exportToDOCX } from './exportRelatorio';
+import { exportToPPTX } from './exportRelatorioPPTX';
 
 export default function ExportarRelatorioMenu({ elementId, dados, analise, periodoLabel, orientacao }) {
   const [exporting, setExporting] = useState(null);
@@ -13,6 +14,7 @@ export default function ExportarRelatorioMenu({ elementId, dados, analise, perio
       if (tipo === 'html') await exportToHTML(elementId, orientacao);
       else if (tipo === 'pdf') await exportToPDF(elementId, orientacao);
       else if (tipo === 'docx') await exportToDOCX(dados, analise, periodoLabel, orientacao);
+      else if (tipo === 'pptx') await exportToPPTX(dados, analise, periodoLabel, orientacao);
     } catch (e) {
       console.error('Erro na exportação:', e);
       alert('Erro ao exportar: ' + e.message);
@@ -39,6 +41,9 @@ export default function ExportarRelatorioMenu({ elementId, dados, analise, perio
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handle('docx')}>
           <FileText className="w-4 h-4 mr-2 text-blue-700" /> Exportar Word (DOCX)
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handle('pptx')}>
+          <Presentation className="w-4 h-4 mr-2 text-orange-600" /> Exportar PowerPoint (PPTX)
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
