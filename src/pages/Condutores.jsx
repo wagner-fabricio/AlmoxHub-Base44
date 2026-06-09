@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Search, UserSquare2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, UserSquare2, FileSpreadsheet } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import BulkUpdateModal from '@/components/bulk/BulkUpdateModal';
 
 export default function Condutores() {
   const [condutores, setCondutores] = useState([]);
@@ -13,6 +14,7 @@ export default function Condutores() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [search, setSearch] = useState('');
+  const [showBulkUpdate, setShowBulkUpdate] = useState(false);
   const [formData, setFormData] = useState({
     nome_completo: '',
     cpf: '',
@@ -117,10 +119,16 @@ export default function Condutores() {
               <p className="text-sm text-slate-500 dark:text-slate-400">Cadastro de condutores de veículos</p>
             </div>
           </div>
-          <Button onClick={handleNew}>
-            <Plus className="w-4 h-4 mr-2" />
-            Novo Condutor
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => setShowBulkUpdate(true)} variant="outline">
+              <FileSpreadsheet className="w-4 h-4 mr-2" />
+              Atualização em Massa
+            </Button>
+            <Button onClick={handleNew}>
+              <Plus className="w-4 h-4 mr-2" />
+              Novo Condutor
+            </Button>
+          </div>
         </div>
 
         <div className="relative">
@@ -251,6 +259,15 @@ export default function Condutores() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Bulk Update Modal */}
+      <BulkUpdateModal
+        open={showBulkUpdate}
+        onClose={() => setShowBulkUpdate(false)}
+        entityName="Condutor"
+        displayName="Condutores"
+        onRefresh={load}
+      />
     </div>
   );
 }
