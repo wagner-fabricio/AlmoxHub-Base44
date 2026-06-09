@@ -212,6 +212,38 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) 
     }
   };
 
+  const salvarNovoCondutor = async (index) => {
+    const exp = detalhamento[index];
+    const motorista = exp.motorista;
+
+    if (!motorista?.nome || !motorista?.cpf) {
+      alert('Nome e CPF são obrigatórios para cadastrar o condutor');
+      return;
+    }
+
+    try {
+      // Verificar se já existe condutor com esse CPF
+      const cpfLimpo = (motorista.cpf || '').replace(/\D/g, '');
+      const existentes = await base44.entities.Condutor.filter({ cpf: cpfLimpo });
+      if (Array.isArray(existentes) && existentes.length > 0) {
+        alert('Já existe um condutor cadastrado com este CPF!');
+        return;
+      }
+
+      await base44.entities.Condutor.create({
+        nome_completo: motorista.nome,
+        cpf: cpfLimpo,
+        rg: motorista.rg || '',
+        email: '',
+        telefone: ''
+      });
+      alert('Condutor cadastrado com sucesso!');
+    } catch (e) {
+      console.error('Error saving condutor:', e);
+      alert('Erro ao cadastrar condutor');
+    }
+  };
+
   const handleVeiculoAxiaChange = (index, veiculoId) => {
     const veiculo = veiculosAxia.find(v => v.id === veiculoId);
     if (veiculo) {
@@ -556,14 +588,14 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) 
                 <div className="border-t pt-6">
                   <div className="flex items-center justify-between mb-4">
                     <h5 className="font-semibold text-lg">Dados do Veículo</h5>
-                    {exp.veiculo?.proprietario?.toLowerCase().includes('axia') && !exp.veiculo?.frota_axia && (
+                    {!exp.veiculo?.frota_axia && (
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
                         onClick={() => salvarNovoVeiculoAxia(index)}
                       >
-                        Cadastrar na Frota Axia
+                        Cadastrar Veículo
                       </Button>
                     )}
                   </div>
@@ -727,7 +759,19 @@ export default function OSDetalhamentoExpedicao({ detalhamento, onChange, os }) 
 
                 {/* Subsessão Motorista */}
                 <div className="border-t pt-6">
-                  <h5 className="font-semibold mb-4 text-lg">Dados do Motorista</h5>
+                  <div className="flex items-center justify-between mb-4">
+                    <h5 className="font-semibold text-lg">Dados do Motorista</h5>
+                    {!exp.motorista?.motorista_axia && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => salvarNovoCondutor(index)}
+                      >
+                        Cadastrar Motorista
+                      </Button>
+                    )}
+                  </div>
 
                   <div className="mb-4 flex items-center space-x-2">
                     <Checkbox
