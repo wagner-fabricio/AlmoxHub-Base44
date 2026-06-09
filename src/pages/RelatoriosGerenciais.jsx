@@ -9,13 +9,14 @@ import RelatorioKPIsExecutivos from '@/components/relatorios/RelatorioKPIsExecut
 import RelatorioAnaliseRegional from '@/components/relatorios/RelatorioAnaliseRegional';
 import RelatorioPaineis from '@/components/relatorios/RelatorioPaineis';
 import RelatorioLeadTime from '@/components/relatorios/RelatorioLeadTime';
+import RelatorioProjetos from '@/components/relatorios/RelatorioProjetos';
 import RelatorioIASection from '@/components/relatorios/RelatorioIASection';
 import ExportarRelatorioMenu from '@/components/relatorios/ExportarRelatorioMenu';
 
 const statusLabels = { elaboracao: 'Em Elaboração', execucao: 'Em Execução', concluido: 'Concluído', cancelado: 'Cancelado' };
 
 export default function RelatoriosGerenciais() {
-  const { ordens, regionais, almoxarifados, categorias, subcategorias, currentPessoa, currentUser, loading: ctxLoading } = useApp();
+  const { ordens, regionais, almoxarifados, categorias, subcategorias, projetos, currentPessoa, currentUser, loading: ctxLoading } = useApp();
   const [filters, setFilters] = useState({
     regional: [], almoxarifado: [], categoria: [], subcategoria: [],
     status: [], periodo: '30', dataInicio: '', dataFim: '', orientacao: 'retrato'
@@ -227,8 +228,91 @@ export default function RelatoriosGerenciais() {
         : 0
     };
 
-    return { kpis, porRegional, porAlmoxarifado, categoriasUsadas, recebimento, expedicao, leadTimeReservas, leadTimeNFEstoque, agruparPorAlmoxarifado };
-  }, [filteredOrdens, regionais, almoxarifados, categorias, categoriaRecebimento, categoriaExpedicao, filters.regional, filters.almoxarifado]);
+    // ============ PROJETOS ============
+    // Determina período de avaliação
+    let periodoStart = null, periodoEnd = new Date();
+    if (filters.periodo === 'mes_atual') {
+      const now = new Date();
+      periodoStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      periodoEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    } else if (filters.periodo === 'customizado') {
+      if (filters.dataInicio) periodoStart = new Date(filters.dataInicio);
+      if (filters.dataFim) { periodoEnd = new Date(filters.dataFim); periodoEnd.setHours(23, 59, 59, 999); }
+    } else if (filters.periodo !== 'all') {
+      periodoStart = subDays(new Date(), parseInt(filters.periodo));
+    }
+
+    // Aplica filtros de regional/almoxarifado nos projetos
+    const projetosFiltrados = (projetos || []).filter(p => {
+      if (filters.regional.length > 0 && !filters.regional.includes(p.regional_id)) return false;
+      if (filters.almoxarifado.length > 0 && !filters.almoxarifado.includes(p.almoxarifado_id)) return false;
+      return true;
+    });
+
+    const projetosConcluidos = projetosFiltrados.filter(p => {
+      if (p.status_projeto !== 'concluido' || !p.data_final_execucao) return false;
+      const dataConcl = new Date(p.data_final_execucao);
+      if (periodoStart && dataConcl < periodoStart) return false;
+      if (periodoEnd && dataConcl > periodoEnd) return false;
+      return true;
+    });
+
+    const projetosAbertos = projetosFiltrados.filter(p =>
+      p.status_projeto === 'ativo' || p.status_projeto === 'parado'
+    );
+
+    // Avaliação de prazos
+    const projetosNoPrazo = projetosConcluidos.filter(p =>
+      p.data_final_prevista && p.data_final_execucao &&
+      new Date(p.data_final_execucao) <= new Date(p.data_final_prevista)
+    ).length;
+    const projetosAtrasados = projetosConcluidos.filter(p =>
+      p.data_final_prevista && p.data_final_execucao &&
+      new Date(p.data_final_execucao) > new Date(p.data_final_prevista)
+    ).length;
+
+    const projetosAbertosAtrasados = projetosAbertos.filter(p =>
+      p.data_final_prevista && new Date(p.data_final_prevista) < hoje
+    ).length;
+    const projetosParados = projetosAbertos.filter(p => p.status_projeto === 'parado').length;
+
+    // Duração média de projetos concluídos
+    const duracoesProjetos = projetosConcluidos
+      .filter(p => p.data_inicial_execucao && p.data_final_execucao)
+      .map(p => Math.abs(differenceInDays(new Date(p.data_final_execucao), new Date(p.data_inicial_execucao))));
+    const duracaoMediaProjetos = duracoesProjetos.length > 0
+      ? Math.round(duracoesProjetos.reduce((s, d) => s + d, 0) / duracoesProjetos.length)
+      : 0;
+
+    const projetosDados = {
+      totalConcluidos: projetosConcluidos.length,
+      totalAbertos: projetosAbertos.length,
+      noPrazo: projetosNoPrazo,
+      atrasados: projetosAtrasados,
+      taxaNoPrazo: projetosConcluidos.length > 0 ? Math.round((projetosNoPrazo / projetosConcluidos.length) * 100) : 0,
+      abertosAtrasados: projetosAbertosAtrasados,
+      parados: projetosParados,
+      duracaoMediaDias: duracaoMediaProjetos,
+      listaConcluidos: projetosConcluidos.slice(0, 10).map(p => ({
+        nome: p.nome,
+        regional: regionais.find(r => r.id === p.regional_id)?.sigla || '-',
+        duracao: p.data_inicial_execucao && p.data_final_execucao
+          ? Math.abs(differenceInDays(new Date(p.data_final_execucao), new Date(p.data_inicial_execucao)))
+          : null,
+        noPrazo: p.data_final_prevista && p.data_final_execucao
+          ? new Date(p.data_final_execucao) <= new Date(p.data_final_prevista)
+          : null
+      })),
+      listaAbertos: projetosAbertos.slice(0, 10).map(p => ({
+        nome: p.nome,
+        regional: regionais.find(r => r.id === p.regional_id)?.sigla || '-',
+        status: p.status_projeto,
+        atrasado: p.data_final_prevista && new Date(p.data_final_prevista) < hoje
+      }))
+    };
+
+    return { kpis, porRegional, porAlmoxarifado, categoriasUsadas, recebimento, expedicao, leadTimeReservas, leadTimeNFEstoque, agruparPorAlmoxarifado, projetos: projetosDados };
+  }, [filteredOrdens, regionais, almoxarifados, categorias, categoriaRecebimento, categoriaExpedicao, projetos, filters]);
 
   const handleGerar = async () => {
     setLoading(true);
@@ -295,8 +379,8 @@ export default function RelatoriosGerenciais() {
               <FileBarChart className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">Relatórios Gerenciais</h1>
-              <p className="text-slate-500 dark:text-slate-400">Resumo executivo gerado por IA</p>
+              <h1 className="text-2xl lg:text-3xl font-semibold text-slate-900 dark:text-white tracking-tight">Relatórios Gerenciais</h1>
+              <p className="text-slate-500 dark:text-slate-400">Análise executiva consolidada</p>
             </div>
           </div>
         </div>
@@ -360,6 +444,7 @@ export default function RelatoriosGerenciais() {
             recebimento={dadosConsolidados.recebimento}
             expedicao={dadosConsolidados.expedicao}
           />
+          <RelatorioProjetos projetos={dadosConsolidados.projetos} />
           <RelatorioIASection analise={relatorio.analise} />
         </div>
       )}

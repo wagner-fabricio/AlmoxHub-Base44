@@ -6,11 +6,11 @@ import { format } from 'date-fns';
 // ============== HTML ==============
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 
-function htmlKPI({ label, value, sublabel, gradient }) {
+function htmlKPI({ label, value, sublabel, color }) {
   return `
-    <div class="kpi" style="background:${gradient}">
+    <div class="kpi">
       <div class="kpi-label">${esc(label)}</div>
-      <div class="kpi-value">${esc(value)}</div>
+      <div class="kpi-value" style="color:${color}">${esc(value)}</div>
       ${sublabel ? `<div class="kpi-sub">${esc(sublabel)}</div>` : ''}
     </div>`;
 }
@@ -31,71 +31,69 @@ function buildHTMLContent(dados, analise, filtrosAplicados, periodoLabel, dataGe
   if (filtrosAplicados.categorias?.length) filtrosResumo.push(`Categorias: ${filtrosAplicados.categorias.join(', ')}`);
   if (filtrosAplicados.status?.length) filtrosResumo.push(`Status: ${filtrosAplicados.status.join(', ')}`);
 
+  const proj = dados.projetos;
   return `
   <!-- HEADER -->
   <div class="header">
     <div class="header-top">
-      <div class="header-left">
-        <div class="header-icon">⚡</div>
-        <div>
-          <div class="header-eyebrow">Relatório Gerencial Executivo</div>
-          <h1>AlmoxHub - Axia Energia</h1>
-          <div class="header-sub">Análise consolidada de operações logísticas</div>
-        </div>
+      <div>
+        <div class="header-eyebrow">Relatório Gerencial</div>
+        <h1>AlmoxHub · Axia Energia</h1>
+        <div class="header-sub">Análise consolidada de operações logísticas</div>
       </div>
       <div class="header-date">
-        <div class="muted">Emitido em</div>
+        <div class="muted small caps">Emitido em</div>
         <div class="bold">${format(new Date(dataGeracao || new Date()), 'dd/MM/yyyy HH:mm')}</div>
       </div>
     </div>
     <div class="header-grid">
       <div>
-        <div class="muted small caps">Período Analisado</div>
+        <div class="muted small caps">Período</div>
         <div class="bold">${esc(periodoLabel)}</div>
       </div>
       <div>
         <div class="muted small caps">Escopo</div>
-        <div>${esc(filtrosResumo.length ? filtrosResumo.join(' • ') : 'Todos os dados disponíveis')}</div>
+        <div>${esc(filtrosResumo.length ? filtrosResumo.join(' · ') : 'Todos os dados disponíveis')}</div>
       </div>
     </div>
   </div>
 
   <!-- KPIs -->
   <section class="block">
-    <h2 class="section-title">📊 Indicadores-Chave de Desempenho</h2>
+    <h2 class="section-title">Indicadores-Chave de Desempenho</h2>
     <div class="grid grid-3">
-      ${htmlKPI({ label: 'Total de OS', value: k.totalOS, sublabel: 'No período', gradient: 'linear-gradient(135deg,#0000FF 0%,#0A003C 100%)' })}
-      ${htmlKPI({ label: 'Concluídas', value: k.osConcluidas, sublabel: `${k.percConclusao}% do total`, gradient: 'linear-gradient(135deg,#10b981 0%,#059669 100%)' })}
-      ${htmlKPI({ label: 'Em Execução', value: k.osEmExecucao, sublabel: 'Em andamento', gradient: 'linear-gradient(135deg,#FF6B00 0%,#FF8C00 100%)' })}
-      ${htmlKPI({ label: 'Taxa de Cumprimento', value: `${k.onTimeRate}%`, sublabel: 'OS no prazo', gradient: 'linear-gradient(135deg,#A0B4D2 0%,#7A95BA 100%)' })}
-      ${htmlKPI({ label: 'Tempo Médio Resolução', value: `${k.avgResolutionDays} dias`, sublabel: 'Para conclusão', gradient: 'linear-gradient(135deg,#6366f1 0%,#4f46e5 100%)' })}
-      ${htmlKPI({ label: 'Progresso Médio', value: `${k.avgProgress}%`, sublabel: 'Geral', gradient: 'linear-gradient(135deg,#ec4899 0%,#be185d 100%)' })}
+      ${htmlKPI({ label: 'Total de OS', value: k.totalOS, sublabel: 'No período', color: '#0000FF' })}
+      ${htmlKPI({ label: 'Concluídas', value: k.osConcluidas, sublabel: `${k.percConclusao}% do total`, color: '#10b981' })}
+      ${htmlKPI({ label: 'Em Execução', value: k.osEmExecucao, sublabel: 'Em andamento', color: '#FF6B00' })}
+      ${htmlKPI({ label: 'Taxa de Cumprimento', value: `${k.onTimeRate}%`, sublabel: 'OS no prazo', color: '#7A95BA' })}
+      ${htmlKPI({ label: 'Tempo Médio Resolução', value: `${k.avgResolutionDays}d`, sublabel: 'Para conclusão', color: '#6366f1' })}
+      ${htmlKPI({ label: 'Progresso Médio', value: `${k.avgProgress}%`, sublabel: 'Geral', color: '#ec4899' })}
     </div>
   </section>
 
   <!-- LEAD TIME -->
   <section class="block">
-    <h2 class="section-title">⏱️ Lead Time de Atendimento</h2>
+    <h2 class="section-title">Lead Time de Atendimento</h2>
     <div class="grid grid-2">
       <div class="info-card">
         <div class="info-title">Lead Time de Reservas</div>
         <div class="info-value">${dados.leadTimeReservas.dias} <span class="info-unit">dias</span></div>
-        <div class="muted small">Base: ${dados.leadTimeReservas.total} OS</div>
+        <div class="muted small">Base: ${dados.leadTimeReservas.total} OS concluídas</div>
       </div>
       <div class="info-card">
         <div class="info-title">Lead Time de NF de Estoque</div>
         <div class="info-value">${dados.leadTimeNFEstoque.dias} <span class="info-unit">dias</span></div>
-        <div class="muted small">Base: ${dados.leadTimeNFEstoque.total} OS</div>
+        <div class="muted small">Base: ${dados.leadTimeNFEstoque.total} OS concluídas</div>
       </div>
     </div>
   </section>
 
-  <!-- PAINEIS RECEBIMENTO / EXPEDIÇÃO -->
+  <!-- PAINEIS -->
   <section class="block">
-    <h2 class="section-title">📦 Painéis Operacionais</h2>
+    <h2 class="section-title">Painéis Operacionais</h2>
     <div class="grid grid-2">
       <div class="panel">
-        <div class="panel-head" style="color:#0000FF">Painel Recebimento</div>
+        <div class="panel-head">Recebimento</div>
         <div class="panel-mini-grid">
           <div><div class="muted small">Total</div><div class="panel-val">${dados.recebimento.total}</div></div>
           <div><div class="muted small">Conformidade</div><div class="panel-val" style="color:#10b981">${dados.recebimento.taxaConformidade}%</div></div>
@@ -104,7 +102,7 @@ function buildHTMLContent(dados, analise, filtrosAplicados, periodoLabel, dataGe
         </div>
       </div>
       <div class="panel">
-        <div class="panel-head" style="color:#FF6B00">Painel Expedição</div>
+        <div class="panel-head">Expedição</div>
         <div class="panel-mini-grid">
           <div><div class="muted small">Total</div><div class="panel-val">${dados.expedicao.total}</div></div>
           <div><div class="muted small">OTIF</div><div class="panel-val" style="color:#10b981">${dados.expedicao.otif}%</div></div>
@@ -115,42 +113,68 @@ function buildHTMLContent(dados, analise, filtrosAplicados, periodoLabel, dataGe
     </div>
   </section>
 
-  <!-- ANÁLISE IA -->
+  ${proj ? `
+  <!-- PROJETOS -->
   <section class="block">
-    <div class="ia-head">
-      <div class="ia-icon">✨</div>
-      <h2>Análise Executiva por IA</h2>
-      <span class="ia-badge">Especialista em Logística & RH</span>
+    <h2 class="section-title">Projetos</h2>
+    <div class="grid grid-2">
+      <div class="info-card">
+        <div class="info-title">Concluídos no Período</div>
+        <div class="info-value" style="color:#10b981">${proj.totalConcluidos}</div>
+        <div class="muted small">${proj.taxaNoPrazo}% no prazo · duração média ${proj.duracaoMediaDias}d</div>
+      </div>
+      <div class="info-card">
+        <div class="info-title">Em Aberto</div>
+        <div class="info-value" style="color:#0000FF">${proj.totalAbertos}</div>
+        <div class="muted small">${proj.abertosAtrasados} atrasados · ${proj.parados} parados</div>
+      </div>
     </div>
+  </section>
+  ` : ''}
+
+  <!-- ANÁLISE -->
+  <section class="block">
+    <h2 class="section-title">Análise Executiva</h2>
 
     <div class="ia-sumario">
-      <h3>🏆 Sumário Executivo</h3>
+      <h3>Sumário Executivo</h3>
       <p>${esc(analise?.sumario_executivo || '')}</p>
     </div>
 
     <div class="grid grid-2 mt">
-      ${htmlList('👍 Destaques Positivos', analise?.destaques_positivos, '#10b981', '#10b98115')}
-      ${htmlList('👎 Destaques Negativos', analise?.destaques_negativos, '#ef4444', '#ef444415')}
+      ${htmlList('Destaques Positivos', analise?.destaques_positivos, '#10b981', '#10b98115')}
+      ${htmlList('Destaques Negativos', analise?.destaques_negativos, '#ef4444', '#ef444415')}
     </div>
 
     <div class="grid grid-2 mt">
-      ${htmlList('⚠️ Pontos de Atenção', analise?.pontos_atencao, '#f59e0b', '#f59e0b15')}
-      ${htmlList('💡 Sugestões de Melhoria', analise?.sugestoes_melhorias, '#0000FF', '#0000FF15')}
+      ${htmlList('Pontos de Atenção', analise?.pontos_atencao, '#f59e0b', '#f59e0b15')}
+      ${htmlList('Sugestões de Melhoria', analise?.sugestoes_melhorias, '#0000FF', '#0000FF15')}
     </div>
 
+    ${analise?.recomendacoes_engenharia_producao ? `
+    <div class="mt">
+      ${htmlList('Recomendações de Engenharia de Produção', analise.recomendacoes_engenharia_producao, '#6366f1', '#6366f115')}
+    </div>` : ''}
+
+    ${analise?.analise_projetos ? `
     <div class="ia-rh mt">
-      <h3>👥 Análise de Produtividade e Recursos Humanos</h3>
+      <h3>Análise de Projetos</h3>
+      <p>${esc(analise.analise_projetos)}</p>
+    </div>` : ''}
+
+    <div class="ia-rh mt">
+      <h3>Análise de Produtividade</h3>
       <p>${esc(analise?.analise_produtividade_rh || '')}</p>
     </div>
 
     <div class="ia-conclusao mt">
-      <h3>✨ Conclusão Estratégica</h3>
+      <h3>Conclusão Estratégica</h3>
       <p>${esc(analise?.conclusao_estrategica || '')}</p>
     </div>
   </section>
 
   <div class="footer">
-    AlmoxHub - Axia Energia • Relatório gerado automaticamente em ${format(new Date(), 'dd/MM/yyyy HH:mm')}
+    AlmoxHub · Axia Energia — Relatório gerado em ${format(new Date(), 'dd/MM/yyyy HH:mm')}
   </div>
   `;
 }
@@ -175,79 +199,71 @@ export async function exportToHTML(elementId, orientacao = 'retrato', payload = 
 <style>
   @page { size: A4 ${isLandscape ? 'landscape' : 'portrait'}; margin: 1cm; }
   * { box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f8fafc; margin: 0; padding: 24px; color: #0f172a; line-height: 1.5; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #fafafa; margin: 0; padding: 32px; color: #1d1d1f; line-height: 1.55; -webkit-font-smoothing: antialiased; }
   .container { max-width: ${maxWidth}; margin: 0 auto; }
-  .muted { color: #64748b; }
+  .muted { color: #86868b; }
   .small { font-size: 12px; }
-  .caps { text-transform: uppercase; letter-spacing: 0.05em; }
+  .caps { text-transform: uppercase; letter-spacing: 0.08em; }
   .bold { font-weight: 600; }
   .mt { margin-top: 16px; }
-  .grid { display: grid; gap: 16px; }
+  .grid { display: grid; gap: 14px; }
   .grid-2 { grid-template-columns: repeat(2, 1fr); }
   .grid-3 { grid-template-columns: repeat(3, 1fr); }
   @media (max-width: 700px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
 
+  h1, h2, h3 { letter-spacing: -0.02em; }
+
   /* HEADER */
-  .header { background: linear-gradient(135deg, #0000FF 0%, #0A003C 100%); color: white; border-radius: 16px; padding: 32px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-  .header-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
-  .header-left { display: flex; align-items: center; gap: 16px; }
-  .header-icon { width: 64px; height: 64px; background: rgba(255,255,255,0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 32px; }
-  .header-eyebrow { color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; }
-  .header h1 { font-size: 28px; font-weight: 700; margin: 4px 0 0; color: white; }
-  .header-sub { color: rgba(255,255,255,0.8); font-size: 13px; margin-top: 4px; }
+  .header { background: white; border: 1px solid #e5e5e7; border-radius: 18px; padding: 36px; margin-bottom: 28px; }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+  .header-eyebrow { color: #86868b; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.15em; }
+  .header h1 { font-size: 30px; font-weight: 600; margin: 8px 0 4px; color: #1d1d1f; }
+  .header-sub { color: #86868b; font-size: 14px; }
   .header-date { text-align: right; font-size: 13px; }
-  .header-date .muted { color: rgba(255,255,255,0.7); }
-  .header-date .bold { color: white; }
-  .header-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.2); }
-  .header-grid .muted { color: rgba(255,255,255,0.6); }
-  .header-grid .bold, .header-grid div > div:last-child { color: white; }
+  .header-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 28px; padding-top: 24px; border-top: 1px solid #f0f0f2; }
 
   /* SECTIONS */
   .block { margin-bottom: 28px; page-break-inside: avoid; }
-  .section-title { font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 16px; }
+  .section-title { font-size: 20px; font-weight: 600; color: #1d1d1f; margin: 0 0 14px; letter-spacing: -0.02em; }
 
   /* KPI */
-  .kpi { border-radius: 12px; padding: 20px; color: white; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
-  .kpi-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.85); }
-  .kpi-value { font-size: 32px; font-weight: 700; margin-top: 4px; }
-  .kpi-sub { font-size: 12px; color: rgba(255,255,255,0.75); margin-top: 4px; }
+  .kpi { background: white; border: 1px solid #e5e5e7; border-radius: 14px; padding: 18px; }
+  .kpi-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: #86868b; }
+  .kpi-value { font-size: 30px; font-weight: 600; margin-top: 6px; letter-spacing: -0.02em; }
+  .kpi-sub { font-size: 12px; color: #86868b; margin-top: 4px; }
 
-  /* INFO CARD (lead time) */
-  .info-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; }
-  .info-title { font-size: 13px; color: #64748b; font-weight: 500; }
-  .info-value { font-size: 36px; font-weight: 700; color: #0000FF; margin: 6px 0; }
-  .info-unit { font-size: 16px; color: #64748b; font-weight: 500; }
+  /* INFO CARD (lead time, projetos) */
+  .info-card { background: white; border: 1px solid #e5e5e7; border-radius: 14px; padding: 20px; }
+  .info-title { font-size: 13px; color: #86868b; font-weight: 500; }
+  .info-value { font-size: 34px; font-weight: 600; color: #1d1d1f; margin: 6px 0; letter-spacing: -0.02em; }
+  .info-unit { font-size: 15px; color: #86868b; font-weight: 400; }
 
   /* PANEL */
-  .panel { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; }
-  .panel-head { font-weight: 700; font-size: 15px; margin-bottom: 12px; }
-  .panel-mini-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  .panel-val { font-size: 22px; font-weight: 700; color: #0f172a; margin-top: 2px; }
+  .panel { background: white; border: 1px solid #e5e5e7; border-radius: 14px; padding: 20px; }
+  .panel-head { font-weight: 600; font-size: 15px; margin-bottom: 14px; color: #1d1d1f; }
+  .panel-mini-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .panel-val { font-size: 22px; font-weight: 600; color: #1d1d1f; margin-top: 2px; letter-spacing: -0.02em; }
 
-  /* IA */
-  .ia-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-  .ia-head h2 { font-size: 20px; font-weight: 700; margin: 0; color: #0f172a; }
-  .ia-icon { width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #0000FF 0%, #ec4899 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-  .ia-badge { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 500; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
-  .ia-sumario { background: linear-gradient(135deg, #eff6ff 0%, #eef2ff 100%); border: 1px solid #bfdbfe; border-radius: 12px; padding: 20px; }
-  .ia-sumario h3 { margin: 0 0 8px; font-size: 16px; color: #0f172a; }
-  .ia-sumario p { margin: 0; color: #334155; white-space: pre-line; }
-  .ia-rh { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; }
-  .ia-rh h3 { margin: 0 0 8px; font-size: 16px; color: #0f172a; }
-  .ia-rh p { margin: 0; color: #334155; white-space: pre-line; }
-  .ia-conclusao { background: linear-gradient(135deg, #0A003C 0%, #0000FF 100%); color: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-  .ia-conclusao h3 { margin: 0 0 8px; font-size: 16px; color: white; }
-  .ia-conclusao p { margin: 0; color: rgba(255,255,255,0.9); white-space: pre-line; }
+  /* ANÁLISE */
+  .ia-sumario { background: #f5f5f7; border: 1px solid #e5e5e7; border-radius: 14px; padding: 22px; }
+  .ia-sumario h3 { margin: 0 0 10px; font-size: 16px; color: #1d1d1f; font-weight: 600; }
+  .ia-sumario p { margin: 0; color: #424245; white-space: pre-line; font-size: 14px; }
+  .ia-rh { background: white; border: 1px solid #e5e5e7; border-radius: 14px; padding: 22px; }
+  .ia-rh h3 { margin: 0 0 10px; font-size: 16px; color: #1d1d1f; font-weight: 600; }
+  .ia-rh p { margin: 0; color: #424245; white-space: pre-line; font-size: 14px; }
+  .ia-conclusao { background: linear-gradient(135deg, #1d1d1f 0%, #0a0a0c 100%); color: white; border-radius: 14px; padding: 22px; }
+  .ia-conclusao h3 { margin: 0 0 10px; font-size: 16px; color: white; font-weight: 600; }
+  .ia-conclusao p { margin: 0; color: rgba(255,255,255,0.85); white-space: pre-line; font-size: 14px; }
 
-  .list-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; }
+  .list-card { background: white; border: 1px solid #e5e5e7; border-radius: 14px; padding: 20px; }
   .list-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-  .list-head h3 { margin: 0; font-size: 15px; font-weight: 700; color: #0f172a; }
-  .list-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .list-head h3 { margin: 0; font-size: 15px; font-weight: 600; color: #1d1d1f; }
+  .list-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
   .list-card ul { list-style: none; padding: 0; margin: 0; }
-  .list-card li { display: flex; gap: 8px; font-size: 13px; color: #334155; padding: 4px 0; }
-  .list-card li span:first-child { font-weight: 700; flex-shrink: 0; }
+  .list-card li { display: flex; gap: 8px; font-size: 13.5px; color: #424245; padding: 5px 0; line-height: 1.55; }
+  .list-card li span:first-child { font-weight: 600; flex-shrink: 0; }
 
-  .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #94a3b8; }
+  .footer { margin-top: 36px; padding-top: 18px; border-top: 1px solid #e5e5e7; text-align: center; font-size: 11px; color: #86868b; }
 </style>
 </head>
 <body>
@@ -351,20 +367,32 @@ export async function exportToDOCX(dados, analise, periodoLabel, orientacao = 'r
     h('6. Sugestões de Melhoria'),
     ...(analise.sugestoes_melhorias || []).map(bullet),
 
-    h('7. Lead Time de Atendimento'),
+    ...(analise.recomendacoes_engenharia_producao ? [
+      h('7. Recomendações de Engenharia de Produção'),
+      ...analise.recomendacoes_engenharia_producao.map(bullet)
+    ] : []),
+
+    h('8. Lead Time de Atendimento (OS concluídas)'),
     p(`• Lead Time de Reservas: ${dados.leadTimeReservas.dias} dias (base ${dados.leadTimeReservas.total} OS)`),
     p(`• Lead Time de NF de Estoque: ${dados.leadTimeNFEstoque.dias} dias (base ${dados.leadTimeNFEstoque.total} OS)`),
 
-    h('8. Painel Recebimento'),
+    h('9. Painel Recebimento'),
     p(`• Total: ${dados.recebimento.total} | Conformidade: ${dados.recebimento.taxaConformidade}% | Problemas: ${dados.recebimento.comProblemas} | Lead Time: ${dados.recebimento.leadTime} dias`),
 
-    h('9. Painel Expedição'),
+    h('10. Painel Expedição'),
     p(`• Total: ${dados.expedicao.total} | OTIF: ${dados.expedicao.otif}% | Em trânsito: ${dados.expedicao.emTransito} | Lead Time: ${dados.expedicao.leadTime} dias`),
 
-    h('10. Análise de Produtividade e RH'),
+    ...(dados.projetos ? [
+      h('11. Projetos'),
+      p(`• Concluídos no período: ${dados.projetos.totalConcluidos} (${dados.projetos.taxaNoPrazo}% no prazo, duração média ${dados.projetos.duracaoMediaDias}d)`),
+      p(`• Em aberto: ${dados.projetos.totalAbertos} (${dados.projetos.abertosAtrasados} atrasados, ${dados.projetos.parados} parados)`),
+      ...(analise.analise_projetos ? [p(analise.analise_projetos, { after: 160 })] : [])
+    ] : []),
+
+    h('12. Análise de Produtividade'),
     p(analise.analise_produtividade_rh, { after: 200 }),
 
-    h('11. Conclusão Estratégica'),
+    h('13. Conclusão Estratégica'),
     p(analise.conclusao_estrategica)
   ];
 

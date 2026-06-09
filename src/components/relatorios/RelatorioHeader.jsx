@@ -1,5 +1,4 @@
 import React from 'react';
-import { Zap } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function RelatorioHeader({ filtrosAplicados, periodoLabel, dataGeracao }) {
@@ -10,34 +9,27 @@ export default function RelatorioHeader({ filtrosAplicados, periodoLabel, dataGe
   if (filtrosAplicados.status?.length) filtrosResumo.push(`Status: ${filtrosAplicados.status.join(', ')}`);
 
   return (
-    <div className="rounded-2xl overflow-hidden shadow-lg" style={{ background: 'linear-gradient(135deg, #0000FF 0%, #0A003C 100%)' }}>
-      <div className="p-8 text-white">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-              <Zap className="w-9 h-9 text-white" />
-            </div>
-            <div>
-              <p className="text-white/70 text-sm font-medium uppercase tracking-wider">Relatório Gerencial Executivo</p>
-              <h1 className="text-3xl font-bold mt-1">AlmoxHub - Axia Energia</h1>
-              <p className="text-white/80 text-sm mt-1">Análise consolidada de operações logísticas</p>
-            </div>
-          </div>
-          <div className="text-right text-sm">
-            <p className="text-white/70">Emitido em</p>
-            <p className="font-semibold">{format(new Date(dataGeracao), 'dd/MM/yyyy HH:mm')}</p>
-          </div>
+    <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/60 dark:border-slate-700 p-8">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.15em] text-slate-500 font-medium">Relatório Gerencial</p>
+          <h1 className="text-3xl font-semibold mt-2 tracking-tight text-slate-900 dark:text-white">AlmoxHub · Axia Energia</h1>
+          <p className="text-slate-500 text-sm mt-1">Análise consolidada de operações logísticas</p>
         </div>
+        <div className="text-right text-sm">
+          <p className="text-slate-500 text-xs uppercase tracking-wider">Emitido em</p>
+          <p className="font-medium text-slate-900 dark:text-white mt-1">{format(new Date(dataGeracao), 'dd/MM/yyyy HH:mm')}</p>
+        </div>
+      </div>
 
-        <div className="mt-6 pt-6 border-t border-white/20 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <p className="text-white/60 text-xs uppercase tracking-wide mb-1">Período Analisado</p>
-            <p className="text-white font-semibold">{periodoLabel}</p>
-          </div>
-          <div>
-            <p className="text-white/60 text-xs uppercase tracking-wide mb-1">Escopo</p>
-            <p className="text-white text-sm">{filtrosResumo.length > 0 ? filtrosResumo.join(' • ') : 'Todos os dados disponíveis'}</p>
-          </div>
+      <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div>
+          <p className="text-[11px] text-slate-500 uppercase tracking-[0.12em] mb-1">Período</p>
+          <p className="text-slate-900 dark:text-white font-medium">{periodoLabel}</p>
+        </div>
+        <div>
+          <p className="text-[11px] text-slate-500 uppercase tracking-[0.12em] mb-1">Escopo</p>
+          <p className="text-slate-700 dark:text-slate-300 text-sm">{filtrosResumo.length > 0 ? filtrosResumo.join(' · ') : 'Todos os dados disponíveis'}</p>
         </div>
       </div>
     </div>
