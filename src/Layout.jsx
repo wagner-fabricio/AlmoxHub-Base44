@@ -452,7 +452,7 @@ export default function Layout({ children, currentPageName }) {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-72">
                       <div className="px-3 py-3 border-b border-slate-200 dark:border-slate-700">
-                        <p className="font-medium text-slate-900 dark:text-white mb-2">{user?.full_name}</p>
+                        <p className="font-medium text-slate-900 dark:text-white mb-2">{pessoa?.nome || user?.full_name}</p>
                         {pessoa && (
                           <div className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
                             {pessoa.funcoes?.length > 0 && (
@@ -536,7 +536,7 @@ export default function Layout({ children, currentPageName }) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-72">
                     <div className="px-3 py-3 border-b border-slate-200 dark:border-slate-700">
-                      <p className="font-medium text-slate-900 dark:text-white mb-2">{user?.full_name}</p>
+                      <p className="font-medium text-slate-900 dark:text-white mb-2">{pessoa?.nome || user?.full_name}</p>
                       {pessoa && (
                         <div className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
                           {pessoa.funcoes?.length > 0 && (
