@@ -60,24 +60,18 @@ export default function PortalTitular() {
         setUploadingAnexos(false);
       }
 
-      // Gerar protocolo único
-      const timestamp = Date.now();
-      const random = Math.floor(Math.random() * 10000);
-      const protocoloGerado = `LGPD-${timestamp}-${random}`;
-
-      // Calcular prazo legal (15 dias)
-      const prazoLegal = new Date();
-      prazoLegal.setDate(prazoLegal.getDate() + 15);
-
-      // Criar solicitação
-      const novaSolicitacao = await base44.asServiceRole.entities.SolicitacaoTitular.create({
-        ...formData,
-        protocolo: protocoloGerado,
-        anexos: anexosUrls,
-        data_solicitacao: new Date().toISOString(),
-        prazo_legal: prazoLegal.toISOString().split('T')[0],
-        status: 'pendente'
+      // Criar solicitação via função backend (asServiceRole)
+      const { data } = await base44.functions.invoke('portalTitular', {
+        action: 'create',
+        dados: { ...formData, anexos: anexosUrls }
       });
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      const protocoloGerado = data.protocolo;
+      const prazoLegal = new Date(data.prazo_legal + 'T00:00:00');
 
       // Enviar email de confirmação (opcional)
       try {
@@ -115,16 +109,17 @@ export default function PortalTitular() {
 
     setLoading(true);
     try {
-      const results = await base44.asServiceRole.entities.SolicitacaoTitular.filter({
+      const { data } = await base44.functions.invoke('portalTitular', {
+        action: 'track',
         protocolo: trackingProtocolo,
-        titular_email: trackingEmail
+        email: trackingEmail
       });
 
-      if (results.length === 0) {
+      if (!data?.found) {
         alert('Solicitação não encontrada. Verifique o protocolo e email.');
         setSolicitacao(null);
       } else {
-        setSolicitacao(results[0]);
+        setSolicitacao(data.solicitacao);
         setStep('tracking');
       }
     } catch (error) {
