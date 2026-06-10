@@ -166,14 +166,12 @@ export default function OSDetailModal({
 
   const loadAuditLogs = async () => {
     try {
-      const logs = await base44.entities.AuditLog.filter({ 
-        entity_type: 'OrdemServico',
-        entity_id: os.id 
-      }, '-created_date', 200);
-      const logsArray = Array.isArray(logs) ? logs : [];
+      const response = await base44.functions.invoke('listarHistoricoOS', { os_id: os.id });
+      const logsArray = Array.isArray(response?.data?.logs) ? response.data.logs : [];
       setAuditLogs(logsArray.sort((a, b) => new Date(b.timestamp || b.created_date) - new Date(a.timestamp || a.created_date)));
     } catch (e) {
-      // silently fail — audit log is non-critical
+      console.error('Erro ao carregar histórico:', e);
+      setAuditLogs([]);
     }
   };
 
