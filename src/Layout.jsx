@@ -438,7 +438,7 @@ export default function Layout({ children, currentPageName }) {
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
-                      {user?.full_name || 'Usuário'}
+                      {pessoa?.nome || user?.full_name || 'Usuário'}
                     </p>
                     <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                       {user?.email || ''}
