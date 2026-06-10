@@ -41,8 +41,8 @@ export default function RelatorioRoteirizacao({ roteirizacao }) {
             </h3>
             <ul className="space-y-2">
               {roteirizacao.topRotasLongas.map((r, i) => (
-                <li key={i} className="flex items-center justify-between text-sm gap-3">
-                  <span className="text-slate-700 dark:text-slate-300 truncate">{r.origem} → {r.destino}</span>
+                <li key={i} className="flex items-start justify-between text-sm gap-3">
+                  <span className="text-slate-700 dark:text-slate-300 break-words min-w-0">{r.origem} → {r.destino}</span>
                   <span className="font-semibold text-slate-900 dark:text-white shrink-0">{r.distancia_km.toLocaleString('pt-BR')} km</span>
                 </li>
               ))}
@@ -58,8 +58,8 @@ export default function RelatorioRoteirizacao({ roteirizacao }) {
             </h3>
             <ul className="space-y-2">
               {roteirizacao.paresFrequentes.map((p, i) => (
-                <li key={i} className="flex items-center justify-between text-sm gap-3">
-                  <span className="text-slate-700 dark:text-slate-300 truncate">{p.par}</span>
+                <li key={i} className="flex items-start justify-between text-sm gap-3">
+                  <span className="text-slate-700 dark:text-slate-300 break-words min-w-0">{p.par}</span>
                   <span className="font-semibold text-slate-900 dark:text-white shrink-0">{p.ocorrencias}x · {p.distancia_km} km</span>
                 </li>
               ))}
