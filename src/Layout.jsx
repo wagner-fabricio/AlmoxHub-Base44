@@ -63,6 +63,7 @@ const menuItems = [
   { name: 'Delegação Permissões', icon: Shield, page: 'DelegacaoPermissoes' },
   { name: 'Problemas Expedição', icon: Shield, page: 'ProblemasExpedicao', gestorOnly: true },
   { name: 'Problemas Recebimento', icon: Shield, page: 'ProblemasRecebimento', gestorOnly: true },
+  { name: 'Solicitações LGPD', icon: Shield, page: 'GestaoSolicitacoes', gestorOnly: true },
   { name: 'Documentação', icon: BookOpen, page: 'Documentacao', gestorOnly: true },
 
   { name: 'Rótulos', icon: Tags, page: 'Rotulos', gestorOnly: true },
