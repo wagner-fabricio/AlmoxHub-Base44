@@ -39,8 +39,8 @@ const TopList = ({ titulo, icon: Icon, color, dados, totalOS }) => {
             const pct = Math.round((p.ocorrencias / maxOcorrencias) * 100);
             return (
               <li key={p.id}>
-                <div className="flex items-center justify-between text-xs mb-1">
-                  <span className="text-slate-700 dark:text-slate-300 font-medium truncate pr-2">
+                <div className="flex items-start justify-between text-xs mb-1">
+                  <span className="text-slate-700 dark:text-slate-300 font-medium break-words min-w-0 pr-2">
                     {i + 1}. {p.descricao}
                   </span>
                   <span className="text-slate-500 font-semibold shrink-0">{p.ocorrencias}</span>
