@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
 
     if (!dados) return Response.json({ error: 'Dados obrigatórios' }, { status: 400 });
 
-    const prompt = `Você é um analista sênior em Engenharia de Produção e Logística com 20+ anos de experiência. Domina: Lean Manufacturing, Teoria das Restrições (TOC), Six Sigma, OEE, análise de gargalos, balanceamento de capacidade, takt time, lead time, throughput, WIP, curva ABC, PDCA, DMAIC, Ishikawa, 5 Porquês, VSM, SCOR, WMS, OTIF, fill rate e acuracidade de estoque.
+    const prompt = `Você é um analista sênior em Engenharia de Produção e Logística com 20+ anos de experiência. Domina: Lean Manufacturing, Teoria das Restrições (TOC), Six Sigma, OEE, análise de gargalos, balanceamento de capacidade, takt time, lead time, throughput, WIP, curva ABC, PDCA, DMAIC, Ishikawa, 5 Porquês, VSM, SCOR, WMS, OTIF, fill rate e acuracidade de estoque. É também ESPECIALISTA EM ROTEIRIZAÇÃO DE CARGAS e otimização de transporte (VRP - Vehicle Routing Problem, consolidação de cargas, cross-docking, milk run, hub-and-spoke, otimização de last mile).
 
 Você analisará indicadores operacionais do AlmoxHub - Axia Energia e produzirá um resumo executivo de alto nível, com rigor técnico, direcionado a gestores e diretores.
 
@@ -54,6 +54,22 @@ Você DEVE OBRIGATORIAMENTE analisar esses dados e produzir o campo \`analise_pr
 4. Impacto agregado dos problemas sobre OTIF, taxa de conformidade e lead time.
 Se uma das listas estiver vazia, mencione explicitamente que não há incidências registradas naquele fluxo.
 
+## ATENÇÃO ESPECIAL — ANÁLISE DE ROTEIRIZAÇÃO LOGÍSTICA
+O bloco \`roteirizacao\` contém dados geográficos das entregas, onde:
+- Os **almoxarifados são os pontos de atendimento/coleta** e as **instalações são os pontos de entrega**.
+- As distâncias (em km) foram calculadas pela fórmula de Haversine entre as coordenadas (latitude/longitude) de origem (atendimento) e destino (entrega).
+- \`totalRotas\`, \`totalKm\`, \`distanciaMediaKm\`, \`maiorDistanciaKm\`: métricas agregadas.
+- \`topRotasLongas\`: as rotas individuais mais longas (maior custo unitário de transporte).
+- \`paresFrequentes\`: trajetos origem→destino que mais se repetem (oportunidades de consolidação/cargas recorrentes).
+
+Como o **custo de uma operação é diretamente proporcional à distância percorrida na entrega**, você DEVE OBRIGATORIAMENTE produzir o campo \`analise_roteirizacao_logistica\` agindo como especialista em roteirização de cargas:
+1. Avalie a eficiência geográfica da malha: distância média e total, rotas críticas de alto custo.
+2. Identifique **trajetos recorrentes** que justifiquem consolidação de cargas, milk run ou cargas programadas.
+3. Quando rotas longas/dispersas indicarem ineficiência, **proponha rotas otimizadas** ou **realocação dos pontos de coleta/entrega** (ex.: atender a partir de um almoxarifado mais próximo do destino) para reduzir custo de transporte.
+4. Estime qualitativamente o ganho potencial (redução de km e custo) de cada recomendação.
+5. Use técnicas de roteirização (VRP, hub-and-spoke, cross-docking, consolidação) quando aplicável.
+Se \`roteirizacao.totalRotas\` for 0, informe que não há rotas com coordenadas suficientes para análise geográfica e recomende cadastrar latitude/longitude dos pontos.
+
 Sua análise deve cobrir:
 1. **Sumário Executivo**: 2-3 parágrafos sintetizando desempenho, resultados e tendências.
 2. **Destaques Positivos**: 3-5 pontos quantificados.
@@ -64,7 +80,8 @@ Sua análise deve cobrir:
 7. **Análise de Problemas/Incidências**: 2-3 parágrafos detalhados conforme instruções acima, com ações direcionadas às principais incidências de expedição e recebimento.
 8. **Análise de Projetos**: 1-2 parágrafos avaliando os projetos concluídos no período e os projetos em aberto (status_projeto = ativo ou parado). Avalie taxa de cumprimento de prazo, duração média, projetos atrasados ou parados, e impacto no throughput operacional. Cite números concretos.
 9. **Análise de Produtividade**: 1-2 parágrafos sobre carga de trabalho, equilíbrio de equipes e dimensionamento.
-10. **Conclusão Estratégica**: 1 parágrafo com a recomendação prioritária de maior impacto.
+10. **Análise de Roteirização Logística**: 2-3 parágrafos detalhados conforme instruções acima, com propostas concretas de otimização de rotas, consolidação de cargas e/ou realocação de pontos de coleta e entrega para reduzir custos de transporte.
+11. **Conclusão Estratégica**: 1 parágrafo com a recomendação prioritária de maior impacto.
 
 Use português brasileiro formal. Cite números específicos.`;
 
@@ -82,6 +99,7 @@ Use português brasileiro formal. Cite números específicos.`;
           recomendacoes_engenharia_producao: { type: 'array', items: { type: 'string' } },
           analise_problemas_incidentes: { type: 'string' },
           analise_projetos: { type: 'string' },
+          analise_roteirizacao_logistica: { type: 'string' },
           analise_produtividade_rh: { type: 'string' },
           conclusao_estrategica: { type: 'string' }
         },
@@ -94,6 +112,7 @@ Use português brasileiro formal. Cite números específicos.`;
           'recomendacoes_engenharia_producao',
           'analise_problemas_incidentes',
           'analise_projetos',
+          'analise_roteirizacao_logistica',
           'analise_produtividade_rh',
           'conclusao_estrategica'
         ]

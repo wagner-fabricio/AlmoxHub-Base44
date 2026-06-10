@@ -11,13 +11,15 @@ import RelatorioPaineis from '@/components/relatorios/RelatorioPaineis';
 import RelatorioLeadTime from '@/components/relatorios/RelatorioLeadTime';
 import RelatorioProjetos from '@/components/relatorios/RelatorioProjetos';
 import RelatorioProblemasIncidentes from '@/components/relatorios/RelatorioProblemasIncidentes';
+import RelatorioRoteirizacao from '@/components/relatorios/RelatorioRoteirizacao';
 import RelatorioIASection from '@/components/relatorios/RelatorioIASection';
 import ExportarRelatorioMenu from '@/components/relatorios/ExportarRelatorioMenu';
+import { calcularRoteirizacao } from '@/lib/roteirizacao';
 
 const statusLabels = { elaboracao: 'Em Elaboração', execucao: 'Em Execução', concluido: 'Concluído', cancelado: 'Cancelado' };
 
 export default function RelatoriosGerenciais() {
-  const { ordens, regionais, almoxarifados, categorias, subcategorias, projetos, currentPessoa, currentUser, loading: ctxLoading } = useApp();
+  const { ordens, regionais, almoxarifados, instalacoes, categorias, subcategorias, projetos, currentPessoa, currentUser, loading: ctxLoading } = useApp();
   const [filters, setFilters] = useState({
     regional: [], almoxarifado: [], categoria: [], subcategoria: [],
     status: [], periodo: '30', dataInicio: '', dataFim: '', orientacao: 'retrato'
@@ -368,8 +370,11 @@ export default function RelatoriosGerenciais() {
       },
     };
 
-    return { kpis, porRegional, porAlmoxarifado, categoriasUsadas, recebimento, expedicao, leadTimeReservas, leadTimeNFEstoque, agruparPorAlmoxarifado, projetos: projetosDados, problemas };
-  }, [filteredOrdens, regionais, almoxarifados, categorias, categoriaRecebimento, categoriaExpedicao, projetos, problemasExpedicao, problemasRecebimento, filters]);
+    // ============ ROTEIRIZAÇÃO / LOGÍSTICA ============
+    const roteirizacao = calcularRoteirizacao(filteredOrdens, almoxarifados, instalacoes || []);
+
+    return { kpis, porRegional, porAlmoxarifado, categoriasUsadas, recebimento, expedicao, leadTimeReservas, leadTimeNFEstoque, agruparPorAlmoxarifado, projetos: projetosDados, problemas, roteirizacao };
+  }, [filteredOrdens, regionais, almoxarifados, instalacoes, categorias, categoriaRecebimento, categoriaExpedicao, projetos, problemasExpedicao, problemasRecebimento, filters]);
 
   const handleGerar = async () => {
     setLoading(true);
@@ -503,6 +508,7 @@ export default function RelatoriosGerenciais() {
           />
           <RelatorioProjetos projetos={dadosConsolidados.projetos} />
           <RelatorioProblemasIncidentes problemas={dadosConsolidados.problemas} />
+          <RelatorioRoteirizacao roteirizacao={dadosConsolidados.roteirizacao} />
           <RelatorioIASection analise={relatorio.analise} />
         </div>
       )}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sparkles, ThumbsUp, ThumbsDown, AlertTriangle, Lightbulb, Users, Award, Cog, FolderKanban, AlertOctagon } from 'lucide-react';
+import { Sparkles, ThumbsUp, ThumbsDown, AlertTriangle, Lightbulb, Users, Award, Cog, FolderKanban, AlertOctagon, Route } from 'lucide-react';
 
 const ListSection = ({ icon: Icon, title, items, color }) => (
   <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/60 dark:border-slate-700 p-5">
@@ -72,6 +72,11 @@ export default function RelatorioIASection({ analise }) {
       {/* Análise de Projetos */}
       {analise.analise_projetos && (
         <TextBlock icon={FolderKanban} title="Análise de Projetos" text={analise.analise_projetos} iconColor="#4F6BED" />
+      )}
+
+      {/* Análise de Roteirização Logística */}
+      {analise.analise_roteirizacao_logistica && (
+        <TextBlock icon={Route} title="Análise de Roteirização Logística" text={analise.analise_roteirizacao_logistica} iconColor="#0000FF" />
       )}
 
       {/* Produtividade */}
