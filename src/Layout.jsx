@@ -94,15 +94,8 @@ export default function Layout({ children, currentPageName }) {
   });
 
   useEffect(() => {
-    // Detectar mobile e redirecionar para EmFluxo
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
-    if (isMobile && currentPageName !== 'EmFluxo' && currentPageName !== 'MeuPerfilMobile' && currentPageName !== 'NotificationsMobile' && currentPageName !== 'NewUserSetup' && currentPageName !== 'PendingApproval' && currentPageName !== 'UserApproval' && currentPageName !== 'ThankYou') {
-      // Preservar o parâmetro os_id (ex: QR code da etiqueta) ao redirecionar para a home mobile
-      const osIdParam = new URLSearchParams(window.location.search).get('os_id');
-      window.location.href = createPageUrl('EmFluxo') + (osIdParam ? `?os_id=${osIdParam}` : '');
-      return;
-    }
-
+    // O redirecionamento mobile (incl. preservação do os_id do QR code) é feito
+    // de forma síncrona em main.jsx, antes do React montar.
     const loadUser = async () => {
       let redirected = false;
       try {

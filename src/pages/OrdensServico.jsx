@@ -211,7 +211,9 @@ export default function OrdensServico() {
       // Check for OS ID in URL params (from notification or external link)
       const urlParams = new URLSearchParams(window.location.search);
       const osId = urlParams.get('os_id');
-      if (osId) {
+      // No mobile o Layout redireciona para EmFluxo preservando o os_id — não limpar a URL aqui
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
+      if (osId && !isMobile) {
         window.history.replaceState({}, '', window.location.pathname);
         // Tenta encontrar no cache; se não achar, busca direto do backend
         const cached = queryClient.getQueryData(ORDENS_QUERY_KEY);
