@@ -113,11 +113,13 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
     // Pre-generate QR code — aponta direto para a home mobile (EmFluxo) abrindo a OS.
     // Em dispositivos com o app (PWA) instalado, essa rota é capturada pelo app;
     // caso contrário, abre no navegador na OS correta.
-    const osUrl = `${window.location.origin}/EmFluxo?os_id=${os.id}`;
     let qrDataUrl = null;
-    try {
-      qrDataUrl = await QRCode.toDataURL(osUrl, { width: 300, margin: 1, errorCorrectionLevel: 'M' });
-    } catch(e) { console.warn('QR generation failed', e); }
+    if (os?.id) {
+      const osUrl = `${window.location.origin}/EmFluxo?os_id=${os.id}`;
+      try {
+        qrDataUrl = await QRCode.toDataURL(osUrl, { width: 300, margin: 1, errorCorrectionLevel: 'M' });
+      } catch(e) { console.warn('QR generation failed', e); }
+    }
 
     // ─── Configuração de papel e grade ───
     // Térmica: 100×150 mm, 1 etiqueta por página, margem de 5 mm
