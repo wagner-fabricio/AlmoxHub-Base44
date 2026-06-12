@@ -110,8 +110,10 @@ export default function EtiquetaVolumesModal({ open, onClose, os, instalacoes, a
     for (const sid of selectedSymbols)
       if (SYMBOL_SVGS[sid]) symImages[sid] = await svgToPng(SYMBOL_SVGS[sid], 280);
 
-    // Pre-generate QR code (same link as "compartilhar" button)
-    const osUrl = `${window.location.origin}/OrdensServico?os_id=${os.id}`;
+    // Pre-generate QR code — aponta direto para a home mobile (EmFluxo) abrindo a OS.
+    // Em dispositivos com o app (PWA) instalado, essa rota é capturada pelo app;
+    // caso contrário, abre no navegador na OS correta.
+    const osUrl = `${window.location.origin}/EmFluxo?os_id=${os.id}`;
     let qrDataUrl = null;
     try {
       qrDataUrl = await QRCode.toDataURL(osUrl, { width: 300, margin: 1, errorCorrectionLevel: 'M' });
