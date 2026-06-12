@@ -127,11 +127,18 @@ export default function EmFluxo() {
       }
       setParticipantes(participantesDoUsuario || []);
 
-      // Verificar se há um os_id na URL para abrir automaticamente
+      // Verificar se há um os_id na URL para abrir automaticamente (ex: QR code da etiqueta)
       const urlParams = new URLSearchParams(window.location.search);
       const osIdParam = urlParams.get('os_id');
       if (osIdParam) {
-        const osToOpen = minhasOrdens.find(os => os.id === osIdParam);
+        let osToOpen = minhasOrdens.find(os => os.id === osIdParam);
+        // Se não for uma das minhas OS, buscar diretamente pelo ID (QR pode ser de qualquer OS)
+        if (!osToOpen) {
+          try {
+            const found = await base44.entities.OrdemServico.filter({ id: osIdParam });
+            osToOpen = (found || [])[0];
+          } catch (e) { /* OS não encontrada/sem acesso */ }
+        }
         if (osToOpen) setSelectedOS(osToOpen);
       }
 

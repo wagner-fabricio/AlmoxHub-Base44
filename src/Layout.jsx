@@ -97,7 +97,9 @@ export default function Layout({ children, currentPageName }) {
     // Detectar mobile e redirecionar para EmFluxo
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
     if (isMobile && currentPageName !== 'EmFluxo' && currentPageName !== 'MeuPerfilMobile' && currentPageName !== 'NotificationsMobile' && currentPageName !== 'NewUserSetup' && currentPageName !== 'PendingApproval' && currentPageName !== 'UserApproval' && currentPageName !== 'ThankYou') {
-      window.location.href = createPageUrl('EmFluxo');
+      // Preservar o parâmetro os_id (ex: QR code da etiqueta) ao redirecionar para a home mobile
+      const osIdParam = new URLSearchParams(window.location.search).get('os_id');
+      window.location.href = createPageUrl('EmFluxo') + (osIdParam ? `?os_id=${osIdParam}` : '');
       return;
     }
 
