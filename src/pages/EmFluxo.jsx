@@ -90,6 +90,22 @@ export default function EmFluxo() {
       const pessoa = (pessoasMatch || [])[0];
       setCurrentPessoa(pessoa);
 
+      // Abrir OS via QR code (os_id na URL) — funciona mesmo sem pessoa cadastrada
+      // ou para usuários que não são executores (modo visualização).
+      const urlParams = new URLSearchParams(window.location.search);
+      const osIdParam = urlParams.get('os_id');
+      if (osIdParam) {
+        try {
+          const found = await base44.entities.OrdemServico.filter({ id: osIdParam });
+          const osToOpen = (found || [])[0];
+          if (osToOpen) {
+            setSelectedOS(osToOpen);
+            // Carregar dados auxiliares para exibir a OS corretamente
+            loadAuxData(pessoa);
+          }
+        } catch (e) { /* OS não encontrada/sem acesso */ }
+      }
+
       if (!pessoa?.id) {
         setLoading(false);
         return;
@@ -126,21 +142,6 @@ export default function EmFluxo() {
         setConversas([]);
       }
       setParticipantes(participantesDoUsuario || []);
-
-      // Verificar se há um os_id na URL para abrir automaticamente (ex: QR code da etiqueta)
-      const urlParams = new URLSearchParams(window.location.search);
-      const osIdParam = urlParams.get('os_id');
-      if (osIdParam) {
-        let osToOpen = minhasOrdens.find(os => os.id === osIdParam);
-        // Se não for uma das minhas OS, buscar diretamente pelo ID (QR pode ser de qualquer OS)
-        if (!osToOpen) {
-          try {
-            const found = await base44.entities.OrdemServico.filter({ id: osIdParam });
-            osToOpen = (found || [])[0];
-          } catch (e) { /* OS não encontrada/sem acesso */ }
-        }
-        if (osToOpen) setSelectedOS(osToOpen);
-      }
 
       setLoading(false);
 
@@ -540,6 +541,13 @@ export default function EmFluxo() {
 
   // Vista de OS Detail
   if (selectedOS) {
+    // Usuário pode editar somente se for líder, executor ou outro envolvido na OS.
+    // Caso contrário (ex: acesso via QR code), abre em modo somente-visualização.
+    const podeEditar = !!currentPessoa?.id && (
+      selectedOS.lider_id === currentPessoa.id ||
+      (selectedOS.executores_ids || []).includes(currentPessoa.id) ||
+      (selectedOS.outros_envolvidos_ids || []).includes(currentPessoa.id)
+    );
     return (
       <OSMobileDetail
         os={selectedOS}
@@ -551,6 +559,7 @@ export default function EmFluxo() {
         almoxarifados={almoxarifados}
         instalacoes={instalacoes}
         onRefresh={loadData}
+        readOnly={!podeEditar}
       />
     );
   }

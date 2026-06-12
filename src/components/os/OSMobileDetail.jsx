@@ -61,7 +61,8 @@ export default function OSMobileDetail({
   regionais,
   almoxarifados,
   instalacoes,
-  onRefresh
+  onRefresh,
+  readOnly = false
 }) {
   const [activeTab, setActiveTab] = useState('detalhes');
   const [checkedItems, setCheckedItems] = useState({});
@@ -105,8 +106,9 @@ export default function OSMobileDetail({
   const [volumes, setVolumes] = useState(os.volumes || []);
   const [savingVolumes, setSavingVolumes] = useState(false);
 
-  // Verificar se o usuário atual está associado à OS
+  // Verificar se o usuário atual está associado à OS (e pode editar)
   const isUserAssociated = () => {
+    if (readOnly) return false;
     if (!currentUserPessoa) return false;
     const userId = currentUserPessoa.id;
     return (
@@ -643,7 +645,7 @@ export default function OSMobileDetail({
               max={100}
               step={5}
               className="cursor-pointer"
-              disabled={savingProgress}
+              disabled={savingProgress || readOnly}
             />
           </div>
         </div>
@@ -1045,6 +1047,11 @@ export default function OSMobileDetail({
             </div>
 
             {/* Fixed Input at Bottom */}
+            {readOnly ? (
+              <div className="border-t border-slate-200 dark:border-slate-700 pt-3 mt-3 text-center text-sm text-slate-500 dark:text-slate-400">
+                Você está visualizando esta OS. Apenas envolvidos podem comentar.
+              </div>
+            ) : (
             <div className="border-t border-slate-200 dark:border-slate-700 pt-3 mt-3 bg-white dark:bg-slate-900">
               {selectedCommentFiles.length > 0 && (
                 <div className="mb-3 flex flex-wrap gap-2">
@@ -1110,6 +1117,7 @@ export default function OSMobileDetail({
                 </Button>
               </div>
             </div>
+            )}
           </div>
         )}
 
@@ -1403,6 +1411,7 @@ export default function OSMobileDetail({
         {activeTab === 'anexos' && (
           <div className="space-y-4">
             {/* Botões de Upload e Seleção */}
+            {!readOnly && (
             <div className="flex gap-3">
               {!selectionMode ? (
                 <>
@@ -1487,6 +1496,7 @@ export default function OSMobileDetail({
                 </>
               )}
             </div>
+            )}
 
             {/* Imagens */}
             {os.imagens?.length > 0 && (
