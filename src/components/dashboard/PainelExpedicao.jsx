@@ -14,6 +14,7 @@ import { SortableTableHead, useTableSort, useColumnFilters } from '@/components/
 import { useApp } from '@/components/contexts/AppContext';
 import OSFormModal from '@/components/os/OSFormModal';
 import LeadTimeReservasMensal from '@/components/dashboard/LeadTimeReservasMensal';
+import OSProblemasExpedicaoTabela from '@/components/dashboard/OSProblemasExpedicaoTabela';
 import { carregarFeriados, buildFeriadosSet, diasUteisEntreComFeriados, contextoDaOS } from '@/lib/diasUteis';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -1155,6 +1156,13 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, problem
           </>
         )}
       </div>
+
+      {/* ── Lista de OS base do gráfico de problemas ── */}
+      <OSProblemasExpedicaoTabela
+        osComOcorrencia={osComOcorrenciaArr}
+        problemasExpedicao={problemasExpedicao}
+        almoxarifados={almoxarifados}
+      />
 
       {/* ── Tabela de OS ── */}
       {(() => {
