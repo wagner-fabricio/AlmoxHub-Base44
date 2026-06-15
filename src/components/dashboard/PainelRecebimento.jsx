@@ -16,6 +16,7 @@ import { useApp } from '@/components/contexts/AppContext';
 import OSFormModal from '@/components/os/OSFormModal';
 import { SortableTableHead, useTableSort, useColumnFilters } from '@/components/ui/table-sortable';
 import LeadTimeReservasMensal from '@/components/dashboard/LeadTimeReservasMensal';
+import OSProblemasRecebimentoTabela from '@/components/dashboard/OSProblemasRecebimentoTabela';
 import {
   carregarFeriados, buildFeriadosSet, diasUteisEntreComFeriados, contextoDaOS,
 } from '@/lib/diasUteis';
@@ -989,6 +990,13 @@ export default function PainelRecebimento({
           </>
         )}
       </div>
+
+      {/* ── Lista de OS base do gráfico de problemas ── */}
+      <OSProblemasRecebimentoTabela
+        osComProblema={osComProblemaArr}
+        problemasRecebimento={problemasRecebimento}
+        almoxarifados={almoxarifados}
+      />
 
       {/* ── Gráficos de Fornecedores e UF (apenas OS com XML) ── */}
       {osComXml.length > 0 && (
