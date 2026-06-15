@@ -55,6 +55,9 @@ export default function LeadTimeReservasMensal({
   itensField = 'itens_documento',
   valorField = 'r_total',
   filterFn = null,
+  // Quando true, usa o startDateField diretamente como data de início (ex.: IRP-EST = data_recebimento → data_migo_receb).
+  // Quando false (padrão), usa a maior data entre Reserva/Ressuprimento/EPI (fluxo de expedição/atendimento de reservas).
+  usarStartDateDireto = false,
 }) {
   const [metrica, setMetrica] = useState('quantItens');
   const currentYear = new Date().getFullYear();
@@ -80,7 +83,9 @@ export default function LeadTimeReservasMensal({
     // Dias úteis descontam sábados/domingos E feriados aplicáveis ao almoxarifado da OS.
     const reservasValidas = baseOrdens
       .map(os => {
-        const inicio = maiorDataInicioDocumento(os);
+        const inicio = usarStartDateDireto
+          ? (os[startDateField] ? new Date(os[startDateField]) : null)
+          : maiorDataInicioDocumento(os);
         const dias = diasUteisEntreComFeriados(inicio, os[endDateField], feriadosSetPorOS(os));
         return { os, dias, sla: slaPorPrioridade(os.prioridade) };
       })
@@ -112,7 +117,7 @@ export default function LeadTimeReservasMensal({
       total: t,
       percentualNoPrazo: pct
     };
-  }, [filteredOrdens, currentYear, metrica, endDateField, itensField, valorField, filterFn, feriadosSetPorOS]);
+  }, [filteredOrdens, currentYear, metrica, startDateField, endDateField, itensField, valorField, filterFn, usarStartDateDireto, feriadosSetPorOS]);
 
   // Formatadores conforme métrica
   const formatTickY = (v) => {
@@ -168,8 +173,18 @@ export default function LeadTimeReservasMensal({
             <HelpCircle className="w-4 h-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-help" />
             <span className="invisible group-hover:visible group-focus-within:visible absolute left-6 top-1/2 -translate-y-1/2 z-20 w-80 p-3 bg-slate-900 text-white text-xs font-normal normal-case tracking-normal rounded-lg shadow-xl">
               <strong className="block mb-1">Como o prazo é calculado:</strong>
-              <span className="block mb-1.5">• <strong>Início:</strong> maior data entre <em>Data Reserva</em>, <em>Data Ressuprimento</em> e <em>Data Aprovação EPI</em> (aba Documento da OS).</span>
-              <span className="block mb-1.5">• <strong>Fim:</strong> <em>Data MIGO</em>.</span>
+              {usarStartDateDireto ? (
+                <>
+                  <span className="block mb-1.5">• <strong>Indicador:</strong> IRP-EST (Regularização de material de Estoque).</span>
+                  <span className="block mb-1.5">• <strong>Início:</strong> <em>Data de Recebimento</em>.</span>
+                  <span className="block mb-1.5">• <strong>Fim:</strong> <em>Data MIGO de Recebimento</em>.</span>
+                </>
+              ) : (
+                <>
+                  <span className="block mb-1.5">• <strong>Início:</strong> maior data entre <em>Data Reserva</em>, <em>Data Ressuprimento</em> e <em>Data Aprovação EPI</em> (aba Documento da OS).</span>
+                  <span className="block mb-1.5">• <strong>Fim:</strong> <em>Data MIGO</em>.</span>
+                </>
+              )}
               <span className="block mb-1.5">• Apenas dias úteis (segunda a sexta) são contados — sábados, domingos e <em>feriados cadastrados</em> (nacionais, estaduais, municipais ou locais conforme o almoxarifado da OS) são descontados.</span>
               <strong className="block mt-2 mb-1">SLA por prioridade:</strong>
               <span className="block">• Baixa, Média, Alta: <strong>7 dias úteis</strong></span>

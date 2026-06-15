@@ -817,11 +817,12 @@ export default function PainelRecebimento({
         return (
           <LeadTimeReservasMensal
             filteredOrdens={osReceb}
-            titulo="Resultados Mensais - NF de estoque"
+            titulo="Resultados Mensais - IRP-EST (Regularização de Estoque)"
             startDateField="data_recebimento"
             endDateField="data_migo_receb"
             itensField="nfe_itens_conferencia"
             valorField="valor_total"
+            usarStartDateDireto={true}
             filterFn={subCompraEstoque ? ((os) => (os.subcategorias_ids || []).includes(subCompraEstoque.id)) : null}
           />
         );
