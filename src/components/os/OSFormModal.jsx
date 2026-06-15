@@ -898,7 +898,7 @@ export default function OSFormModal({
                     </div>
                     <div className="space-y-2">
                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Almoxarifado <span className="text-red-500">*</span></Label>
-                       <Select value={formData.almoxarifado_id} onValueChange={(v) => { const selectedAlmox = (filteredAlmoxarifados || []).find(a => a.id === v); setFormData({ ...formData, almoxarifado_id: v, executores_ids: [], atendente_nome: '', instalacao_origem_id: selectedAlmox?.instalacao_id || '' }); }}>
+                       <Select value={formData.almoxarifado_id} onValueChange={(v) => { const selectedAlmox = (filteredAlmoxarifados || []).find(a => a.id === v); setFormData({ ...formData, almoxarifado_id: v, executores_ids: [], instalacao_origem_id: selectedAlmox?.instalacao_id || '' }); }}>
                          <SelectTrigger className={`rounded-lg ${!formData.almoxarifado_id ? 'border-red-300 dark:border-red-700' : 'border-slate-300 dark:border-slate-600'}`}><SelectValue placeholder="Selecione..." /></SelectTrigger>
                          <SelectContent>{(filteredAlmoxarifados || []).sort((a, b) => (a.nome || '').localeCompare(b.nome || '')).map(a => (<SelectItem key={a.id} value={a.id}>{a.nome}</SelectItem>))}</SelectContent>
                        </Select>
@@ -962,7 +962,7 @@ export default function OSFormModal({
                       <Label className="text-slate-700 dark:text-slate-300 font-medium">OS Global</Label>
                       <button
                         type="button"
-                        onClick={() => setFormData({ ...formData, is_global: !formData.is_global, lider_id: '', executores_ids: [], atendente_nome: '' })}
+                        onClick={() => setFormData({ ...formData, is_global: !formData.is_global, lider_id: '', executores_ids: [] })}
                         title="Permite selecionar pessoas de qualquer regional/almoxarifado"
                         className={`w-full h-10 flex items-center justify-between gap-2 px-3 rounded-lg border transition-colors ${formData.is_global ? 'border-purple-400 bg-purple-50 dark:bg-purple-900/20' : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800'}`}
                       >
