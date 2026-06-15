@@ -16,6 +16,18 @@ import { useApp } from '@/components/contexts/AppContext';
 import OSFormModal from '@/components/os/OSFormModal';
 import { SortableTableHead, useTableSort, useColumnFilters } from '@/components/ui/table-sortable';
 import LeadTimeReservasMensal from '@/components/dashboard/LeadTimeReservasMensal';
+import {
+  carregarFeriados, buildFeriadosSet, diasUteisEntreComFeriados, contextoDaOS,
+} from '@/lib/diasUteis';
+
+// Verifica se a OS pertence à subcategoria "Compra - Estoque"
+const isCompraEstoque = (os, subcategorias) => {
+  const norm = (s) => (s || '').toLowerCase().replace(/[\s-]/g, '');
+  return (os.subcategorias_ids || []).some(sid => {
+    const sub = subcategorias?.find(s => s.id === sid);
+    return sub && norm(sub.nome) === 'compraestoque';
+  });
+};
 
 // ─── Sub-components ─────────────────────────────────────────────────────────
 
@@ -92,10 +104,24 @@ function HelpModalRecebimento({ open, onClose }) {
             },
             {
               num: 3, sigla: 'LTR', titulo: 'Lead Time de Recebimento',
-              desc: 'Tempo médio em dias entre a data da NF-e de recebimento e o lançamento do MIGO (entrada no SAP).',
-              formula: 'LTR = Média(data_migo_receb − nfe_data_receb) em dias',
+              desc: 'Tempo médio em dias corridos entre a data de recebimento e o lançamento do MIGO (entrada no SAP).',
+              formula: 'LTR = Média(data_migo_receb − data_recebimento) em dias corridos',
               semaforo: [['≤ 3d', 'Ágil', 'green'], ['4–7d', 'Atenção', 'yellow'], ['> 7d', 'Lento', 'red']],
-              exemplo: 'NF-e em 01/03, MIGO em 04/03 → LTR = 3 dias'
+              exemplo: 'Recebimento em 01/03, MIGO em 04/03 → LTR = 3 dias'
+            },
+            {
+              num: 3, sigla: 'LTE', titulo: 'Lead Time de Entrega',
+              desc: 'Tempo médio em dias corridos entre a emissão da NF-e e a data de recebimento do material.',
+              formula: 'LTE = Média(data_recebimento − nfe_data_emissao) em dias corridos',
+              semaforo: [['≤ 3d', 'Ágil', 'green'], ['4–7d', 'Atenção', 'yellow'], ['> 7d', 'Lento', 'red']],
+              exemplo: 'Emissão NF em 01/03, recebimento em 05/03 → LTE = 4 dias'
+            },
+            {
+              num: 3, sigla: 'IRP-EST', titulo: 'Índice de Regularização de material de Estoque',
+              desc: 'Mesma fórmula do LTR (recebimento → MIGO), porém medido em dias úteis (descontando fins de semana e feriados). Aplicado APENAS à subcategoria "Compra - Estoque".',
+              formula: 'IRP-EST = Média(data_migo_receb − data_recebimento) em dias úteis',
+              semaforo: [['≤ 3d', 'Ágil', 'green'], ['4–7d', 'Atenção', 'yellow'], ['> 7d', 'Lento', 'red']],
+              exemplo: 'Receb. sexta 01/03, MIGO terça 05/03 → IRP-EST = 2 dias úteis'
             },
             {
               num: 4, sigla: 'TCF', titulo: 'Taxa de Conclusão do Fluxo',
@@ -189,6 +215,19 @@ export default function PainelRecebimento({
 
   const totalReceb = osReceb.length;
 
+  // Carrega feriados para o cálculo de dias úteis (IRP-EST)
+  const [feriados, setFeriados] = useState([]);
+  useEffect(() => { carregarFeriados().then(setFeriados); }, []);
+  const feriadosSetPorOS = useMemo(() => {
+    const cache = new Map();
+    return (os) => {
+      const ctx = contextoDaOS(os, almoxarifados, instalacoes);
+      const key = `${ctx.almoxarifado_id || ''}|${ctx.estado}|${ctx.cidade}`;
+      if (!cache.has(key)) cache.set(key, buildFeriadosSet(feriados, ctx));
+      return cache.get(key);
+    };
+  }, [feriados, almoxarifados, instalacoes]);
+
   // ── 1. TCR ──────────────────────────────────────────────────────────────────
   const osComProblemaArr = useMemo(() => osReceb.filter(os => os.problema_recebimento === true), [osReceb]);
   const tcr = totalReceb > 0 ? Math.round(((totalReceb - osComProblemaArr.length) / totalReceb) * 100) : 0;
@@ -198,15 +237,42 @@ export default function PainelRecebimento({
   const itensCompletos = todosItens.filter(i => i.status_conferencia === 'completo').length;
   const tac = todosItens.length > 0 ? Math.round((itensCompletos / todosItens.length) * 100) : 0;
 
-  // ── 3. LTR ──────────────────────────────────────────────────────────────────
+  // ── 3. LTR (Lead Time de Recebimento) ────────────────────────────────────────
+  // Fórmula: data_migo_receb − data_recebimento (dias corridos)
   const osComLTR = useMemo(
-    () => osReceb.filter(os => os.nfe_data_receb && os.data_migo_receb),
+    () => osReceb.filter(os => os.data_recebimento && os.data_migo_receb),
     [osReceb]
   );
   const ltr = osComLTR.length > 0
     ? (osComLTR.reduce((s, os) =>
-        s + Math.max(0, differenceInDays(new Date(os.data_migo_receb), new Date(os.nfe_data_receb))), 0
+        s + Math.max(0, differenceInDays(new Date(os.data_migo_receb), new Date(os.data_recebimento))), 0
       ) / osComLTR.length).toFixed(1)
+    : null;
+
+  // ── 3b. LTE (Lead Time de Entrega) ───────────────────────────────────────────
+  // Fórmula: data_recebimento − nfe_data_emissao (dias corridos)
+  const osComLTE = useMemo(
+    () => osReceb.filter(os => os.nfe_data_emissao && os.data_recebimento),
+    [osReceb]
+  );
+  const lte = osComLTE.length > 0
+    ? (osComLTE.reduce((s, os) =>
+        s + Math.max(0, differenceInDays(new Date(os.data_recebimento), new Date(os.nfe_data_emissao))), 0
+      ) / osComLTE.length).toFixed(1)
+    : null;
+
+  // ── 3c. IRP-EST (Índice de Regularização de material de Estoque) ──────────────
+  // Mesma fórmula do LTR (data_migo_receb − data_recebimento), mas em DIAS ÚTEIS
+  // e aplicado APENAS à subcategoria "Compra - Estoque".
+  const osComIrpEst = useMemo(
+    () => osReceb.filter(os => os.data_recebimento && os.data_migo_receb && isCompraEstoque(os, subcategorias)),
+    [osReceb, subcategorias]
+  );
+  const irpEst = osComIrpEst.length > 0
+    ? (osComIrpEst.reduce((s, os) => {
+        const dias = diasUteisEntreComFeriados(os.data_recebimento, os.data_migo_receb, feriadosSetPorOS(os));
+        return s + (dias ?? 0);
+      }, 0) / osComIrpEst.length).toFixed(1)
     : null;
 
   // ── 4. TCF ──────────────────────────────────────────────────────────────────
@@ -269,10 +335,10 @@ export default function PainelRecebimento({
   const ltrMensal = useMemo(() => {
     const map = {};
     osComLTR.forEach(os => {
-      const key = os.nfe_data_receb.substring(0, 7);
+      const key = os.data_recebimento.substring(0, 7);
       if (!map[key]) map[key] = { total: 0, dias: 0 };
       map[key].total++;
-      map[key].dias += Math.max(0, differenceInDays(new Date(os.data_migo_receb), new Date(os.nfe_data_receb)));
+      map[key].dias += Math.max(0, differenceInDays(new Date(os.data_migo_receb), new Date(os.data_recebimento)));
     });
     return Object.entries(map)
       .sort(([a], [b]) => a.localeCompare(b))
@@ -424,8 +490,15 @@ export default function PainelRecebimento({
   const osTabelaRows = useMemo(() => {
     const osTabela = osReceb.map(os => {
       const almox = almoxarifados.find(a => a.id === os.almoxarifado_id);
-      const ltrDias = os.nfe_data_receb && os.data_migo_receb
-        ? Math.max(0, differenceInDays(new Date(os.data_migo_receb), new Date(os.nfe_data_receb)))
+      const ltrDias = os.data_recebimento && os.data_migo_receb
+        ? Math.max(0, differenceInDays(new Date(os.data_migo_receb), new Date(os.data_recebimento)))
+        : null;
+      const lteDias = os.nfe_data_emissao && os.data_recebimento
+        ? Math.max(0, differenceInDays(new Date(os.data_recebimento), new Date(os.nfe_data_emissao)))
+        : null;
+      const ehCompraEstoque = isCompraEstoque(os, subcategorias);
+      const irpEstDias = ehCompraEstoque && os.data_recebimento && os.data_migo_receb
+        ? (diasUteisEntreComFeriados(os.data_recebimento, os.data_migo_receb, feriadosSetPorOS(os)) ?? null)
         : null;
       const tmrpDias = os.data_solucao && os.data_recebimento
         ? Math.abs(differenceInDays(new Date(os.data_solucao), new Date(os.data_recebimento)))
@@ -442,17 +515,20 @@ export default function PainelRecebimento({
         .join(', ') || '—';
       const etapaAtual = getEtapaAtualLabel(os);
       const liderNome = pessoas?.find(p => p.id === os.lider_id)?.nome || '—';
-      return { os, almox, ltrDias, tmrpDias, itens, itensComp, tacPct, armazenado, temProblema, progresso, subcatNomes, etapaAtual, liderNome };
+      return { os, almox, ltrDias, lteDias, irpEstDias, ehCompraEstoque, tmrpDias, itens, itensComp, tacPct, armazenado, temProblema, progresso, subcatNomes, etapaAtual, liderNome };
     });
 
     let rows = [...osTabela];
     Object.entries(columnFilters).forEach(([col, values]) => {
       if (!values || values.length === 0) return;
-      rows = rows.filter(({ os, almox, ltrDias, tmrpDias, tacPct, armazenado, temProblema, subcatNomes, etapaAtual, liderNome }) => {
+      rows = rows.filter(({ os, almox, ltrDias, lteDias, irpEstDias, tmrpDias, tacPct, armazenado, temProblema, subcatNomes, etapaAtual, liderNome }) => {
         if (col === 'almox') return values.includes(almox?.nome || '—');
+        if (col === 'nfe_data_emissao') return values.includes(safeF(os.nfe_data_emissao));
         if (col === 'nfe_data_receb') return values.includes(safeF(os.nfe_data_receb));
         if (col === 'data_migo_receb') return values.includes(safeF(os.data_migo_receb));
         if (col === 'ltrDias') return values.includes(ltrDias !== null ? `${ltrDias}d` : '—');
+        if (col === 'lteDias') return values.includes(lteDias !== null ? `${lteDias}d` : '—');
+        if (col === 'irpEstDias') return values.includes(irpEstDias !== null ? `${irpEstDias}d` : '—');
         if (col === 'data_recebimento') return values.includes(safeF(os.data_recebimento));
         if (col === 'armazenado') return values.includes(armazenado ? 'Sim' : 'Não');
         if (col === 'temProblema') return values.includes(temProblema ? 'Sim' : 'Não');
@@ -476,6 +552,8 @@ export default function PainelRecebimento({
        else if (col === 'nfe_data_receb') { va = a.os.nfe_data_receb || ''; vb = b.os.nfe_data_receb || ''; }
        else if (col === 'data_migo_receb') { va = a.os.data_migo_receb || ''; vb = b.os.data_migo_receb || ''; }
        else if (col === 'ltrDias') { va = a.ltrDias ?? Infinity; vb = b.ltrDias ?? Infinity; }
+       else if (col === 'lteDias') { va = a.lteDias ?? Infinity; vb = b.lteDias ?? Infinity; }
+       else if (col === 'irpEstDias') { va = a.irpEstDias ?? Infinity; vb = b.irpEstDias ?? Infinity; }
        else if (col === 'data_recebimento') { va = a.os.data_recebimento || ''; vb = b.os.data_recebimento || ''; }
        else if (col === 'tmrpDias') { va = a.tmrpDias ?? Infinity; vb = b.tmrpDias ?? Infinity; }
        else if (col === 'tacPct') { va = a.tacPct ?? -1; vb = b.tacPct ?? -1; }
@@ -493,7 +571,7 @@ export default function PainelRecebimento({
      });
     }
     return rows;
-  }, [osReceb, almoxarifados, subcategorias, columnFilters, sortConfig]);
+  }, [osReceb, almoxarifados, subcategorias, columnFilters, sortConfig, feriadosSetPorOS]);
 
   // ── Chart: Ranking Problemas ──────────────────────────────────────────────
   const problemasChartData = useMemo(() => {
@@ -538,17 +616,20 @@ export default function PainelRecebimento({
       {!hideToolbar && (
         <div className="flex justify-end gap-2">
           <Button variant="outline" size="sm" onClick={() => {
-            const rows = osTabelaRows.map(({ os, almox, ltrDias, tmrpDias, itens, itensComp, tacPct, armazenado, temProblema, progresso, subcatNomes, etapaAtual, liderNome }) => ({
+            const rows = osTabelaRows.map(({ os, almox, ltrDias, lteDias, irpEstDias, tmrpDias, itens, itensComp, tacPct, armazenado, temProblema, progresso, subcatNomes, etapaAtual, liderNome }) => ({
               'Nº OS': os.codigo || os.id?.substring(0, 8) || '',
               'Progresso (%)': progresso,
               'Subcategoria': subcatNomes === '—' ? '' : subcatNomes,
               'Etapa Atual': etapaAtual,
               'Almoxarifado': almox?.nome || '',
               'Nº MIGO': os.numero_migo_receb || '',
+              'NF-e Emissão': safeF(os.nfe_data_emissao),
               'NF-e Receb.': safeF(os.nfe_data_receb),
               'MIGO Receb.': safeF(os.data_migo_receb),
-              'LTR (d)': ltrDias !== null ? ltrDias : '',
               'Recebimento': safeF(os.data_recebimento),
+              'LTR (d)': ltrDias !== null ? ltrDias : '',
+              'LTE (d)': lteDias !== null ? lteDias : '',
+              'IRP-EST (du)': irpEstDias !== null ? irpEstDias : '',
               'Armazenagem': armazenado ? 'Sim' : 'Não',
               'Problema?': temProblema ? 'Sim' : 'Não',
               'Solução': temProblema ? safeF(os.data_solucao) : '',
@@ -610,9 +691,9 @@ export default function PainelRecebimento({
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <KPICard
-          title="Lead Time (LTR)"
+          title="Lead Time Receb. (LTR)"
           value={ltr !== null ? `${ltr}d` : '—'}
-          subtitle={`${osComLTR.length} OS medidas`}
+          subtitle={`MIGO − Receb. · ${osComLTR.length} OS`}
           gradient="linear-gradient(135deg, #FF6B00 0%, #FF8C00 100%)"
           icon={Clock}
         />
@@ -635,6 +716,23 @@ export default function PainelRecebimento({
               value={tmrp !== null ? `${tmrp}d` : '—'}
               subtitle={`${osResolvidasComData.length} problemas medidos`}
               gradient="linear-gradient(135deg, #0F766E 0%, #14B8A6 100%)"
+              icon={Timer}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <KPICard
+              title="Lead Time Entrega (LTE)"
+              value={lte !== null ? `${lte}d` : '—'}
+              subtitle={`Receb. − Emissão NF · ${osComLTE.length} OS`}
+              gradient="linear-gradient(135deg, #7C3AED 0%, #A855F7 100%)"
+              icon={Clock}
+            />
+            <KPICard
+              title="Regularização Estoque (IRP-EST)"
+              value={irpEst !== null ? `${irpEst}d` : '—'}
+              subtitle={`Dias úteis · ${osComIrpEst.length} OS Compra-Estoque`}
+              gradient="linear-gradient(135deg, #0369A1 0%, #0891B2 100%)"
               icon={Timer}
             />
           </div>
@@ -991,11 +1089,14 @@ export default function PainelRecebimento({
         const rows = osTabelaRows;
 
         const getUniqueValues = (col) => {
-           const vals = rows.map(({ os, almox, ltrDias, tmrpDias, tacPct, armazenado, temProblema, subcatNomes, etapaAtual, liderNome }) => {
+           const vals = rows.map(({ os, almox, ltrDias, lteDias, irpEstDias, tmrpDias, tacPct, armazenado, temProblema, subcatNomes, etapaAtual, liderNome }) => {
              if (col === 'almox') return almox?.nome || '—';
+             if (col === 'nfe_data_emissao') return safeF(os.nfe_data_emissao);
              if (col === 'nfe_data_receb') return safeF(os.nfe_data_receb);
              if (col === 'data_migo_receb') return safeF(os.data_migo_receb);
              if (col === 'ltrDias') return ltrDias !== null ? `${ltrDias}d` : '—';
+             if (col === 'lteDias') return lteDias !== null ? `${lteDias}d` : '—';
+             if (col === 'irpEstDias') return irpEstDias !== null ? `${irpEstDias}d` : '—';
              if (col === 'data_recebimento') return safeF(os.data_recebimento);
              if (col === 'armazenado') return armazenado ? 'Sim' : 'Não';
              if (col === 'temProblema') return temProblema ? 'Sim' : 'Não';
@@ -1024,10 +1125,13 @@ export default function PainelRecebimento({
           { col: 'etapaAtual',      label: 'Etapa Atual',  filter: true,  width: 'w-36' },
           { col: 'almox',           label: 'Almoxarifado', filter: true,  width: 'w-36' },
           { col: 'numero_migo_receb', label: 'Nº MIGO',    filter: true,  width: 'w-24' },
+          { col: 'nfe_data_emissao',label: 'NF-e Emissão', filter: true,  width: 'w-24' },
           { col: 'nfe_data_receb',  label: 'NF-e Receb.',  filter: true,  width: 'w-24' },
           { col: 'data_migo_receb', label: 'MIGO Receb.',  filter: true,  width: 'w-24' },
-          { col: 'ltrDias',         label: 'LTR (d)',      filter: true,  width: 'w-20' },
           { col: 'data_recebimento',label: 'Recebimento',  filter: true,  width: 'w-24' },
+          { col: 'ltrDias',         label: 'LTR (d)',      filter: true,  width: 'w-20' },
+          { col: 'lteDias',         label: 'LTE (d)',      filter: true,  width: 'w-20' },
+          { col: 'irpEstDias',      label: 'IRP-EST (du)', filter: true,  width: 'w-24' },
           { col: 'armazenado',      label: 'Armazenagem',  filter: true,  width: 'w-24' },
           { col: 'temProblema',     label: 'Problema?',    filter: true,  width: 'w-22' },
           { col: 'data_solucao',    label: 'Solução',      filter: true,  width: 'w-24' },
@@ -1090,8 +1194,10 @@ export default function PainelRecebimento({
                   </tr>
                 </thead>
                 <tbody>
-                  {pageRows.map(({ os, almox, ltrDias, tmrpDias, itens, itensComp, tacPct, armazenado, temProblema, progresso, subcatNomes, etapaAtual, liderNome }, idx) => {
+                  {pageRows.map(({ os, almox, ltrDias, lteDias, irpEstDias, tmrpDias, itens, itensComp, tacPct, armazenado, temProblema, progresso, subcatNomes, etapaAtual, liderNome }, idx) => {
                     const ltrColor = ltrDias === null ? '' : ltrDias <= 3 ? 'text-green-600 font-semibold' : ltrDias <= 7 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold';
+                    const lteColor = lteDias === null ? '' : lteDias <= 3 ? 'text-green-600 font-semibold' : lteDias <= 7 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold';
+                    const irpEstColor = irpEstDias === null ? '' : irpEstDias <= 3 ? 'text-green-600 font-semibold' : irpEstDias <= 7 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold';
                     const tmrpColor = tmrpDias === null ? '' : tmrpDias <= 3 ? 'text-green-600 font-semibold' : tmrpDias <= 7 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold';
                     const tacColor = tacPct === null ? '' : tacPct >= 95 ? 'text-green-600 font-semibold' : tacPct >= 80 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold';
                     const barColor = progresso >= 100 ? 'bg-green-500' : progresso >= 50 ? 'bg-blue-500' : progresso > 0 ? 'bg-amber-500' : 'bg-slate-300 dark:bg-slate-600';
@@ -1122,10 +1228,13 @@ export default function PainelRecebimento({
                         </td>
                         <td className="px-2 py-2 max-w-[144px] truncate text-slate-700 dark:text-slate-300">{almox?.nome || '—'}</td>
                         <td className="px-2 py-2 text-center whitespace-nowrap">{os.numero_migo_receb || '—'}</td>
+                        <td className="px-2 py-2 text-center whitespace-nowrap">{safeF(os.nfe_data_emissao)}</td>
                         <td className="px-2 py-2 text-center whitespace-nowrap">{safeF(os.nfe_data_receb)}</td>
                         <td className="px-2 py-2 text-center whitespace-nowrap">{safeF(os.data_migo_receb)}</td>
-                        <td className={`px-2 py-2 text-center whitespace-nowrap ${ltrColor}`}>{ltrDias !== null ? `${ltrDias}d` : '—'}</td>
                         <td className="px-2 py-2 text-center whitespace-nowrap">{safeF(os.data_recebimento)}</td>
+                        <td className={`px-2 py-2 text-center whitespace-nowrap ${ltrColor}`}>{ltrDias !== null ? `${ltrDias}d` : '—'}</td>
+                        <td className={`px-2 py-2 text-center whitespace-nowrap ${lteColor}`}>{lteDias !== null ? `${lteDias}d` : '—'}</td>
+                        <td className={`px-2 py-2 text-center whitespace-nowrap ${irpEstColor}`}>{irpEstDias !== null ? `${irpEstDias}d` : '—'}</td>
                         <td className="px-2 py-2 text-center">
                           {armazenado
                             ? <span className="inline-block px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-medium">✓ Sim</span>

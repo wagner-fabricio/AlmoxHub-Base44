@@ -38,9 +38,9 @@ export default function RelatorioLeadTime({ leadTimeReservas, leadTimeNFEstoque 
         />
         <LeadTimeCard
           icon={Clock}
-          title="Lead Time de NF de Estoque"
+          title="Lead Time de Entrega (LTE)"
           dias={leadTimeNFEstoque.dias}
-          descricao="Tempo médio entre emissão da NF e recebimento (OS concluídas)"
+          descricao="Tempo médio em dias corridos: recebimento − emissão da NF"
           total={leadTimeNFEstoque.total}
           color={AXIA.accent}
         />

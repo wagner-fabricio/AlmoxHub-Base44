@@ -169,9 +169,10 @@ export default function RelatoriosGerenciais() {
     const osRecebimento = categoriaRecebimento ? filteredOrdens.filter(os => os.categoria_id === categoriaRecebimento.id) : [];
     const comProblemas = osRecebimento.filter(os => os.problema_recebimento).length;
     const conformes = osRecebimento.length - comProblemas;
-    const recebimentoConcluidas = osRecebimento.filter(os => os.status === 'concluido' && os.data_recebimento && os.created_date);
+    // LTR (Lead Time de Recebimento) = data_migo_receb − data_recebimento (dias corridos)
+    const recebimentoConcluidas = osRecebimento.filter(os => os.data_recebimento && os.data_migo_receb);
     const leadTimeRec = recebimentoConcluidas.length > 0
-      ? Math.round(recebimentoConcluidas.reduce((s, os) => s + Math.abs(differenceInDays(new Date(os.data_recebimento), new Date(os.created_date))), 0) / recebimentoConcluidas.length)
+      ? Math.round(recebimentoConcluidas.reduce((s, os) => s + Math.max(0, differenceInDays(new Date(os.data_migo_receb), new Date(os.data_recebimento))), 0) / recebimentoConcluidas.length)
       : 0;
     // Breakdown de recebimento — por regional ou por almoxarifado (quando 1 regional selecionada)
     const breakdownRecebimento = (() => {

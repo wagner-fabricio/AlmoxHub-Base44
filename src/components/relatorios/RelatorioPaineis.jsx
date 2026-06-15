@@ -27,7 +27,7 @@ export default function RelatorioPaineis({ recebimento, expedicao }) {
           <KPIMini label="Total OS Recebimento" value={recebimento.total} color={AXIA.success} />
           <KPIMini label="Conformidade" value={`${recebimento.taxaConformidade}%`} color={AXIA.success} />
           <KPIMini label="Com Problemas" value={recebimento.comProblemas} color={AXIA.danger} />
-          <KPIMini label="Lead Time Médio" value={`${recebimento.leadTime} dias`} color={AXIA.primary} />
+          <KPIMini label="Lead Time Receb. (LTR)" value={`${recebimento.leadTime} dias`} color={AXIA.primary} />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Barras empilhadas — coluna maior */}
