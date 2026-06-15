@@ -300,12 +300,20 @@ export default function PainelRecebimento({
       ) / osResolvidasComData.length).toFixed(1)
     : null;
 
+  // ── Helper: formato de mês seguro (yyyy-MM → MMM/yy) ──────────────────────
+  const fmtMes = (key) => {
+    const d = new Date(key + '-01T00:00:00');
+    if (isNaN(d.getTime())) return key;
+    return format(d, 'MMM/yy', { locale: ptBR });
+  };
+
   // ── Chart: TCR Mensal (linha) ─────────────────────────────────────────────
   const tcrMensal = useMemo(() => {
     const map = {};
     osReceb.forEach(os => {
       if (!os.created_date) return;
       const key = os.created_date.substring(0, 7);
+      if (!/^\d{4}-\d{2}$/.test(key)) return;
       if (!map[key]) map[key] = { total: 0, ok: 0 };
       map[key].total++;
       if (!os.problema_recebimento) map[key].ok++;
@@ -314,7 +322,7 @@ export default function PainelRecebimento({
       .sort(([a], [b]) => a.localeCompare(b))
       .slice(-12)
       .map(([key, v]) => ({
-        mes: format(new Date(key + '-01'), 'MMM/yy', { locale: ptBR }),
+        mes: fmtMes(key),
         tcr: v.total > 0 ? Math.round((v.ok / v.total) * 100) : 0,
       }));
   }, [osReceb]);
@@ -335,7 +343,9 @@ export default function PainelRecebimento({
   const ltrMensal = useMemo(() => {
     const map = {};
     osComLTR.forEach(os => {
+      if (!os.data_recebimento) return;
       const key = os.data_recebimento.substring(0, 7);
+      if (!/^\d{4}-\d{2}$/.test(key)) return;
       if (!map[key]) map[key] = { total: 0, dias: 0 };
       map[key].total++;
       map[key].dias += Math.max(0, differenceInDays(new Date(os.data_migo_receb), new Date(os.data_recebimento)));
@@ -344,7 +354,7 @@ export default function PainelRecebimento({
       .sort(([a], [b]) => a.localeCompare(b))
       .slice(-12)
       .map(([key, v]) => ({
-        mes: format(new Date(key + '-01'), 'MMM/yy', { locale: ptBR }),
+        mes: fmtMes(key),
         diasMedio: v.total > 0 ? parseFloat((v.dias / v.total).toFixed(1)) : 0,
       }));
   }, [osComLTR]);
@@ -378,7 +388,7 @@ export default function PainelRecebimento({
       .slice(-12)
       .map(([key, v]) => ({
         key,
-        mes: format(new Date(key + '-01'), 'MMM/yy', { locale: ptBR }),
+        mes: fmtMes(key),
         irp: v.total > 0 ? Math.round((v.resolvidos / v.total) * 100) : 0,
         tmrp: (() => {
           const resolved = osComProblemaArr.filter(os => {
