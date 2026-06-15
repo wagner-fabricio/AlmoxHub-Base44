@@ -27,7 +27,7 @@ import OSProductivityRanking from '@/components/dashboard/OSProductivityRanking'
 import OSPorAtendenteChart from '@/components/dashboard/OSPorAtendenteChart';
 import OSAtendenteErrosRanking from '@/components/dashboard/OSAtendenteErrosRanking';
 import OSErrosTabela from '@/components/dashboard/OSErrosTabela';
-import { TIPOS_ERRO } from '@/lib/osErros';
+import TipoErroMultiFilter from '@/components/dashboard/TipoErroMultiFilter';
 import { isNoPrazo, isForaPrazo } from '@/components/dashboard/prazoHelpers';
 import ProjetosDashboard from '@/components/dashboard/ProjetosDashboard';
 import OTIFExpedicao from '@/components/dashboard/OTIFExpedicao';
@@ -61,7 +61,7 @@ export default function Dashboard() {
   const [mapaSearch, setMapaSearch] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
   const [activeTab, setActiveTab] = useState('geral');
-  const [tipoErroFiltro, setTipoErroFiltro] = useState('all');
+  const [tiposErroFiltro, setTiposErroFiltro] = useState([]);
   const [fullscreen, setFullscreen] = useState(false);
   const [showPresentationSetup, setShowPresentationSetup] = useState(false);
   const [presentationSlides, setPresentationSlides] = useState(null);
@@ -1477,17 +1477,7 @@ export default function Dashboard() {
                         <AlertTriangle className="w-5 h-5 text-red-500" />
                         Ranking de Erros de Preenchimento por Atendente
                       </CardTitle>
-                      <Select value={tipoErroFiltro} onValueChange={setTipoErroFiltro}>
-                        <SelectTrigger className="w-full sm:w-64 bg-white dark:bg-slate-700">
-                          <SelectValue placeholder="Tipo de erro" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Todos os tipos de erro</SelectItem>
-                          {TIPOS_ERRO.map(t => (
-                            <SelectItem key={t.key} value={t.key}>{t.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <TipoErroMultiFilter value={tiposErroFiltro} onChange={setTiposErroFiltro} />
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -1495,7 +1485,7 @@ export default function Dashboard() {
                       ordens={filteredOrdens}
                       categorias={categorias}
                       subcategorias={subcategorias}
-                      tipoErroFiltro={tipoErroFiltro}
+                      tiposErroFiltro={tiposErroFiltro}
                     />
                   </CardContent>
                 </Card>
@@ -1506,7 +1496,7 @@ export default function Dashboard() {
                   categorias={categorias}
                   subcategorias={subcategorias}
                   almoxarifados={almoxarifados}
-                  tipoErroFiltro={tipoErroFiltro}
+                  tiposErroFiltro={tiposErroFiltro}
                 />
               </TabsContent>
               </Tabs>

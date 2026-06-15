@@ -5,22 +5,24 @@ import {
 import { AlertTriangle } from 'lucide-react';
 import { rankingErrosPorAtendente, TIPOS_ERRO } from '@/lib/osErros';
 
-export default function OSAtendenteErrosRanking({ ordens, categorias, subcategorias, tipoErroFiltro = 'all' }) {
+export default function OSAtendenteErrosRanking({ ordens, categorias, subcategorias, tiposErroFiltro = [] }) {
+  const semFiltro = !tiposErroFiltro || tiposErroFiltro.length === 0;
+
   const tipos = useMemo(
-    () => tipoErroFiltro === 'all' ? TIPOS_ERRO : TIPOS_ERRO.filter(t => t.key === tipoErroFiltro),
-    [tipoErroFiltro]
+    () => semFiltro ? TIPOS_ERRO : TIPOS_ERRO.filter(t => tiposErroFiltro.includes(t.key)),
+    [semFiltro, tiposErroFiltro]
   );
 
   const data = useMemo(() => {
     const ranking = rankingErrosPorAtendente(ordens || [], { categorias, subcategorias });
-    if (tipoErroFiltro === 'all') return ranking.slice(0, 15);
-    // Recalcula total considerando apenas o tipo selecionado e remove quem zerou
+    if (semFiltro) return ranking.slice(0, 15);
+    // Recalcula total somando apenas os tipos selecionados e remove quem zerou
     return ranking
-      .map(d => ({ ...d, total: d[tipoErroFiltro] || 0 }))
+      .map(d => ({ ...d, total: tiposErroFiltro.reduce((s, k) => s + (d[k] || 0), 0) }))
       .filter(d => d.total > 0)
       .sort((a, b) => b.total - a.total)
       .slice(0, 15);
-  }, [ordens, categorias, subcategorias, tipoErroFiltro]);
+  }, [ordens, categorias, subcategorias, semFiltro, tiposErroFiltro]);
 
   const totalErros = useMemo(() => data.reduce((s, d) => s + d.total, 0), [data]);
 

@@ -5,18 +5,24 @@ import OSFormModal from '@/components/os/OSFormModal';
 
 const corDe = (key) => TIPOS_ERRO.find(t => t.key === key)?.cor || '#94a3b8';
 
-export default function OSErrosTabela({ ordens, categorias, subcategorias, almoxarifados, tipoErroFiltro = 'all' }) {
+export default function OSErrosTabela({ ordens, categorias, subcategorias, almoxarifados, tiposErroFiltro = [] }) {
   const { regionais, pessoas, instalacoes, projetos } = useApp();
   const [selectedOS, setSelectedOS] = useState(null);
 
   const linhas = useMemo(() => {
     const todas = listarOSComErros(ordens || [], { categorias, subcategorias });
-    if (tipoErroFiltro === 'all') return todas;
-    const label = TIPOS_ERRO.find(t => t.key === tipoErroFiltro)?.label;
+    if (!tiposErroFiltro || tiposErroFiltro.length === 0) return todas;
     return todas
-      .filter(l => l.erros.includes(tipoErroFiltro))
-      .map(l => ({ ...l, erros: [tipoErroFiltro], errosLabels: [label] }));
-  }, [ordens, categorias, subcategorias, tipoErroFiltro]);
+      .filter(l => l.erros.some(k => tiposErroFiltro.includes(k)))
+      .map(l => {
+        const erros = l.erros.filter(k => tiposErroFiltro.includes(k));
+        return {
+          ...l,
+          erros,
+          errosLabels: erros.map(k => TIPOS_ERRO.find(t => t.key === k)?.label),
+        };
+      });
+  }, [ordens, categorias, subcategorias, tiposErroFiltro]);
 
   const totalErros = useMemo(() => linhas.reduce((s, l) => s + l.erros.length, 0), [linhas]);
 
