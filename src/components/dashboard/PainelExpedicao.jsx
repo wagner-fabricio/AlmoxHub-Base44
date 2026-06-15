@@ -5,7 +5,7 @@ import {
   AreaChart, Area
 } from 'recharts';
 import { Target, Clock, Package, TrendingUp, DollarSign, Shield, Box, Navigation, Truck, HelpCircle, FileSpreadsheet } from 'lucide-react';
-import { exportTabelaExcel } from '@/components/dashboard/exportTabelaExcel';
+import { exportTabelaExcel, exportTabelasExcel } from '@/components/dashboard/exportTabelaExcel';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { format, differenceInDays } from 'date-fns';
@@ -650,7 +650,34 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, problem
                 'Líder': liderNome === '—' ? '' : liderNome,
               };
             });
-            exportTabelaExcel(rows, 'painel_expedicao', 'Dados dos Indicadores');
+            // Aba 2: OS com Ocorrências (base do gráfico de problemas)
+            const pMap = {};
+            (problemasExpedicao || []).forEach(p => { pMap[p.id] = p; });
+            const ocorrenciasRows = osComOcorrenciaArr.map(os => {
+              const almox = almoxarifados.find(a => a.id === os.almoxarifado_id);
+              const destino = instalacoes?.find(i => i.id === os.instalacao_destino_id);
+              const subcatNomes = (os.subcategorias_ids || [])
+                .map(sid => subcategorias?.find(s => s.id === sid)?.nome).filter(Boolean).join(', ') || '';
+              const liderNome = pessoas?.find(p => p.id === os.lider_id)?.nome || '';
+              const erros = (os.problemas_expedicao_ids || [])
+                .map(pid => pMap[pid]?.descricao_resumida || pMap[pid]?.nome).filter(Boolean).join('; ');
+              return {
+                'Nº OS': os.codigo || os.id?.substring(0, 8) || '',
+                'Status Exp.': os.status_separacao || '',
+                'Subcategoria': subcatNomes,
+                'Almoxarifado': almox?.nome || '',
+                'Destino': destino?.nome || '',
+                'Nº Reserva': os.num_reserva || '',
+                'Nº MIGO': os.num_migo || '',
+                'Entrega': safeFormat(os.data_entrega),
+                'Líder': liderNome,
+                'Erros / Problemas': erros,
+              };
+            });
+            exportTabelasExcel([
+              { rows, sheetName: 'Dados dos Indicadores' },
+              { rows: ocorrenciasRows, sheetName: 'OS com Ocorrências' },
+            ], 'painel_expedicao');
           }} className="gap-2" disabled={osTabelaFiltrada.length === 0}>
             <FileSpreadsheet className="w-4 h-4 text-green-600" />
             Exportar Excel
