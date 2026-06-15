@@ -5,14 +5,18 @@ import OSFormModal from '@/components/os/OSFormModal';
 
 const corDe = (key) => TIPOS_ERRO.find(t => t.key === key)?.cor || '#94a3b8';
 
-export default function OSErrosTabela({ ordens, categorias, subcategorias, almoxarifados }) {
+export default function OSErrosTabela({ ordens, categorias, subcategorias, almoxarifados, tipoErroFiltro = 'all' }) {
   const { regionais, pessoas, instalacoes, projetos } = useApp();
   const [selectedOS, setSelectedOS] = useState(null);
 
-  const linhas = useMemo(
-    () => listarOSComErros(ordens || [], { categorias, subcategorias }),
-    [ordens, categorias, subcategorias]
-  );
+  const linhas = useMemo(() => {
+    const todas = listarOSComErros(ordens || [], { categorias, subcategorias });
+    if (tipoErroFiltro === 'all') return todas;
+    const label = TIPOS_ERRO.find(t => t.key === tipoErroFiltro)?.label;
+    return todas
+      .filter(l => l.erros.includes(tipoErroFiltro))
+      .map(l => ({ ...l, erros: [tipoErroFiltro], errosLabels: [label] }));
+  }, [ordens, categorias, subcategorias, tipoErroFiltro]);
 
   const totalErros = useMemo(() => linhas.reduce((s, l) => s + l.erros.length, 0), [linhas]);
 
