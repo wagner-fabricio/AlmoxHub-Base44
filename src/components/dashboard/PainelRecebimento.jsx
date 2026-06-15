@@ -473,9 +473,15 @@ export default function PainelRecebimento({
   };
 
   // ── Helper: formato de data seguro ────────────────────────────────────────
+  // Datas no formato YYYY-MM-DD (date-only) são interpretadas como LOCAIS para
+  // evitar o deslocamento de fuso (UTC → America/Bahia) que exibia o dia anterior.
   const safeF = (d) => {
     if (!d) return '—';
-    try { return format(new Date(d), 'dd/MM/yy', { locale: ptBR }); } catch { return '—'; }
+    try {
+      const m = typeof d === 'string' && /^\d{4}-\d{2}-\d{2}/.test(d) ? d.match(/^(\d{4})-(\d{2})-(\d{2})/) : null;
+      const date = m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date(d);
+      return format(date, 'dd/MM/yy', { locale: ptBR });
+    } catch { return '—'; }
   };
 
   // ── Tabela: linhas enriquecidas + filtros + sort (compartilhado p/ Excel) ─
