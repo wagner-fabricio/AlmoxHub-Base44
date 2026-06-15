@@ -26,6 +26,7 @@ import PainelRecebimento from '@/components/dashboard/PainelRecebimento';
 import OSProductivityRanking from '@/components/dashboard/OSProductivityRanking';
 import OSPorAtendenteChart from '@/components/dashboard/OSPorAtendenteChart';
 import OSAtendenteErrosRanking from '@/components/dashboard/OSAtendenteErrosRanking';
+import OSErrosTabela from '@/components/dashboard/OSErrosTabela';
 import { isNoPrazo, isForaPrazo } from '@/components/dashboard/prazoHelpers';
 import ProjetosDashboard from '@/components/dashboard/ProjetosDashboard';
 import OTIFExpedicao from '@/components/dashboard/OTIFExpedicao';
@@ -1482,6 +1483,14 @@ export default function Dashboard() {
                     />
                   </CardContent>
                 </Card>
+
+                {/* Tabela: Lista de OS com erros de preenchimento */}
+                <OSErrosTabela
+                  ordens={filteredOrdens}
+                  categorias={categorias}
+                  subcategorias={subcategorias}
+                  almoxarifados={almoxarifados}
+                />
               </TabsContent>
               </Tabs>
 

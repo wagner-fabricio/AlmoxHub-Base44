@@ -86,6 +86,19 @@ export function detectarErrosOS(os, { categorias, subcategorias }) {
   return erros;
 }
 
+// Lista as OS que possuem ao menos um erro, com os rótulos dos erros detectados.
+// Retorna [{ os, erros: [keys], errosLabels: [labels] }] ordenado por nº de erros desc.
+export function listarOSComErros(ordens, { categorias, subcategorias }) {
+  const labelDe = (k) => TIPOS_ERRO.find(t => t.key === k)?.label || k;
+  return ordens
+    .map(os => {
+      const erros = detectarErrosOS(os, { categorias, subcategorias });
+      return erros.length > 0 ? { os, erros, errosLabels: erros.map(labelDe) } : null;
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.erros.length - a.erros.length);
+}
+
 // Agrega erros por atendente. Retorna array ordenado por total de erros desc.
 export function rankingErrosPorAtendente(ordens, { categorias, subcategorias }) {
   const mapa = new Map();
