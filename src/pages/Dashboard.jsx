@@ -25,6 +25,7 @@ import TorreControleRecebimentoProblemas from '@/components/dashboard/TorreContr
 import PainelRecebimento from '@/components/dashboard/PainelRecebimento';
 import OSProductivityRanking from '@/components/dashboard/OSProductivityRanking';
 import OSPorAtendenteChart from '@/components/dashboard/OSPorAtendenteChart';
+import OSAtendenteErrosRanking from '@/components/dashboard/OSAtendenteErrosRanking';
 import { isNoPrazo, isForaPrazo } from '@/components/dashboard/prazoHelpers';
 import ProjetosDashboard from '@/components/dashboard/ProjetosDashboard';
 import OTIFExpedicao from '@/components/dashboard/OTIFExpedicao';
@@ -1461,6 +1462,23 @@ export default function Dashboard() {
                     <OSPorAtendenteChart 
                       ordens={filteredOrdens} 
                       pessoas={pessoas}
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* Ranking de Erros de Preenchimento por Atendente */}
+                <Card className="bg-white dark:bg-slate-800">
+                  <CardHeader>
+                    <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                      <AlertTriangle className="w-5 h-5 text-red-500" />
+                      Ranking de Erros de Preenchimento por Atendente
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <OSAtendenteErrosRanking
+                      ordens={filteredOrdens}
+                      categorias={categorias}
+                      subcategorias={subcategorias}
                     />
                   </CardContent>
                 </Card>
