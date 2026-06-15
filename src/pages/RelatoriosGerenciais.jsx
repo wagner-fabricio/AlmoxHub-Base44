@@ -408,7 +408,12 @@ export default function RelatoriosGerenciais() {
         document.getElementById('relatorio-content')?.scrollIntoView({ behavior: 'smooth' });
       }, 200);
     } catch (e) {
-      alert('Erro ao gerar relatório: ' + e.message);
+      const status = e?.response?.status;
+      if (status === 404) {
+        alert('Não foi possível gerar o relatório porque seu navegador está com uma versão antiga do aplicativo carregada.\n\nPor favor, atualize a página com Ctrl + Shift + R (ou Cmd + Shift + R no Mac) e tente novamente. Se o problema continuar, saia e entre novamente no app.');
+      } else {
+        alert('Erro ao gerar relatório: ' + e.message);
+      }
     } finally {
       setLoading(false);
     }
