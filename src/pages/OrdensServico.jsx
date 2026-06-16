@@ -101,9 +101,11 @@ export default function OrdensServico() {
   // Paginação client-side (para views list e gallery)
   const PAGE_SIZE = 100;
   const [currentPage, setCurrentPage] = useState(1);
+  // Views de kanban não têm paginação visível — carregam um limite maior para exibir mais cards.
+  const isKanbanView = viewMode === 'kanban' || viewMode === 'kanban_expedicao' || viewMode === 'kanban_recebimento';
   // Visão "Atribuídas a Mim" precisa filtrar por executores_ids no client — backend não suporta.
   // Aumentamos o limite nesse caso para garantir que OS atribuídas apareçam mesmo em datasets grandes.
-  const effectiveLimit = filters.visao === 'meus' ? 500 : PAGE_SIZE;
+  const effectiveLimit = filters.visao === 'meus' ? 500 : (isKanbanView ? 500 : PAGE_SIZE);
 
   // Filtros que o backend suporta — usados para busca paginada
   const backendFilter = useMemo(() => {
