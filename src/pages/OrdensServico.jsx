@@ -29,8 +29,13 @@ export default function OrdensServico() {
   const { regionais, categorias, subcategorias = [], pessoas, currentUser: ctxUser, currentPessoa: ctxPessoa, almoxarifados, instalacoes, projetos, rotulos } = useApp();
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState(true);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [currentPessoa, setCurrentPessoa] = useState(null);
+  const [localUser, setLocalUser] = useState(null);
+  const [localPessoa, setLocalPessoa] = useState(null);
+  // Fonte única e estável de identidade: prioriza o contexto (já carregado),
+  // com fallback para o estado local resolvido em loadData. Evita descompasso
+  // que zerava os filtros de "Minha Regional" / "Atribuídas a Mim".
+  const currentUser = ctxUser || localUser;
+  const currentPessoa = ctxPessoa || localPessoa;
   
   const [viewMode, setViewMode] = useState('kanban');
   const [filters, setFilters] = useState({
@@ -183,9 +188,9 @@ export default function OrdensServico() {
     try {
       // All entity data comes from AppContext — only resolve user identity here
       const user = ctxUser || (await base44.auth.me());
-      setCurrentUser(user);
+      setLocalUser(user);
       const pessoa = ctxPessoa || (Array.isArray(pessoas) ? pessoas.find(p => p?.user_id === user?.id) : null);
-      setCurrentPessoa(pessoa);
+      setLocalPessoa(pessoa);
       if (!silent) queryClient.invalidateQueries({ queryKey: ['ordens-filtradas'] });
 
       if (user.filtros_preferidos?.OrdensServico) {
@@ -343,16 +348,12 @@ export default function OrdensServico() {
         if (new Date(os.created_date) < periodoCutoff) return false;
       }
 
-      // Visão filter
-      if (filters.visao === 'regional' && currentPessoa) {
-        if (os.regional_id !== currentPessoa.regional_id) return false;
-      }
-      if (filters.visao === 'meus' && currentPessoa) {
-        const isLider = os.lider_id === currentPessoa.id;
-        const isExecutor = os.executores_ids?.includes(currentPessoa.id);
-        const isOutroEnvolvido = os.outros_envolvidos_ids?.includes(currentPessoa.id);
-        if (!isLider && !isExecutor && !isOutroEnvolvido) return false;
-      }
+      // Visão "Minha Regional": o backend já filtrou por regional_id (ver backendFilter).
+      // Não re-filtramos no client para não descartar OS globais nem causar descompasso
+      // se currentPessoa.regional_id ainda não estiver resolvido.
+
+      // Visão "Atribuídas a Mim": o backend já buscou OS onde a pessoa é líder ou executor.
+      // Não re-filtramos no client — isso garante que todas as OS atribuídas apareçam.
 
       // Pessoa filter
       if (filters.pessoa_id) {
