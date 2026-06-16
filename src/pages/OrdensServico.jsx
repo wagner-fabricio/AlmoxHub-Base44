@@ -26,7 +26,7 @@ import OSPagination from '@/components/os/OSPagination.jsx';
 import IniciarSessaoModal from '@/components/timesheet/IniciarSessaoModal.jsx';
 
 export default function OrdensServico() {
-  const { regionais, categorias, subcategorias = [], pessoas, currentUser: ctxUser, currentPessoa: ctxPessoa, almoxarifados, instalacoes, projetos, rotulos } = useApp();
+  const { regionais, categorias, subcategorias = [], pessoas, currentUser: ctxUser, currentPessoa: ctxPessoa, almoxarifados, instalacoes, projetos, rotulos, ordens: ordensGlobais = [] } = useApp();
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
@@ -127,10 +127,16 @@ export default function OrdensServico() {
     return f;
   }, [filters.status, filters.regional, filters.almoxarifado, filters.categorias, filters.statusList, filters.visao, currentPessoa?.regional_id]);
 
-  const { data: ordens = [], isLoading: isOrdensLoading } = useOrdensFiltradas(
+  // Visões "Atribuídas a Mim" e "Minha Regional" exigem varrer TODAS as OS (inclusive antigas/concluídas).
+  // Nesses casos usamos a base global completa do AppContext em vez da busca paginada do backend.
+  const usarBaseGlobal = filters.visao === 'meus' || filters.visao === 'regional' || !!filters.pessoa_id;
+
+  const { data: ordensPaginadas = [], isLoading: isOrdensLoading } = useOrdensFiltradas(
     { backendFilter, sort: '-created_date', limit: effectiveLimit, page: currentPage, textSearch: debouncedTextFilters },
-    { enabled: true }
+    { enabled: !usarBaseGlobal }
   );
+
+  const ordens = usarBaseGlobal ? ordensGlobais : ordensPaginadas;
 
   // setOrdens — optimistic update no cache da query filtrada ativa
   const currentQueryKey = useMemo(
@@ -138,10 +144,11 @@ export default function OrdensServico() {
     [backendFilter, currentPage, effectiveLimit, debouncedTextFilters]
   );
   const setOrdens = useCallback((updater) => {
-    queryClient.setQueryData(currentQueryKey, (prev = []) =>
+    const key = usarBaseGlobal ? ORDENS_QUERY_KEY : currentQueryKey;
+    queryClient.setQueryData(key, (prev = []) =>
       typeof updater === 'function' ? updater(prev) : updater
     );
-  }, [queryClient, currentQueryKey]);
+  }, [queryClient, currentQueryKey, usarBaseGlobal]);
 
   const handleRequestSelecaoSessao = useCallback((os) => {
     setOsSelecaoSessao(os);
