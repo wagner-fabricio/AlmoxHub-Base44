@@ -22,11 +22,45 @@ async function fetchOrdensGlobal() {
   return all;
 }
 
+// Busca todas as OS atribuídas a uma pessoa (líder OU executor), paginando o backend.
+// O backend não consegue fazer OR entre líder/executor numa única query, então fazemos 2 buscas e unimos.
+async function fetchOrdensAtribuidas(pessoaId) {
+  const PAGE = 5000;
+  const MAX_TOTAL = 50000;
+  const buscarTudo = async (filter) => {
+    const acc = [];
+    let s = 0;
+    while (s < MAX_TOTAL) {
+      const batch = await base44.entities.OrdemServico.filter(filter, '-created_date', PAGE, s);
+      if (!batch || batch.length === 0) break;
+      acc.push(...batch);
+      if (batch.length < PAGE) break;
+      s += PAGE;
+    }
+    return acc;
+  };
+  const [comoLider, comoExecutor] = await Promise.all([
+    buscarTudo({ lider_id: pessoaId }),
+    buscarTudo({ executores_ids: pessoaId }),
+  ]);
+  const ids = new Set();
+  const merged = [];
+  for (const os of [...comoLider, ...comoExecutor]) {
+    if (!ids.has(os.id)) { ids.add(os.id); merged.push(os); }
+  }
+  return merged;
+}
+
 // Busca filtrada e paginada — usada pela página OrdensServico
 async function fetchOrdensFiltradas({ queryKey }) {
   const [, filtros] = queryKey;
-  const { backendFilter = {}, sort = '-created_date', limit = 100, page = 1, textSearch = {} } = filtros || {};
+  const { backendFilter = {}, sort = '-created_date', limit = 100, page = 1, textSearch = {}, atribuidasPessoaId } = filtros || {};
   const skip = (page - 1) * limit;
+
+  // Visão "Atribuídas a Mim" — buscar todas as OS onde a pessoa é líder ou executor
+  if (atribuidasPessoaId) {
+    return fetchOrdensAtribuidas(atribuidasPessoaId);
+  }
 
   // Quando há busca de texto (código/MIGO/reserva), varremos todo o dataset
   // paginando para garantir que OS antigas apareçam — filtro de texto é client-side

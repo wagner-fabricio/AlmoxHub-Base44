@@ -26,7 +26,7 @@ import OSPagination from '@/components/os/OSPagination.jsx';
 import IniciarSessaoModal from '@/components/timesheet/IniciarSessaoModal.jsx';
 
 export default function OrdensServico() {
-  const { regionais, categorias, subcategorias = [], pessoas, currentUser: ctxUser, currentPessoa: ctxPessoa, almoxarifados, instalacoes, projetos, rotulos, ordens: ordensGlobais = [] } = useApp();
+  const { regionais, categorias, subcategorias = [], pessoas, currentUser: ctxUser, currentPessoa: ctxPessoa, almoxarifados, instalacoes, projetos, rotulos } = useApp();
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
@@ -127,28 +127,27 @@ export default function OrdensServico() {
     return f;
   }, [filters.status, filters.regional, filters.almoxarifado, filters.categorias, filters.statusList, filters.visao, currentPessoa?.regional_id]);
 
-  // Visões "Atribuídas a Mim" e "Minha Regional" exigem varrer TODAS as OS (inclusive antigas/concluídas).
-  // Nesses casos usamos a base global completa do AppContext em vez da busca paginada do backend.
-  const usarBaseGlobal = filters.visao === 'meus' || filters.visao === 'regional' || !!filters.pessoa_id;
+  // "Atribuídas a Mim" e "Pessoa" exigem buscar OS por líder/executor — o backend faz isso de forma dedicada.
+  // "Minha Regional" usa o filtro regional_id no backend (já aplicado em backendFilter), que é rápido.
+  const atribuidasPessoaId =
+    filters.visao === 'meus' ? currentPessoa?.id :
+    filters.pessoa_id ? filters.pessoa_id : null;
 
-  const { data: ordensPaginadas = [], isLoading: isOrdensLoading } = useOrdensFiltradas(
-    { backendFilter, sort: '-created_date', limit: effectiveLimit, page: currentPage, textSearch: debouncedTextFilters },
-    { enabled: !usarBaseGlobal }
+  const { data: ordens = [], isLoading: isOrdensLoading } = useOrdensFiltradas(
+    { backendFilter, sort: '-created_date', limit: effectiveLimit, page: currentPage, textSearch: debouncedTextFilters, atribuidasPessoaId },
+    { enabled: true }
   );
-
-  const ordens = usarBaseGlobal ? ordensGlobais : ordensPaginadas;
 
   // setOrdens — optimistic update no cache da query filtrada ativa
   const currentQueryKey = useMemo(
-    () => ['ordens-filtradas', { backendFilter, sort: '-created_date', limit: effectiveLimit, page: currentPage, textSearch: debouncedTextFilters }],
-    [backendFilter, currentPage, effectiveLimit, debouncedTextFilters]
+    () => ['ordens-filtradas', { backendFilter, sort: '-created_date', limit: effectiveLimit, page: currentPage, textSearch: debouncedTextFilters, atribuidasPessoaId }],
+    [backendFilter, currentPage, effectiveLimit, debouncedTextFilters, atribuidasPessoaId]
   );
   const setOrdens = useCallback((updater) => {
-    const key = usarBaseGlobal ? ORDENS_QUERY_KEY : currentQueryKey;
-    queryClient.setQueryData(key, (prev = []) =>
+    queryClient.setQueryData(currentQueryKey, (prev = []) =>
       typeof updater === 'function' ? updater(prev) : updater
     );
-  }, [queryClient, currentQueryKey, usarBaseGlobal]);
+  }, [queryClient, currentQueryKey]);
 
   const handleRequestSelecaoSessao = useCallback((os) => {
     setOsSelecaoSessao(os);
