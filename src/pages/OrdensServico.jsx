@@ -560,7 +560,11 @@ export default function OrdensServico() {
     
     // Líder pode deletar apenas suas próprias ordens
     if (currentPessoa.funcoes?.includes('lider') && os.lider_id === currentPessoa.id) return true;
-    
+
+    // Atendente pode deletar OS em que ele é o atendente
+    if (os.atendente_nome && currentPessoa.nome &&
+        os.atendente_nome.trim().toLowerCase() === currentPessoa.nome.trim().toLowerCase()) return true;
+
     // Almoxarife não pode deletar
     return false;
   };
