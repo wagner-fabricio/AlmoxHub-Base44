@@ -537,7 +537,7 @@ export default function OrdensServico() {
     if (!deletingOS) return;
     
     try {
-      await base44.entities.OrdemServico.delete(deletingOS.id);
+      await base44.functions.invoke('excluirOS', { os_id: deletingOS.id });
       // Update local state — no reload needed
       setOrdens(prev => prev.filter(o => o.id !== deletingOS.id));
       setShowDeleteDialog(false);
