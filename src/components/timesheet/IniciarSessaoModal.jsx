@@ -47,15 +47,15 @@ export default function IniciarSessaoModal({
       .filter(Boolean);
   }, [os, pessoas, currentPessoa]);
 
-  // Pré-seleciona a pessoa logada quando o modal abre
+  // Pré-seleciona a pessoa logada quando o modal abre.
+  // Ela sempre está entre os candidatos (adicionada acima), então sempre pode iniciar.
   useEffect(() => {
     if (open && currentPessoa?.id) {
-      const eExecutor = candidatos.some(p => p.id === currentPessoa.id);
-      setSelecionados(eExecutor ? [currentPessoa.id] : []);
+      setSelecionados([currentPessoa.id]);
     } else if (!open) {
       setSelecionados([]);
     }
-  }, [open, currentPessoa?.id, candidatos]);
+  }, [open, currentPessoa?.id]);
 
   const todosSelecionados = candidatos.length > 0 && selecionados.length === candidatos.length;
 

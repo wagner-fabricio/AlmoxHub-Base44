@@ -35,8 +35,27 @@ export default function TimeSheetButton({
   const intervalRef = useRef(null);
   const { pessoas = [] } = useApp();
 
+  // Fallback: se currentPessoa não chegou via props/contexto (race condition no load),
+  // resolve a pessoa logada sob demanda para não deixar o botão "morto".
+  const [pessoaResolvida, setPessoaResolvida] = useState(currentPessoa || null);
+  useEffect(() => {
+    if (currentPessoa) { setPessoaResolvida(currentPessoa); return; }
+    let cancelado = false;
+    (async () => {
+      try {
+        const user = await base44.auth.me();
+        const p = (pessoas || []).find(x => x.user_id === user?.id)
+          || (await base44.entities.Pessoa.filter({ user_id: user.id }))[0];
+        if (!cancelado && p) setPessoaResolvida(p);
+      } catch { /* ignore */ }
+    })();
+    return () => { cancelado = true; };
+  }, [currentPessoa, pessoas]);
+
+  const pessoaAtiva = currentPessoa || pessoaResolvida;
+
   const sessaoAtiva = (os.timesheet_sessoes_ativas || []).find(
-    s => s.pessoa_id === currentPessoa?.id
+    s => s.pessoa_id === pessoaAtiva?.id
   );
   const estaPlayandoEu = !!sessaoAtiva;
   const algumEmPlay = (os.timesheet_sessoes_ativas || []).length > 0;
@@ -65,7 +84,7 @@ export default function TimeSheetButton({
   const acionar = async (e) => {
     e.stopPropagation(); // não abrir a OS ao clicar no botão
     e.preventDefault();
-    if (loading || osConcluida || !currentPessoa) return;
+    if (loading || osConcluida || !pessoaAtiva) return;
 
     // Se EU estou em play → abrir modal de finalizar (ou pausar direto se só eu estiver)
     if (estaPlayandoEu) {
@@ -81,7 +100,7 @@ export default function TimeSheetButton({
         const res = await base44.functions.invoke('registrarTimeSheet', {
           acao: 'pause',
           os_id: os.id,
-          pessoa_id: currentPessoa.id
+          pessoa_id: pessoaAtiva.id
         });
         if (res?.data?.os && onStateChange) onStateChange(res.data.os);
       } catch (err) {
@@ -207,7 +226,7 @@ export default function TimeSheetButton({
           onClose={() => setShowSelecaoModal(false)}
           os={os}
           pessoas={pessoas}
-          currentPessoa={currentPessoa}
+          currentPessoa={pessoaAtiva}
           onConfirm={handleConfirmarSelecao}
           loading={loading}
         />
@@ -219,7 +238,7 @@ export default function TimeSheetButton({
           onClose={() => setShowFinalizarModal(false)}
           os={os}
           pessoas={pessoas}
-          currentPessoa={currentPessoa}
+          currentPessoa={pessoaAtiva}
           onConfirm={handleConfirmarFinalizacao}
           loading={loading}
         />
