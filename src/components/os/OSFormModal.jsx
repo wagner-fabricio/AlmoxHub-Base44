@@ -28,6 +28,7 @@ import OSPrazosControle from './OSPrazosControle.jsx';
 import RotuloSelector from '@/components/rotulos/RotuloSelector';
 import OSAssinaturaTab from './OSAssinaturaTab.jsx';
 import EtiquetaVolumesModal from './EtiquetaVolumesModal';
+import EtiquetaRecebimentoModal from './EtiquetaRecebimentoModal';
 import OSFormHelp from './OSFormHelp';
 import { formatarTempo } from '@/components/timesheet/TimeSheetButton';
 import RelatorioOS from './RelatorioOS';
@@ -136,6 +137,7 @@ export default function OSFormModal({
   const [showRelatorioConferencia, setShowRelatorioConferencia] = useState(false);
   const [importingPDF, setImportingPDF] = useState(false);
   const [showEtiquetaModal, setShowEtiquetaModal] = useState(false);
+  const [showEtiquetaRecebModal, setShowEtiquetaRecebModal] = useState(false);
   const [zmmtsePDF, setZmmtsePDF] = useState(null);
   const [openOrigemCombo, setOpenOrigemCombo] = useState(false);
   const [openDestinoCombo, setOpenDestinoCombo] = useState(false);
@@ -1265,7 +1267,7 @@ export default function OSFormModal({
               )}
 
               {usaFluxoExpedicao && (<TabsContent value="materiais">{loadedFormTabs.has('materiais') && <OSItensDocumento itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} />}</TabsContent>)}
-              {usaMateriaisGeral && (<TabsContent value="materiais">{loadedFormTabs.has('materiais') && <OSAtendimentoMateriais itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} />}</TabsContent>)}
+              {usaMateriaisGeral && (<TabsContent value="materiais">{loadedFormTabs.has('materiais') && <OSAtendimentoMateriais itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} onGerarEtiqueta={() => setShowEtiquetaRecebModal(true)} />}</TabsContent>)}
               {usaFluxoExpedicao && (
                 <TabsContent value="volumes" className="space-y-6">
                   <OSVolumes volumes={formData.volumes} onChange={(volumes) => setFormData(prev => ({ ...prev, volumes }))} onGerarEtiquetas={() => setShowEtiquetaModal(true)} />
@@ -1564,6 +1566,16 @@ export default function OSFormModal({
             onClose={() => setShowEtiquetaModal(false)}
             os={{ ...formData, id: os?.id, codigo: os?.codigo || formData.codigo }}
             instalacoes={instalacoes}
+            almoxarifados={almoxarifados}
+          />
+        )}
+
+        {showEtiquetaRecebModal && (
+          <EtiquetaRecebimentoModal
+            open={showEtiquetaRecebModal}
+            onClose={() => setShowEtiquetaRecebModal(false)}
+            os={{ ...formData, id: os?.id, codigo: os?.codigo || formData.codigo }}
+            subcategorias={subcategorias}
             almoxarifados={almoxarifados}
           />
         )}

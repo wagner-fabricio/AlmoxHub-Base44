@@ -3,9 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { PackageCheck, AlertCircle, Plus, Trash2 } from 'lucide-react';
+import { PackageCheck, AlertCircle, Plus, Trash2, Tag } from 'lucide-react';
 
-export default function OSAtendimentoMateriais({ itens = [], onChange }) {
+export default function OSAtendimentoMateriais({ itens = [], onChange, onGerarEtiqueta }) {
   const addItem = () => {
     onChange([...itens, { codigo: '', descricao: '', quantidade: '', endereco_armazenagem: '' }]);
   };
@@ -29,10 +29,18 @@ export default function OSAtendimentoMateriais({ itens = [], onChange }) {
               <PackageCheck className="w-5 h-5" />
               Materiais do Atendimento
             </CardTitle>
-            <Button onClick={addItem} size="sm" className="bg-blue-600 hover:bg-blue-700">
-              <Plus className="w-4 h-4 mr-2" />
-              Adicionar Material
-            </Button>
+            <div className="flex items-center gap-2">
+              {onGerarEtiqueta && (
+                <Button onClick={onGerarEtiqueta} size="sm" variant="outline">
+                  <Tag className="w-4 h-4 mr-2" />
+                  Gerar Etiqueta
+                </Button>
+              )}
+              <Button onClick={addItem} size="sm" className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="w-4 h-4 mr-2" />
+                Adicionar Material
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
