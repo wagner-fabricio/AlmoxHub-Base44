@@ -1459,7 +1459,7 @@ export default function OSFormModal({
               )}
 
               {usaFluxoRecebimento && (<TabsContent value="receb-transp" className="space-y-6">{loadedFormTabs.has('receb-transp') && <OSRecebimentoTransportador transportador={formData.nfe_dados_transportador} onChange={(data) => setFormData(prev => ({ ...prev, nfe_dados_transportador: data }))} />}</TabsContent>)}
-              {usaFluxoRecebimento && (<TabsContent value="receb-mat" className="space-y-6">{loadedFormTabs.has('receb-mat') && <OSRecebimentoMateriais itens={formData.nfe_itens_conferencia} fluxo={formData.fluxo_recebimento} onChange={(data) => setFormData(prev => ({ ...prev, nfe_itens_conferencia: data.itens || prev.nfe_itens_conferencia, fluxo_recebimento: data.fluxo || prev.fluxo_recebimento }))} />}</TabsContent>)}
+              {usaFluxoRecebimento && (<TabsContent value="receb-mat" className="space-y-6">{loadedFormTabs.has('receb-mat') && <OSRecebimentoMateriais itens={formData.nfe_itens_conferencia} fluxo={formData.fluxo_recebimento} onChange={(data) => setFormData(prev => ({ ...prev, nfe_itens_conferencia: data.itens || prev.nfe_itens_conferencia, fluxo_recebimento: data.fluxo || prev.fluxo_recebimento }))} onGerarEtiqueta={() => setShowEtiquetaRecebModal(true)} />}</TabsContent>)}
 
               {usaFluxoExpedicao && os?.id && (
                 <TabsContent value="assinaturas" className="space-y-4">

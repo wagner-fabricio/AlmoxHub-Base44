@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { PackageCheck, AlertCircle, Plus, Trash2 } from 'lucide-react';
+import { PackageCheck, AlertCircle, Plus, Trash2, Tag } from 'lucide-react';
 
 function getStatusConferencia(item) {
   const qtdEsp = item.quantidade_esperada || 0;
@@ -30,7 +30,7 @@ function StatusBadge({ status }) {
   );
 }
 
-export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData }) {
+export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData, onGerarEtiqueta }) {
   const addItem = () => {
     const novoItem = {
       codigo: '', descricao: '', quantidade_esperada: 0, quantidade_recebida: 0,
@@ -131,9 +131,16 @@ export default function OSRecebimentoMateriais({ itens, fluxo, onChange, nfeData
             </label>
           )}
         </div>
-        <Button onClick={addItem} size="sm" className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="w-4 h-4 mr-2" /> Adicionar Material
-        </Button>
+        <div className="flex items-center gap-2">
+          {onGerarEtiqueta && (
+            <Button onClick={onGerarEtiqueta} size="sm" variant="outline">
+              <Tag className="w-4 h-4 mr-2" /> Gerar Etiqueta
+            </Button>
+          )}
+          <Button onClick={addItem} size="sm" className="bg-blue-600 hover:bg-blue-700">
+            <Plus className="w-4 h-4 mr-2" /> Adicionar Material
+          </Button>
+        </div>
       </div>
 
       {itemsComStatus.length === 0 ? (
