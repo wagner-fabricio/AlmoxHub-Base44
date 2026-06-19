@@ -28,22 +28,10 @@
     "cpf"
   ],
   "rls": {
-    "create": {
-      "user_condition": {
-        "role": "admin"
-      }
-    },
-    "update": {
-      "user_condition": {
-        "role": "admin"
-      }
-    },
+    "create": {},
+    "read": {},
+    "update": {},
     "delete": {
-      "user_condition": {
-        "role": "admin"
-      }
-    },
-    "write": {
       "user_condition": {
         "role": "admin"
       }
