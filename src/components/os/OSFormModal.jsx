@@ -334,6 +334,9 @@ export default function OSFormModal({
     const nome = s?.nome?.toLowerCase() || '';
     return nome.includes('aplicação específica') || nome.includes('aplicacao especifica') || nome.includes('estoque');
   });
+  // Aba "Materiais" simples (OSAtendimentoMateriais) aparece para qualquer categoria
+  // que não use os fluxos completos de Expedição/Recebimento (que já têm sua própria aba de materiais).
+  const usaMateriaisGeral = !!formData.categoria_id && !usaFluxoExpedicao && !usaFluxoRecebimento;
 
   const calculateProgress = (data) => {
     const isRecebimento = usaFluxoRecebimento;
@@ -841,7 +844,7 @@ export default function OSFormModal({
               <div className="flex items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-700 mb-5 sm:mb-8 overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 shrink-0">
                <TabsList className="bg-transparent rounded-none h-auto p-0 space-x-2 sm:space-x-4 border-b-0 flex-nowrap shrink-0">
                 <TabsTrigger value="geral" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Dados Gerais</TabsTrigger>
-                {isAtendimentoCategory && (<TabsTrigger value="materiais" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Materiais ({formData.itens_documento?.length || 0})</TabsTrigger>)}
+                {usaMateriaisGeral && (<TabsTrigger value="materiais" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Materiais ({formData.itens_documento?.length || 0})</TabsTrigger>)}
                 {usaFluxoExpedicao && (<>
                   <TabsTrigger value="documento" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Documento<PendBadge tab="documento" /></TabsTrigger>
                   <TabsTrigger value="ocorrencias" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#84cc16] data-[state=active]:bg-transparent data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:font-semibold px-0 pb-3">Ocorrências<PendBadge tab="ocorrencias" /></TabsTrigger>
@@ -1262,7 +1265,7 @@ export default function OSFormModal({
               )}
 
               {usaFluxoExpedicao && (<TabsContent value="materiais">{loadedFormTabs.has('materiais') && <OSItensDocumento itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} />}</TabsContent>)}
-              {isAtendimentoCategory && (<TabsContent value="materiais">{loadedFormTabs.has('materiais') && <OSAtendimentoMateriais itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} />}</TabsContent>)}
+              {usaMateriaisGeral && (<TabsContent value="materiais">{loadedFormTabs.has('materiais') && <OSAtendimentoMateriais itens={formData.itens_documento} onChange={(itens) => setFormData(prev => ({ ...prev, itens_documento: itens }))} />}</TabsContent>)}
               {usaFluxoExpedicao && (
                 <TabsContent value="volumes" className="space-y-6">
                   <OSVolumes volumes={formData.volumes} onChange={(volumes) => setFormData(prev => ({ ...prev, volumes }))} onGerarEtiquetas={() => setShowEtiquetaModal(true)} />
