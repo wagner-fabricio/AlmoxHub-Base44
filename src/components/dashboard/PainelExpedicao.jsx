@@ -15,6 +15,7 @@ import { useApp } from '@/components/contexts/AppContext';
 import OSFormModal from '@/components/os/OSFormModal';
 import LeadTimeReservasMensal from '@/components/dashboard/LeadTimeReservasMensal';
 import OSProblemasExpedicaoTabela from '@/components/dashboard/OSProblemasExpedicaoTabela';
+import RankingUsuariosReservas from '@/components/dashboard/RankingUsuariosReservas';
 import { carregarFeriados, buildFeriadosSet, diasUteisEntreComFeriados, contextoDaOS } from '@/lib/diasUteis';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -1129,6 +1130,9 @@ export default function PainelExpedicao({ filteredOrdens, almoxarifados, problem
           </ResponsiveContainer>
         )}
       </div>
+
+      {/* ── Ranking de Usuários que mais fazem Reservas ── */}
+      <RankingUsuariosReservas filteredOrdens={filteredOrdens} />
 
       {/* ── Ranking de Principais Problemas de Expedição ── */}
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
