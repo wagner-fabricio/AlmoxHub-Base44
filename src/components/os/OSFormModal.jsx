@@ -408,8 +408,32 @@ export default function OSFormModal({
         : formData.status;
       const autoConcluiuAgora = statusAutoConcluido === 'concluido' && formData.status !== 'concluido';
 
+      // Sanitiza campos de data (YYYY-MM-DD): corrige anos corrompidos (ex: 0206, 0026, 20269, 262026)
+      // forçando 4 dígitos plausíveis. Datas irreparáveis são descartadas.
+      const DATE_FIELDS = [
+        'prazo', 'data_inicial', 'data_conclusao', 'data_reserva', 'data_migo', 'data_ressuprimento',
+        'data_aprovacao_epi', 'data_necessidade', 'data_entrega', 'data_separacao', 'separacao_concluida_em',
+        'data_recebimento', 'data_solucao', 'nfe_data_emissao', 'nfe_data_receb', 'data_migo_receb',
+        'numero_migo_receb_data', 'data_recebimento',
+      ];
+      const sanitizeDate = (d) => {
+        if (!d || typeof d !== 'string') return d;
+        const m = d.match(/^(\d+)-(\d{1,2})-(\d{1,2})$/);
+        if (!m) return d;
+        let [, ano, mes, dia] = m;
+        mes = mes.padStart(2, '0');
+        dia = dia.padStart(2, '0');
+        if (ano.length === 4 && Number(ano) >= 2000 && Number(ano) <= 2099) return `${ano}-${mes}-${dia}`;
+        // ano corrompido: extrai os últimos 2 dígitos plausíveis e prefixa com '20'
+        const dois = ano.slice(-2).padStart(2, '0');
+        return `20${dois}-${mes}-${dia}`;
+      };
+      const datasSanitizadas = {};
+      DATE_FIELDS.forEach(f => { if (formData[f]) datasSanitizadas[f] = sanitizeDate(formData[f]); });
+
       const dataToSave = {
         ...formData, codigo,
+        ...datasSanitizadas,
         fluxo_expedicao: usaFluxoExpedicao ? fluxoExpedicao : formData.fluxo_expedicao,
         status: statusAutoConcluido,
         progresso: progressoCalculado
