@@ -19,12 +19,18 @@ const temOcorrenciaAberta = (os) =>
   os?.houve_ocorrencia_expedicao === true && !os?.data_solucao_expedicao;
 
 export default function OSKanbanExpedicao({ ordens, pessoas, categorias, regionais, instalacoes, onOSClick, onStatusChange, currentPessoa, onOSChange, onRequestSelecaoSessao }) {
+  // Restringe o Kanban às OS da categoria Expedição — igual à aba Pendências de Expedição
+  const categoriaExpedicao = categorias?.find(c => c.nome?.toLowerCase().includes('expedi'));
+  const ordensExpedicao = categoriaExpedicao
+    ? ordens.filter(os => os.categoria_id === categoriaExpedicao.id)
+    : ordens;
+
   const getOSByStatusSeparacao = (status) => {
     if (status === 'em_ocorrencia') {
-      return ordens.filter(temOcorrenciaAberta);
+      return ordensExpedicao.filter(temOcorrenciaAberta);
     }
     // OS com ocorrência aberta saem dos buckets normais e ficam só em "Em Ocorrência"
-    return ordens.filter(os => !temOcorrenciaAberta(os) && (os.status_separacao || 'pendente') === status);
+    return ordensExpedicao.filter(os => !temOcorrenciaAberta(os) && (os.status_separacao || 'pendente') === status);
   };
 
   const handleDragEnd = (result) => {
