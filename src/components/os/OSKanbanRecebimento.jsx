@@ -13,8 +13,14 @@ const columns = [
 ];
 
 export default function OSKanbanRecebimento({ ordens, pessoas, categorias, regionais, instalacoes, onOSClick, onStatusChange, currentPessoa, onOSChange, onRequestSelecaoSessao }) {
+  // Restringe o Kanban às OS da categoria Recebimento — igual à aba Pendências de Recebimento
+  const categoriaRecebimento = categorias?.find(c => c.nome?.toLowerCase().includes('recebimento'));
+  const ordensRecebimento = categoriaRecebimento
+    ? ordens.filter(os => os.categoria_id === categoriaRecebimento.id)
+    : ordens;
+
   const getOSByEtapaRecebimento = (columnId) => {
-    return ordens.filter(os => {
+    return ordensRecebimento.filter(os => {
       const fluxo = os.fluxo_recebimento || {};
       const etapaAtual = fluxo.etapa_atual || 1;
       
