@@ -5,6 +5,10 @@ import { base44 } from '@/api/base44Client';
 export const ORDENS_QUERY_KEY = ['ordens'];
 export const ORDENS_FILTRADAS_KEY = 'ordens-filtradas';
 
+// Callback opcional para reportar progresso do carregamento global (ex.: barra de loading).
+let ordensProgressCallback = null;
+export function setOrdensProgressCallback(cb) { ordensProgressCallback = cb; }
+
 // Busca global (sem filtros) — usada pelo AppContext para Dashboard, Torre de Controle etc.
 // O SDK Base44 limita a 5000 registros por chamada. Paginamos para buscar todos.
 async function fetchOrdensGlobal() {
@@ -12,13 +16,16 @@ async function fetchOrdensGlobal() {
   const MAX_TOTAL = 50000; // teto de segurança
   const all = [];
   let skip = 0;
+  ordensProgressCallback?.({ loaded: 0, done: false });
   while (skip < MAX_TOTAL) {
     const batch = await base44.entities.OrdemServico.list('-created_date', PAGE, skip);
     if (!batch || batch.length === 0) break;
     all.push(...batch);
+    ordensProgressCallback?.({ loaded: all.length, done: false });
     if (batch.length < PAGE) break; // última página
     skip += PAGE;
   }
+  ordensProgressCallback?.({ loaded: all.length, done: true });
   return all;
 }
 

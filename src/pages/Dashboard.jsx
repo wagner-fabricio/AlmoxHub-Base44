@@ -32,6 +32,7 @@ import { isNoPrazo, isForaPrazo } from '@/components/dashboard/prazoHelpers';
 import ProjetosDashboard from '@/components/dashboard/ProjetosDashboard';
 import OTIFExpedicao from '@/components/dashboard/OTIFExpedicao';
 import PainelExpedicao from '@/components/dashboard/PainelExpedicao';
+import DashboardLoadingStatus from '@/components/dashboard/DashboardLoadingStatus';
 
 const COLORS = ['#0000FF', '#FF6B00', '#10B981', '#A0B4D2', '#0A003C', '#EC4899'];
 
@@ -43,7 +44,7 @@ const statusLabels = {
 };
 
 export default function Dashboard() {
-  const { regionais, categorias, subcategorias, pessoas, ordens, almoxarifados, instalacoes, loading: ctxLoading } = useApp();
+  const { regionais, categorias, subcategorias, pessoas, ordens, almoxarifados, instalacoes, loading: ctxLoading, ordensProgress, isOrdensLoading } = useApp();
   const [loading, setLoading] = useState(true);
   const [problemasRecebimento, setProblemasRecebimento] = useState([]);
   const [problemasExpedicao, setProblemasExpedicao] = useState([]);
@@ -346,11 +347,12 @@ export default function Dashboard() {
     return '#22c55e';
   };
 
-  if (loading) {
+  if (loading || isOrdensLoading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-      </div>
+      <DashboardLoadingStatus
+        loaded={ordensProgress?.loaded || 0}
+        done={ordensProgress?.done || false}
+      />
     );
   }
 

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQueryClient } from '@tanstack/react-query';
-import { useOrdensQuery, ORDENS_QUERY_KEY, useOrdensRealTimeSync } from '@/hooks/useOrdensQuery';
+import { useOrdensQuery, ORDENS_QUERY_KEY, useOrdensRealTimeSync, setOrdensProgressCallback } from '@/hooks/useOrdensQuery';
 
 const AppContext = createContext();
 
@@ -17,7 +17,14 @@ export function AppProvider({ children }) {
   const [projetos, setProjetos] = useState([]);
   const [rotulos, setRotulos] = useState([]);
   const [loadingOther, setLoadingOther] = useState(true);
+  const [ordensProgress, setOrdensProgress] = useState({ loaded: 0, done: false });
   const queryClient = useQueryClient();
+
+  // Reporta o progresso de carregamento das OS (busca global paginada)
+  useEffect(() => {
+    setOrdensProgressCallback((p) => setOrdensProgress(p));
+    return () => setOrdensProgressCallback(null);
+  }, []);
 
   // OS carregadas via React Query — cache inteligente de 2 min
   const { data: ordens = [], isLoading: isOrdensLoading } = useOrdensQuery();
@@ -168,6 +175,8 @@ export function AppProvider({ children }) {
       projetos,
       rotulos,
       loading,
+      ordensProgress,
+      isOrdensLoading,
       refreshPessoas,
       refreshRegionais,
       refreshCategorias,
